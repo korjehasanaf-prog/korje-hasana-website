@@ -832,10 +832,10 @@
     </div>
 
     <!-- ═══ ACTION BUTTONS (hidden when printing) ═══ -->
-    <div class="v-actions" style="background:#fff;border-top:1px solid #E5E7EB;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <button onclick="printVoucher()" style="background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(20,82,48,.3)"><i class="ti ti-printer"></i> Print Voucher</button>
-      <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(240,165,0,.3)"><i class="ti ti-download"></i> Download PDF</button>
-      <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #E5E7EB;border-radius:20px;padding:10px 20px;font-size:13px;cursor:pointer">Close</button>
+    <div class="v-actions" style="background:#fff;border-top:1px solid #E5E7EB;padding:12px 16px;display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;justify-content:center;align-items:center">
+      <button onclick="printVoucher()" style="background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(20,82,48,.3);white-space:nowrap"><i class="ti ti-printer"></i> Print</button>
+      <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(240,165,0,.3);white-space:nowrap"><i class="ti ti-download"></i> Download PDF</button>
+      <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #E5E7EB;border-radius:20px;padding:9px 14px;font-size:12px;cursor:pointer;white-space:nowrap">Close</button>
     </div>
   </div>
 </div>
@@ -862,10 +862,11 @@
             <div class="fy-btn" onclick="selectFY(this,'2024-25')" style="border:2px solid #c5cae9;background:#fff;color:#3949AB;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer">২০২৪–২৫</div>
             <div class="fy-btn" onclick="selectFY(this,'2023-24')" style="border:2px solid #c5cae9;background:#fff;color:#3949AB;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer">২০২৩–২৪</div>
           </div>
-          <div>
-            <input type="text" id="donorMobileForCert" placeholder="Your mobile number" style="border:1.5px solid #c5cae9;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;width:180px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <input type="text" id="donorNameForCert" placeholder="আপনার নাম / Your name" style="border:1.5px solid #c5cae9;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;width:200px">
+            <input type="text" id="donorMobileForCert" placeholder="Mobile number" style="border:1.5px solid #c5cae9;border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;width:200px">
           </div>
-          <button onclick="loadCertData()" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px"><i class="ti ti-search"></i>Fetch</button>
+          <button onclick="loadCertData()" style="background:#1565C0;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;align-self:flex-end"><i class="ti ti-search"></i>Fetch</button>
         </div>
       </div>
 
@@ -1124,11 +1125,12 @@ function openVoucher() {
   const qrEl = document.getElementById('v_qrcode');
   qrEl.innerHTML = '';
   try {
+    const shortName = name.substring(0, 20);
     new QRCode(qrEl, {
-      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay),
-      width: 90, height: 90,
+      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay) + '&name=' + encodeURIComponent(shortName),
+      width: 110, height: 110,
       colorDark: '#145230', colorLight: '#ffffff',
-      correctLevel: QRCode.CorrectLevel.M
+      correctLevel: QRCode.CorrectLevel.L
     });
   } catch(e) { qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:52px;color:#145230"></i>'; }
   document.getElementById('successOverlay').classList.remove('show');
@@ -1250,7 +1252,8 @@ function buildCert(mob) {
   }
   const total = history.reduce((s,r) => s + r.amt, 0);
   const rebate = Math.round(total * 0.15);
-  const donorName = document.getElementById('anonCheck').checked ? 'Anonymous Donor' : (document.getElementById('donorName').value || 'Valued Donor');
+  const certNameInput = document.getElementById('donorNameForCert').value.trim();
+  const donorName = document.getElementById('anonCheck').checked ? 'Anonymous Donor' : (certNameInput || document.getElementById('donorName').value.trim() || 'Valued Donor');
   const certNo = 'KH-CERT-' + Math.floor(1000 + Math.random()*9000);
   document.getElementById('cert_name').textContent   = donorName;
   document.getElementById('cert_mobile').textContent  = mob;
@@ -1271,12 +1274,36 @@ function buildCert(mob) {
     </tr>`).join('');
 }
 function closeTax() { document.getElementById('taxOverlay').classList.remove('show'); }
+function _capturecert(callback) {
+  const el = document.getElementById('certDoc');
+  const actions = document.getElementById('certActions');
+  if (actions) actions.style.visibility = 'hidden';
+  html2canvas(el, {
+    scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false
+  }).then(canvas => {
+    if (actions) actions.style.visibility = '';
+    callback(canvas);
+  }).catch(() => { if (actions) actions.style.visibility = ''; });
+}
 function printCert() {
-  const doc = document.getElementById('certDoc').outerHTML;
-  const win = window.open('','_blank','width=680,height=900');
-  win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}</style></head><body>' + doc + '</body></html>');
-  win.document.close();
-  setTimeout(() => win.print(), 800);
+  _capturecert(canvas => {
+    const imgData = canvas.toDataURL('image/jpeg', 0.97);
+    const win = window.open('', '_blank', 'width=700,height=950');
+    win.document.write('<!DOCTYPE html><html><head><title>Tax Certificate</title><style>*{margin:0;padding:0;box-sizing:border-box}body{display:flex;justify-content:center;background:#f3f4f6;padding:20px}img{max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,.2)}@media print{body{background:#fff;padding:0}img{box-shadow:none}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();}<\/script></body></html>');
+    win.document.close();
+  });
+}
+function downloadCertPDF() {
+  _capturecert(canvas => {
+    const imgData = canvas.toDataURL('image/jpeg', 0.97);
+    const { jsPDF } = window.jspdf;
+    const pdfW = 210;
+    const pdfH = Math.round((canvas.height / canvas.width) * pdfW);
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfW, pdfH] });
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    const certNo = document.getElementById('cert_no').textContent || 'KH-CERT';
+    pdf.save(certNo + '.pdf');
+  });
 }
 </script>
 </body>
