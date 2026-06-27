@@ -9,6 +9,8 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="_supabase.js"></script>
+  <!-- QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
       --green:   #145230;
@@ -654,119 +656,139 @@
 
 <!-- PAYMENT VOUCHER OVERLAY -->
 <div class="success-overlay" id="voucherOverlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
-  <div id="voucherDoc" style="background:#fff;border-radius:16px;width:100%;max-width:560px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)">
-    <!-- Voucher header -->
-    <div style="background:linear-gradient(135deg,var(--dkgreen),var(--green));padding:24px 28px;position:relative">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-        <div style="width:48px;height:48px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--green);flex-shrink:0">KH</div>
-        <div>
-          <div style="color:#fff;font-size:15px;font-weight:700;font-family:'Hind Siliguri',sans-serif">কর্জে হাসানা ফাউন্ডেশন</div>
-          <div style="color:var(--ltgreen);font-size:11px">Korje Hasana Foundation · korjehasana.org</div>
+  <div id="voucherDoc" style="background:#fff;border-radius:16px;width:100%;max-width:580px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35);font-family:'Inter','Hind Siliguri',sans-serif">
+
+    <!-- ═══ HEADER ═══ -->
+    <div style="background:linear-gradient(135deg,#0D3D22 0%,#145230 55%,#1E7D42 100%);padding:24px 28px;position:relative;overflow:hidden">
+      <!-- Decorative circles -->
+      <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;border:2px solid rgba(255,255,255,.06);pointer-events:none"></div>
+      <div style="position:absolute;top:10px;right:10px;width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,.06);pointer-events:none"></div>
+      <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(240,165,0,.06);pointer-events:none"></div>
+      <!-- Gold bottom stripe -->
+      <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#C07800,#F0A500,#FFD54F,#F0A500,#C07800)"></div>
+
+      <!-- Logo row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#F0A500,#FFD54F);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#145230;box-shadow:0 4px 18px rgba(240,165,0,.45);flex-shrink:0">KH</div>
+          <div>
+            <div style="color:#fff;font-size:15px;font-weight:800;font-family:'Hind Siliguri',sans-serif;line-height:1.2">কর্জে হাসানা ফাউন্ডেশন</div>
+            <div style="color:rgba(158,216,176,.8);font-size:11px">Korje Hasana Foundation · korjehasana.org</div>
+          </div>
         </div>
-        <div style="margin-left:auto;text-align:right">
-          <div style="background:rgba(240,165,0,.2);border:1px solid rgba(240,165,0,.4);border-radius:8px;padding:6px 12px">
-            <div style="color:var(--gold);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Payment Voucher</div>
-            <div style="color:#fff;font-size:13px;font-weight:700" id="v_ref">KH-DON-0000</div>
+        <div style="background:rgba(240,165,0,.15);border:1.5px solid rgba(240,165,0,.45);border-radius:10px;padding:8px 14px;text-align:center;flex-shrink:0">
+          <div style="color:rgba(255,213,79,.8);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Payment Voucher</div>
+          <div style="color:#FFD54F;font-size:12px;font-weight:800" id="v_ref">KH-DON-0000</div>
+        </div>
+      </div>
+
+      <!-- Amount + date row -->
+      <div style="display:flex;align-items:flex-end;justify-content:space-between">
+        <div>
+          <div style="color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Amount Received</div>
+          <div style="color:#F0A500;font-size:38px;font-weight:900;line-height:1;text-shadow:0 2px 12px rgba(240,165,0,.3)" id="v_amount">৳0</div>
+        </div>
+        <div style="text-align:right">
+          <div style="color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Date & Time</div>
+          <div style="color:#fff;font-size:12px;font-weight:600;margin-bottom:6px" id="v_datetime">—</div>
+          <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.5);border-radius:20px;padding:4px 12px">
+            <span style="color:#4ade80;font-size:11px;font-weight:700">✓ RECEIVED</span>
           </div>
         </div>
       </div>
-      <div style="height:1px;background:rgba(255,255,255,.1);margin-bottom:14px"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="color:rgba(255,255,255,.5);font-size:10px;text-transform:uppercase;letter-spacing:.5px">Amount Received</div>
-          <div style="color:var(--gold);font-size:28px;font-weight:800" id="v_amount">৳0</div>
-        </div>
-        <div style="text-align:right">
-          <div style="color:rgba(255,255,255,.5);font-size:10px;text-transform:uppercase;letter-spacing:.5px">Date & Time</div>
-          <div style="color:#fff;font-size:13px;font-weight:600" id="v_datetime">—</div>
-        </div>
-      </div>
     </div>
-    <!-- Voucher body -->
-    <div style="padding:24px 28px">
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted);width:45%">Donor Name</td>
-          <td style="padding:8px 0;font-weight:600" id="v_name">—</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted)">Mobile</td>
-          <td style="padding:8px 0;font-weight:600" id="v_mobile">—</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted)">Email</td>
-          <td style="padding:8px 0;font-weight:600" id="v_email">—</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted)">Payment Method</td>
-          <td style="padding:8px 0;font-weight:600" id="v_method">—</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted)">Donation Frequency</td>
-          <td style="padding:8px 0;font-weight:600" id="v_freq">—</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border)">
-          <td style="padding:8px 0;color:var(--muted)">Purpose</td>
-          <td style="padding:8px 0;font-weight:600">Interest-free loans (কর্জে হাসানা)</td>
-        </tr>
-        <tr>
-          <td style="padding:8px 0;color:var(--muted)">Status</td>
-          <td style="padding:8px 0"><span style="background:#d1fae5;color:var(--success);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">✓ RECEIVED</span></td>
-        </tr>
-      </table>
 
-      <!-- Breakdown bar -->
-      <div style="background:#f0f7f3;border-radius:10px;padding:12px 14px;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">How your donation is used</div>
-        <div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:6px">
-          <div style="width:90%;background:linear-gradient(90deg,var(--green),var(--mdgreen))"></div>
-          <div style="width:5%;background:#1565C0"></div>
-          <div style="width:5%;background:#E65100"></div>
+    <!-- ═══ DONOR INFO GRID ═══ -->
+    <div style="padding:20px 24px 0">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #145230">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Donor Name / দাতার নাম</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_name">—</div>
         </div>
-        <div style="display:flex;gap:12px;font-size:10px;color:var(--muted)">
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--green);margin-right:3px"></span>90% Direct loans</span>
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#1565C0;margin-right:3px"></span>5% Operations</span>
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#E65100;margin-right:3px"></span>5% Reserve</span>
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:10px;padding:11px 14px;border-left:3px solid #F0A500">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Mobile / মোবাইল</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_mobile">—</div>
+        </div>
+        <div style="background:#f8f9fa;border-radius:10px;padding:11px 14px;border-left:3px solid #9CA3AF">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Email</div>
+          <div style="font-size:12px;font-weight:600;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="v_email">—</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;padding:11px 14px;border-left:3px solid #3b82f6">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Payment Method</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_method">—</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #1E7D42">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Frequency / ধরন</div>
+          <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_freq">—</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-radius:10px;padding:11px 14px;border-left:3px solid #F0A500">
+          <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Purpose / উদ্দেশ্য</div>
+          <div style="font-size:11px;font-weight:700;color:#1a1a1a;line-height:1.4">কর্জে হাসানা <span style="font-size:10px;color:#6B7280;font-weight:400">(Interest-free loans)</span></div>
         </div>
       </div>
 
-      <!-- Amount breakdown -->
-      <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted)">Donation amount</span><span id="v_sub1" style="font-weight:600">৳0</span>
+      <!-- ═══ FUND USAGE ═══ -->
+      <div style="background:linear-gradient(135deg,#0D3D22,#145230);border-radius:12px;padding:14px 18px;margin-bottom:14px">
+        <div style="color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">আপনার দানের ব্যবহার / How Your Donation Is Used</div>
+        <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:8px;gap:2px">
+          <div style="flex:90;background:linear-gradient(90deg,#9ED8B0,#4ade80);border-radius:7px 0 0 7px"></div>
+          <div style="flex:5;background:#60a5fa"></div>
+          <div style="flex:5;background:#F0A500;border-radius:0 7px 7px 0"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;border-bottom:1px solid var(--border)">
-          <span style="color:var(--muted)">Processing fee</span><span style="color:var(--success);font-weight:600">৳0 (waived)</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:10px 14px;font-size:13px;background:#f0f7f3">
-          <span style="font-weight:700;color:var(--green)">Net to fund</span><span id="v_net" style="font-weight:800;color:var(--green)">৳0</span>
+        <div style="display:flex;gap:18px;font-size:11px">
+          <span style="color:#9ED8B0">● <strong style="color:#fff">90%</strong> সরাসরি ঋণ</span>
+          <span style="color:#93c5fd">● <strong style="color:#fff">5%</strong> পরিচালনা</span>
+          <span style="color:#F0A500">● <strong style="color:#fff">5%</strong> রিজার্ভ</span>
         </div>
       </div>
 
-      <!-- QR / Verify note -->
-      <div style="text-align:center;border:1px dashed var(--border);border-radius:10px;padding:12px;font-size:11px;color:var(--muted);margin-bottom:16px">
-        <i class="ti ti-qrcode" style="font-size:20px;color:var(--green);display:block;margin-bottom:4px"></i>
-        Verify this voucher at <strong>korjehasana.org/verify</strong> using reference number <strong id="v_ref2">KH-DON-0000</strong>
-      </div>
-
-      <!-- Signature line -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding-top:12px;border-top:1px solid var(--border)">
-        <div style="font-size:10px;color:var(--muted)">
-          This voucher is computer-generated and valid without signature.<br>
-          Korje Hasana Foundation · Registration pending
+      <!-- ═══ AMOUNT BREAKDOWN ═══ -->
+      <div style="border:1.5px solid #E5E7EB;border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #E5E7EB;background:#fafafa">
+          <span style="font-size:12px;color:#6B7280">Donation Amount</span>
+          <span style="font-size:12px;font-weight:700" id="v_sub1">৳0</span>
         </div>
-        <div style="text-align:right">
-          <div style="width:80px;height:1px;background:var(--text);margin-bottom:3px;margin-left:auto"></div>
-          <div style="font-size:10px;color:var(--muted)">Authorised signatory</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #E5E7EB;background:#fafafa">
+          <span style="font-size:12px;color:#6B7280">Processing Fee</span>
+          <span style="font-size:12px;font-weight:700;color:#22c55e">৳0 (waived)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:linear-gradient(135deg,#f0f9f4,#e6f4ec)">
+          <span style="font-size:13px;font-weight:800;color:#145230">Net to Fund / ফান্ডে যাবে</span>
+          <span style="font-size:18px;font-weight:900;color:#145230" id="v_net">৳0</span>
         </div>
       </div>
     </div>
 
-    <!-- Action buttons (outside print area concept) -->
-    <div style="background:#f8f9fa;border-top:1px solid var(--border);padding:14px 28px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <button onclick="printVoucher()" style="background:var(--green);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="ti ti-printer"></i> Print Voucher</button>
-      <button onclick="downloadVoucherPDF()" style="background:var(--gold);color:var(--green);border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="ti ti-download"></i> Download PDF</button>
-      <button onclick="closeVoucher()" style="background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;cursor:pointer">Close</button>
+    <!-- ═══ QR CODE + VERIFY ═══ -->
+    <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-top:2px dashed #F0A500;border-bottom:2px dashed #F0A500;padding:16px 24px;display:flex;align-items:center;gap:18px">
+      <div id="v_qrcode" style="flex-shrink:0;padding:6px;background:#fff;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,.12)"></div>
+      <div>
+        <div style="font-size:11px;font-weight:800;color:#C07800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📲 Scan to Verify</div>
+        <div style="font-size:11px;color:#6B7280;line-height:1.8">
+          Visit <strong style="color:#145230">korje-hasana-website.vercel.app</strong><br>
+          Reference: <strong style="color:#145230;font-size:13px" id="v_ref2">KH-DON-0000</strong>
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:#9CA3AF;font-style:italic">Computer-generated · Valid without signature</div>
+      </div>
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <div style="background:#f8f9fa;padding:12px 24px;display:flex;justify-content:space-between;align-items:flex-end">
+      <div style="font-size:10px;color:#9CA3AF;line-height:1.6">
+        Korje Hasana Foundation · Registration pending<br>
+        <span style="color:#D1FAE5;background:#145230;padding:1px 7px;border-radius:10px;font-weight:700;font-size:9px">QARD AL-HASAN · সুদমুক্ত ঋণ</span>
+      </div>
+      <div style="text-align:right">
+        <div style="width:80px;height:1px;background:#9CA3AF;margin-bottom:3px;margin-left:auto"></div>
+        <div style="font-size:10px;color:#9CA3AF">Authorised Signatory</div>
+      </div>
+    </div>
+
+    <!-- ═══ ACTION BUTTONS ═══ -->
+    <div style="background:#fff;border-top:1px solid #E5E7EB;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button onclick="printVoucher()" style="background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(20,82,48,.3)"><i class="ti ti-printer"></i> Print Voucher</button>
+      <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(240,165,0,.3)"><i class="ti ti-download"></i> Download PDF</button>
+      <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #E5E7EB;border-radius:20px;padding:10px 20px;font-size:13px;cursor:pointer">Close</button>
     </div>
   </div>
 </div>
@@ -1051,6 +1073,17 @@ function openVoucher() {
   document.getElementById('v_method').textContent  = methodMap[selectedPay] || selectedPay;
   document.getElementById('v_freq').textContent    = freqMap[donationFreq] || donationFreq;
   document.getElementById('v_datetime').textContent= now.toLocaleString('en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  // Generate QR Code
+  const qrEl = document.getElementById('v_qrcode');
+  qrEl.innerHTML = '';
+  try {
+    new QRCode(qrEl, {
+      text: 'https://korje-hasana-website.vercel.app/borrower-portal.html?ref=' + ref,
+      width: 90, height: 90,
+      colorDark: '#145230', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e) { qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:52px;color:#145230"></i>'; }
   document.getElementById('successOverlay').classList.remove('show');
   document.getElementById('voucherOverlay').classList.add('show');
 }
