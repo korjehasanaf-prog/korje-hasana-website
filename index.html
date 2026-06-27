@@ -535,7 +535,54 @@
       .nav-center { display: none; }
       .cta-band { flex-direction: column; gap: 16px; text-align: center; }
     }
-  </style>
+  
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; position:relative; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
+  .nav-links.open { display:flex !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:24px !important; }
+  .page-hero p { font-size:13px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  /* hero */
+  .hero-section { padding:40px 16px 80px !important; }
+  .hero-title { font-size:26px !important; }
+  .hero-sub { font-size:14px !important; }
+  .hero-btns { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
+  .hero-btn, .btn-apply, .btn-learn { text-align:center !important; padding:14px 20px !important; }
+  /* stats */
+  .stats-row, .stats-grid { grid-template-columns:1fr 1fr !important; gap:12px !important; padding:0 16px !important; }
+  /* features */
+  .features-grid, .feat-grid, .services-grid { grid-template-columns:1fr !important; gap:16px !important; }
+  /* process */
+  .process-steps, .steps-row { flex-direction:column !important; gap:20px !important; }
+  .step-connector { display:none !important; }
+  /* testimonials */
+  .testimonials-grid { grid-template-columns:1fr !important; }
+  /* footer */
+  .footer-grid, .ft-grid, .footer-cols { grid-template-columns:1fr !important; gap:24px !important; }
+  .footer-top { padding:40px 16px !important; }
+  .footer-bottom { flex-direction:column !important; gap:10px !important; text-align:center !important; }
+  /* section padding */
+  section, .section { padding:40px 16px !important; }
+  .container, .section-inner { padding:0 16px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -571,7 +618,7 @@
       <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
     </div>
   </a>
-  <div class="nav-center" id="navCenter">
+  <div class="nav-center nav-links" id="navCenter">
     <a class="nav-link active" href="#hero">Home</a>
     <a class="nav-link" href="#about">About</a>
     <a class="nav-link" href="#programs">Programs</a>
@@ -584,6 +631,9 @@
   <div class="nav-right">
     <a href="#donate" class="donate-btn">Donate now</a>
   </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -1152,3 +1202,22 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
+
+<script>
+/* Mobile menu */
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+document.querySelectorAll('.nav-link').forEach(function(l) {
+  l.addEventListener('click', function() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-hamburger');
+    if (links) links.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
+</script>

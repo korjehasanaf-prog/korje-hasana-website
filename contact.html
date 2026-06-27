@@ -240,7 +240,36 @@
       .quick-inner { flex-direction: column; align-items: stretch; }
       .qc-item { border-right: none; border-bottom: 1px solid var(--border); }
     }
-  </style>
+  
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; position:relative; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
+  .nav-links.open { display:flex !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:24px !important; }
+  .page-hero p { font-size:13px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .contact-grid, .contact-layout { grid-template-columns:1fr !important; flex-direction:column !important; }
+  .contact-form-card, .contact-info-card { width:100% !important; }
+  .quick-contacts { grid-template-columns:1fr !important; }
+  section, .contact-section { padding:30px 16px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -279,6 +308,9 @@
   <div class="nav-cta">
     <a href="donation.html" class="btn-donate">❤ Donate Now</a>
   </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 </nav>
 
 <!-- HERO -->
@@ -644,3 +676,21 @@ function toast(msg, type = 'ok') {
   const el = document.createElement('div');
   el.className = 'toast-item ' + type;
   el.innerHTML = `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><spa
+<script>
+/* Mobile menu */
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+document.querySelectorAll('.nav-link').forEach(function(l) {
+  l.addEventListener('click', function() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-hamburger');
+    if (links) links.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
+</script>

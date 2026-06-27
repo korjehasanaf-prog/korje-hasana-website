@@ -242,7 +242,43 @@
       .profile-strip { flex-direction: column; text-align: center; }
       footer { padding: 24px 16px; }
     }
-  </style>
+  
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; position:relative; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
+  .nav-links.open { display:flex !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:24px !important; }
+  .page-hero p { font-size:13px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .portal-hero { padding:28px 16px 60px !important; }
+  .search-wrap { padding:0 12px !important; }
+  .search-card { padding:20px 16px !important; border-radius:14px !important; }
+  .search-field { flex-direction:column !important; }
+  .s-btn { width:100% !important; justify-content:center !important; }
+  .profile-strip { flex-direction:column !important; text-align:center !important; padding:16px !important; }
+  .loan-meta-grid { grid-template-columns:1fr 1fr !important; }
+  .pay-methods-grid { grid-template-columns:1fr !important; }
+  .pay-method-card { flex-direction:row !important; }
+  .result-detail-grid { grid-template-columns:1fr 1fr !important; }
+  .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -279,6 +315,9 @@
   <div class="nav-cta">
     <a href="donation.html" class="btn-donate">❤ Donate Now</a>
   </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 </nav>
 
 <!-- HERO -->
@@ -831,6 +870,24 @@ window.doSearch = async function() {
 
   showResult(record);
 };
+</script>
+<script>
+/* Mobile menu */
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+document.querySelectorAll('.nav-link').forEach(function(l) {
+  l.addEventListener('click', function() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-hamburger');
+    if (links) links.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
 </script>
 </body>
 </html>

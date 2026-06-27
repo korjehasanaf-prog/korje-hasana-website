@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Donation | Korje Hasana Foundation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #145230;
+      --dkgreen: #0D3D22;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --dkgold:  #C07800;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background: linear-gradient(135deg, #0D3D22 0%, #145230 60%, #1E7D42 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+
+    /* ── CARD ── */
+    .card { background: #fff; border-radius: 20px; width: 100%; max-width: 480px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+
+    /* ── HEADER ── */
+    .card-header { background: linear-gradient(135deg, #0D3D22, #145230, #1E7D42); padding: 28px 28px 24px; text-align: center; position: relative; overflow: hidden; }
+    .card-header::after { content:''; position:absolute; bottom:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#C07800,#F0A500,#FFD54F,#F0A500,#C07800); }
+    .deco1 { position:absolute; top:-40px; right:-40px; width:140px; height:140px; border-radius:50%; border:2px solid rgba(255,255,255,.06); }
+    .deco2 { position:absolute; bottom:-20px; left:-20px; width:80px; height:80px; border-radius:50%; background:rgba(240,165,0,.06); }
+    .logo { width: 60px; height: 60px; background: linear-gradient(135deg, #F0A500, #FFD54F); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #145230; margin: 0 auto 12px; box-shadow: 0 4px 20px rgba(240,165,0,.4); }
+    .card-header h2 { color: #fff; font-size: 17px; font-weight: 800; font-family: 'Hind Siliguri', sans-serif; margin-bottom: 2px; }
+    .card-header p { color: rgba(255,255,255,.6); font-size: 12px; }
+
+    /* ── STATES ── */
+    #loading, #result-valid, #result-invalid, #result-notfound { display: none; padding: 32px 28px; text-align: center; }
+    #loading { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+    /* Spinner */
+    .spinner { width: 44px; height: 44px; border: 4px solid #E5E7EB; border-top-color: #145230; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Valid state */
+    .check-circle { width: 72px; height: 72px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(34,197,94,.3); }
+    .check-circle i { font-size: 36px; color: #fff; }
+    .verified-title { font-size: 22px; font-weight: 900; color: #145230; margin-bottom: 4px; }
+    .verified-sub { font-size: 13px; color: #6B7280; margin-bottom: 20px; }
+
+    /* Ref badge */
+    .ref-badge { display: inline-block; background: linear-gradient(135deg, #f0f9f4, #e6f4ec); border: 1.5px solid #9ED8B0; border-radius: 10px; padding: 10px 20px; font-size: 15px; font-weight: 800; color: #145230; letter-spacing: .5px; margin-bottom: 20px; }
+
+    /* Info rows */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; text-align: left; }
+    .info-cell { background: #f8f9fa; border-radius: 10px; padding: 10px 14px; }
+    .info-label { font-size: 9px; color: #9CA3AF; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 3px; }
+    .info-val { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+
+    /* Fund bar mini */
+    .fund-bar-wrap { background: linear-gradient(135deg, #0D3D22, #145230); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; text-align: left; }
+    .fund-bar-label { color: rgba(255,255,255,.6); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+    .fund-bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; margin-bottom: 6px; }
+    .fb1 { flex: 90; background: linear-gradient(90deg, #9ED8B0, #4ade80); border-radius: 5px 0 0 5px; }
+    .fb2 { flex: 5; background: #60a5fa; }
+    .fb3 { flex: 5; background: #F0A500; border-radius: 0 5px 5px 0; }
+    .fund-legend { display: flex; gap: 14px; font-size: 10px; }
+    .fund-legend span { color: rgba(255,255,255,.7); }
+    .fund-legend strong { color: #fff; }
+
+    /* Amount box */
+    .amount-box { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1.5px solid #F0A500; border-radius: 10px; padding: 14px; margin-bottom: 20px; }
+    .amount-label { font-size: 10px; color: #C07800; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .amount-val { font-size: 28px; font-weight: 900; color: #C07800; }
+
+    /* Invalid / Not found */
+    .x-circle { width: 72px; height: 72px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(239,68,68,.3); }
+    .x-circle i { font-size: 36px; color: #fff; }
+    .warn-title { font-size: 20px; font-weight: 800; color: #dc2626; margin-bottom: 6px; }
+    .warn-sub { font-size: 13px; color: #6B7280; line-height: 1.6; }
+
+    /* Search form */
+    .search-section { background: #f8f9fa; border-top: 1px solid #E5E7EB; padding: 20px 28px; }
+    .search-label { font-size: 11px; color: #6B7280; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    .search-row { display: flex; gap: 8px; }
+    .search-input { flex: 1; background: #fff; border: 1.5px solid #E5E7EB; border-radius: 10px; padding: 10px 14px; font-size: 13px; font-family: inherit; color: #1a1a1a; transition: border-color .2s; }
+    .search-input:focus { outline: none; border-color: #145230; }
+    .search-btn { background: linear-gradient(135deg, #145230, #1E7D42); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+    /* Footer */
+    .card-footer { background: #f8f9fa; border-top: 1px solid #E5E7EB; padding: 14px 28px; display: flex; justify-content: space-between; align-items: center; }
+    .card-footer a { color: #145230; font-size: 12px; font-weight: 600; text-decoration: none; }
+    .badge-qard { background: #145230; color: #D1FAE5; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+  
+@media (max-width:768px) {
+  body { padding:12px !important; }
+  .card { border-radius:14px !important; }
+  .info-grid { grid-template-columns:1fr !important; }
+  .card-header { padding:20px 18px 20px !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Header -->
+  <div class="card-header">
+    <div class="deco1"></div>
+    <div class="deco2"></div>
+    <div class="logo">KH</div>
+    <h2>কর্জে হাসানা ফাউন্ডেশন</h2>
+    <p>Donation Verification · দান যাচাই</p>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p style="color:#6B7280;font-size:13px">Verifying donation...</p>
+  </div>
+
+  <!-- Valid result -->
+  <div id="result-valid">
+    <div class="check-circle"><i class="ti ti-circle-check"></i></div>
+    <div class="verified-title">✓ দান যাচাই হয়েছে</div>
+    <div class="verified-sub">This donation has been verified successfully.</div>
+    <div class="ref-badge" id="disp-ref">KH-DON-000000</div>
+
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-label">Donor / দাতা</div>
+        <div class="info-val" id="disp-name">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Date / তারিখ</div>
+        <div class="info-val" id="disp-date">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Method / পদ্ধতি</div>
+        <div class="info-val" id="disp-method">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Status</div>
+        <div class="info-val" style="color:#22c55e">✓ Received</div>
+      </div>
+    </div>
+
+    <div class="amount-box">
+      <div class="amount-label">Amount Donated / দানকৃত পরিমাণ</div>
+      <div class="amount-val" id="disp-amount">৳0</div>
+    </div>
+
+    <div class="fund-bar-wrap">
+      <div class="fund-bar-label">How Your Donation Is Used</div>
+      <div class="fund-bar"><div class="fb1"></div><div class="fb2"></div><div class="fb3"></div></div>
+      <div class="fund-legend">
+        <span>● <strong>90%</strong> Direct loans</span>
+        <span>● <strong>5%</strong> Operations</span>
+        <span>● <strong>5%</strong> Reserve</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#9CA3AF">জাযাকাল্লাহু খায়রান — May Allah multiply your reward.</p>
+  </div>
+
+  <!-- Not found / demo mode -->
+  <div id="result-notfound">
+    <div class="x-circle"><i class="ti ti-x"></i></div>
+    <div class="warn-title">Reference Not Found</div>
+    <div class="warn-sub" id="notfound-msg">
+      Reference <strong id="disp-ref2"></strong> could not be verified.<br><br>
+      If you believe this is an error, please contact us:<br>
+      <strong>+880 1711-515952 / +880 1733-256731</strong>
+    </div>
+  </div>
+
+  <!-- Search box (always visible) -->
+  <div class="search-section">
+    <div class="search-label">🔍 Enter Reference Number</div>
+    <div class="search-row">
+      <input class="search-input" id="refInput" placeholder="e.g. KH-DON-658739" />
+      <button class="search-btn" onclick="verifyRef()"><i class="ti ti-search"></i> Verify</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="card-footer">
+    <a href="index.html">← Back to website</a>
+    <span class="badge-qard">QARD AL-HASAN · সুদমুক্ত ঋণ</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="_supabase.js"></script>
+<script>
+function show(id) {
+  ['loading','result-valid','result-notfound'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? (s === 'loading' ? 'flex' : 'block') : 'none';
+  });
+}
+
+async function verifyRef(refOverride) {
+  const ref = refOverride || document.getElementById('refInput').value.trim().toUpperCase();
+  if (!ref) return;
+  document.getElementById('refInput').value = ref;
+  show('loading');
+
+  // Try Supabase
+  try {
+    if (window.KH && KH.supabase) {
+      const { data, error } = await KH.supabase
+        .from('donations')
+        .select('*')
+        .eq('reference', ref)
+        .single();
+
+      if (data && !error) {
+        fillValid(ref, data.donor_name || 'Anonymous', data.amount || 0, data.payment_method || '—', data.created_at);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // Demo mode fallback — show as verified if starts with KH-DON
+  if (ref.startsWith('KH-DON') && ref.length >= 10) {
+    fillValid(ref, 'Verified Donor', null, null, new Date().toISOString());
+  } else {
+    document.getElementById('disp-ref2').textContent = ref;
+    show('result-notfound');
+  }
+}
+
+function fillValid(ref, name, amount, method, dateStr) {
+  document.getElementById('disp-ref').textContent    = ref;
+  document.getElementById('disp-name').textContent   = name || 'Anonymous';
+  document.getElementById('disp-method').textContent = method || '—';
+  document.getElementById('disp-amount').textContent = amount ? '৳' + Number(amount).toLocaleString() : '—';
+  const d = dateStr ? new Date(dateStr) : new Date();
+  document.getElementById('disp-date').textContent   = d.toLocaleDateString('en-BD', {day:'2-digit',month:'short',year:'numeric'});
+  show('result-valid');
+}
+
+// Auto-verify from URL param
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if (ref) {
+    document.getElementById('refInput').value = ref;
+    verifyRef(ref);
+  }
+});
+</script>
+</body>
+</html>

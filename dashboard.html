@@ -194,6 +194,9 @@
     <a href="index.html" class="nav-link">Home</a>
     <a href="donation.html" class="donate-btn">Donate</a>
   </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 </nav>
 
 <!-- PAGE HEADER -->
@@ -470,7 +473,39 @@
 <a href="https://wa.me/880XXXXXXXXXX" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:50px;height:50px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);animation:waPulse 2.5s infinite;text-decoration:none" target="_blank">
   <i class="ti ti-brand-whatsapp" style="font-size:24px;color:#fff"></i>
 </a>
-<style>@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 30px rgba(37,211,102,.8),0 0 0 10px rgba(37,211,102,.15)}}</style>
+<style>@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 30px rgba(37,211,102,.8),0 0 0 10px rgba(37,211,102,.15)}}
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; position:relative; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
+  .nav-links.open { display:flex !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:24px !important; }
+  .page-hero p { font-size:13px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .kpi-grid, .stats-cards { grid-template-columns:1fr 1fr !important; gap:12px !important; }
+  .chart-grid, .charts-row { grid-template-columns:1fr !important; }
+  .dash-header { flex-direction:column !important; gap:12px !important; padding:16px !important; }
+  .dash-sidebar { display:none !important; }
+  .dash-main { padding:16px !important; }
+  table { font-size:12px !important; }
+  td, th { padding:6px 8px !important; }
+}
+</style>
 
 <script>
 /* ═══ DATA ═══ */
@@ -720,6 +755,24 @@ async function loadLiveKPIs() {
 
 // Load on page ready
 window.addEventListener('DOMContentLoaded', loadLiveKPIs);
+</script>
+<script>
+/* Mobile menu */
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+document.querySelectorAll('.nav-link').forEach(function(l) {
+  l.addEventListener('click', function() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-hamburger');
+    if (links) links.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
 </script>
 </body>
 </html>

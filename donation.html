@@ -258,6 +258,9 @@
     </div>
   </a>
   <a href="index.html" class="nav-back"><i class="ti ti-arrow-left"></i> Back to home</a>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
 </nav>
 
 <!-- HERO -->
@@ -765,7 +768,7 @@
       <div>
         <div style="font-size:11px;font-weight:800;color:#C07800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📲 Scan to Verify</div>
         <div style="font-size:11px;color:#6B7280;line-height:1.8">
-          Visit <strong style="color:#145230">korje-hasana-website.vercel.app</strong><br>
+          Visit <strong style="color:#145230">korje-hasana-website.vercel.app/verify.html</strong><br>
           Reference: <strong style="color:#145230;font-size:13px" id="v_ref2">KH-DON-0000</strong>
         </div>
         <div style="margin-top:6px;font-size:10px;color:#9CA3AF;font-style:italic">Computer-generated · Valid without signature</div>
@@ -784,8 +787,8 @@
       </div>
     </div>
 
-    <!-- ═══ ACTION BUTTONS ═══ -->
-    <div style="background:#fff;border-top:1px solid #E5E7EB;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+    <!-- ═══ ACTION BUTTONS (hidden when printing) ═══ -->
+    <div class="v-actions" style="background:#fff;border-top:1px solid #E5E7EB;padding:14px 24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
       <button onclick="printVoucher()" style="background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(20,82,48,.3)"><i class="ti ti-printer"></i> Print Voucher</button>
       <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:20px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(240,165,0,.3)"><i class="ti ti-download"></i> Download PDF</button>
       <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #E5E7EB;border-radius:20px;padding:10px 20px;font-size:13px;cursor:pointer">Close</button>
@@ -1078,7 +1081,7 @@ function openVoucher() {
   qrEl.innerHTML = '';
   try {
     new QRCode(qrEl, {
-      text: 'https://korje-hasana-website.vercel.app/borrower-portal.html?ref=' + ref,
+      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref,
       width: 90, height: 90,
       colorDark: '#145230', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
@@ -1090,10 +1093,59 @@ function openVoucher() {
 function closeVoucher() { document.getElementById('voucherOverlay').classList.remove('show'); }
 function printVoucher() {
   const doc = document.getElementById('voucherDoc').innerHTML;
-  const win = window.open('','_blank','width=620,height=800');
-  win.document.write('<html><head><title>Donation Voucher</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#f5f5f5;display:flex;justify-content:center;padding:20px}</style></head><body>' + doc + '</body></html>');
+  const win = window.open('', '_blank', 'width=640,height=920');
+  win.document.write(`<!DOCTYPE html><html><head>
+  <meta charset="UTF-8">
+  <title>Donation Voucher</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter','Hind Siliguri',sans-serif; background:#f3f4f6; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:24px; }
+    .v-actions { display:none !important; }
+    @media print {
+      body { background:#fff; padding:0; margin:0; }
+      .v-actions { display:none !important; }
+    }
+  </style>
+  </head><body>${doc}<script>
+/* Mobile menu */
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+document.querySelectorAll('.nav-link').forEach(function(l) {
+  l.addEventListener('click', function() {
+    var links = document.querySelector('.nav-links');
+    var btn = document.querySelector('.nav-hamburger');
+    if (links) links.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  });
+});
+</script>
+</body></html>`);
   win.document.close();
-  setTimeout(() => win.print(), 800);
+  // Re-generate QR code in the new window after fonts load
+  setTimeout(() => {
+    try {
+      const ref = document.getElementById('v_ref').textContent;
+      const qrEl = win.document.getElementById('v_qrcode');
+      if (qrEl) {
+        qrEl.innerHTML = '';
+        new win.QRCode(qrEl, {
+          text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref,
+          width: 90, height: 90,
+          colorDark: '#145230', colorLight: '#ffffff',
+          correctLevel: win.QRCode.CorrectLevel.M
+        });
+      }
+    } catch(e) {}
+    setTimeout(() => win.print(), 600);
+  }, 1000);
 }
 function downloadVoucherPDF() { printVoucher(); }
 
@@ -1174,7 +1226,37 @@ function closeTax() { document.getElementById('taxOverlay').classList.remove('sh
 function printCert() {
   const doc = document.getElementById('certDoc').outerHTML;
   const win = window.open('','_blank','width=680,height=900');
-  win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}</style></head><body>' + doc + '</body></html>');
+  win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; position:relative; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
+  .nav-links.open { display:flex !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:24px !important; }
+  .page-hero p { font-size:13px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .don-hero { padding:28px 16px 60px !important; }
+  .don-layout, .don-grid { flex-direction:column !important; grid-template-columns:1fr !important; }
+  .amt-grid { grid-template-columns:repeat(3,1fr) !important; gap:8px !important; }
+  .pay-grid, .pay-methods { grid-template-columns:1fr 1fr !important; gap:8px !important; }
+  .don-card { padding:20px !important; }
+}
+</style></head><body>' + doc + '</body></html>');
   win.document.close();
   setTimeout(() => win.print(), 800);
 }
