@@ -194,13 +194,25 @@ function show(id) {
   });
 }
 
+// Read extra params from URL (amount, method, name embedded in QR code)
+function getUrlParams() {
+  const p = new URLSearchParams(window.location.search);
+  return {
+    ref:    (p.get('ref') || '').toUpperCase(),
+    amt:    p.get('amt') || null,
+    method: p.get('method') || null,
+    name:   p.get('name') || null
+  };
+}
+
 async function verifyRef(refOverride) {
+  const urlParams = getUrlParams();
   const ref = refOverride || document.getElementById('refInput').value.trim().toUpperCase();
   if (!ref) return;
   document.getElementById('refInput').value = ref;
   show('loading');
 
-  // Try Supabase
+  // Try Supabase first
   try {
     if (window.KH && KH.supabase) {
       const { data, error } = await KH.supabase
@@ -216,9 +228,12 @@ async function verifyRef(refOverride) {
     }
   } catch(e) {}
 
-  // Demo mode fallback — show as verified if starts with KH-DON
+  // Use URL params (from QR code) if available
   if (ref.startsWith('KH-DON') && ref.length >= 10) {
-    fillValid(ref, 'Verified Donor', null, null, new Date().toISOString());
+    const amt    = urlParams.amt    || null;
+    const method = urlParams.method || null;
+    const name   = urlParams.name   || 'Verified Donor';
+    fillValid(ref, name, amt, method, new Date().toISOString());
   } else {
     document.getElementById('disp-ref2').textContent = ref;
     show('result-notfound');
@@ -237,8 +252,7 @@ function fillValid(ref, name, amount, method, dateStr) {
 
 // Auto-verify from URL param
 window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
+  const { ref } = getUrlParams();
   if (ref) {
     document.getElementById('refInput').value = ref;
     verifyRef(ref);

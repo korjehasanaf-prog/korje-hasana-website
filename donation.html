@@ -11,6 +11,9 @@
   <script src="_supabase.js"></script>
   <!-- QR Code -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --green:   #145230;
@@ -1122,7 +1125,7 @@ function openVoucher() {
   qrEl.innerHTML = '';
   try {
     new QRCode(qrEl, {
-      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref,
+      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay) + '&name=' + encodeURIComponent(name),
       width: 90, height: 90,
       colorDark: '#145230', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
@@ -1156,11 +1159,14 @@ function printVoucher() {
   setTimeout(() => {
     try {
       const ref = document.getElementById('v_ref').textContent;
+      const vAmt = document.getElementById('v_amount').textContent.replace('৳','').replace(/,/g,'');
+      const vMethod = document.getElementById('v_method').textContent;
+      const vName = document.getElementById('v_name').textContent;
       const qrEl = win.document.getElementById('v_qrcode');
       if (qrEl) {
         qrEl.innerHTML = '';
         new win.QRCode(qrEl, {
-          text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref,
+          text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + vAmt + '&method=' + encodeURIComponent(vMethod) + '&name=' + encodeURIComponent(vName),
           width: 90, height: 90,
           colorDark: '#145230', colorLight: '#ffffff',
           correctLevel: win.QRCode.CorrectLevel.M
@@ -1170,7 +1176,40 @@ function printVoucher() {
     setTimeout(() => win.print(), 600);
   }, 1000);
 }
-function downloadVoucherPDF() { printVoucher(); }
+function downloadVoucherPDF() {
+  const el = document.getElementById('voucherDoc');
+  const ref = document.getElementById('v_ref').textContent || 'voucher';
+  const btn = el.closest('.voucher-overlay') ? el.closest('.voucher-overlay').querySelector('.v-actions') : null;
+
+  // Temporarily hide action buttons so they don't appear in PDF
+  if (btn) btn.style.visibility = 'hidden';
+
+  html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+    onclone: function(clonedDoc) {
+      // Hide action buttons in clone
+      const actions = clonedDoc.querySelector('.v-actions');
+      if (actions) actions.style.display = 'none';
+    }
+  }).then(canvas => {
+    if (btn) btn.style.visibility = '';
+    const imgData = canvas.toDataURL('image/jpeg', 0.97);
+    const { jsPDF } = window.jspdf;
+    // A4 width = 210mm, calculate height proportionally
+    const pdfW = 210;
+    const pdfH = Math.round((canvas.height / canvas.width) * pdfW);
+    const pdf = new jsPDF({ orientation: pdfH > pdfW ? 'p' : 'l', unit: 'mm', format: [pdfW, pdfH] });
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    pdf.save(ref + '.pdf');
+  }).catch(err => {
+    if (btn) btn.style.visibility = '';
+    console.error(err);
+    alert('PDF তৈরি করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+  });
+}
 
 /* ── TAX CERTIFICATE ── */
 let selectedFY = '2025-26';
@@ -1252,22 +1291,6 @@ function printCert() {
   win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}</style></head><body>' + doc + '</body></html>');
   win.document.close();
   setTimeout(() => win.print(), 800);
-}
-function downloadCertPDF() { printCert(); }
-
-/* ── ADD TO ACTIVITY FEED ── */
-function addToFeed(name, amt) {
-  const feed = document.getElementById('activityFeed');
-  const isAnon = document.getElementById('anonCheck').checked;
-  const displayName = isAnon ? 'Anonymous Donor' : name;
-  const div = document.createElement('div');
-  div.className = 'activity-item';
-  div.innerHTML = `<div class="activity-dot" style="animation:blink 1.4s 3"></div>
-    <div class="activity-text"><strong>${displayName}</strong> donated <strong>৳${amt.toLocaleString()}</strong></div>
-    <div class="activity-time">just now</div>`;
-  feed.insertBefore(div, feed.firstChild);
-  // Update live ticker
-  document.querySelector('.live-ticker span').innerHTML = `<strong>${displayName}</strong> just donated ৳${amt.toLocaleString()} via ${selectedPay}`;
 }
 </script>
 </body>
