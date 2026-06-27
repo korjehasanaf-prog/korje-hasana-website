@@ -1150,25 +1150,7 @@ function printVoucher() {
       .v-actions { display:none !important; }
     }
   </style>
-  </head><body>${doc}<script>
-/* Mobile menu */
-function toggleMenu() {
-  var links = document.querySelector('.nav-links');
-  var btn = document.querySelector('.nav-hamburger');
-  if (!links || !btn) return;
-  links.classList.toggle('open');
-  btn.classList.toggle('active');
-}
-document.querySelectorAll('.nav-link').forEach(function(l) {
-  l.addEventListener('click', function() {
-    var links = document.querySelector('.nav-links');
-    var btn = document.querySelector('.nav-hamburger');
-    if (links) links.classList.remove('open');
-    if (btn) btn.classList.remove('active');
-  });
-});
-</script>
-</body></html>`);
+  </head><body>${doc}</body></html>`);
   win.document.close();
   // Re-generate QR code in the new window after fonts load
   setTimeout(() => {
