@@ -248,7 +248,7 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
-    <div class="topbar-item"><i class="ti ti-phone"></i>+880 1711-515952 / 1733-256731 (অস্থায়ী)</div>
+    <div class="topbar-item"><i class="ti ti-phone"></i>+880 1711-515952 / +880 1733-256731 (অস্থায়ী)</div>
     <div class="topbar-item"><i class="ti ti-clock"></i>Sun–Thu 9am–5pm</div>
   </div>
   <div class="topbar-right">
@@ -643,6 +643,4 @@ function toast(msg, type = 'ok') {
   const colors = { ok:'#145230', error:'#ef4444' };
   const el = document.createElement('div');
   el.className = 'toast-item ' + type;
-  el.innerHTML = `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;
-  document.getElementById('toast').appendChild(el);
-  setTimeout(() => { el.style.animation = 'toastOut .3s ease
+  el.innerHTML = `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><spa
