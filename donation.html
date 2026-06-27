@@ -244,6 +244,47 @@
       .pay-methods { grid-template-columns:1fr 1fr; }
       .hero-stats { gap:16px; }
     }
+
+    /* ═══ HAMBURGER MENU ═══ */
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+    .nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+    .nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+    .nav-hamburger.active span:nth-child(2) { opacity:0; }
+    .nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+    /* ═══ MOBILE RESPONSIVE ═══ */
+    @media (max-width:768px) {
+      /* navbar */
+      .navbar { padding:0 16px !important; }
+      .nav-back { font-size:12px !important; }
+      .nav-hamburger { display:flex !important; }
+      /* hero */
+      .hero-band { padding:28px 16px 60px !important; }
+      .hero-band h1 { font-size:24px !important; }
+      .hero-band p { font-size:13px !important; }
+      .hero-stats { flex-wrap:wrap; gap:12px !important; justify-content:center; }
+      .hero-stat { min-width:80px; }
+      /* main layout */
+      .main { padding:16px !important; }
+      .card-body { padding:16px !important; }
+      /* amount presets */
+      .amount-presets { grid-template-columns:repeat(3,1fr) !important; gap:6px !important; }
+      .amt-btn { padding:8px 4px !important; }
+      .amt-btn .amt-val { font-size:12px !important; }
+      .amt-btn .amt-impact { font-size:9px !important; }
+      /* payment methods */
+      .pay-methods { grid-template-columns:1fr 1fr !important; gap:6px !important; }
+      .pay-btn { padding:10px 6px !important; font-size:11px !important; }
+      /* sidebar hide on mobile */
+      .sidebar { display:none !important; }
+      /* frequency tabs */
+      .freq-tabs { gap:4px !important; }
+      .freq-tab { padding:8px 10px !important; font-size:11px !important; }
+      /* submit button */
+      #btnAmt { width:100% !important; font-size:15px !important; padding:16px !important; }
+      /* whatsapp float */
+      a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
+    }
   </style>
 </head>
 <body>
@@ -1226,37 +1267,7 @@ function closeTax() { document.getElementById('taxOverlay').classList.remove('sh
 function printCert() {
   const doc = document.getElementById('certDoc').outerHTML;
   const win = window.open('','_blank','width=680,height=900');
-  win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}
-
-/* ═══ HAMBURGER ═══ */
-.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
-.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
-.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
-.nav-hamburger.active span:nth-child(2) { opacity:0; }
-.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
-
-/* ═══ MOBILE RESPONSIVE ═══ */
-@media (max-width:768px) {
-  .topbar { display:none !important; }
-  .navbar { padding:0 16px !important; position:relative; }
-  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
-  .nav-links.open { display:flex !important; }
-  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
-  .nav-hover-bar { display:none !important; }
-  .nav-cta { display:none !important; }
-  .nav-hamburger { display:flex !important; }
-  .page-hero { padding:32px 16px 72px !important; }
-  .page-hero h1 { font-size:24px !important; }
-  .page-hero p { font-size:13px !important; }
-  /* whatsapp float */
-  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
-  .don-hero { padding:28px 16px 60px !important; }
-  .don-layout, .don-grid { flex-direction:column !important; grid-template-columns:1fr !important; }
-  .amt-grid { grid-template-columns:repeat(3,1fr) !important; gap:8px !important; }
-  .pay-grid, .pay-methods { grid-template-columns:1fr 1fr !important; gap:8px !important; }
-  .don-card { padding:20px !important; }
-}
-</style></head><body>' + doc + '</body></html>');
+  win.document.write('<html><head><title>Tax Certificate</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;padding:20px}</style></head><body>' + doc + '</body></html>');
   win.document.close();
   setTimeout(() => win.print(), 800);
 }
