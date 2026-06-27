@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Dashboard | Korje Hasana Foundation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root {
+      --bg:      #0a0f1a;
+      --bg2:     #111827;
+      --bg3:     #1f2937;
+      --border:  rgba(255,255,255,.08);
+      --green:   #145230;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --text:    #f1f5f9;
+      --muted:   #94a3b8;
+      --success: #22c55e;
+      --blue:    #3b82f6;
+      --orange:  #f97316;
+      --purple:  #a855f7;
+      --red:     #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: rgba(17,24,39,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
+      height: 60px; position: sticky; top: 0; z-index: 1000;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon { width: 38px; height: 38px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--green); box-shadow: 0 0 16px rgba(240,165,0,.4); }
+    .logo-bn { color: #fff; font-size: 13px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
+    .logo-en { color: var(--muted); font-size: 10px; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-link { color: var(--muted); font-size: 12px; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: all .2s; }
+    .nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
+    .live-badge { display: flex; align-items: center; gap: 5px; background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--success); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 1.4s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .donate-btn { background: var(--gold); color: var(--green); border: none; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 20px; cursor: pointer; text-decoration: none; box-shadow: 0 0 16px rgba(240,165,0,.3); transition: all .2s; }
+    .donate-btn:hover { box-shadow: 0 0 28px rgba(240,165,0,.55); transform: translateY(-1px); }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: linear-gradient(135deg, #0d1829 0%, #111827 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 32px; position: relative; overflow: hidden;
+    }
+    .page-header::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(240,165,0,.04); pointer-events:none; }
+    .ph-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .ph-title { font-size: 20px; font-weight: 700; color: #fff; }
+    .ph-sub { font-size: 12px; color: var(--muted); }
+    .period-tabs { display: flex; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .ptab { font-size: 11px; font-weight: 600; padding: 6px 14px; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .2s; }
+    .ptab.active { background: var(--gold); color: var(--green); }
+
+    /* ── MAIN ── */
+    .main { padding: 24px 32px; max-width: 1280px; margin: 0 auto; }
+
+    /* ── KPI GRID ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .kpi-card {
+      border-radius: 16px; padding: 18px 20px;
+      position: relative; overflow: hidden; cursor: pointer;
+      transition: all .3s; border: 1px solid transparent;
+    }
+    .kpi-card:hover { transform: translateY(-3px); }
+    .kc-blue   { background: linear-gradient(135deg,#1e3a5f,#1e40af); box-shadow: 0 4px 20px rgba(30,64,175,.35); }
+    .kc-green  { background: linear-gradient(135deg,#14532d,#166534); box-shadow: 0 4px 20px rgba(20,83,45,.35); }
+    .kc-orange { background: linear-gradient(135deg,#7c2d12,#9a3412); box-shadow: 0 4px 20px rgba(154,52,18,.35); }
+    .kc-purple { background: linear-gradient(135deg,#4a1d96,#6d28d9); box-shadow: 0 4px 20px rgba(109,40,217,.35); }
+    .kc-gold   { background: linear-gradient(135deg,#78350f,#92400e); box-shadow: 0 4px 20px rgba(146,64,14,.35); }
+    .kc-teal   { background: linear-gradient(135deg,#134e4a,#0f766e); box-shadow: 0 4px 20px rgba(15,118,110,.35); }
+    .kpi-card:hover.kc-blue   { box-shadow: 0 8px 32px rgba(30,64,175,.55); }
+    .kpi-card:hover.kc-green  { box-shadow: 0 8px 32px rgba(20,83,45,.55); }
+    .kpi-card:hover.kc-orange { box-shadow: 0 8px 32px rgba(154,52,18,.55); }
+    .kpi-card:hover.kc-purple { box-shadow: 0 8px 32px rgba(109,40,217,.55); }
+    .kpi-card::after { content:''; position:absolute; top:-30%; right:-20%; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,.06); pointer-events:none; }
+    .kpi-icon { font-size:24px; margin-bottom:10px; display:block; }
+    .kpi-num { font-size:28px; font-weight:800; color:#fff; line-height:1; margin-bottom:4px; }
+    .kpi-lbl { font-size:11px; color:rgba(255,255,255,.65); margin-bottom:8px; line-height:1.4; }
+    .kpi-bar { height:3px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; margin-bottom:6px; }
+    .kpi-bar-fill { height:100%; background:rgba(255,255,255,.7); border-radius:2px; width:0; transition:width 1.6s ease; }
+    .kpi-trend { font-size:10px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:3px; }
+    .kpi-trend .up { color:#4ade80; } .kpi-trend .dn { color:#f87171; }
+
+    /* ── CHART ROW ── */
+    .chart-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+    .chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .chart-title { font-size: 13px; font-weight: 700; color: #fff; }
+    .chart-sub { font-size: 11px; color: var(--muted); margin-top:2px; }
+    .chart-legend { display: flex; gap: 12px; flex-wrap: wrap; }
+    .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+    /* ── SECOND ROW ── */
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+    /* ── PROGRAM BARS ── */
+    .prog-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .prog-label { font-size: 12px; color: var(--muted); width: 110px; flex-shrink: 0; }
+    .prog-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 4px; height: 8px; overflow: hidden; }
+    .prog-bar-fill { height: 100%; border-radius: 4px; width: 0; transition: width 1.4s ease; }
+    .prog-val { font-size: 12px; font-weight: 700; color: #fff; width: 44px; text-align: right; flex-shrink: 0; }
+
+    /* ── TABLE ── */
+    .table-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+    .table-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .table-title { font-size: 13px; font-weight: 700; color: #fff; }
+    .table-search { background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--text); font-family: inherit; width: 200px; }
+    .table-search:focus { outline: none; border-color: var(--gold); }
+    .table-search::placeholder { color: var(--muted); }
+    .filter-tabs { display: flex; gap: 6px; }
+    .ftab { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: none; transition: all .2s; }
+    .ftab.active { background: var(--gold); color: var(--green); border-color: var(--gold); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; cursor: pointer; }
+    tbody tr:last-child { border: none; }
+    tbody tr:hover { background: rgba(255,255,255,.03); }
+    tbody td { padding: 12px 16px; font-size: 13px; color: var(--text); }
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+    .badge-green  { background: rgba(34,197,94,.12);  color: var(--success); }
+    .badge-blue   { background: rgba(59,130,246,.12); color: var(--blue); }
+    .badge-orange { background: rgba(249,115,22,.12); color: var(--orange); }
+    .badge-gold   { background: rgba(240,165,0,.12);  color: var(--gold); }
+    .badge-red    { background: rgba(239,68,68,.12);  color: var(--red); }
+    .badge-purple { background: rgba(168,85,247,.12); color: var(--purple); }
+    .amt-pos { color: var(--success); font-weight: 700; }
+    .amt-neg { color: var(--orange); font-weight: 700; }
+
+    /* ── GEO / DISTRICT ── */
+    .dist-list { display: flex; flex-direction: column; gap: 8px; }
+    .dist-item { display: flex; align-items: center; gap: 8px; }
+    .dist-name { font-size: 12px; color: var(--muted); width: 100px; flex-shrink: 0; }
+    .dist-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 3px; height: 6px; overflow: hidden; }
+    .dist-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), #E8A000); width: 0; transition: width 1.4s ease; }
+    .dist-count { font-size: 11px; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
+
+    /* ── TRANSPARENCY ── */
+    .trans-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+    .trans-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; }
+    .trans-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+    .trans-val { font-size: 22px; font-weight: 800; margin-bottom:4px; }
+    .trans-lbl { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    /* ── PAGINATION ── */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); }
+    .pag-info { font-size: 12px; color: var(--muted); }
+    .pag-btns { display: flex; gap: 6px; }
+    .pag-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .pag-btn.active { background: var(--gold); color: var(--green); border-color: var(--gold); font-weight: 700; }
+    .pag-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+
+    /* ── FOOTER ── */
+    .dash-footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+      .chart-row, .row2 { grid-template-columns: 1fr; }
+      .trans-grid { grid-template-columns: 1fr 1fr; }
+      .main { padding: 16px; }
+      .navbar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="logo-wrap">
+    <div class="logo-icon">KH</div>
+    <div>
+      <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="logo-en">Public Transparency Dashboard</div>
+    </div>
+  </a>
+  <div class="nav-right">
+    <div class="live-badge"><div class="live-dot"></div>Live data</div>
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="donation.html" class="donate-btn">Donate</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="ph-top">
+    <div>
+      <div class="ph-title">Foundation Transparency Dashboard</div>
+      <div class="ph-sub">All figures are real-time · Updated every 24 hours · Last updated: <span id="lastUpdated">—</span></div>
+    </div>
+    <div class="period-tabs">
+      <button class="ptab" onclick="setPeriod(this,'today')">Today</button>
+      <button class="ptab" onclick="setPeriod(this,'week')">This week</button>
+      <button class="ptab active" onclick="setPeriod(this,'month')">This month</button>
+      <button class="ptab" onclick="setPeriod(this,'year')">This year</button>
+      <button class="ptab" onclick="setPeriod(this,'all')">All time</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card kc-blue">
+      <i class="ti ti-users kpi-icon" style="color:#93c5fd"></i>
+      <div class="kpi-num" data-target="127" id="k1">0</div>
+      <div class="kpi-lbl">Total beneficiaries helped</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="72" id="kb1"></div></div>
+      <div class="kpi-trend"><i class="ti ti-trending-up up" style="font-size:12px"></i><span class="up">+12</span>&nbsp;this month</div>
+    </div>
+    <div class="kpi-card kc-green">
+      <i class="ti ti-currency-taka kpi-icon" style="color:#86efac"></i>
+      <div class="kpi-num" id="k2">৳0</div>
+      <div class="kpi-lbl">Total taka disbursed</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="65" id="kb2"></div></div>
+      <div class="kpi-trend"><i class="ti ti-trending-up up" style="font-size:12px"></i><span class="up">৳2.8L</span>&nbsp;this month</div>
+    </div>
+    <div class="kpi-card kc-orange">
+      <i class="ti ti-refresh kpi-icon" style="color:#fdba74"></i>
+      <div class="kpi-num" id="k3">0%</div>
+      <div class="kpi-lbl">Repayment rate</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="99" id="kb3"></div></div>
+      <div class="kpi-trend">On-time: <span class="up">96%</span>&nbsp;· Late: <span class="dn">3%</span></div>
+    </div>
+    <div class="kpi-card kc-purple">
+      <i class="ti ti-heart-handshake kpi-icon" style="color:#d8b4fe"></i>
+      <div class="kpi-num" data-target="84" id="k4">0</div>
+      <div class="kpi-lbl">Active donors</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="84" id="kb4"></div></div>
+      <div class="kpi-trend">From <span class="up">12</span>&nbsp;countries</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="chart-row">
+
+    <!-- Disbursement trend line chart -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Monthly Disbursements & Repayments</div>
+          <div class="chart-sub">Taka in / out — last 12 months</div>
+        </div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Disbursed</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Repaid</div>
+        </div>
+      </div>
+      <canvas id="lineChart" height="160"></canvas>
+    </div>
+
+    <!-- Loan type donut -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Loans by Program</div>
+          <div class="chart-sub">Distribution of all disbursements</div>
+        </div>
+      </div>
+      <canvas id="donutChart" height="160"></canvas>
+      <div class="chart-legend" style="margin-top:10px;flex-wrap:wrap;gap:8px 16px">
+        <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Agriculture 32%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Business 28%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Education 16%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Medical 12%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div>Family 8%</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#06b6d4"></div>Emergency 4%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row2">
+
+    <!-- Program progress bars -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Loan Program Breakdown</div>
+          <div class="chart-sub">Number of active loans per category</div>
+        </div>
+      </div>
+      <div style="margin-top:4px">
+        <div class="prog-item">
+          <div class="prog-label">Agriculture</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="72" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div>
+          <div class="prog-val">41</div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label">Small Business</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="63" style="background:linear-gradient(90deg,#1d4ed8,#3b82f6)"></div></div>
+          <div class="prog-val">36</div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label">Education</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="35" style="background:linear-gradient(90deg,#b45309,#f59e0b)"></div></div>
+          <div class="prog-val">20</div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label">Medical</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="21" style="background:linear-gradient(90deg,#b91c1c,#ef4444)"></div></div>
+          <div class="prog-val">15</div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label">Family Need</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="14" style="background:linear-gradient(90deg,#7e22ce,#a855f7)"></div></div>
+          <div class="prog-val">10</div>
+        </div>
+        <div class="prog-item">
+          <div class="prog-label">Emergency</div>
+          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="9" style="background:linear-gradient(90deg,#0e7490,#06b6d4)"></div></div>
+          <div class="prog-val">5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Geographic distribution -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">Geographic Distribution</div>
+          <div class="chart-sub">Beneficiaries by district</div>
+        </div>
+      </div>
+      <div class="dist-list" style="margin-top:4px">
+        <div class="dist-item">
+          <div class="dist-name">Dhaka</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="68"></div></div>
+          <div class="dist-count">38</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Gazipur</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="45"></div></div>
+          <div class="dist-count">25</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Narayanganj</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="32"></div></div>
+          <div class="dist-count">18</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Narsingdi</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="20"></div></div>
+          <div class="dist-count">11</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Manikganj</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="14"></div></div>
+          <div class="dist-count">8</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Munshiganj</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="9"></div></div>
+          <div class="dist-count">5</div>
+        </div>
+        <div class="dist-item">
+          <div class="dist-name">Other</div>
+          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="7"></div></div>
+          <div class="dist-count">4</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONATION BAR CHART -->
+  <div class="chart-card" style="margin-bottom:20px">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">Donation Inflow by Month</div>
+        <div class="chart-sub">Total donations received — 2025–26 fiscal year</div>
+      </div>
+      <div class="chart-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Donations</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div>Repayments received</div>
+      </div>
+    </div>
+    <canvas id="barChart" height="90"></canvas>
+  </div>
+
+  <!-- TRANSPARENCY STATS -->
+  <div class="trans-grid">
+    <div class="trans-card">
+      <i class="ti ti-shield-check trans-icon" style="color:var(--success)"></i>
+      <div class="trans-val" style="color:var(--success)">0%</div>
+      <div class="trans-lbl">Interest charged<br>Ever. To anyone.</div>
+    </div>
+    <div class="trans-card">
+      <i class="ti ti-refresh trans-icon" style="color:var(--blue)"></i>
+      <div class="trans-val" style="color:var(--blue)">৳18L</div>
+      <div class="trans-lbl">Total revolving fund value<br>(donations + repayments)</div>
+    </div>
+    <div class="trans-card">
+      <i class="ti ti-calendar-check trans-icon" style="color:var(--gold)"></i>
+      <div class="trans-val" style="color:var(--gold)">2026</div>
+      <div class="trans-lbl">Founded · Operating since<br>Dhaka Division, Bangladesh</div>
+    </div>
+  </div>
+
+  <!-- TRANSACTION LEDGER -->
+  <div class="table-card">
+    <div class="table-head">
+      <div>
+        <div class="table-title">Public Transaction Ledger</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">All disbursements and repayments — anonymized for privacy</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="filter-tabs">
+          <button class="ftab active" onclick="filterTable(this,'all')">All</button>
+          <button class="ftab" onclick="filterTable(this,'disbursed')">Disbursed</button>
+          <button class="ftab" onclick="filterTable(this,'repaid')">Repaid</button>
+          <button class="ftab" onclick="filterTable(this,'donated')">Donated</button>
+        </div>
+        <input type="text" class="table-search" placeholder="🔍 Search…" oninput="searchTable(this.value)">
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Ref #</th>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Program</th>
+            <th>District</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <div class="pag-info" id="pagInfo">Showing 1–15 of 48 transactions</div>
+      <div class="pag-btns">
+        <button class="pag-btn" onclick="changePage(-1)"><i class="ti ti-chevron-left" style="font-size:14px"></i></button>
+        <button class="pag-btn active" id="p1" onclick="gotoPage(1)">1</button>
+        <button class="pag-btn" id="p2" onclick="gotoPage(2)">2</button>
+        <button class="pag-btn" id="p3" onclick="gotoPage(3)">3</button>
+        <button class="pag-btn" onclick="changePage(1)"><i class="ti ti-chevron-right" style="font-size:14px"></i></button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="dash-footer">
+  <span>© 2026 Korje Hasana Foundation · korjehasana.org · All transactions are public for accountability</span>
+  <span style="display:flex;align-items:center;gap:6px"><i class="ti ti-lock" style="color:var(--success)"></i> SSL secured · Data updated daily</span>
+</div>
+
+<!-- FLOATING WA -->
+<a href="https://wa.me/880XXXXXXXXXX" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:50px;height:50px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);animation:waPulse 2.5s infinite;text-decoration:none" target="_blank">
+  <i class="ti ti-brand-whatsapp" style="font-size:24px;color:#fff"></i>
+</a>
+<style>@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 30px rgba(37,211,102,.8),0 0 0 10px rgba(37,211,102,.15)}}</style>
+
+<script>
+/* ═══ DATA ═══ */
+const LEDGER = [
+  { ref:'KH-D-0127', date:'26 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Gazipur',      amt:25000, status:'Active' },
+  { ref:'KH-R-0126', date:'25 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:3500,  status:'Completed' },
+  { ref:'KH-DON-1241',date:'25 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:10000, status:'Received' },
+  { ref:'KH-D-0126', date:'24 Jun 2026', type:'Disbursed', prog:'Education',    district:'Narsingdi',     amt:35000, status:'Active' },
+  { ref:'KH-R-0125', date:'23 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Gazipur',       amt:2083,  status:'Completed' },
+  { ref:'KH-DON-1240',date:'22 Jun 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:5000,  status:'Received' },
+  { ref:'KH-D-0125', date:'21 Jun 2026', type:'Disbursed', prog:'Medical',      district:'Narayanganj',   amt:50000, status:'Active' },
+  { ref:'KH-R-0124', date:'20 Jun 2026', type:'Repaid',    prog:'Education',    district:'Narsingdi',     amt:2917,  status:'Completed' },
+  { ref:'KH-DON-1239',date:'19 Jun 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
+  { ref:'KH-D-0124', date:'18 Jun 2026', type:'Disbursed', prog:'Family Need',  district:'Manikganj',     amt:20000, status:'Active' },
+  { ref:'KH-R-0123', date:'17 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:6250,  status:'Completed' },
+  { ref:'KH-DON-1238',date:'16 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:25000, status:'Received' },
+  { ref:'KH-D-0123', date:'15 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Munshiganj',    amt:30000, status:'Active' },
+  { ref:'KH-R-0122', date:'14 Jun 2026', type:'Repaid',    prog:'Family Need',  district:'Manikganj',     amt:1667,  status:'Completed' },
+  { ref:'KH-D-0122', date:'13 Jun 2026', type:'Disbursed', prog:'Business',     district:'Dhaka',         amt:75000, status:'Active' },
+  { ref:'KH-DON-1237',date:'12 Jun 2026',type:'Donated',   prog:'—',            district:'Narayanganj',   amt:1000,  status:'Received' },
+  { ref:'KH-R-0121', date:'11 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Gazipur',       amt:2083,  status:'Completed' },
+  { ref:'KH-D-0121', date:'10 Jun 2026', type:'Disbursed', prog:'Emergency',    district:'Dhaka',         amt:15000, status:'Active' },
+  { ref:'KH-DON-1236',date:'09 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:50000, status:'Received' },
+  { ref:'KH-R-0120', date:'08 Jun 2026', type:'Repaid',    prog:'Medical',      district:'Narayanganj',   amt:4167,  status:'Completed' },
+  { ref:'KH-D-0120', date:'07 Jun 2026', type:'Disbursed', prog:'Education',    district:'Dhaka',         amt:40000, status:'Active' },
+  { ref:'KH-DON-1235',date:'06 Jun 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:3000,  status:'Received' },
+  { ref:'KH-R-0119', date:'05 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:6250,  status:'Completed' },
+  { ref:'KH-D-0119', date:'04 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Narsingdi',     amt:20000, status:'Active' },
+  { ref:'KH-DON-1234',date:'03 Jun 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
+  { ref:'KH-R-0118', date:'02 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Munshiganj',    amt:2500,  status:'Completed' },
+  { ref:'KH-D-0118', date:'01 Jun 2026', type:'Disbursed', prog:'Medical',      district:'Dhaka',         amt:80000, status:'Active' },
+  { ref:'KH-DON-1233',date:'31 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:15000, status:'Received' },
+  { ref:'KH-R-0117', date:'30 May 2026', type:'Repaid',    prog:'Education',    district:'Dhaka',         amt:3333,  status:'Completed' },
+  { ref:'KH-D-0117', date:'29 May 2026', type:'Disbursed', prog:'Family Need',  district:'Narayanganj',   amt:25000, status:'Active' },
+  { ref:'KH-R-0116', date:'28 May 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:4167,  status:'Completed' },
+  { ref:'KH-DON-1232',date:'27 May 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:5000,  status:'Received' },
+  { ref:'KH-D-0116', date:'26 May 2026', type:'Disbursed', prog:'Agriculture',  district:'Gazipur',       amt:35000, status:'Completed' },
+  { ref:'KH-R-0115', date:'25 May 2026', type:'Repaid',    prog:'Medical',      district:'Narayanganj',   amt:8333,  status:'Completed' },
+  { ref:'KH-DON-1231',date:'24 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:10000, status:'Received' },
+  { ref:'KH-D-0115', date:'23 May 2026', type:'Disbursed', prog:'Business',     district:'Dhaka',         amt:60000, status:'Active' },
+  { ref:'KH-R-0114', date:'22 May 2026', type:'Repaid',    prog:'Agriculture',  district:'Narsingdi',     amt:1667,  status:'Completed' },
+  { ref:'KH-DON-1230',date:'21 May 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:1000,  status:'Received' },
+  { ref:'KH-D-0114', date:'20 May 2026', type:'Disbursed', prog:'Emergency',    district:'Gazipur',       amt:10000, status:'Completed' },
+  { ref:'KH-R-0113', date:'19 May 2026', type:'Repaid',    prog:'Family Need',  district:'Manikganj',     amt:2500,  status:'Completed' },
+  { ref:'KH-DON-1229',date:'18 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:8000,  status:'Received' },
+  { ref:'KH-D-0113', date:'17 May 2026', type:'Disbursed', prog:'Education',    district:'Dhaka',         amt:50000, status:'Active' },
+  { ref:'KH-R-0112', date:'16 May 2026', type:'Repaid',    prog:'Business',     district:'Narayanganj',   amt:6250,  status:'Completed' },
+  { ref:'KH-DON-1228',date:'15 May 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
+  { ref:'KH-D-0112', date:'14 May 2026', type:'Disbursed', prog:'Agriculture',  district:'Munshiganj',    amt:25000, status:'Active' },
+  { ref:'KH-R-0111', date:'13 May 2026', type:'Repaid',    prog:'Agriculture',  district:'Dhaka',         amt:2917,  status:'Completed' },
+  { ref:'KH-DON-1227',date:'12 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:20000, status:'Received' },
+  { ref:'KH-D-0111', date:'11 May 2026', type:'Disbursed', prog:'Medical',      district:'Narsingdi',     amt:45000, status:'Active' },
+  { ref:'KH-R-0110', date:'10 May 2026', type:'Repaid',    prog:'Education',    district:'Gazipur',       amt:2917,  status:'Completed' },
+];
+
+/* ═══ STATE ═══ */
+let currentFilter = 'all';
+let currentSearch = '';
+let currentPage   = 1;
+const PER_PAGE    = 15;
+
+/* ═══ INIT ═══ */
+window.addEventListener('load', () => {
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-BD',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  animateKPIs();
+  animateBars();
+  initLineChart();
+  initDonutChart();
+  initBarChart();
+  renderTable();
+});
+
+/* ═══ KPI ANIMATION ═══ */
+function animateKPIs() {
+  countUp('k1', 127, 20);
+  countUpTaka('k2', 18, 40);
+  countUpPct('k3', 99, 12);
+  countUp('k4', 84, 25);
+}
+function countUp(id, target, speed) {
+  let v = 0; const t = setInterval(() => { v += Math.ceil(target / 40); if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = v; }, speed);
+}
+function countUpTaka(id, target, speed) {
+  let v = 0; const t = setInterval(() => { v += 0.5; if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = '৳' + v.toFixed(1) + 'L'; }, speed);
+}
+function countUpPct(id, target, speed) {
+  let v = 0; const t = setInterval(() => { v++; if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = v + '%'; }, speed);
+}
+function animateBars() {
+  setTimeout(() => {
+    document.querySelectorAll('.kpi-bar-fill, .prog-bar-fill, .dist-bar-fill').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 400);
+}
+
+/* ═══ PERIOD ═══ */
+function setPeriod(el, p) {
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ═══ LINE CHART ═══ */
+function initLineChart() {
+  const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+  const disb   = [120000,95000,180000,210000,160000,140000,220000,190000,250000,280000,175000,240000];
+  const repaid = [30000,45000,60000,80000,95000,110000,130000,155000,170000,195000,140000,180000];
+  new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label:'Disbursed', data: disb, borderColor:'#F0A500', backgroundColor:'rgba(240,165,0,.08)', tension:.4, fill:true, pointBackgroundColor:'#F0A500', pointRadius:3 },
+        { label:'Repaid',    data: repaid, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.06)', tension:.4, fill:true, pointBackgroundColor:'#22c55e', pointRadius:3 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10} } },
+        y:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10}, callback: v => '৳'+(v/1000)+'k' } }
+      }
+    }
+  });
+}
+
+/* ═══ DONUT CHART ═══ */
+function initDonutChart() {
+  new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Agriculture','Business','Education','Medical','Family','Emergency'],
+      datasets:[{ data:[32,28,16,12,8,4], backgroundColor:['#22c55e','#3b82f6','#F0A500','#ef4444','#a855f7','#06b6d4'], borderWidth:0, hoverOffset:6 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true, cutout:'65%',
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.parsed+'%' } } }
+    }
+  });
+}
+
+/* ═══ BAR CHART ═══ */
+function initBarChart() {
+  const months = ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
+  const don    = [45000,32000,68000,55000,78000,90000,42000,85000,70000,95000,62000,84500];
+  const rep    = [20000,28000,35000,42000,58000,65000,72000,80000,92000,88000,70000,65000];
+  new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label:'Donations', data: don, backgroundColor:'rgba(240,165,0,.75)', borderRadius:4 },
+        { label:'Repayments',data: rep, backgroundColor:'rgba(168,85,247,.6)',  borderRadius:4 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ display:false }, ticks:{ color:'#94a3b8', font:{size:10} } },
+        y:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10}, callback: v => '৳'+(v/1000)+'k' } }
+      }
+    }
+  });
+}
+
+/* ═══ TABLE ═══ */
+const typeBadge = { Disbursed:'badge-orange', Repaid:'badge-green', Donated:'badge-blue' };
+const statBadge = { Active:'badge-gold', Completed:'badge-green', Received:'badge-blue' };
+function renderTable() {
+  let data = LEDGER;
+  if (currentFilter !== 'all') data = data.filter(r => r.type.toLowerCase() === currentFilter);
+  if (currentSearch) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(currentSearch.toLowerCase()));
+  const total = data.length;
+  const pages = Math.ceil(total / PER_PAGE);
+  if (currentPage > pages) currentPage = 1;
+  const slice = data.slice((currentPage-1)*PER_PAGE, currentPage*PER_PAGE);
+  document.getElementById('pagInfo').textContent = `Showing ${(currentPage-1)*PER_PAGE+1}–${Math.min(currentPage*PER_PAGE,total)} of ${total} transactions`;
+  document.getElementById('ledgerBody').innerHTML = slice.map(r => `
+    <tr>
+      <td style="color:var(--blue);font-weight:600;font-size:12px">${r.ref}</td>
+      <td style="color:var(--muted);font-size:12px">${r.date}</td>
+      <td><span class="badge ${typeBadge[r.type]}">${r.type === 'Disbursed' ? '↓' : r.type === 'Repaid' ? '↑' : '❤'} ${r.type}</span></td>
+      <td style="font-size:12px">${r.prog}</td>
+      <td style="font-size:12px;color:var(--muted)">${r.district}</td>
+      <td class="${r.type === 'Disbursed' ? 'amt-neg' : 'amt-pos'}">৳${r.amt.toLocaleString()}</td>
+      <td><span class="badge ${statBadge[r.status]}">${r.status}</span></td>
+    </tr>`).join('');
+  // Update pagination buttons
+  for (let i = 1; i <= 3; i++) {
+    const btn = document.getElementById('p'+i);
+    if (!btn) continue;
+    btn.textContent = i;
+    btn.classList.toggle('active', i === currentPage);
+    btn.style.display = i <= pages ? '' : 'none';
+  }
+}
+function filterTable(el, f) {
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = f; currentPage = 1; renderTable();
+}
+function searchTable(q) { currentSearch = q; currentPage = 1; renderTable(); }
+function gotoPage(p)    { currentPage = p; renderTable(); }
+function changePage(d)  { currentPage = Math.max(1, Math.min(3, currentPage + d)); renderTable(); }
+
+/* ══════════════════════════════════
+   SUPABASE INTEGRATION — Live KPIs
+══════════════════════════════════ */
+async function loadLiveKPIs() {
+  if (typeof KH === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT')) return;
+  const { data } = await KH.getDashboardKPIs();
+  if (!data) return;
+
+  // Map KPI values to the dashboard stat cards
+  // Cards expected: total disbursed, total collected, active loans, donors, pending apps, overdue
+  const map = {
+    total_disbursed:       data.total_disbursed,
+    total_collected:       data.total_collected,
+    active_loans:          data.active_loans,
+    total_donors:          data.total_donors,
+    pending_applications:  data.pending_applications,
+    overdue_count:         data.overdue_count,
+    total_donated:         data.total_donated
+  };
+
+  // Update any element with data-kpi attribute
+  document.querySelectorAll('[data-kpi]').forEach(el => {
+    const key = el.getAttribute('data-kpi');
+    if (map[key] !== undefined) {
+      const isMoney = ['total_disbursed','total_collected','total_donated'].includes(key);
+      el.textContent = isMoney ? KH.bdt(map[key]) : Number(map[key]).toLocaleString();
+    }
+  });
+
+  // Also update stat-num elements in order (fallback if data-kpi not set)
+  const statNums = document.querySelectorAll('.stat-num');
+  const vals = [
+    KH.bdt(data.total_disbursed),
+    KH.bdt(data.total_donated),
+    (data.active_loans || 0).toLocaleString(),
+    (data.total_donors || 0).toLocaleString()
+  ];
+  statNums.forEach((el, i) => { if (vals[i]) el.textContent = vals[i]; });
+}
+
+// Load on page ready
+window.addEventListener('DOMContentLoaded', loadLiveKPIs);
+</script>
+</body>
+</html>

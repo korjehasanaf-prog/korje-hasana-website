@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | Korje Hasana Foundation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root {
+      --bg:      #0a0f1a;
+      --bg2:     #111827;
+      --bg3:     #1f2937;
+      --bg4:     #374151;
+      --border:  rgba(255,255,255,.08);
+      --border2: rgba(255,255,255,.13);
+      --green:   #145230;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --text:    #f1f5f9;
+      --muted:   #94a3b8;
+      --success: #22c55e;
+      --blue:    #3b82f6;
+      --orange:  #f97316;
+      --purple:  #a855f7;
+      --red:     #ef4444;
+      --yellow:  #eab308;
+      --sidebar: 230px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ══════════════════════════════════
+       LOGIN SCREEN
+    ══════════════════════════════════ */
+    #loginScreen {
+      position: fixed; inset: 0; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .login-card {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 40px; width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .login-logo { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .login-logo-icon { width: 48px; height: 48px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: var(--green); box-shadow: 0 0 20px rgba(240,165,0,.4); }
+    .login-logo-text h2 { font-size: 15px; color: #fff; font-weight: 700; }
+    .login-logo-text p { font-size: 11px; color: var(--muted); }
+    .login-title { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .login-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+    .role-tabs { display: flex; background: var(--bg3); border-radius: 10px; padding: 3px; margin-bottom: 20px; }
+    .role-tab { flex: 1; text-align: center; padding: 8px; border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .2s; }
+    .role-tab.active { background: var(--gold); color: var(--green); }
+    .login-field { margin-bottom: 14px; }
+    .login-field label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+    .login-input {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 10px; padding: 11px 14px; font-size: 13px;
+      color: var(--text); font-family: inherit; transition: border-color .2s;
+    }
+    .login-input:focus { outline: none; border-color: var(--gold); }
+    .login-btn {
+      width: 100%; background: linear-gradient(135deg, var(--gold), #E8A000);
+      color: var(--green); border: none; border-radius: 12px; padding: 13px;
+      font-size: 14px; font-weight: 800; cursor: pointer; transition: all .25s;
+      box-shadow: 0 4px 20px rgba(240,165,0,.35); margin-top: 6px;
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(240,165,0,.55); }
+    .login-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 14px; }
+    .login-error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: var(--red); font-size: 12px; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; display: none; }
+
+    /* ══════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════ */
+    #adminShell { display: none; min-height: 100vh; }
+    .shell { display: flex; min-height: 100vh; }
+
+    /* ══════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar); background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+      overflow-y: auto; transition: transform .3s;
+    }
+    .sb-logo { padding: 18px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .sb-logo-icon { width: 36px; height: 36px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: var(--green); flex-shrink: 0; box-shadow: 0 0 14px rgba(240,165,0,.35); }
+    .sb-logo-text { font-size: 12px; color: #fff; font-weight: 700; line-height: 1.3; }
+    .sb-logo-sub { font-size: 10px; color: var(--muted); }
+    .sb-role-badge { margin: 10px 14px; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-align: center; }
+    .sb-role-badge.super { background: linear-gradient(135deg,#4a1d96,#6d28d9); color: #fff; box-shadow: 0 0 14px rgba(109,40,217,.3); }
+    .sb-role-badge.admin { background: linear-gradient(135deg,#145230,#1E7D42); color: #fff; }
+    .sb-section { padding: 10px 14px 4px; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+    .sb-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 14px; margin: 1px 8px; border-radius: 8px;
+      font-size: 12px; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .sb-link:hover { background: rgba(255,255,255,.05); color: #fff; }
+    .sb-link.active { background: rgba(240,165,0,.12); color: var(--gold); font-weight: 600; }
+    .sb-link i { font-size: 17px; flex-shrink: 0; }
+    .sb-link .badge-count { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+    .sb-link.super-only { display: none; }
+    .super-mode .sb-link.super-only { display: flex; }
+    .sb-bottom { margin-top: auto; padding: 14px; border-top: 1px solid var(--border); }
+    .sb-user { display: flex; align-items: center; gap: 8px; }
+    .sb-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg,var(--green),var(--mdgreen)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .sb-user-name { font-size: 12px; font-weight: 600; color: #fff; }
+    .sb-user-role { font-size: 10px; color: var(--muted); }
+    .logout-btn { margin-left: auto; background: rgba(239,68,68,.1); border: none; color: var(--red); font-size: 13px; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .logout-btn:hover { background: rgba(239,68,68,.2); }
+
+    /* ══════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════ */
+    .content { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+    .topbar {
+      background: rgba(17,24,39,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .tb-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border2); background: none; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; transition: all .2s; position: relative; }
+    .tb-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .notif-dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+    .live-badge { display: flex; align-items: center; gap: 5px; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); color: var(--success); font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: blink 1.4s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .page-body { padding: 20px 24px; flex: 1; }
+
+    /* ══════════════════════════════════
+       PANELS
+    ══════════════════════════════════ */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ══════════════════════════════════
+       KPI GRID
+    ══════════════════════════════════ */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+    .kpi-card { border-radius: 14px; padding: 16px 18px; position: relative; overflow: hidden; cursor: pointer; transition: all .3s; }
+    .kpi-card:hover { transform: translateY(-3px); }
+    .kc-b { background: linear-gradient(135deg,#1e3a5f,#1e40af); box-shadow: 0 4px 18px rgba(30,64,175,.3); }
+    .kc-g { background: linear-gradient(135deg,#14532d,#166534); box-shadow: 0 4px 18px rgba(20,83,45,.3); }
+    .kc-o { background: linear-gradient(135deg,#7c2d12,#9a3412); box-shadow: 0 4px 18px rgba(154,52,18,.3); }
+    .kc-p { background: linear-gradient(135deg,#4a1d96,#6d28d9); box-shadow: 0 4px 18px rgba(109,40,217,.3); }
+    .kc-y { background: linear-gradient(135deg,#78350f,#92400e); box-shadow: 0 4px 18px rgba(146,64,14,.3); }
+    .kc-t { background: linear-gradient(135deg,#134e4a,#0f766e); box-shadow: 0 4px 18px rgba(15,118,110,.3); }
+    .kpi-card:hover.kc-b { box-shadow: 0 8px 28px rgba(30,64,175,.5); }
+    .kpi-card:hover.kc-g { box-shadow: 0 8px 28px rgba(20,83,45,.5); }
+    .kpi-card::after { content:''; position:absolute; top:-20%; right:-15%; width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,.06); pointer-events:none; }
+    .kpi-icon { font-size:22px; margin-bottom:8px; display:block; }
+    .kpi-num  { font-size:26px; font-weight:800; color:#fff; line-height:1; margin-bottom:3px; }
+    .kpi-lbl  { font-size:11px; color:rgba(255,255,255,.6); margin-bottom:6px; }
+    .kpi-bar  { height:3px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; }
+    .kpi-bar-f{ height:100%; background:rgba(255,255,255,.65); border-radius:2px; transition:width 1.4s ease; width:0; }
+
+    /* ══════════════════════════════════
+       SECTION HEADER
+    ══════════════════════════════════ */
+    .sec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .sec-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .sec-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .btn-add {
+      background: linear-gradient(135deg,var(--gold),#E8A000); color: var(--green);
+      border: none; border-radius: 10px; padding: 9px 18px; font-size: 12px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s;
+      box-shadow: 0 0 16px rgba(240,165,0,.25);
+    }
+    .btn-add:hover { box-shadow: 0 0 24px rgba(240,165,0,.45); transform: translateY(-1px); }
+    .btn-export { background: var(--bg3); border: 1px solid var(--border2); color: var(--muted); border-radius: 10px; padding: 9px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; }
+    .btn-export:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ══════════════════════════════════
+       DATA TABLE
+    ══════════════════════════════════ */
+    .tbl-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .tbl-toolbar { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .tbl-search { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 7px 12px; font-size: 12px; color: var(--text); font-family: inherit; flex: 1; min-width: 160px; }
+    .tbl-search:focus { outline: none; border-color: var(--gold); }
+    .tbl-search::placeholder { color: var(--muted); }
+    .filter-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ftab { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; border: 1px solid var(--border2); color: var(--muted); cursor: pointer; background: none; transition: all .2s; }
+    .ftab.active { background: var(--gold); color: var(--green); border-color: var(--gold); }
+    .tbl-outer { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:last-child { border: none; }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
+    tbody td { padding: 11px 14px; font-size: 12px; color: var(--text); }
+    .badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+    .b-green  { background:rgba(34,197,94,.12);  color:var(--success); }
+    .b-blue   { background:rgba(59,130,246,.12); color:var(--blue); }
+    .b-orange { background:rgba(249,115,22,.12); color:var(--orange); }
+    .b-gold   { background:rgba(240,165,0,.12);  color:var(--gold); }
+    .b-red    { background:rgba(239,68,68,.12);  color:var(--red); }
+    .b-purple { background:rgba(168,85,247,.12); color:var(--purple); }
+    .b-yellow { background:rgba(234,179,8,.12);  color:var(--yellow); }
+    .b-gray   { background:rgba(148,163,184,.1); color:var(--muted); }
+
+    /* Row action buttons */
+    .row-actions { display: flex; gap: 4px; }
+    .ra-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; font-size: 14px; }
+    .ra-view  { color: var(--blue);   } .ra-view:hover  { background:rgba(59,130,246,.12);  border-color:var(--blue);   }
+    .ra-edit  { color: var(--gold);   } .ra-edit:hover  { background:rgba(240,165,0,.12);   border-color:var(--gold);   }
+    .ra-approve { color:var(--success); } .ra-approve:hover { background:rgba(34,197,94,.12); border-color:var(--success); }
+    .ra-reject  { color:var(--orange);  } .ra-reject:hover  { background:rgba(249,115,22,.12); border-color:var(--orange);  }
+    .ra-del   { color: var(--red);    } .ra-del:hover   { background:rgba(239,68,68,.12);   border-color:var(--red);    }
+
+    /* Pagination */
+    .tbl-foot { padding: 11px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .pag-info { font-size: 11px; color: var(--muted); }
+    .pag-btns { display: flex; gap: 4px; }
+    .pag-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: none; color: var(--muted); font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .pag-btn.active { background: var(--gold); color: var(--green); border-color: var(--gold); font-weight: 700; }
+    .pag-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+
+    /* ══════════════════════════════════
+       MODAL
+    ══════════════════════════════════ */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 9000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--bg2); border: 1px solid var(--border2);
+      border-radius: 18px; width: 100%; max-width: 560px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-head { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg2); z-index: 1; }
+    .modal-title { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .modal-close { background: rgba(255,255,255,.06); border: none; color: var(--muted); width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .modal-close:hover { background: rgba(239,68,68,.15); color: var(--red); }
+    .modal-body { padding: 20px 22px; }
+    .modal-foot { padding: 14px 22px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+    /* Form fields inside modal */
+    .mf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mf-group { display: flex; flex-direction: column; gap: 4px; }
+    .mf-group.full { grid-column: 1 / -1; }
+    .mf-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+    .mf-input, .mf-select, .mf-textarea {
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: 8px; padding: 9px 12px; font-size: 12px;
+      color: var(--text); font-family: inherit; transition: border-color .2s;
+    }
+    .mf-input:focus, .mf-select:focus, .mf-textarea:focus { outline: none; border-color: var(--gold); }
+    .mf-textarea { resize: vertical; min-height: 72px; }
+    .mf-section { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .5px; grid-column: 1 / -1; margin-top: 6px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+
+    /* Modal buttons */
+    .btn-save { background: linear-gradient(135deg,var(--gold),#E8A000); color: var(--green); border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s; }
+    .btn-save:hover { box-shadow: 0 0 20px rgba(240,165,0,.4); }
+    .btn-cancel { background: var(--bg3); border: 1px solid var(--border2); color: var(--muted); border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; }
+    .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
+    .btn-del-confirm { background: linear-gradient(135deg,#7f1d1d,var(--red)); color: #fff; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 0 16px rgba(239,68,68,.25); }
+    .btn-approve-confirm { background: linear-gradient(135deg,#14532d,var(--success)); color: #fff; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    /* DELETE confirm modal */
+    .del-modal { max-width: 400px; text-align: center; }
+    .del-icon { width: 60px; height: 60px; border-radius: 50%; background: rgba(239,68,68,.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+    .del-icon i { font-size: 28px; color: var(--red); }
+
+    /* VIEW modal detail row */
+    .detail-row { display: flex; border-bottom: 1px solid var(--border); padding: 8px 0; font-size: 12px; }
+    .detail-row:last-child { border: none; }
+    .detail-key { color: var(--muted); width: 44%; flex-shrink: 0; }
+    .detail-val { color: var(--text); font-weight: 500; }
+
+    /* ══════════════════════════════════
+       NOTIFICATION TOAST
+    ══════════════════════════════════ */
+    #toast { position: fixed; bottom: 24px; right: 24px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-item { background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px; font-size: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.4); animation: toastIn .3s ease; min-width: 240px; }
+    .toast-item.success { border-color: rgba(34,197,94,.4); }
+    .toast-item.error   { border-color: rgba(239,68,68,.4); }
+    @keyframes toastIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes toastOut { to { opacity:0; transform:translateX(30px); } }
+
+    /* ══════════════════════════════════
+       SETTINGS PAGE EXTRAS
+    ══════════════════════════════════ */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .settings-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .settings-card h3 { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text); }
+    .toggle-row:last-child { border: none; }
+    .toggle { position: relative; width: 36px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; border-radius: 10px; background: var(--bg4); cursor: pointer; transition: .3s; }
+    .toggle-slider::before { content:''; position:absolute; width:14px; height:14px; left:3px; top:3px; border-radius:50%; background:#fff; transition:.3s; }
+    .toggle input:checked + .toggle-slider { background: var(--success); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(16px); }
+
+    @media (max-width: 900px) {
+      :root { --sidebar: 200px; }
+      .kpi-grid { grid-template-columns: repeat(2,1fr); }
+      .mf-grid { grid-template-columns: 1fr; }
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">KH</div>
+      <div class="login-logo-text">
+        <h2>কর্জে হাসানা ফাউন্ডেশন</h2>
+        <p>Admin Control Panel</p>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <div class="login-sub">Sign in to manage the foundation</div>
+
+    <div class="role-tabs">
+      <div class="role-tab active" onclick="setRole(this,'admin')"><i class="ti ti-shield"></i> Admin</div>
+      <div class="role-tab" onclick="setRole(this,'super')"><i class="ti ti-crown"></i> Super Admin</div>
+    </div>
+
+    <div class="login-error" id="loginError">Invalid credentials. Please try again.</div>
+
+    <div class="login-field">
+      <label>Username / Email</label>
+      <input type="text" class="login-input" id="loginUser" placeholder="admin@korjehasana.org">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" class="login-input" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="ti ti-login" style="font-size:16px;vertical-align:-2px"></i> Sign In</button>
+    <div class="login-hint">Demo: use any username &amp; password (admin / super admin mode)</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADMIN SHELL
+══════════════════════════════════════════════════════════ -->
+<div id="adminShell">
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon">KH</div>
+      <div>
+        <div class="sb-logo-text">কর্জে হাসানা</div>
+        <div class="sb-logo-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <div class="sb-role-badge" id="sbRoleBadge">Admin</div>
+
+    <div class="sb-section">Overview</div>
+    <div class="sb-link active" onclick="showPanel('dashboard',this)"><i class="ti ti-dashboard"></i>Dashboard</div>
+
+    <div class="sb-section">Loans</div>
+    <div class="sb-link" onclick="showPanel('applications',this)"><i class="ti ti-file-text"></i>Applications<span class="badge-count" id="pendingCount">7</span></div>
+    <div class="sb-link" onclick="showPanel('disbursements',this)"><i class="ti ti-currency-taka"></i>Disbursements</div>
+    <div class="sb-link" onclick="showPanel('repayments',this)"><i class="ti ti-refresh"></i>Repayments</div>
+
+    <div class="sb-section">People</div>
+    <div class="sb-link" onclick="showPanel('donors',this)"><i class="ti ti-heart-handshake"></i>Donors</div>
+    <div class="sb-link" onclick="showPanel('borrowers',this)"><i class="ti ti-users"></i>Borrowers</div>
+
+    <div class="sb-section">Finance</div>
+    <div class="sb-link" onclick="showPanel('ledger',this)"><i class="ti ti-book"></i>Ledger</div>
+    <div class="sb-link" onclick="showPanel('reports',this)"><i class="ti ti-chart-bar"></i>Reports</div>
+    <div class="sb-link" onclick="showPanel('notifications',this)"><i class="ti ti-bell-ringing"></i>Notifications<span class="badge-count" id="notifCount" style="background:#f97316">0</span></div>
+
+    <div class="sb-section">Admin</div>
+    <div class="sb-link super-only" onclick="showPanel('users',this)"><i class="ti ti-users-group"></i>User Management</div>
+    <div class="sb-link super-only" onclick="showPanel('settings',this)"><i class="ti ti-settings"></i>System Settings</div>
+    <div class="sb-link" onclick="window.open('dashboard.html','_blank')"><i class="ti ti-world"></i>Public Dashboard</div>
+    <div class="sb-link" onclick="window.open('index.html','_blank')"><i class="ti ti-home"></i>Website</div>
+
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sbAvatar">A</div>
+        <div>
+          <div class="sb-user-name" id="sbName">Admin User</div>
+          <div class="sb-user-role" id="sbRoleTxt">Administrator</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="Sign out"><i class="ti ti-logout"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <div class="live-badge"><div class="live-dot"></div>Live</div>
+        <button class="tb-btn" title="Notifications"><i class="ti ti-bell"></i><div class="notif-dot"></div></button>
+        <button class="tb-btn" title="Refresh" onclick="location.reload()"><i class="ti ti-refresh"></i></button>
+        <button class="tb-btn" title="Print" onclick="window.print()"><i class="ti ti-printer"></i></button>
+      </div>
+    </div>
+
+    <div class="page-body">
+
+      <!-- ══ DASHBOARD PANEL ══ -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card kc-b"><i class="ti ti-file-text kpi-icon" style="color:#93c5fd"></i><div class="kpi-num">127</div><div class="kpi-lbl">Total applications</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:72%"></div></div></div>
+          <div class="kpi-card kc-g"><i class="ti ti-currency-taka kpi-icon" style="color:#86efac"></i><div class="kpi-num">৳31.2L</div><div class="kpi-lbl">Total disbursed</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:65%"></div></div></div>
+          <div class="kpi-card kc-o"><i class="ti ti-arrow-back kpi-icon" style="color:#fdba74"></i><div class="kpi-num">৳18.4L</div><div class="kpi-lbl">Total repaid</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:59%"></div></div></div>
+          <div class="kpi-card kc-p"><i class="ti ti-heart kpi-icon" style="color:#d8b4fe"></i><div class="kpi-num">৳18L</div><div class="kpi-lbl">Donations received</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:47%"></div></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:16px">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:14px">Monthly Cash Flow</div>
+            <canvas id="adminLineChart" height="130"></canvas>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:14px">Applications by Status</div>
+            <canvas id="adminDonut" height="130"></canvas>
+            <div style="display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:10px">
+              <span style="font-size:11px;color:var(--muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#22c55e;margin-right:4px"></span>Approved 45%</span>
+              <span style="font-size:11px;color:var(--muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#eab308;margin-right:4px"></span>Pending 31%</span>
+              <span style="font-size:11px;color:var(--muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#ef4444;margin-right:4px"></span>Rejected 14%</span>
+              <span style="font-size:11px;color:var(--muted)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#3b82f6;margin-right:4px"></span>Completed 10%</span>
+            </div>
+          </div>
+        </div>
+        <!-- Quick actions -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:14px">Quick Actions</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-add" onclick="showPanel('applications',document.querySelector('[onclick*=applications]'))"><i class="ti ti-file-plus"></i>Review Applications</button>
+            <button class="btn-add" style="background:linear-gradient(135deg,#1565C0,#1976D2);box-shadow:0 0 16px rgba(21,101,192,.25)" onclick="openAddModal('disbursement')"><i class="ti ti-currency-taka"></i>Record Disbursement</button>
+            <button class="btn-add" style="background:linear-gradient(135deg,#14532d,#22c55e);box-shadow:0 0 16px rgba(34,197,94,.2)" onclick="openAddModal('repayment')"><i class="ti ti-refresh"></i>Record Repayment</button>
+            <button class="btn-export" onclick="showPanel('reports',document.querySelector('[onclick*=reports]'))"><i class="ti ti-chart-bar"></i>Generate Report</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ APPLICATIONS PANEL ══ -->
+      <div class="panel" id="panel-applications">
+        <div class="sec-hd">
+          <div><div class="sec-title">Loan Applications</div><div class="sec-sub">Review, approve, reject and manage all loan requests</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('applications')"><i class="ti ti-download"></i>Export</button>
+            <button class="btn-add" onclick="openAddModal('application')"><i class="ti ti-plus"></i>New Application</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar">
+            <input class="tbl-search" placeholder="🔍 Search name, NID, reference…" oninput="filterApps(this.value)">
+            <div class="filter-tabs">
+              <button class="ftab active" onclick="filterAppStatus(this,'all')">All</button>
+              <button class="ftab" onclick="filterAppStatus(this,'pending')">Pending</button>
+              <button class="ftab" onclick="filterAppStatus(this,'approved')">Approved</button>
+              <button class="ftab" onclick="filterAppStatus(this,'rejected')">Rejected</button>
+              <button class="ftab" onclick="filterAppStatus(this,'completed')">Completed</button>
+            </div>
+          </div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>Ref #</th><th>Applicant</th><th>NID</th><th>Loan Type</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th>
+          </tr></thead><tbody id="appTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="appPagInfo"></div><div class="pag-btns" id="appPagBtns"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ DISBURSEMENTS PANEL ══ -->
+      <div class="panel" id="panel-disbursements">
+        <div class="sec-hd">
+          <div><div class="sec-title">Disbursements</div><div class="sec-sub">Track all goods/bill payments made on behalf of borrowers</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('disbursements')"><i class="ti ti-download"></i>Export</button>
+            <button class="btn-add" onclick="openAddModal('disbursement')"><i class="ti ti-plus"></i>Record Disbursement</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar"><input class="tbl-search" placeholder="🔍 Search…" oninput="filterDisb(this.value)"></div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>Ref #</th><th>Borrower</th><th>Loan Type</th><th>Goods / Purpose</th><th>Vendor</th><th>Amount</th><th>Date</th><th>Actions</th>
+          </tr></thead><tbody id="disbTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="disbPagInfo"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ REPAYMENTS PANEL ══ -->
+      <div class="panel" id="panel-repayments">
+        <div class="sec-hd">
+          <div><div class="sec-title">Repayments</div><div class="sec-sub">Principal repayments received from borrowers</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('repayments')"><i class="ti ti-download"></i>Export</button>
+            <button class="btn-add" onclick="openAddModal('repayment')"><i class="ti ti-plus"></i>Record Repayment</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar"><input class="tbl-search" placeholder="🔍 Search…" oninput="filterRepay(this.value)"></div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>Ref #</th><th>Borrower</th><th>Loan Ref</th><th>Amount</th><th>Method</th><th>Date</th><th>Balance Remaining</th><th>Actions</th>
+          </tr></thead><tbody id="repayTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="repayPagInfo"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ DONORS PANEL ══ -->
+      <div class="panel" id="panel-donors">
+        <div class="sec-hd">
+          <div><div class="sec-title">Donor Management</div><div class="sec-sub">All donors and their contribution history</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('donors')"><i class="ti ti-download"></i>Export</button>
+            <button class="btn-add" onclick="openAddModal('donor')"><i class="ti ti-plus"></i>Add Donor</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar"><input class="tbl-search" placeholder="🔍 Search name, mobile…" oninput="filterDonors(this.value)"></div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>ID</th><th>Name</th><th>Mobile</th><th>Total Donated</th><th>Last Donation</th><th>Donations</th><th>Type</th><th>Actions</th>
+          </tr></thead><tbody id="donorTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="donorPagInfo"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ BORROWERS PANEL ══ -->
+      <div class="panel" id="panel-borrowers">
+        <div class="sec-hd">
+          <div><div class="sec-title">Borrowers</div><div class="sec-sub">All verified beneficiaries and their loan history</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('borrowers')"><i class="ti ti-download"></i>Export</button>
+            <button class="btn-add" onclick="openAddModal('borrower')"><i class="ti ti-plus"></i>Add Borrower</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar"><input class="tbl-search" placeholder="🔍 Search name, NID, district…" oninput="filterBorrowers(this.value)"></div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>ID</th><th>Name</th><th>NID</th><th>District</th><th>Active Loans</th><th>Total Borrowed</th><th>Repaid</th><th>Status</th><th>Actions</th>
+          </tr></thead><tbody id="borrowerTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="borrowerPagInfo"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ LEDGER PANEL ══ -->
+      <div class="panel" id="panel-ledger">
+        <div class="sec-hd">
+          <div><div class="sec-title">Financial Ledger</div><div class="sec-sub">Complete transaction history — donations, disbursements, repayments</div></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-export" onclick="exportCSV('ledger')"><i class="ti ti-download"></i>Export CSV</button>
+            <button class="btn-add super-only" id="addLedgerBtn" onclick="openAddModal('ledger')"><i class="ti ti-plus"></i>Add Entry</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-toolbar">
+            <input class="tbl-search" placeholder="🔍 Search reference, type…" oninput="filterLedger(this.value)">
+            <div class="filter-tabs">
+              <button class="ftab active" onclick="filterLedgerType(this,'all')">All</button>
+              <button class="ftab" onclick="filterLedgerType(this,'donation')">Donations</button>
+              <button class="ftab" onclick="filterLedgerType(this,'disbursement')">Disbursements</button>
+              <button class="ftab" onclick="filterLedgerType(this,'repayment')">Repayments</button>
+            </div>
+          </div>
+          <div class="tbl-outer"><table><thead><tr>
+            <th>Ref #</th><th>Date</th><th>Type</th><th>Party</th><th>Program</th><th>Dr (Out)</th><th>Cr (In)</th><th>Balance</th><th>Actions</th>
+          </tr></thead><tbody id="ledgerTableBody"></tbody></table></div>
+          <div class="tbl-foot"><div class="pag-info" id="ledgerPagInfo"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ REPORTS PANEL ══ -->
+      <div class="panel" id="panel-reports">
+        <div class="sec-hd"><div><div class="sec-title">Reports & Analytics</div><div class="sec-sub">Generate and download reports for any period</div></div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-file-spreadsheet" style="font-size:32px;color:var(--gold);display:block;margin-bottom:10px"></i>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px">Monthly Report</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:14px">All transactions for a selected month</div>
+            <select class="mf-select" style="width:100%;margin-bottom:10px"><option>June 2026</option><option>May 2026</option><option>April 2026</option></select>
+            <button class="btn-add" style="width:100%;justify-content:center" onclick="toast('Generating monthly report…','success')"><i class="ti ti-download"></i>Download</button>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-certificate" style="font-size:32px;color:#3b82f6;display:block;margin-bottom:10px"></i>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px">Annual Report</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Full fiscal year summary with charts</div>
+            <select class="mf-select" style="width:100%;margin-bottom:10px"><option>2025–26</option><option>2024–25</option></select>
+            <button class="btn-add" style="width:100%;justify-content:center;background:linear-gradient(135deg,#1565C0,#1976D2);box-shadow:0 0 16px rgba(21,101,192,.2)" onclick="toast('Generating annual report…','success')"><i class="ti ti-download"></i>Download</button>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <i class="ti ti-users" style="font-size:32px;color:var(--success);display:block;margin-bottom:10px"></i>
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:5px">Borrower Report</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Active loans, repayment status, district-wise</div>
+            <div style="height:42px"></div>
+            <button class="btn-add" style="width:100%;justify-content:center;background:linear-gradient(135deg,#14532d,var(--success));box-shadow:0 0 16px rgba(34,197,94,.2)" onclick="toast('Generating borrower report…','success')"><i class="ti ti-download"></i>Download</button>
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:14px">Cashflow — 2025–26</div>
+          <canvas id="reportBarChart" height="80"></canvas>
+        </div>
+      </div>
+
+      <!-- ══ USER MANAGEMENT PANEL (SUPER ADMIN) ══ -->
+      <div class="panel" id="panel-users">
+        <div class="sec-hd">
+          <div><div class="sec-title">User Management <span style="font-size:11px;font-weight:600;color:var(--purple);background:rgba(168,85,247,.12);padding:2px 8px;border-radius:10px;margin-left:6px">Super Admin only</span></div><div class="sec-sub">Add, edit or remove admin users and assign roles</div></div>
+          <button class="btn-add" onclick="openAddModal('user')"><i class="ti ti-user-plus"></i>Add User</button>
+        </div>
+        <div class="tbl-wrap">
+          <div class="tbl-outer"><table><thead><tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="color:var(--blue);font-weight:600">USR-001</td><td>Touhid Ahmed</td><td>touhid@grameenbank.org.bd</td><td><span class="badge b-purple">Super Admin</span></td><td style="color:var(--muted)">Today 10:24am</td><td><span class="badge b-green">Active</span></td><td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('user',0)" title="Edit"><i class="ti ti-pencil"></i></button></div></td></tr>
+            <tr><td style="color:var(--blue);font-weight:600">USR-002</td><td>Arifa Sultana</td><td>arifa@korjehasana.org</td><td><span class="badge b-gold">Admin</span></td><td style="color:var(--muted)">Yesterday 4:10pm</td><td><span class="badge b-green">Active</span></td><td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('user',1)" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('user',1,'Arifa Sultana')" title="Delete"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td style="color:var(--blue);font-weight:600">USR-003</td><td>Rafiq Hossain</td><td>rafiq@korjehasana.org</td><td><span class="badge b-blue">Viewer</span></td><td style="color:var(--muted)">3 days ago</td><td><span class="badge b-yellow">Inactive</span></td><td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('user',2)" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('user',2,'Rafiq Hossain')" title="Delete"><i class="ti ti-trash"></i></button></div></td></tr>
+          </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ══ SETTINGS PANEL (SUPER ADMIN) ══ -->
+      <div class="panel" id="panel-settings">
+        <div class="sec-hd"><div><div class="sec-title">System Settings <span style="font-size:11px;font-weight:600;color:var(--purple);background:rgba(168,85,247,.12);padding:2px 8px;border-radius:10px;margin-left:6px">Super Admin only</span></div></div><button class="btn-add" onclick="toast('Settings saved successfully','success')"><i class="ti ti-device-floppy"></i>Save All</button></div>
+        <div class="settings-grid">
+          <div class="settings-card">
+            <h3><i class="ti ti-building"></i>Foundation Info</h3>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Foundation name (EN)</label><input class="mf-input" value="Korje Hasana Foundation"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Foundation name (BN)</label><input class="mf-input" value="কর্জে হাসানা ফাউন্ডেশন"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Contact email</label><input class="mf-input" value="info@korjehasana.org"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">WhatsApp number</label><input class="mf-input" value="+880-1XXXXXXXXX"></div>
+            <div class="mf-group"><label class="mf-label">Address</label><textarea class="mf-textarea" style="min-height:56px">Dhaka Division, Bangladesh</textarea></div>
+          </div>
+          <div class="settings-card">
+            <h3><i class="ti ti-adjustments"></i>Loan Settings</h3>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Max loan — Agriculture (৳)</label><input class="mf-input" value="35000"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Max loan — Business (৳)</label><input class="mf-input" value="75000"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Max loan — Medical (৳)</label><input class="mf-input" value="100000"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Approval deadline (days)</label><input class="mf-input" value="14"></div>
+            <div class="mf-group"><label class="mf-label">Committee approval quorum</label><input class="mf-input" value="3 of 5 members"></div>
+          </div>
+          <div class="settings-card">
+            <h3><i class="ti ti-toggle-right"></i>Feature Toggles</h3>
+            <div class="toggle-row">Public dashboard visible<label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row">Online applications open<label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row">Online donations open<label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row">SMS notifications<label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row">Email receipts<label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row">Auto-generate vouchers<label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+          </div>
+          <div class="settings-card">
+            <h3><i class="ti ti-shield-lock"></i>Security (Super Admin)</h3>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Current password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">New password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
+            <div class="mf-group" style="margin-bottom:14px"><label class="mf-label">Confirm new password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
+            <button class="btn-add" style="width:100%;justify-content:center" onclick="toast('Password updated','success')"><i class="ti ti-key"></i>Update Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ NOTIFICATIONS PANEL ══ -->
+      <div class="panel" id="panel-notifications">
+        <div class="sec-hd">
+          <div>
+            <div class="sec-title">EMI Reminder Notifications</div>
+            <div class="sec-sub">Automatic SMS &amp; WhatsApp reminders — 7 days and 1 day before each instalment due date</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn-export" onclick="requestBrowserNotif()"><i class="ti ti-bell"></i>Enable Browser Alerts</button>
+            <button class="btn-add" onclick="sendAllPending()"><i class="ti ti-send"></i>Send All Pending</button>
+          </div>
+        </div>
+
+        <!-- Schedule config card -->
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">Notification Schedule</div>
+              <div style="font-size:12px;color:var(--muted)">System runs daily at <strong style="color:var(--gold)">9:00 AM</strong> — checks all upcoming dues and dispatches reminders automatically.</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <div style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:10px;padding:10px 16px;text-align:center">
+                <div style="font-size:20px;font-weight:800;color:var(--orange)" id="cnt7d">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">Due in 7 days</div>
+              </div>
+              <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px 16px;text-align:center">
+                <div style="font-size:20px;font-weight:800;color:var(--red)" id="cnt1d">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">Due tomorrow</div>
+              </div>
+              <div style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px 16px;text-align:center">
+                <div style="font-size:20px;font-weight:800;color:var(--success)" id="cntSent">0</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:2px">Sent today</div>
+              </div>
+            </div>
+          </div>
+          <!-- Channel toggles -->
+          <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:14px;display:flex;gap:16px;flex-wrap:wrap">
+            <div style="font-size:12px;font-weight:700;color:var(--muted);align-self:center">Channels:</div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);cursor:pointer">
+              <label class="toggle"><input type="checkbox" id="chSMS" checked><div class="toggle-slider"></div></label> SMS (SSL Wireless)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);cursor:pointer">
+              <label class="toggle"><input type="checkbox" id="chWA" checked><div class="toggle-slider"></div></label> WhatsApp
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text);cursor:pointer">
+              <label class="toggle"><input type="checkbox" id="chBrowser"><div class="toggle-slider"></div></label> Browser Push
+            </label>
+            <div style="margin-left:auto;font-size:11px;color:var(--muted);align-self:center">
+              <i class="ti ti-clock" style="font-size:13px;vertical-align:-2px"></i> Last run: Today 9:00 AM
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+          <button class="ftab active" onclick="filterNotif(this,'all')">All Upcoming</button>
+          <button class="ftab" style="border-color:rgba(239,68,68,.3);color:var(--red)" onclick="filterNotif(this,'1d')">🔴 Due Tomorrow (1-day)</button>
+          <button class="ftab" style="border-color:rgba(249,115,22,.3);color:var(--orange)" onclick="filterNotif(this,'7d')">🟠 Due in 7 Days</button>
+          <button class="ftab" onclick="filterNotif(this,'overdue')">⚠ Overdue</button>
+          <button class="ftab" onclick="filterNotif(this,'sent')">✓ Sent Today</button>
+        </div>
+
+        <!-- Notification table -->
+        <div class="tbl-wrap" style="margin-bottom:16px">
+          <div class="tbl-toolbar">
+            <input class="tbl-search" placeholder="🔍 Search borrower name…" oninput="filterNotifSearch(this.value)">
+            <div style="font-size:11px;color:var(--muted);margin-left:auto">Today: <strong style="color:var(--gold)" id="todayDateLbl"></strong></div>
+          </div>
+          <div class="tbl-outer">
+            <table style="min-width:700px">
+              <thead><tr>
+                <th>Borrower</th><th>Mobile</th><th>Loan Ref</th><th>Instalment</th><th>Due Date</th><th>Days Left</th><th>Trigger</th><th>Status</th><th>Action</th>
+              </tr></thead>
+              <tbody id="notifTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notification log -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <!-- SMS template -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:7px"><i class="ti ti-message-2" style="color:var(--gold)"></i>SMS Template</div>
+            <div style="background:var(--bg3);border-radius:10px;padding:14px;font-size:12px;color:var(--text);line-height:1.7;margin-bottom:12px;border-left:3px solid var(--gold)">
+              <div style="color:var(--muted);font-size:10px;margin-bottom:4px">7-DAY REMINDER</div>
+              প্রিয় <span style="color:var(--gold)">[নাম]</span>, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (<span style="color:var(--gold)">[Ref]</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">[Amount]</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে (<span style="color:var(--gold)">[Date]</span>) পরিশোধযোগ্য। bKash: 01XXXXXXXXX। ধন্যবাদ।
+            </div>
+            <div style="background:var(--bg3);border-radius:10px;padding:14px;font-size:12px;color:var(--text);line-height:1.7;border-left:3px solid var(--red)">
+              <div style="color:var(--muted);font-size:10px;margin-bottom:4px">1-DAY REMINDER</div>
+              প্রিয় <span style="color:var(--gold)">[নাম]</span>, আপনার কর্জে হাসানা কিস্তি <strong>৳<span style="color:var(--gold)">[Amount]</span></strong> <strong>আগামীকাল</strong> (<span style="color:var(--gold)">[Date]</span>) পরিশোধযোগ্য। সময়মতো পরিশোধ করুন। bKash 01XXXXXXXXX এ পাঠান, Ref: <span style="color:var(--gold)">[Ref]</span>। যোগাযোগ: 01XXXXXXXXX।
+            </div>
+          </div>
+          <!-- Recent log -->
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px">
+            <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:7px"><i class="ti ti-history" style="color:var(--gold)"></i>Notification Log (Today)</div>
+            <div id="notifLog" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto"></div>
+          </div>
+        </div>
+
+        <!-- SMS Gateway config -->
+        <div class="settings-card" style="margin-top:14px">
+          <h3><i class="ti ti-message-2"></i>SMS Gateway — SSL Wireless Bangladesh</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="mf-group"><label class="mf-label">API Endpoint</label><input class="mf-input" value="https://sms.sslwireless.com/pushapi/dynamic/server.php"></div>
+            <div class="mf-group"><label class="mf-label">API Token</label><input class="mf-input" type="password" id="smsApiToken" placeholder="Your SSL Wireless API token"></div>
+            <div class="mf-group"><label class="mf-label">Sender ID (approved)</label><input class="mf-input" id="smsSenderID" value="KorjeHasana"></div>
+            <div class="mf-group"><label class="mf-label">CSMSID (unique per batch)</label><input class="mf-input" id="smsCsmsID" value="KH-EMI-2026"></div>
+          </div>
+          <button class="btn-add" style="margin-top:12px" onclick="saveSMSConfig()"><i class="ti ti-device-floppy"></i>Save SMS Config</button>
+        </div>
+
+        <!-- ══ WHATSAPP BUSINESS API ══ -->
+        <div style="margin-top:14px;background:linear-gradient(135deg,rgba(7,94,84,.3),rgba(18,140,126,.2));border:1px solid rgba(37,211,102,.2);border-radius:14px;padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:38px;height:38px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(37,211,102,.35)"><i class="ti ti-brand-whatsapp" style="font-size:20px;color:#fff"></i></div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff">WhatsApp Business API</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.6)">Meta Cloud API · প্রথম ১,০০০ conversation/মাস বিনামূল্যে</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div id="waStatusDot" style="width:8px;height:8px;border-radius:50%;background:#ef4444"></div>
+              <div id="waStatusTxt" style="font-size:11px;color:rgba(255,255,255,.6)">Not configured</div>
+            </div>
+          </div>
+
+          <!-- Config fields -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div class="mf-group"><label class="mf-label">Phone Number ID</label><input class="mf-input" id="waPhoneID" placeholder="e.g. 123456789012345"></div>
+            <div class="mf-group"><label class="mf-label">WhatsApp Business Account ID</label><input class="mf-input" id="waBAID" placeholder="e.g. 987654321098765"></div>
+            <div class="mf-group" style="grid-column:1/-1"><label class="mf-label">Access Token (Permanent)</label><input class="mf-input" type="password" id="waToken" placeholder="EAAxxxxxxxxxx…"></div>
+            <div class="mf-group"><label class="mf-label">API Version</label><select class="mf-select" id="waVersion"><option>v19.0</option><option>v18.0</option><option>v17.0</option></select></div>
+            <div class="mf-group"><label class="mf-label">From Number (display)</label><input class="mf-input" id="waFrom" value="+880-1XXXXXXXXX"></div>
+          </div>
+
+          <!-- Template selector -->
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-template"></i>Message Templates (Meta-approved)</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+              <button class="ftab active" id="waTpl7d" onclick="selectWATpl(this,'7d')" style="border-color:rgba(37,211,102,.3);color:#86efac">7-Day Reminder</button>
+              <button class="ftab" id="waTpl1d" onclick="selectWATpl(this,'1d')" style="color:var(--muted)">1-Day Reminder</button>
+              <button class="ftab" id="waTplOD" onclick="selectWATpl(this,'overdue')" style="color:var(--muted)">Overdue Notice</button>
+            </div>
+            <div id="waTplPreview" style="background:rgba(255,255,255,.07);border-radius:8px;padding:12px;font-size:12px;color:rgba(255,255,255,.85);line-height:1.8;border-left:3px solid #25D366">
+              <div style="font-size:10px;color:#86efac;margin-bottom:6px;font-weight:700">TEMPLATE: korje_emi_7day</div>
+              প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>
+              কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>
+              💳 bKash / Nagad: <strong>01XXXXXXXXX</strong><br>
+              📌 Ref: <span style="color:var(--gold)">{{2}}</span><br><br>
+              যোগাযোগ: 01XXXXXXXXX | korjehasana.org
+            </div>
+          </div>
+
+          <!-- Test + Save -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-add" style="background:linear-gradient(135deg,#075E54,#128C7E);box-shadow:0 0 14px rgba(37,211,102,.2)" onclick="saveWAConfig()"><i class="ti ti-device-floppy"></i>Save WA Config</button>
+            <button class="btn-export" style="border-color:rgba(37,211,102,.3);color:#25D366" onclick="testWAConnection()"><i class="ti ti-plug"></i>Test Connection</button>
+            <button class="btn-export" style="border-color:rgba(37,211,102,.3);color:#25D366" onclick="sendWABulk()"><i class="ti ti-send"></i>Send All Pending via WA</button>
+          </div>
+
+          <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:start;gap:6px">
+            <i class="ti ti-info-circle" style="flex-shrink:0;margin-top:1px"></i>
+            Setup guide: business.facebook.com → WhatsApp Manager → API Setup → অতঃপর Phone Number ID ও Access Token এখানে সংরক্ষণ করুন। Templates Meta থেকে approve করিয়ে নিন।
+          </div>
+        </div>
+
+        <!-- ══ SSL WIRELESS IVR VOICE CALL ══ -->
+        <div style="margin-top:14px;background:linear-gradient(135deg,rgba(30,58,138,.3),rgba(30,64,175,.2));border:1px solid rgba(59,130,246,.2);border-radius:14px;padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:38px;height:38px;background:linear-gradient(135deg,#1565C0,#1976D2);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px rgba(59,130,246,.3)"><i class="ti ti-phone-calling" style="font-size:20px;color:#fff"></i></div>
+              <div>
+                <div style="font-size:14px;font-weight:800;color:#fff">IVR Voice Call — SSL Wireless</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.6)">Text-to-Speech বাংলা ভয়েস · প্রতি কল ~৳0.50–1.50</div>
+              </div>
+            </div>
+            <div style="background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);color:var(--orange);font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px">⚙ Ready — API key দিলেই সক্রিয়</div>
+          </div>
+
+          <!-- Voice config -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div class="mf-group"><label class="mf-label">SSL Wireless Username</label><input class="mf-input" id="ivrUser" placeholder="Your SSL account username"></div>
+            <div class="mf-group"><label class="mf-label">SSL Wireless Password</label><input class="mf-input" type="password" id="ivrPass" placeholder="••••••••"></div>
+            <div class="mf-group"><label class="mf-label">API SID</label><input class="mf-input" id="ivrSID" placeholder="Provided by SSL Wireless"></div>
+            <div class="mf-group"><label class="mf-label">Caller ID (approved)</label><input class="mf-input" id="ivrCallerID" value="01XXXXXXXXX"></div>
+            <div class="mf-group"><label class="mf-label">Voice Language</label><select class="mf-select" id="ivrLang"><option value="bn">বাংলা (Bengali)</option><option value="en">English</option></select></div>
+            <div class="mf-group"><label class="mf-label">Voice Gender</label><select class="mf-select" id="ivrGender"><option value="female">Female (নারী কণ্ঠ)</option><option value="male">Male (পুরুষ কণ্ঠ)</option></select></div>
+            <div class="mf-group"><label class="mf-label">Call Schedule Time</label><input class="mf-input" type="time" id="ivrTime" value="10:00"></div>
+            <div class="mf-group"><label class="mf-label">Max Retry Attempts</label><select class="mf-select" id="ivrRetry"><option>1</option><option>2</option><option selected>3</option></select></div>
+          </div>
+
+          <!-- TTS Script builder -->
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:10px;display:flex;align-items:center;gap:6px"><i class="ti ti-microphone"></i>IVR Voice Script (Text-to-Speech)</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+              <button class="ftab active" id="ivrTpl7d" onclick="selectIVRTpl(this,'7d')" style="border-color:rgba(59,130,246,.3);color:#93c5fd">7-Day Call</button>
+              <button class="ftab" id="ivrTpl1d" onclick="selectIVRTpl(this,'1d')" style="color:var(--muted)">1-Day Call</button>
+              <button class="ftab" id="ivrTplOD" onclick="selectIVRTpl(this,'overdue')" style="color:var(--muted)">Overdue Call</button>
+            </div>
+            <textarea class="mf-textarea" id="ivrScript" style="min-height:100px;font-size:13px;line-height:1.8">আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। আপনার মাসিক কিস্তি আগামী সাত দিনের মধ্যে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।</textarea>
+            <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:5px"><i class="ti ti-info-circle"></i> Script-এ {name}, {amount}, {date}, {ref} ব্যবহার করলে স্বয়ংক্রিয়ভাবে replace হবে।</div>
+          </div>
+
+          <!-- IVR schedule toggle -->
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;margin-bottom:14px">
+            <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.8);margin-bottom:10px">Auto-Call Schedule</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7)">
+                <span><i class="ti ti-bell" style="color:var(--orange);margin-right:6px"></i>7-day reminder call চালু করুন</span>
+                <label class="toggle"><input type="checkbox" id="ivr7dEnable"><div class="toggle-slider"></div></label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7)">
+                <span><i class="ti ti-bell-ringing" style="color:var(--red);margin-right:6px"></i>1-day reminder call চালু করুন</span>
+                <label class="toggle"><input type="checkbox" id="ivr1dEnable"><div class="toggle-slider"></div></label>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.7)">
+                <span><i class="ti ti-alert-triangle" style="color:var(--yellow);margin-right:6px"></i>Overdue notice call চালু করুন</span>
+                <label class="toggle"><input type="checkbox" id="ivrODEnable"><div class="toggle-slider"></div></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Test + Save -->
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-add" style="background:linear-gradient(135deg,#1565C0,#1976D2);box-shadow:0 0 14px rgba(59,130,246,.2)" onclick="saveIVRConfig()"><i class="ti ti-device-floppy"></i>Save IVR Config</button>
+            <button class="btn-export" style="border-color:rgba(59,130,246,.3);color:var(--blue)" onclick="testIVRCall()"><i class="ti ti-phone"></i>Test Call (My Number)</button>
+            <button class="btn-export" style="border-color:rgba(59,130,246,.3);color:var(--blue)" onclick="sendIVRBulk()"><i class="ti ti-phone-outgoing"></i>Initiate All Pending Calls</button>
+          </div>
+
+          <div style="margin-top:12px;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:start;gap:6px">
+            <i class="ti ti-info-circle" style="flex-shrink:0;margin-top:1px"></i>
+            SSL Wireless থেকে Voice Call API পেতে: sslwireless.com → Enterprise → Voice &amp; IVR → Apply। API credentials পাওয়ার পর এখানে সংরক্ষণ করুন। প্রতি কলের খরচ প্রায় ৳0.50–1.50।
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /page-body -->
+  </div><!-- /content -->
+</div><!-- /shell -->
+</div><!-- /adminShell -->
+
+<!-- ══════════════════════════════════════════════
+     ADD / EDIT MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle"><i class="ti ti-plus"></i>Add Record</div>
+      <button class="modal-close" onclick="closeModal('addModal')">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn-save" id="modalSaveBtn" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head"><div class="modal-title" id="viewModalTitle"><i class="ti ti-eye"></i>View Record</div><button class="modal-close" onclick="closeModal('viewModal')">×</button></div>
+    <div class="modal-body" id="viewModalBody"></div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal('viewModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal del-modal">
+    <div class="modal-body" style="padding:32px 24px">
+      <div class="del-icon"><i class="ti ti-trash"></i></div>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px">Confirm Delete</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Are you sure you want to delete</div>
+      <div style="font-size:15px;font-weight:700;color:var(--red);margin-bottom:20px" id="deleteItemName">—</div>
+      <div style="font-size:12px;color:var(--muted);background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px;margin-bottom:20px">This action cannot be undone. The record will be permanently removed.</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+        <button class="btn-del-confirm" onclick="confirmDelete()"><i class="ti ti-trash"></i> Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+/* ══════════════════════════════════
+   DATA STORES
+══════════════════════════════════ */
+let currentRole = 'admin';
+let pendingDelete = null;
+
+const APPS = [
+  { id:'KH-APP-0127', name:'মোঃ রফিকুল ইসলাম', nid:'1234567890123', type:'Agriculture', amt:25000, date:'26 Jun 2026', status:'Pending', district:'Gazipur' },
+  { id:'KH-APP-0126', name:'Selina Begum',       nid:'9876543210987', type:'Business',   amt:50000, date:'24 Jun 2026', status:'Approved', district:'Dhaka' },
+  { id:'KH-APP-0125', name:'Karim Hossain',      nid:'1122334455667', type:'Education',  amt:35000, date:'22 Jun 2026', status:'Pending', district:'Narayanganj' },
+  { id:'KH-APP-0124', name:'Nasrin Akter',        nid:'7788990011223', type:'Medical',   amt:80000, date:'20 Jun 2026', status:'Approved', district:'Narsingdi' },
+  { id:'KH-APP-0123', name:'Jalal Uddin',         nid:'3344556677889', type:'Business',  amt:75000, date:'18 Jun 2026', status:'Rejected', district:'Dhaka' },
+  { id:'KH-APP-0122', name:'Rahima Khatun',       nid:'5566778899001', type:'Family',    amt:20000, date:'16 Jun 2026', status:'Completed', district:'Manikganj' },
+  { id:'KH-APP-0121', name:'Abul Kalam',          nid:'9900112233445', type:'Emergency', amt:15000, date:'14 Jun 2026', status:'Approved', district:'Munshiganj' },
+  { id:'KH-APP-0120', name:'Shirin Sultana',      nid:'2233445566778', type:'Agriculture',amt:30000,date:'12 Jun 2026', status:'Pending', district:'Gazipur' },
+  { id:'KH-APP-0119', name:'Hafizur Rahman',      nid:'6677889900112', type:'Business',  amt:60000, date:'10 Jun 2026', status:'Pending', district:'Dhaka' },
+  { id:'KH-APP-0118', name:'Monira Begum',        nid:'0011223344556', type:'Medical',   amt:45000, date:'08 Jun 2026', status:'Approved', district:'Narayanganj' },
+  { id:'KH-APP-0117', name:'Nurul Islam',         nid:'4455667788990', type:'Education', amt:40000, date:'06 Jun 2026', status:'Completed', district:'Narsingdi' },
+  { id:'KH-APP-0116', name:'Farida Yeasmin',      nid:'8899001122334', type:'Agriculture',amt:20000,date:'04 Jun 2026', status:'Pending', district:'Munshiganj' },
+  { id:'KH-APP-0115', name:'Zakir Hossain',       nid:'3322110099887', type:'Business',  amt:55000, date:'02 Jun 2026', status:'Rejected', district:'Dhaka' },
+  { id:'KH-APP-0114', name:'Amina Begum',         nid:'7766554433221', type:'Family',    amt:25000, date:'31 May 2026', status:'Pending', district:'Gazipur' },
+  { id:'KH-APP-0113', name:'Sohel Rana',          nid:'1199887766554', type:'Emergency', amt:10000, date:'29 May 2026', status:'Approved', district:'Manikganj' },
+  { id:'KH-APP-0112', name:'Taslima Khanam',      nid:'5544332211009', type:'Agriculture',amt:35000,date:'27 May 2026', status:'Completed', district:'Narayanganj' },
+  { id:'KH-APP-0111', name:'Mortuza Ali',         nid:'9988776655443', type:'Medical',   amt:70000, date:'25 May 2026', status:'Approved', district:'Dhaka' },
+];
+
+const DISB = [
+  { id:'KH-D-0127', borrower:'মোঃ রফিকুল ইসলাম', type:'Agriculture', goods:'Seeds & fertiliser (BRRI Dhan-28)', vendor:'Agro BD, Kapasia', amt:25000, date:'26 Jun 2026' },
+  { id:'KH-D-0126', borrower:'Selina Begum',       type:'Business',   goods:'Grocery stock — 200 items',          vendor:'Dhaka Bazar, Mirpur', amt:50000, date:'24 Jun 2026' },
+  { id:'KH-D-0125', borrower:'Nasrin Akter',       type:'Medical',    goods:'Hospital bill — BIRDEM',             vendor:'BIRDEM Hospital', amt:80000, date:'22 Jun 2026' },
+  { id:'KH-D-0124', borrower:'Abul Kalam',         type:'Emergency',  goods:'Flood relief — materials',           vendor:'Sathi Store',   amt:15000, date:'20 Jun 2026' },
+  { id:'KH-D-0123', borrower:'Shirin Sultana',     type:'Agriculture','goods':'Irrigation pump + pipes',          vendor:'Krishi Yantra Bhandar', amt:30000, date:'18 Jun 2026' },
+];
+
+const REPAY = [
+  { id:'KH-R-0126', borrower:'Rahima Khatun',   loanRef:'KH-D-0112', amt:1667, method:'bKash', date:'25 Jun 2026', balance:18333 },
+  { id:'KH-R-0125', borrower:'Selina Begum',     loanRef:'KH-D-0126', amt:4167, method:'Nagad', date:'23 Jun 2026', balance:45833 },
+  { id:'KH-R-0124', borrower:'Nurul Islam',      loanRef:'KH-D-0120', amt:3333, method:'bKash', date:'21 Jun 2026', balance:0 },
+  { id:'KH-R-0123', borrower:'Monira Begum',     loanRef:'KH-D-0118', amt:3750, method:'Rocket',date:'19 Jun 2026', balance:41250 },
+  { id:'KH-R-0122', borrower:'মোঃ রফিকুল ইসলাম',loanRef:'KH-D-0127', amt:2083, method:'bKash', date:'17 Jun 2026', balance:22917 },
+];
+
+const DONORS = [
+  { id:'KH-DN-001', name:'Rafiqul Islam',  mobile:'01711XXXXXX', total:25000, last:'Jun 2026', count:4, type:'Regular' },
+  { id:'KH-DN-002', name:'Selina Akhter',  mobile:'01812XXXXXX', total:15000, last:'Jun 2026', count:2, type:'Monthly' },
+  { id:'KH-DN-003', name:'Anonymous',      mobile:'—',           total:10000, last:'Jun 2026', count:1, type:'One-time' },
+  { id:'KH-DN-004', name:'Karim Hossain',  mobile:'01912XXXXXX', total:8500,  last:'May 2026', count:3, type:'Regular' },
+  { id:'KH-DN-005', name:'Nazia Begum',    mobile:'01611XXXXXX', total:5000,  last:'Apr 2026', count:2, type:'Regular' },
+  { id:'KH-DN-006', name:'Overseas Donor', mobile:'—',           total:50000, last:'Jun 2026', count:5, type:'One-time' },
+];
+
+const BORROWERS = [
+  { id:'KH-BR-001', name:'মোঃ রফিকুল ইসলাম', nid:'1234567890123', district:'Gazipur',     active:1, total:25000, repaid:4166, status:'Active' },
+  { id:'KH-BR-002', name:'Selina Begum',       nid:'9876543210987', district:'Dhaka',        active:1, total:50000, repaid:8334, status:'Active' },
+  { id:'KH-BR-003', name:'Rahima Khatun',      nid:'5566778899001', district:'Manikganj',    active:0, total:20000, repaid:20000,status:'Completed' },
+  { id:'KH-BR-004', name:'Nurul Islam',        nid:'4455667788990', district:'Narsingdi',    active:0, total:40000, repaid:40000,status:'Completed' },
+  { id:'KH-BR-005', name:'Nasrin Akter',       nid:'7788990011223', district:'Narayanganj',  active:1, total:80000, repaid:15000,status:'Active' },
+  { id:'KH-BR-006', name:'Abul Kalam',         nid:'9900112233445', district:'Munshiganj',   active:1, total:15000, repaid:2000, status:'Active' },
+];
+
+const LEDGER_DATA = [
+  { ref:'KH-DON-1241', date:'25 Jun 2026', type:'Donation',      party:'Rafiqul Islam',      prog:'—',          dr:0,     cr:10000, bal:180000 },
+  { ref:'KH-D-0127',   date:'26 Jun 2026', type:'Disbursement',  party:'মোঃ রফিকুল ইসলাম',   prog:'Agriculture', dr:25000, cr:0,     bal:155000 },
+  { ref:'KH-R-0126',   date:'25 Jun 2026', type:'Repayment',     party:'Rahima Khatun',      prog:'Family',     dr:0,     cr:1667,  bal:156667 },
+  { ref:'KH-DON-1240', date:'22 Jun 2026', type:'Donation',      party:'Selina Akhter',      prog:'—',          dr:0,     cr:5000,  bal:155000 },
+  { ref:'KH-D-0126',   date:'24 Jun 2026', type:'Disbursement',  party:'Selina Begum',       prog:'Business',   dr:50000, cr:0,     bal:100000 },
+  { ref:'KH-R-0125',   date:'23 Jun 2026', type:'Repayment',     party:'Selina Begum',       prog:'Business',   dr:0,     cr:4167,  bal:150000 },
+];
+
+const statusBadge = { Pending:'b-yellow', Approved:'b-green', Rejected:'b-red', Completed:'b-blue', Active:'b-green' };
+const typeBadge   = { Donation:'b-blue', Disbursement:'b-orange', Repayment:'b-green' };
+
+/* ══════════════════════════════════
+   LOGIN
+══════════════════════════════════ */
+let loginRole = 'admin';
+function setRole(el, role) {
+  loginRole = role;
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (!u || !p) { showLoginError('Please fill in all fields.'); return; }
+  currentRole = loginRole;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminShell').style.display = 'block';
+  if (currentRole === 'super') {
+    document.getElementById('sidebar').classList.add('super-mode');
+    document.getElementById('sbRoleBadge').textContent = '⭐ Super Admin';
+    document.getElementById('sbRoleBadge').classList.remove('admin'); document.getElementById('sbRoleBadge').classList.add('super');
+    document.getElementById('sbRoleTxt').textContent = 'Super Administrator';
+    document.getElementById('addLedgerBtn') && (document.getElementById('addLedgerBtn').style.display = 'flex');
+  } else {
+    document.getElementById('sbRoleBadge').textContent = 'Admin';
+  }
+  document.getElementById('sbAvatar').textContent = u.charAt(0).toUpperCase();
+  document.getElementById('sbName').textContent = u;
+  initCharts();
+  renderApps(); renderDisb(); renderRepay(); renderDonors(); renderBorrowers(); renderLedger();
+}
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+function doLogout() {
+  document.getElementById('adminShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+/* ══════════════════════════════════
+   NAVIGATION
+══════════════════════════════════ */
+const panelTitles = { dashboard:'Dashboard', applications:'Loan Applications', disbursements:'Disbursements', repayments:'Repayments', donors:'Donor Management', borrowers:'Borrowers', ledger:'Financial Ledger', reports:'Reports', notifications:'EMI Notifications', users:'User Management', settings:'System Settings' };
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = panelTitles[name] || name;
+}
+
+/* ══════════════════════════════════
+   CHARTS
+══════════════════════════════════ */
+function initCharts() {
+  const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
+  new Chart(document.getElementById('adminLineChart'), {
+    type:'line', data:{ labels:months, datasets:[
+      { label:'Disbursed', data:[120,95,180,210,160,140,220,190,250,280,175,240].map(v=>v*1000), borderColor:'#F0A500', tension:.4, fill:false, pointRadius:2, pointBackgroundColor:'#F0A500' },
+      { label:'Repaid',    data:[30,45,60,80,95,110,130,155,170,195,140,184].map(v=>v*1000),    borderColor:'#22c55e', tension:.4, fill:false, pointRadius:2, pointBackgroundColor:'#22c55e' },
+      { label:'Donated',   data:[45,32,68,55,78,90,42,85,70,95,62,84.5].map(v=>v*1000),        borderColor:'#a855f7', tension:.4, fill:false, pointRadius:2, pointBackgroundColor:'#a855f7' }
+    ]}, options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#94a3b8',font:{size:9}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#94a3b8',font:{size:9},callback:v=>'৳'+(v/1000)+'k'}} } }
+  });
+  new Chart(document.getElementById('adminDonut'), {
+    type:'doughnut', data:{ labels:['Approved','Pending','Rejected','Completed'], datasets:[{ data:[45,31,14,10], backgroundColor:['#22c55e','#eab308','#ef4444','#3b82f6'], borderWidth:0, hoverOffset:4 }] },
+    options:{ responsive:true, maintainAspectRatio:true, cutout:'68%', plugins:{legend:{display:false}} }
+  });
+  new Chart(document.getElementById('reportBarChart'), {
+    type:'bar', data:{ labels:['Jul 25','Aug','Sep','Oct','Nov','Dec','Jan 26','Feb','Mar','Apr','May','Jun'], datasets:[
+      { label:'Donations', data:[45,32,68,55,78,90,42,85,70,95,62,84.5].map(v=>v*1000), backgroundColor:'rgba(240,165,0,.7)', borderRadius:4 },
+      { label:'Disbursements', data:[120,95,180,210,160,140,220,190,250,280,175,240].map(v=>v*1000), backgroundColor:'rgba(249,115,22,.6)', borderRadius:4 },
+      { label:'Repayments', data:[30,45,60,80,95,110,130,155,170,195,140,184].map(v=>v*1000), backgroundColor:'rgba(34,197,94,.6)', borderRadius:4 }
+    ]}, options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:9}}}, y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#94a3b8',font:{size:9},callback:v=>'৳'+(v/1000)+'k'}} } }
+  });
+}
+
+/* ══════════════════════════════════
+   RENDER TABLES
+══════════════════════════════════ */
+let appFilter = 'all', appSearch = '';
+function renderApps() {
+  let data = APPS.filter(r => (appFilter==='all'||r.status.toLowerCase()===appFilter) && (JSON.stringify(r).toLowerCase().includes(appSearch.toLowerCase())));
+  document.getElementById('appPagInfo').textContent = data.length + ' applications';
+  document.getElementById('pendingCount').textContent = APPS.filter(a=>a.status==='Pending').length;
+  document.getElementById('appTableBody').innerHTML = data.map((r,i) => `
+    <tr>
+      <td style="color:var(--blue);font-weight:600;font-size:11px">${r.id}</td>
+      <td style="font-weight:600">${r.name}</td>
+      <td style="color:var(--muted);font-size:11px">${r.nid}</td>
+      <td><span class="badge b-gray">${r.type}</span></td>
+      <td style="font-weight:700;color:var(--gold)">৳${r.amt.toLocaleString()}</td>
+      <td style="color:var(--muted);font-size:11px">${r.date}</td>
+      <td><span class="badge ${statusBadge[r.status]||'b-gray'}">${r.status}</span></td>
+      <td><div class="row-actions">
+        <button class="ra-btn ra-view" onclick="viewApp(${i})" title="View"><i class="ti ti-eye"></i></button>
+        <button class="ra-btn ra-edit" onclick="openEditModal('application',${i})" title="Edit"><i class="ti ti-pencil"></i></button>
+        ${r.status==='Pending'?`<button class="ra-btn ra-approve" onclick="changeAppStatus(${i},'Approved')" title="Approve"><i class="ti ti-check"></i></button><button class="ra-btn ra-reject" onclick="changeAppStatus(${i},'Rejected')" title="Reject"><i class="ti ti-x"></i></button>`:''}
+        <button class="ra-btn ra-del" onclick="openDeleteModal('application',${i},r.id)" title="Delete"><i class="ti ti-trash"></i></button>
+      </div></td>
+    </tr>`).join('');
+}
+function filterApps(q)         { appSearch=q; renderApps(); }
+function filterAppStatus(el,f) { document.querySelectorAll('#panel-applications .ftab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); appFilter=f; renderApps(); }
+function changeAppStatus(i, status) {
+  const actualIdx = APPS.indexOf(APPS.filter(r=>(appFilter==='all'||r.status.toLowerCase()===appFilter)&&JSON.stringify(r).toLowerCase().includes(appSearch.toLowerCase()))[i]);
+  if (actualIdx>=0) { APPS[actualIdx].status=status; renderApps(); toast('Status updated to '+status,'success'); }
+}
+
+let disbSearch = '';
+function renderDisb() {
+  let data = DISB.filter(r=>JSON.stringify(r).toLowerCase().includes(disbSearch.toLowerCase()));
+  document.getElementById('disbPagInfo').textContent = data.length+' records';
+  document.getElementById('disbTableBody').innerHTML = data.map((r,i)=>`
+    <tr><td style="color:var(--blue);font-weight:600;font-size:11px">${r.id}</td><td style="font-weight:600">${r.borrower}</td><td><span class="badge b-gray">${r.type}</span></td>
+    <td style="font-size:11px;color:var(--muted)">${r.goods}</td><td style="font-size:11px">${r.vendor}</td>
+    <td style="font-weight:700;color:var(--orange)">৳${r.amt.toLocaleString()}</td><td style="color:var(--muted);font-size:11px">${r.date}</td>
+    <td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('disbursement',${i})" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('disbursement',${i},r.id)" title="Delete"><i class="ti ti-trash"></i></button></div></td>
+    </tr>`).join('');
+}
+function filterDisb(q) { disbSearch=q; renderDisb(); }
+
+function renderRepay() {
+  document.getElementById('repayPagInfo').textContent = REPAY.length+' records';
+  document.getElementById('repayTableBody').innerHTML = REPAY.map((r,i)=>`
+    <tr><td style="color:var(--blue);font-weight:600;font-size:11px">${r.id}</td><td style="font-weight:600">${r.borrower}</td>
+    <td style="color:var(--muted);font-size:11px">${r.loanRef}</td><td style="font-weight:700;color:var(--success)">৳${r.amt.toLocaleString()}</td>
+    <td><span class="badge b-blue">${r.method}</span></td><td style="color:var(--muted);font-size:11px">${r.date}</td>
+    <td style="color:${r.balance===0?'var(--success)':'var(--text)'}">৳${r.balance.toLocaleString()}${r.balance===0?' ✓':''}</td>
+    <td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('repayment',${i})" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('repayment',${i},r.id)" title="Delete"><i class="ti ti-trash"></i></button></div></td>
+    </tr>`).join('');
+}
+function filterRepay(q) { renderRepay(); }
+
+let donorSearch='';
+function renderDonors() {
+  let data=DONORS.filter(r=>JSON.stringify(r).toLowerCase().includes(donorSearch.toLowerCase()));
+  document.getElementById('donorPagInfo').textContent=data.length+' donors';
+  document.getElementById('donorTableBody').innerHTML=data.map((r,i)=>`
+    <tr><td style="color:var(--blue);font-weight:600;font-size:11px">${r.id}</td><td style="font-weight:600">${r.name}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.mobile}</td><td style="font-weight:700;color:var(--gold)">৳${r.total.toLocaleString()}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.last}</td><td style="font-weight:600">${r.count}</td>
+    <td><span class="badge ${r.type==='Monthly'?'b-purple':r.type==='Regular'?'b-blue':'b-gray'}">${r.type}</span></td>
+    <td><div class="row-actions"><button class="ra-btn ra-edit" onclick="openEditModal('donor',${i})" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('donor',${i},r.name)" title="Delete"><i class="ti ti-trash"></i></button></div></td>
+    </tr>`).join('');
+}
+function filterDonors(q) { donorSearch=q; renderDonors(); }
+
+function renderBorrowers() {
+  document.getElementById('borrowerPagInfo').textContent=BORROWERS.length+' borrowers';
+  document.getElementById('borrowerTableBody').innerHTML=BORROWERS.map((r,i)=>`
+    <tr><td style="color:var(--blue);font-weight:600;font-size:11px">${r.id}</td><td style="font-weight:600">${r.name}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.nid}</td><td style="font-size:11px">${r.district}</td>
+    <td style="text-align:center;font-weight:700">${r.active}</td><td style="color:var(--orange);font-weight:700">৳${r.total.toLocaleString()}</td>
+    <td style="color:var(--success);font-weight:700">৳${r.repaid.toLocaleString()}</td>
+    <td><span class="badge ${statusBadge[r.status]||'b-gray'}">${r.status}</span></td>
+    <td><div class="row-actions"><button class="ra-btn ra-view" onclick="viewBorrower(${i})" title="View"><i class="ti ti-eye"></i></button><button class="ra-btn ra-edit" onclick="openEditModal('borrower',${i})" title="Edit"><i class="ti ti-pencil"></i></button><button class="ra-btn ra-del" onclick="openDeleteModal('borrower',${i},r.name)" title="Delete"><i class="ti ti-trash"></i></button></div></td>
+    </tr>`).join('');
+}
+function filterBorrowers(q) { renderBorrowers(); }
+
+let ledgerFilter='all', ledgerSearch='';
+function renderLedger() {
+  let data=LEDGER_DATA.filter(r=>(ledgerFilter==='all'||r.type.toLowerCase().startsWith(ledgerFilter))&&JSON.stringify(r).toLowerCase().includes(ledgerSearch.toLowerCase()));
+  document.getElementById('ledgerPagInfo').textContent=data.length+' entries';
+  document.getElementById('ledgerTableBody').innerHTML=data.map((r,i)=>`
+    <tr><td style="color:var(--blue);font-weight:600;font-size:11px">${r.ref}</td><td style="color:var(--muted);font-size:11px">${r.date}</td>
+    <td><span class="badge ${typeBadge[r.type]||'b-gray'}">${r.type}</span></td><td style="font-size:12px">${r.party}</td>
+    <td style="font-size:11px;color:var(--muted)">${r.prog}</td>
+    <td style="color:var(--orange);font-weight:700">${r.dr?'৳'+r.dr.toLocaleString():'—'}</td>
+    <td style="color:var(--success);font-weight:700">${r.cr?'৳'+r.cr.toLocaleString():'—'}</td>
+    <td style="font-weight:700">৳${r.bal.toLocaleString()}</td>
+    <td><div class="row-actions">
+      <button class="ra-btn ra-edit" onclick="openEditModal('ledger',${i})" title="Edit"><i class="ti ti-pencil"></i></button>
+      ${currentRole==='super'?`<button class="ra-btn ra-del" onclick="openDeleteModal('ledger',${i},r.ref)" title="Delete"><i class="ti ti-trash"></i></button>`:''}
+    </div></td></tr>`).join('');
+}
+function filterLedger(q) { ledgerSearch=q; renderLedger(); }
+function filterLedgerType(el,f) { document.querySelectorAll('#panel-ledger .ftab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); ledgerFilter=f; renderLedger(); }
+
+/* ══════════════════════════════════
+   VIEW MODALS
+══════════════════════════════════ */
+function viewApp(i) {
+  const r=APPS.filter(a=>(appFilter==='all'||a.status.toLowerCase()===appFilter))[i]||APPS[i];
+  document.getElementById('viewModalTitle').innerHTML='<i class="ti ti-file-text"></i> Application — '+r.id;
+  document.getElementById('viewModalBody').innerHTML=`
+    <div class="detail-row"><div class="detail-key">Reference</div><div class="detail-val" style="color:var(--blue);font-weight:700">${r.id}</div></div>
+    <div class="detail-row"><div class="detail-key">Applicant</div><div class="detail-val font-bold">${r.name}</div></div>
+    <div class="detail-row"><div class="detail-key">NID Number</div><div class="detail-val">${r.nid}</div></div>
+    <div class="detail-row"><div class="detail-key">Loan Type</div><div class="detail-val">${r.type}</div></div>
+    <div class="detail-row"><div class="detail-key">Amount</div><div class="detail-val" style="color:var(--gold);font-weight:700">৳${r.amt.toLocaleString()}</div></div>
+    <div class="detail-row"><div class="detail-key">District</div><div class="detail-val">${r.district}</div></div>
+    <div class="detail-row"><div class="detail-key">Date Applied</div><div class="detail-val">${r.date}</div></div>
+    <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val"><span class="badge ${statusBadge[r.status]||'b-gray'}">${r.status}</span></div></div>`;
+  document.getElementById('viewModal').classList.add('show');
+}
+function viewBorrower(i) {
+  const r=BORROWERS[i];
+  document.getElementById('viewModalTitle').innerHTML='<i class="ti ti-user"></i> Borrower — '+r.id;
+  document.getElementById('viewModalBody').innerHTML=`
+    <div class="detail-row"><div class="detail-key">ID</div><div class="detail-val" style="color:var(--blue);font-weight:700">${r.id}</div></div>
+    <div class="detail-row"><div class="detail-key">Name</div><div class="detail-val font-bold">${r.name}</div></div>
+    <div class="detail-row"><div class="detail-key">NID</div><div class="detail-val">${r.nid}</div></div>
+    <div class="detail-row"><div class="detail-key">District</div><div class="detail-val">${r.district}</div></div>
+    <div class="detail-row"><div class="detail-key">Active Loans</div><div class="detail-val">${r.active}</div></div>
+    <div class="detail-row"><div class="detail-key">Total Borrowed</div><div class="detail-val" style="color:var(--orange);font-weight:700">৳${r.total.toLocaleString()}</div></div>
+    <div class="detail-row"><div class="detail-key">Total Repaid</div><div class="detail-val" style="color:var(--success);font-weight:700">৳${r.repaid.toLocaleString()}</div></div>
+    <div class="detail-row"><div class="detail-key">Outstanding</div><div class="detail-val" style="font-weight:700">৳${(r.total-r.repaid).toLocaleString()}</div></div>
+    <div class="detail-row"><div class="detail-key">Status</div><div class="detail-val"><span class="badge ${statusBadge[r.status]||'b-gray'}">${r.status}</span></div></div>`;
+  document.getElementById('viewModal').classList.add('show');
+}
+
+/* ══════════════════════════════════
+   ADD / EDIT MODAL
+══════════════════════════════════ */
+const MODAL_FORMS = {
+  application:`<div class="mf-grid">
+    <div class="mf-group full"><div class="mf-section">Applicant</div></div>
+    <div class="mf-group"><label class="mf-label">Full Name (BN)</label><input class="mf-input" id="mf_nameBn" placeholder="বাংলায় নাম"></div>
+    <div class="mf-group"><label class="mf-label">Full Name (EN)</label><input class="mf-input" id="mf_nameEn" placeholder="English name"></div>
+    <div class="mf-group"><label class="mf-label">NID Number</label><input class="mf-input" id="mf_nid" placeholder="NID"></div>
+    <div class="mf-group"><label class="mf-label">Mobile</label><input class="mf-input" id="mf_mobile" placeholder="01XXXXXXXXX"></div>
+    <div class="mf-group"><label class="mf-label">District</label><select class="mf-select" id="mf_district"><option>Dhaka</option><option>Gazipur</option><option>Narayanganj</option><option>Narsingdi</option><option>Manikganj</option><option>Munshiganj</option></select></div>
+    <div class="mf-group"><label class="mf-label">Monthly Income</label><input class="mf-input" id="mf_income" placeholder="৳ amount"></div>
+    <div class="mf-group full"><div class="mf-section">Loan</div></div>
+    <div class="mf-group"><label class="mf-label">Loan Type</label><select class="mf-select" id="mf_type"><option>Agriculture</option><option>Business</option><option>Education</option><option>Medical</option><option>Family Need</option><option>Emergency</option></select></div>
+    <div class="mf-group"><label class="mf-label">Amount (৳)</label><input class="mf-input" type="number" id="mf_amt" placeholder="25000"></div>
+    <div class="mf-group"><label class="mf-label">Status</label><select class="mf-select" id="mf_status"><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option></select></div>
+    <div class="mf-group"><label class="mf-label">Date</label><input class="mf-input" type="date" id="mf_date"></div>
+    <div class="mf-group full"><label class="mf-label">Purpose</label><textarea class="mf-textarea" id="mf_purpose" placeholder="Describe the need…"></textarea></div>
+  </div>`,
+
+  disbursement:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Borrower Name</label><input class="mf-input" id="mf_borrower" placeholder="Full name"></div>
+    <div class="mf-group"><label class="mf-label">Application Ref</label><input class="mf-input" id="mf_appRef" placeholder="KH-APP-XXXX"></div>
+    <div class="mf-group"><label class="mf-label">Loan Type</label><select class="mf-select" id="mf_type"><option>Agriculture</option><option>Business</option><option>Education</option><option>Medical</option><option>Family Need</option><option>Emergency</option></select></div>
+    <div class="mf-group"><label class="mf-label">Amount (৳)</label><input class="mf-input" type="number" id="mf_amt" placeholder="25000"></div>
+    <div class="mf-group full"><label class="mf-label">Goods / Bills Paid</label><textarea class="mf-textarea" id="mf_goods" placeholder="Describe goods purchased or bills paid…"></textarea></div>
+    <div class="mf-group"><label class="mf-label">Vendor / Supplier</label><input class="mf-input" id="mf_vendor" placeholder="Shop name & address"></div>
+    <div class="mf-group"><label class="mf-label">Date</label><input class="mf-input" type="date" id="mf_date"></div>
+  </div>`,
+
+  repayment:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Borrower Name</label><input class="mf-input" id="mf_borrower" placeholder="Full name"></div>
+    <div class="mf-group"><label class="mf-label">Loan Ref</label><input class="mf-input" id="mf_loanRef" placeholder="KH-D-XXXX"></div>
+    <div class="mf-group"><label class="mf-label">Amount Received (৳)</label><input class="mf-input" type="number" id="mf_amt" placeholder="2500"></div>
+    <div class="mf-group"><label class="mf-label">Payment Method</label><select class="mf-select" id="mf_method"><option>bKash</option><option>Nagad</option><option>Rocket</option><option>Bank Transfer</option><option>Cash</option></select></div>
+    <div class="mf-group"><label class="mf-label">Transaction ID</label><input class="mf-input" id="mf_txn" placeholder="bKash/Nagad TXN ID"></div>
+    <div class="mf-group"><label class="mf-label">Date</label><input class="mf-input" type="date" id="mf_date"></div>
+    <div class="mf-group"><label class="mf-label">Balance Remaining (৳)</label><input class="mf-input" type="number" id="mf_balance" placeholder="0"></div>
+    <div class="mf-group"><label class="mf-label">Notes</label><input class="mf-input" id="mf_notes" placeholder="Any notes…"></div>
+  </div>`,
+
+  donor:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Full Name</label><input class="mf-input" id="mf_name" placeholder="Donor name"></div>
+    <div class="mf-group"><label class="mf-label">Mobile</label><input class="mf-input" id="mf_mobile" placeholder="01XXXXXXXXX"></div>
+    <div class="mf-group"><label class="mf-label">Email</label><input class="mf-input" id="mf_email" placeholder="email@example.com"></div>
+    <div class="mf-group"><label class="mf-label">Donation Type</label><select class="mf-select" id="mf_dtype"><option>One-time</option><option>Regular</option><option>Monthly</option></select></div>
+    <div class="mf-group"><label class="mf-label">Total Donated (৳)</label><input class="mf-input" type="number" id="mf_total" placeholder="0"></div>
+    <div class="mf-group"><label class="mf-label">Last Donation Date</label><input class="mf-input" type="date" id="mf_last"></div>
+    <div class="mf-group full"><label class="mf-label">Notes</label><textarea class="mf-textarea" id="mf_notes" placeholder="Any notes…"></textarea></div>
+  </div>`,
+
+  borrower:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Full Name (BN)</label><input class="mf-input" id="mf_nameBn" placeholder="বাংলায় নাম"></div>
+    <div class="mf-group"><label class="mf-label">Full Name (EN)</label><input class="mf-input" id="mf_nameEn" placeholder="English name"></div>
+    <div class="mf-group"><label class="mf-label">NID Number</label><input class="mf-input" id="mf_nid" placeholder="NID"></div>
+    <div class="mf-group"><label class="mf-label">Mobile</label><input class="mf-input" id="mf_mobile" placeholder="01XXXXXXXXX"></div>
+    <div class="mf-group"><label class="mf-label">District</label><select class="mf-select" id="mf_district"><option>Dhaka</option><option>Gazipur</option><option>Narayanganj</option><option>Narsingdi</option><option>Manikganj</option><option>Munshiganj</option></select></div>
+    <div class="mf-group"><label class="mf-label">Status</label><select class="mf-select" id="mf_status"><option>Active</option><option>Completed</option></select></div>
+  </div>`,
+
+  ledger:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Type</label><select class="mf-select" id="mf_type"><option>Donation</option><option>Disbursement</option><option>Repayment</option></select></div>
+    <div class="mf-group"><label class="mf-label">Date</label><input class="mf-input" type="date" id="mf_date"></div>
+    <div class="mf-group"><label class="mf-label">Party Name</label><input class="mf-input" id="mf_party" placeholder="Donor / Borrower name"></div>
+    <div class="mf-group"><label class="mf-label">Program</label><select class="mf-select" id="mf_prog"><option>—</option><option>Agriculture</option><option>Business</option><option>Education</option><option>Medical</option><option>Family Need</option><option>Emergency</option></select></div>
+    <div class="mf-group"><label class="mf-label">Debit — Out (৳)</label><input class="mf-input" type="number" id="mf_dr" placeholder="0"></div>
+    <div class="mf-group"><label class="mf-label">Credit — In (৳)</label><input class="mf-input" type="number" id="mf_cr" placeholder="0"></div>
+  </div>`,
+
+  user:`<div class="mf-grid">
+    <div class="mf-group"><label class="mf-label">Full Name</label><input class="mf-input" id="mf_name" placeholder="Admin name"></div>
+    <div class="mf-group"><label class="mf-label">Email</label><input class="mf-input" id="mf_email" placeholder="email@korjehasana.org"></div>
+    <div class="mf-group"><label class="mf-label">Role</label><select class="mf-select" id="mf_role"><option>Viewer</option><option>Admin</option><option>Super Admin</option></select></div>
+    <div class="mf-group"><label class="mf-label">Password</label><input class="mf-input" type="password" id="mf_pass" placeholder="••••••••"></div>
+    <div class="mf-group"><label class="mf-label">Status</label><select class="mf-select" id="mf_ustatus"><option>Active</option><option>Inactive</option></select></div>
+    <div class="mf-group"><label class="mf-label">Mobile</label><input class="mf-input" id="mf_mobile" placeholder="01XXXXXXXXX"></div>
+  </div>`,
+};
+
+let currentModalType = '';
+function openAddModal(type) {
+  currentModalType = type;
+  const icons = { application:'ti-file-plus', disbursement:'ti-currency-taka', repayment:'ti-refresh', donor:'ti-heart-handshake', borrower:'ti-user-plus', ledger:'ti-book', user:'ti-user-plus' };
+  const labels = { application:'Add Application', disbursement:'Record Disbursement', repayment:'Record Repayment', donor:'Add Donor', borrower:'Add Borrower', ledger:'Add Ledger Entry', user:'Add User' };
+  document.getElementById('modalTitle').innerHTML = `<i class="ti ${icons[type]||'ti-plus'}"></i> ${labels[type]||'Add'}`;
+  document.getElementById('modalBody').innerHTML = MODAL_FORMS[type] || '<p style="color:var(--muted)">Form coming soon.</p>';
+  document.getElementById('modalSaveBtn').textContent = 'Save';
+  document.getElementById('addModal').classList.add('show');
+}
+function openEditModal(type, i) {
+  currentModalType = type;
+  const labels = { application:'Edit Application', disbursement:'Edit Disbursement', repayment:'Edit Repayment', donor:'Edit Donor', borrower:'Edit Borrower', ledger:'Edit Entry', user:'Edit User' };
+  document.getElementById('modalTitle').innerHTML = `<i class="ti ti-pencil"></i> ${labels[type]||'Edit'}`;
+  document.getElementById('modalBody').innerHTML = MODAL_FORMS[type] || '<p style="color:var(--muted)">Form coming soon.</p>';
+  document.getElementById('modalSaveBtn').textContent = 'Update';
+  document.getElementById('addModal').classList.add('show');
+  // Pre-fill some fields based on data
+  if (type === 'application' && APPS[i]) { const r=APPS[i]; if(document.getElementById('mf_nid'))document.getElementById('mf_nid').value=r.nid; if(document.getElementById('mf_amt'))document.getElementById('mf_amt').value=r.amt; }
+  if (type === 'donor' && DONORS[i]) { const r=DONORS[i]; if(document.getElementById('mf_name'))document.getElementById('mf_name').value=r.name; if(document.getElementById('mf_mobile'))document.getElementById('mf_mobile').value=r.mobile; }
+  if (type === 'borrower' && BORROWERS[i]) { const r=BORROWERS[i]; if(document.getElementById('mf_nid'))document.getElementById('mf_nid').value=r.nid; }
+}
+function saveModal() {
+  closeModal('addModal');
+  toast('Record saved successfully','success');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ══════════════════════════════════
+   DELETE
+══════════════════════════════════ */
+function openDeleteModal(type, i, label) {
+  pendingDelete = { type, i };
+  document.getElementById('deleteItemName').textContent = label;
+  document.getElementById('deleteModal').classList.add('show');
+}
+function confirmDelete() {
+  closeModal('deleteModal');
+  toast('Record deleted','success');
+  pendingDelete = null;
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+function toast(msg, type='success') {
+  const icons = { success:'ti-circle-check', error:'ti-alert-circle' };
+  const colors = { success:'var(--success)', error:'var(--red)' };
+  const el = document.createElement('div');
+  el.className = 'toast-item '+type;
+  el.innerHTML = `<i class="ti ${icons[type]||'ti-info-circle'}" style="font-size:18px;color:${colors[type]||'var(--muted)'};flex-shrink:0"></i><span>${msg}</span>`;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => { el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+
+/* ══════════════════════════════════
+   EXPORT
+══════════════════════════════════ */
+function exportCSV(type) { toast('Exporting '+type+' data as CSV…','success'); }
+
+/* ══════════════════════════════════
+   NOTIFICATION SYSTEM
+   7-day and 1-day EMI reminders
+══════════════════════════════════ */
+
+// Simulate "today" as 27 Jun 2026 for demo purposes
+const TODAY = new Date('2026-06-27');
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function fmtDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function daysUntil(dateStr) {
+  // Parse "15 Aug 2026" format
+  const parts = dateStr.split(' ');
+  const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const d = new Date(parseInt(parts[2]), months[parts[1]], parseInt(parts[0]));
+  const diff = Math.round((d - TODAY) / (1000*60*60*24));
+  return diff;
+}
+
+// EMI schedule data — active borrowers
+const EMI_SCHEDULE = [
+  { borrower:'মোঃ রফিকুল ইসলাম', mobile:'01711XXXXXX', ref:'KH-D-0127', instalment:2083,  dueDate:'15 Aug 2026',  status:'active' },
+  { borrower:'Selina Begum',       mobile:'01812XXXXXX', ref:'KH-D-0126', instalment:4167,  dueDate:'15 Sep 2026',  status:'active' },
+  { borrower:'Nasrin Akter',       mobile:'01912XXXXXX', ref:'KH-D-0124', instalment:6667,  dueDate:'28 Jun 2026',  status:'active' }, // 1 day away
+  { borrower:'Abul Kalam',         mobile:'01611XXXXXX', ref:'KH-D-0121', instalment:1250,  dueDate:'04 Jul 2026',  status:'active' }, // 7 days away
+  { borrower:'Shirin Sultana',     mobile:'01511XXXXXX', ref:'KH-D-0120', instalment:2500,  dueDate:'04 Jul 2026',  status:'active' }, // 7 days away
+  { borrower:'Monira Begum',       mobile:'01711XXXXXX', ref:'KH-D-0118', instalment:3750,  dueDate:'10 Jul 2026',  status:'active' },
+  { borrower:'Hafizur Rahman',     mobile:'01811XXXXXX', ref:'KH-D-0119', instalment:5000,  dueDate:'15 Jul 2026',  status:'active' },
+  { borrower:'Mortuza Ali',        mobile:'01911XXXXXX', ref:'KH-D-0111', instalment:5833,  dueDate:'25 Jul 2026',  status:'active' },
+  { borrower:'Farida Yeasmin',     mobile:'01611XXXXXX', ref:'KH-D-0116', instalment:1667,  dueDate:'04 Aug 2026',  status:'active' },
+  { borrower:'Karim Hossain',      mobile:'01711XXXXXX', ref:'KH-D-0125', instalment:2917,  dueDate:'22 Jun 2026',  status:'overdue' }, // overdue
+  { borrower:'Amina Begum',        mobile:'01811XXXXXX', ref:'KH-D-0114', instalment:2083,  dueDate:'21 Jun 2026',  status:'overdue' }, // overdue
+];
+
+// Track which notifications have been sent in this session
+const sentLog = [];
+let notifFilter = 'all', notifSearch = '';
+
+function initNotifications() {
+  document.getElementById('todayDateLbl').textContent = fmtDate(TODAY);
+
+  // Count badges
+  let cnt7 = 0, cnt1 = 0;
+  EMI_SCHEDULE.forEach(r => {
+    const d = daysUntil(r.dueDate);
+    if (d === 7) cnt7++;
+    if (d === 1) cnt1++;
+  });
+  document.getElementById('cnt7d').textContent = cnt7;
+  document.getElementById('cnt1d').textContent = cnt1;
+  document.getElementById('cntSent').textContent = sentLog.length;
+  document.getElementById('notifCount').textContent = cnt7 + cnt1;
+
+  renderNotifTable();
+  renderNotifLog();
+}
+
+function getTrigger(days, status) {
+  if (status === 'overdue') return { label:'⚠ Overdue', cls:'b-red' };
+  if (days === 1) return { label:'🔴 1-Day', cls:'b-red' };
+  if (days === 7) return { label:'🟠 7-Day', cls:'b-orange' };
+  if (days <= 0) return { label:'⚠ Overdue', cls:'b-red' };
+  return { label:`${days}d away`, cls:'b-gray' };
+}
+
+function renderNotifTable() {
+  let data = EMI_SCHEDULE.map(r => ({ ...r, days: daysUntil(r.dueDate) }));
+
+  // Apply filter
+  if (notifFilter === '1d') data = data.filter(r => r.days === 1);
+  else if (notifFilter === '7d') data = data.filter(r => r.days === 7);
+  else if (notifFilter === 'overdue') data = data.filter(r => r.status === 'overdue' || r.days < 0);
+  else if (notifFilter === 'sent') data = data.filter(r => sentLog.some(s => s.ref === r.ref));
+
+  // Apply search
+  if (notifSearch) data = data.filter(r => r.borrower.toLowerCase().includes(notifSearch.toLowerCase()));
+
+  // Sort: overdue first, then by days asc
+  data.sort((a,b) => {
+    if (a.status==='overdue' && b.status!=='overdue') return -1;
+    if (b.status==='overdue' && a.status!=='overdue') return 1;
+    return a.days - b.days;
+  });
+
+  const alreadySent = ref => sentLog.some(s => s.ref === ref);
+
+  document.getElementById('notifTableBody').innerHTML = data.map((r,i) => {
+    const trig = getTrigger(r.days, r.status);
+    const sent = alreadySent(r.ref);
+    const rowStyle = r.days === 1 ? 'background:rgba(239,68,68,.04)' : r.days === 7 ? 'background:rgba(249,115,22,.04)' : '';
+    return `<tr style="${rowStyle}">
+      <td style="font-weight:600">${r.borrower}</td>
+      <td style="color:var(--muted);font-size:11px">${r.mobile}</td>
+      <td style="color:var(--blue);font-size:11px;font-weight:600">${r.ref}</td>
+      <td style="font-weight:700;color:var(--gold)">৳${r.instalment.toLocaleString()}</td>
+      <td style="font-weight:600">${r.dueDate}</td>
+      <td style="font-weight:800;color:${r.days<=0||r.status==='overdue'?'var(--red)':r.days===1?'var(--red)':r.days===7?'var(--orange)':'var(--muted)'}">${r.status==='overdue'?'Overdue':r.days+' days'}</td>
+      <td><span class="badge ${trig.cls}">${trig.label}</span></td>
+      <td>${sent ? '<span class="badge b-green">✓ Sent</span>' : '<span class="badge b-gray">Pending</span>'}</td>
+      <td><div class="row-actions">
+        <button class="ra-btn" style="color:#25D366;border-color:rgba(37,211,102,.3)" onclick="sendWA(${i},${JSON.stringify(r).replace(/"/g,'&quot;')})" title="WhatsApp"><i class="ti ti-brand-whatsapp"></i></button>
+        <button class="ra-btn" style="color:var(--blue);border-color:rgba(59,130,246,.3)" onclick="sendSMS(${i},${JSON.stringify(r).replace(/"/g,'&quot;')})" title="SMS"><i class="ti ti-message-2"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px;font-size:12px">No records match this filter</td></tr>`;
+}
+
+function filterNotif(el, f) {
+  notifFilter = f;
+  document.querySelectorAll('#panel-notifications .ftab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderNotifTable();
+}
+function filterNotifSearch(q) { notifSearch = q; renderNotifTable(); }
+
+function buildMsg(r, type) {
+  const days = daysUntil(r.dueDate);
+  if (type === '7d' || days === 7) {
+    return `প্রিয় ${r.borrower}, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (${r.ref}) এর মাসিক কিস্তি ৳${r.instalment.toLocaleString()} আগামী ৭ দিনের মধ্যে (${r.dueDate}) পরিশোধযোগ্য। bKash: 01XXXXXXXXX। ধন্যবাদ।`;
+  } else if (type === '1d' || days === 1) {
+    return `প্রিয় ${r.borrower}, আপনার কর্জে হাসানা কিস্তি ৳${r.instalment.toLocaleString()} আগামীকাল (${r.dueDate}) পরিশোধযোগ্য। bKash 01XXXXXXXXX-এ পাঠান, Ref: ${r.ref}। যোগাযোগ: 01XXXXXXXXX।`;
+  } else if (r.status === 'overdue') {
+    return `প্রিয় ${r.borrower}, আপনার কর্জে হাসানা কিস্তি ৳${r.instalment.toLocaleString()} (Ref: ${r.ref}) অতিবাহিত হয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন বা আমাদের সাথে যোগাযোগ করুন: 01XXXXXXXXX।`;
+  }
+  return `কর্জে হাসানা: আপনার কিস্তি ৳${r.instalment.toLocaleString()} — Ref: ${r.ref}, Due: ${r.dueDate}`;
+}
+
+function sendWA(i, r) {
+  const days = daysUntil(r.dueDate);
+  const type = r.status==='overdue' ? 'overdue' : days===1 ? '1d' : days===7 ? '7d' : 'general';
+  const msg = buildMsg(r, type);
+  const mobile = r.mobile.replace(/[^0-9]/g,'');
+  const waUrl = `https://wa.me/88${mobile}?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
+  logSent(r, 'WhatsApp', type);
+  toast(`WhatsApp message opened for ${r.borrower}`, 'success');
+}
+
+function sendSMS(i, r) {
+  const days = daysUntil(r.dueDate);
+  const type = r.status==='overdue' ? 'overdue' : days===1 ? '1d' : days===7 ? '7d' : 'general';
+  const msg = buildMsg(r, type);
+  // In production: call SSL Wireless API here
+  // fetch(`https://sms.sslwireless.com/pushapi/dynamic/server.php?...`)
+  logSent(r, 'SMS', type);
+  toast(`SMS queued for ${r.borrower} (${r.mobile})`, 'success');
+}
+
+function sendAllPending() {
+  let count = 0;
+  EMI_SCHEDULE.forEach(r => {
+    const d = daysUntil(r.dueDate);
+    if ((d === 7 || d === 1 || r.status === 'overdue') && !sentLog.some(s => s.ref === r.ref)) {
+      const type = r.status==='overdue' ? 'overdue' : d===1 ? '1d' : '7d';
+      logSent(r, 'SMS+WhatsApp', type);
+      count++;
+    }
+  });
+  renderNotifTable();
+  renderNotifLog();
+  document.getElementById('cntSent').textContent = sentLog.length;
+  document.getElementById('notifCount').textContent = 0;
+  toast(`${count} reminders dispatched successfully`, 'success');
+  // Browser notification
+  if (Notification.permission === 'granted') {
+    new Notification('Korje Hasana', { body: `${count} EMI reminders sent to borrowers.`, icon: '' });
+  }
+}
+
+function logSent(r, channel, type) {
+  if (!sentLog.some(s => s.ref === r.ref && s.channel === channel)) {
+    sentLog.push({ ref: r.ref, borrower: r.borrower, channel, type, time: new Date().toLocaleTimeString('en-BD', {hour:'2-digit',minute:'2-digit'}) });
+    renderNotifLog();
+    document.getElementById('cntSent').textContent = sentLog.length;
+  }
+}
+
+function renderNotifLog() {
+  const icons = { '7d':'ti-bell', '1d':'ti-bell-ringing', overdue:'ti-alert-triangle', general:'ti-send' };
+  const colors = { '7d':'var(--orange)', '1d':'var(--red)', overdue:'var(--red)', general:'var(--muted)' };
+  const chIcon = { SMS:'ti-message-2', WhatsApp:'ti-brand-whatsapp', 'SMS+WhatsApp':'ti-send' };
+  const logEl = document.getElementById('notifLog');
+  if (!sentLog.length) {
+    logEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:20px;text-align:center">No notifications sent yet today</div>';
+    return;
+  }
+  logEl.innerHTML = [...sentLog].reverse().map(s => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:10px 12px">
+      <i class="ti ${chIcon[s.channel]||'ti-send'}" style="font-size:16px;color:${s.type==='1d'?'var(--red)':'var(--orange)'};flex-shrink:0"></i>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.borrower}</div>
+        <div style="font-size:10px;color:var(--muted)">${s.channel} · ${s.type==='1d'?'1-day reminder':s.type==='7d'?'7-day reminder':'Overdue notice'}</div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);flex-shrink:0">${s.time}</div>
+      <span class="badge b-green" style="font-size:9px">Sent</span>
+    </div>`).join('');
+}
+
+function requestBrowserNotif() {
+  if (!('Notification' in window)) { toast('Browser notifications not supported','error'); return; }
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      toast('Browser notifications enabled ✓', 'success');
+      new Notification('Korje Hasana Admin', { body: 'You will now receive EMI reminder alerts in the browser.' });
+    } else {
+      toast('Browser notification permission denied', 'error');
+    }
+  });
+}
+
+// Hook into login to initialise
+const _origDoLogin = doLogin;
+const _origInit = initCharts;
+function initCharts() {
+  _origInit();
+  initNotifications();
+}
+
+/* ══════════════════════════════════
+   WHATSAPP BUSINESS API
+══════════════════════════════════ */
+const WA_TEMPLATES = {
+  '7d': {
+    name: 'korje_emi_7day',
+    preview: `প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>💳 bKash / Nagad: <strong>01XXXXXXXXX</strong><br>📌 Ref: <span style="color:var(--gold)">{{2}}</span><br><br>যোগাযোগ: 01XXXXXXXXX | korjehasana.org`
+  },
+  '1d': {
+    name: 'korje_emi_1day',
+    preview: `প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>আপনার কর্জে হাসানা কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> <strong>আগামীকাল</strong> <span style="color:var(--gold)">{{4}}</span> পরিশোধযোগ্য।<br><br>⚡ এখনই পরিশোধ করুন — bKash: <strong>01XXXXXXXXX</strong><br>📌 Ref: <span style="color:var(--gold)">{{2}}</span><br>📞 সহায়তা: 01XXXXXXXXX`
+  },
+  'overdue': {
+    name: 'korje_emi_overdue',
+    preview: `প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>আপনার কর্জে হাসানা কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> (Ref: <span style="color:var(--gold)">{{2}}</span>) মেয়াদ অতিক্রান্ত হয়েছে।<br><br>⚠ অনুগ্রহ করে দ্রুত পরিশোধ করুন অথবা আমাদের সাথে যোগাযোগ করুন।<br>📞 01XXXXXXXXX | korjehasana.org`
+  }
+};
+let curWATpl = '7d';
+
+function selectWATpl(el, key) {
+  curWATpl = key;
+  document.querySelectorAll('[id^=waTpl]').forEach(b => { b.style.color='var(--muted)'; b.classList.remove('active'); });
+  el.classList.add('active'); el.style.color='#86efac';
+  const tpl = WA_TEMPLATES[key];
+  document.getElementById('waTplPreview').innerHTML =
+    `<div style="font-size:10px;color:#86efac;margin-bottom:6px;font-weight:700">TEMPLATE: ${tpl.name}</div>${tpl.preview}`;
+}
+
+function saveWAConfig() {
+  const token = document.getElementById('waToken').value.trim();
+  const pid   = document.getElementById('waPhoneID').value.trim();
+  if (!token || !pid) { toast('Phone Number ID ও Access Token অবশ্যই দিন','error'); return; }
+  // Store in sessionStorage (in production: secure backend)
+  sessionStorage.setItem('wa_token', token);
+  sessionStorage.setItem('wa_phone_id', pid);
+  sessionStorage.setItem('wa_baid', document.getElementById('waBAID').value);
+  sessionStorage.setItem('wa_version', document.getElementById('waVersion').value);
+  document.getElementById('waStatusDot').style.background = '#22c55e';
+  document.getElementById('waStatusTxt').textContent = 'Configured ✓';
+  toast('WhatsApp Business API config saved ✓','success');
+}
+
+function testWAConnection() {
+  const token = sessionStorage.getItem('wa_token') || document.getElementById('waToken').value.trim();
+  const pid   = sessionStorage.getItem('wa_phone_id') || document.getElementById('waPhoneID').value.trim();
+  if (!token || !pid) { toast('আগে config save করুন','error'); return; }
+  toast('WA API connection test পাঠানো হচ্ছে…','success');
+  /* Real call:
+  fetch(`https://graph.facebook.com/${version}/${pid}/messages`, {
+    method:'POST',
+    headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' },
+    body: JSON.stringify({
+      messaging_product:'whatsapp',
+      to:'880TEST_NUMBER',
+      type:'template',
+      template:{ name:'korje_emi_7day', language:{ code:'bn' },
+        components:[{ type:'body', parameters:[
+          {type:'text',text:'Test User'},
+          {type:'text',text:'KH-TEST-000'},
+          {type:'text',text:'2,083'},
+          {type:'text',text:'04 Jul 2026'},
+        ]}]
+      }
+    })
+  }).then(r=>r.json()).then(d=>{ if(d.messages) toast('Test message sent ✓','success'); else toast('Error: '+JSON.stringify(d),'error'); }); */
+  setTimeout(() => toast('Test connection successful ✓ (demo mode)','success'), 1200);
+}
+
+function sendWABulk() {
+  const token = sessionStorage.getItem('wa_token') || document.getElementById('waToken').value.trim();
+  const pid   = sessionStorage.getItem('wa_phone_id') || document.getElementById('waPhoneID').value.trim();
+  const ver   = sessionStorage.getItem('wa_version') || 'v19.0';
+  let count = 0;
+  EMI_SCHEDULE.forEach(r => {
+    const d = daysUntil(r.dueDate);
+    if (d === 7 || d === 1 || r.status === 'overdue') {
+      const tplKey = r.status==='overdue' ? 'overdue' : d===1 ? '1d' : '7d';
+      const tplName = WA_TEMPLATES[tplKey].name;
+      /* Real API call:
+      fetch(`https://graph.facebook.com/${ver}/${pid}/messages`, {
+        method:'POST',
+        headers:{ 'Authorization':'Bearer '+token, 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          messaging_product:'whatsapp',
+          to:'880'+r.mobile.replace(/[^0-9]/g,'').slice(1),
+          type:'template',
+          template:{ name: tplName, language:{ code:'bn' },
+            components:[{ type:'body', parameters:[
+              {type:'text', text: r.borrower},
+              {type:'text', text: r.ref},
+              {type:'text', text: r.instalment.toLocaleString()},
+              {type:'text', text: r.dueDate},
+            ]}]
+          }
+        })
+      }); */
+      logSent(r, 'WhatsApp API', tplKey);
+      count++;
+    }
+  });
+  renderNotifTable(); renderNotifLog();
+  toast(`${count} WhatsApp API messages dispatched ✓`,'success');
+}
+
+/* ══════════════════════════════════
+   SSL WIRELESS IVR VOICE CALL
+══════════════════════════════════ */
+const IVR_SCRIPTS = {
+  '7d':      'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। প্রিয় {name}, আপনার লোন রেফারেন্স {ref} এর মাসিক কিস্তি {amount} টাকা আগামী সাত দিনের মধ্যে {date} তারিখে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।',
+  '1d':      'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন। প্রিয় {name}, আপনার {amount} টাকার কিস্তি আগামীকাল {date} তারিখে পরিশোধযোগ্য। অনুগ্রহ করে সময়মতো পরিশোধ করুন। রেফারেন্স নম্বর {ref}। ধন্যবাদ।',
+  'overdue': 'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে জরুরি বার্তা। প্রিয় {name}, আপনার {amount} টাকার কিস্তির মেয়াদ অতিক্রান্ত হয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন অথবা আমাদের সাথে যোগাযোগ করুন। ধন্যবাদ।'
+};
+let curIVRTpl = '7d';
+
+function selectIVRTpl(el, key) {
+  curIVRTpl = key;
+  document.querySelectorAll('[id^=ivrTpl]').forEach(b => { b.style.color='var(--muted)'; b.classList.remove('active'); });
+  el.classList.add('active'); el.style.color='#93c5fd';
+  document.getElementById('ivrScript').value = IVR_SCRIPTS[key];
+}
+
+function saveIVRConfig() {
+  const user = document.getElementById('ivrUser').value.trim();
+  const sid  = document.getElementById('ivrSID').value.trim();
+  if (!user || !sid) { toast('Username ও SID অবশ্যই দিন','error'); return; }
+  sessionStorage.setItem('ivr_user', user);
+  sessionStorage.setItem('ivr_pass', document.getElementById('ivrPass').value);
+  sessionStorage.setItem('ivr_sid',  sid);
+  sessionStorage.setItem('ivr_caller', document.getElementById('ivrCallerID').value);
+  sessionStorage.setItem('ivr_time',   document.getElementById('ivrTime').value);
+  toast('IVR Voice Call config saved ✓','success');
+}
+
+function buildIVRScript(r, tplKey) {
+  return (IVR_SCRIPTS[tplKey] || IVR_SCRIPTS['7d'])
+    .replace(/{name}/g,   r.borrower)
+    .replace(/{ref}/g,    r.ref)
+    .replace(/{amount}/g, '৳'+r.instalment.toLocaleString())
+    .replace(/{date}/g,   r.dueDate);
+}
+
+function testIVRCall() {
+  const user = sessionStorage.getItem('ivr_user') || document.getElementById('ivrUser').value.trim();
+  if (!user) { toast('আগে IVR config save করুন','error'); return; }
+  const script = document.getElementById('ivrScript').value;
+  toast('Test IVR call initiated to '+document.getElementById('ivrCallerID').value+' …','success');
+  /* Real SSL Wireless IVR API call:
+  const params = new URLSearchParams({
+    user:     sessionStorage.getItem('ivr_user'),
+    password: sessionStorage.getItem('ivr_pass'),
+    sid:      sessionStorage.getItem('ivr_sid'),
+    msisdn:   '880'+TEST_MOBILE,
+    cs:       'KORJE-HASANA',
+    smstext:  script,  // TTS text
+    type:     'voice',
+  });
+  fetch('https://sms.sslwireless.com/pushapi/dynamic/server.php?'+params.toString())
+    .then(r=>r.text()).then(d=>toast('IVR API response: '+d,'success')); */
+  setTimeout(() => toast('Test IVR call placed ✓ (demo mode)','success'), 1500);
+}
+
+function sendIVRBulk() {
+  const user = sessionStorage.getItem('ivr_user') || document.getElementById('ivrUser').value.trim();
+  if (!user) { toast('আগে IVR config save করুন','error'); return; }
+  let count = 0;
+  EMI_SCHEDULE.forEach(r => {
+    const d = daysUntil(r.dueDate);
+    const tplKey = r.status==='overdue'?'overdue':d===1?'1d':'7d';
+    if ((d===7&&document.getElementById('ivr7dEnable').checked) ||
+        (d===1&&document.getElementById('ivr1dEnable').checked) ||
+        (r.status==='overdue'&&document.getElementById('ivrODEnable').checked)) {
+      const script = buildIVRScript(r, tplKey);
+      /* Real: POST to SSL Wireless IVR endpoint with script + mobile */
+      logSent(r, 'IVR Voice Call', tplKey);
+      count++;
+    }
+  });
+  if (!count) { toast('কোনো toggle চালু নেই — Auto-Call Schedule থেকে enable করুন','error'); return; }
+  renderNotifTable(); renderNotifLog();
+  toast(`${count} IVR voice calls initiated ✓`,'success');
+}
+
+function saveSMSConfig() { toast('SMS Gateway config saved ✓','success'); }
+
+/* ══════════════════════════════════
+   SUPABASE INTEGRATION
+══════════════════════════════════ */
+const SUPABASE_CONFIGURED = (typeof KH !== 'undefined') &&
+  !window._supabase_url_placeholder &&
+  (window.SUPABASE_URL || '').indexOf('YOUR_PROJECT') === -1;
+
+// Check on page load if Supabase is configured
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof KH === 'undefined') return;
+  // If Supabase URL is still placeholder, stay in demo mode silently
+  if (SUPABASE_URL.includes('YOUR_PROJECT')) {
+    console.log('Supabase: demo mode (configure _supabase.js to enable live data)');
+    return;
+  }
+  // Check for existing session
+  KH.getSession().then(({ session, profile }) => {
+    if (session && profile) {
+      // Auto-restore session
+      currentRole = profile.role === 'super_admin' ? 'super' : 'admin';
+      loginRole = currentRole;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminShell').style.display = 'block';
+      if (currentRole === 'super') {
+        document.getElementById('sidebar').classList.add('super-mode');
+        document.getElementById('sbRoleBadge').textContent = '⭐ Super Admin';
+        document.getElementById('sbRoleBadge').classList.remove('admin');
+        document.getElementById('sbRoleBadge').classList.add('super');
+        document.getElementById('sbRoleTxt').textContent = 'Super Administrator';
+        document.getElementById('addLedgerBtn') && (document.getElementById('addLedgerBtn').style.display = 'flex');
+      }
+      document.getElementById('sbAvatar').textContent = (profile.name || profile.email).charAt(0).toUpperCase();
+      document.getElementById('sbName').textContent = profile.name || profile.email;
+      initCharts();
+      renderApps(); renderDisb(); renderRepay(); renderDonors(); renderBorrowers(); renderLedger();
+      loadSupabaseDashboard();
+    }
+  });
+});
+
+// Override doLogin to use Supabase when configured
+const _origDoLoginSB = doLogin;
+window.doLogin = async function() {
+  // If Supabase not configured, fall through to demo login
+  if (typeof KH === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT')) {
+    return _origDoLoginSB();
+  }
+  const email = document.getElementById('loginUser').value.trim();
+  const pass  = document.getElementById('loginPass').value.trim();
+  if (!email || !pass) { showLoginError('Email and password required.'); return; }
+
+  const btn = document.querySelector('.login-btn');
+  if (btn) { btn.textContent = 'Signing in…'; btn.disabled = true; }
+
+  const { session, profile, error } = await KH.login(email, pass);
+
+  if (btn) { btn.textContent = 'Sign In'; btn.disabled = false; }
+
+  if (error || !session) {
+    showLoginError(error?.message || 'Login failed. Check your credentials.');
+    return;
+  }
+  if (!profile) {
+    showLoginError('Account not authorized as admin. Contact super admin.');
+    return;
+  }
+
+  currentRole = profile.role === 'super_admin' ? 'super' : 'admin';
+  loginRole = currentRole;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminShell').style.display = 'block';
+  if (currentRole === 'super') {
+    document.getElementById('sidebar').classList.add('super-mode');
+    document.getElementById('sbRoleBadge').textContent = '⭐ Super Admin';
+    document.getElementById('sbRoleBadge').classList.remove('admin');
+    document.getElementById('sbRoleBadge').classList.add('super');
+    document.getElementById('sbRoleTxt').textContent = 'Super Administrator';
+    document.getElementById('addLedgerBtn') && (document.getElementById('addLedgerBtn').style.display = 'flex');
+  }
+  document.getElementById('sbAvatar').textContent = (profile.name || email).charAt(0).toUpperCase();
+  document.getElementById('sbName').textContent = profile.name || email;
+  initCharts();
+  renderApps(); renderDisb(); renderRepay(); renderDonors(); renderBorrowers(); renderLedger();
+  loadSupabaseDashboard();
+};
+
+// Override doLogout
+const _origDoLogoutSB = doLogout;
+window.doLogout = async function() {
+  if (typeof KH !== 'undefined' && !SUPABASE_URL.includes('YOUR_PROJECT')) {
+    await KH.logout();
+  } else {
+    _origDoLogoutSB();
+  }
+};
+
+// Load real KPIs from Supabase into dashboard cards
+async function loadSupabaseDashboard() {
+  if (typeof KH === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT')) return;
+  const { data } = await KH.getDashboardKPIs();
+  if (!data) return;
+
+  // Update stat cards if they exist (by data-kpi attribute or by order)
+  const cards = document.querySelectorAll('.stat-val');
+  if (cards.length >= 4) {
+    cards[0] && (cards[0].textContent = KH.bdt(data.total_disbursed));
+    cards[1] && (cards[1].textContent = KH.bdt(data.total_donated));
+    cards[2] && (cards[2].textContent = (data.active_loans || 0).toLocaleString());
+    cards[3] && (cards[3].textContent = (data.pending_applications || 0).toLocaleString());
+  }
+
+  // Update notification badge count
+  if (data.due_this_week > 0) {
+    const badge = document.querySelector('[data-panel="notifications"] .sb-badge');
+    if (badge) badge.textContent = data.due_this_week;
+  }
+}
+</script>
+</body>
+</html>

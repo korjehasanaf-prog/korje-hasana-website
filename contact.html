@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us | Korje Hasana Foundation | যোগাযোগ</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #145230;
+      --dkgreen: #0D3D22;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --dkgold:  #C07800;
+      --white:   #ffffff;
+      --offwhite:#FAFAFA;
+      --border:  #E5E7EB;
+      --text:    #1a1a1a;
+      --muted:   #6B7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; color: var(--text); background: #fff; overflow-x: hidden; }
+
+    /* ═══ TOP BAR ═══ */
+    .topbar { background: var(--dkgreen); padding: 6px 40px; display: flex; justify-content: space-between; align-items: center; }
+    .topbar-left { display: flex; gap: 20px; }
+    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 12px; }
+    .topbar-item i { font-size: 14px; color: var(--ltgreen); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-soc { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .2s; text-decoration: none; }
+    .topbar-soc:hover { background: rgba(255,255,255,.15); }
+    .topbar-soc i { font-size: 14px; color: rgba(255,255,255,.6); }
+
+    /* ═══ NAVBAR ═══ */
+    .navbar { background: var(--green); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 12px rgba(0,0,0,.2); }
+    .nav-logo { display: flex; align-items: center; gap: 12px; padding: 12px 0; text-decoration: none; }
+    .nav-logo-icon { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: var(--green); box-shadow: 0 0 16px rgba(240,165,0,.4); }
+    .nav-logo-text h1 { font-size: 17px; color: #fff; font-weight: 800; line-height: 1.2; }
+    .nav-logo-text p { font-size: 10px; color: var(--ltgreen); }
+    .nav-links { display: flex; align-items: center; position: relative; }
+    .nav-link { color: rgba(255,255,255,.8); text-decoration: none; font-size: 13px; font-weight: 500; padding: 18px 16px; transition: color .2s; white-space: nowrap; }
+    .nav-link:hover, .nav-link.active { color: var(--gold); }
+    .nav-hover-bar { position: absolute; bottom: 0; height: 3px; background: var(--gold); border-radius: 2px 2px 0 0; transition: all .3s ease; pointer-events: none; box-shadow: 0 0 8px rgba(240,165,0,.6); }
+    .nav-cta { margin-left: 14px; }
+    .btn-donate { background: var(--gold); color: var(--green); padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; transition: all .25s; box-shadow: 0 0 12px rgba(240,165,0,.3); }
+    .btn-donate:hover { background: var(--dkgold); box-shadow: 0 0 24px rgba(240,165,0,.5); transform: translateY(-1px); }
+
+    /* ═══ HERO ═══ */
+    .page-hero { background: linear-gradient(135deg, var(--dkgreen) 0%, var(--green) 55%, #1a6b3a 100%); padding: 64px 40px 80px; text-align: center; position: relative; overflow: hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
+    .hero-glow { position:absolute; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(240,165,0,.07) 0%,transparent 70%); top:-120px; left:-80px; pointer-events:none; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(240,165,0,.15); border:1px solid rgba(240,165,0,.3); color:var(--gold); font-size:12px; font-weight:600; padding:6px 14px; border-radius:20px; margin-bottom:14px; }
+    .page-hero h1 { font-size:40px; font-weight:800; color:#fff; margin-bottom:12px; line-height:1.2; }
+    .page-hero h1 span { color:var(--gold); }
+    .page-hero p { font-size:15px; color:rgba(255,255,255,.75); max-width:520px; margin:0 auto 20px; line-height:1.7; }
+    .breadcrumb { display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; color:rgba(255,255,255,.5); }
+    .breadcrumb a { color:var(--ltgreen); text-decoration:none; }
+    .breadcrumb a:hover { color:var(--gold); }
+
+    /* ═══ QUICK CONTACT STRIP ═══ */
+    .quick-strip { background: var(--offwhite); border-bottom: 1px solid var(--border); padding: 0 40px; }
+    .quick-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+    .qc-item { display: flex; align-items: center; gap: 12px; padding: 18px 32px; border-right: 1px solid var(--border); cursor: pointer; transition: background .2s; text-decoration: none; }
+    .qc-item:last-child { border-right: none; }
+    .qc-item:hover { background: rgba(20,82,48,.05); }
+    .qc-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .qci-g { background: rgba(20,82,48,.1); }
+    .qci-b { background: rgba(37,211,102,.1); }
+    .qci-o { background: rgba(240,165,0,.1); }
+    .qci-p { background: rgba(59,130,246,.1); }
+    .qc-icon i { font-size: 20px; }
+    .qci-g i { color: var(--green); }
+    .qci-b i { color: #25D366; }
+    .qci-o i { color: var(--gold); }
+    .qci-p i { color: #3b82f6; }
+    .qc-text { font-size: 13px; }
+    .qc-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; }
+    .qc-val { font-size: 13px; font-weight: 700; color: var(--text); }
+
+    /* ═══ MAIN LAYOUT ═══ */
+    .main-grid { display: grid; grid-template-columns: 1fr 420px; gap: 40px; max-width: 1100px; margin: 0 auto; padding: 56px 40px; align-items: start; }
+
+    /* ═══ CONTACT FORM ═══ */
+    .form-card { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+    .sec-label { font-size: 12px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .sec-label::before { content:''; width:20px; height:2px; background:var(--gold); border-radius:2px; }
+    .form-title { font-size: 26px; font-weight: 800; color: var(--green); margin-bottom: 6px; }
+    .form-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+
+    /* Subject tabs */
+    .subj-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+    .subj-tab { padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; background: none; transition: all .2s; }
+    .subj-tab.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .subj-tab:hover:not(.active) { border-color: var(--green); color: var(--green); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-label { font-size: 12px; font-weight: 600; color: var(--text); }
+    .form-input, .form-select, .form-textarea {
+      background: var(--offwhite); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 11px 14px; font-size: 13px;
+      color: var(--text); font-family: inherit; transition: all .2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(20,82,48,.06); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .char-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 3px; }
+
+    /* Priority radio */
+    .priority-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pri-opt { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px; color: var(--muted); }
+    .pri-opt input { display: none; }
+    .pri-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all .2s; flex-shrink: 0; }
+    .pri-opt input:checked + .pri-dot { border-color: var(--green); background: var(--green); }
+    .pri-opt input:checked + .pri-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:#fff; display:block; }
+    .pri-opt input:checked ~ span { color: var(--text); font-weight: 600; }
+
+    /* Attachment zone */
+    .attach-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 14px; }
+    .attach-zone:hover { border-color: var(--green); background: rgba(20,82,48,.02); }
+    .attach-zone i { font-size: 28px; color: var(--muted); display: block; margin-bottom: 6px; }
+    .attach-zone p { font-size: 12px; color: var(--muted); }
+    .attach-zone span { color: var(--green); font-weight: 600; cursor: pointer; }
+    #attachInput { display: none; }
+    #attachList { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* Submit */
+    .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn-submit { background: linear-gradient(135deg, var(--green), var(--mdgreen)); color: #fff; border: none; border-radius: 12px; padding: 13px 30px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all .25s; box-shadow: 0 4px 16px rgba(20,82,48,.25); font-family: inherit; }
+    .btn-submit:hover { box-shadow: 0 6px 24px rgba(20,82,48,.4); transform: translateY(-2px); }
+    .btn-submit.loading { opacity: .7; pointer-events: none; }
+    .privacy-note { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+    /* Success message */
+    .success-msg { display: none; background: rgba(20,82,48,.06); border: 1.5px solid rgba(20,82,48,.2); border-radius: 14px; padding: 24px; text-align: center; }
+    .success-msg i { font-size: 40px; color: var(--green); display: block; margin-bottom: 10px; }
+    .success-msg h3 { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .success-msg p { font-size: 13px; color: var(--muted); }
+
+    /* ═══ RIGHT SIDEBAR ═══ */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Info cards */
+    .info-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .info-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .info-card-title i { font-size: 18px; color: var(--green); }
+
+    /* Office item */
+    .office-item { display: flex; gap: 12px; margin-bottom: 14px; }
+    .office-item:last-child { margin-bottom: 0; }
+    .oi-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(20,82,48,.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .oi-icon i { font-size: 16px; color: var(--green); }
+    .oi-text { font-size: 12px; }
+    .oi-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
+    .oi-val { color: var(--text); font-weight: 500; line-height: 1.5; }
+
+    /* Hours table */
+    .hours-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .hours-row:last-child { border: none; }
+    .hr-day { color: var(--muted); }
+    .hr-time { font-weight: 600; color: var(--text); }
+    .hr-closed { color: #ef4444; }
+
+    /* WhatsApp card */
+    .wa-card { background: linear-gradient(135deg, #075E54, #128C7E); border-radius: 16px; padding: 22px; color: #fff; }
+    .wa-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .wa-card p { font-size: 12px; color: rgba(255,255,255,.8); margin-bottom: 16px; line-height: 1.6; }
+    .wa-btn-card { background: #25D366; color: #fff; border: none; border-radius: 10px; padding: 11px 20px; font-size: 13px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s; font-family: inherit; text-decoration: none; }
+    .wa-btn-card:hover { background: #1EBC5A; transform: translateY(-1px); }
+
+    /* FAQ teaser */
+    .faq-item { padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+    .faq-item:last-child { border: none; }
+    .faq-q { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .faq-q i { font-size: 14px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+    .faq-a { font-size: 12px; color: var(--muted); line-height: 1.6; padding-top: 7px; display: none; }
+    .faq-item.open .faq-q i { transform: rotate(180deg); }
+    .faq-item.open .faq-a { display: block; }
+
+    /* Social links */
+    .social-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .soc-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .2s; flex: 1; justify-content: center; min-width: 90px; }
+    .soc-fb { background: rgba(24,119,242,.1); color: #1877f2; border: 1px solid rgba(24,119,242,.2); }
+    .soc-fb:hover { background: rgba(24,119,242,.18); }
+    .soc-yt { background: rgba(255,0,0,.08); color: #ff0000; border: 1px solid rgba(255,0,0,.15); }
+    .soc-yt:hover { background: rgba(255,0,0,.15); }
+    .soc-em { background: rgba(20,82,48,.08); color: var(--green); border: 1px solid rgba(20,82,48,.15); }
+    .soc-em:hover { background: rgba(20,82,48,.15); }
+
+    /* ═══ MAP SECTION ═══ */
+    .map-section { background: var(--offwhite); padding: 56px 40px; }
+    .map-inner { max-width: 1100px; margin: 0 auto; }
+    .map-box { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,.08); margin-top: 24px; position: relative; }
+    .map-placeholder { height: 360px; background: linear-gradient(135deg, #e8f5e9, #f0fdf4); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+    .map-placeholder i { font-size: 48px; color: var(--green); opacity: .4; }
+    .map-placeholder p { font-size: 14px; color: var(--muted); }
+    .map-overlay { position: absolute; top: 16px; left: 16px; background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: flex; align-items: center; gap: 10px; }
+    .map-overlay i { font-size: 20px; color: var(--green); }
+    .map-overlay-text { font-size: 12px; }
+    .map-overlay-text strong { display: block; font-weight: 700; color: var(--text); }
+    .map-overlay-text span { color: var(--muted); }
+
+    /* ═══ CTA BAND ═══ */
+    .cta-band { background: linear-gradient(135deg, var(--dkgreen), var(--green)); padding: 56px 40px; text-align: center; }
+    .cta-band h2 { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 10px; }
+    .cta-band p { font-size: 14px; color: rgba(255,255,255,.75); margin-bottom: 24px; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cta-btn1 { background: var(--gold); color: var(--green); padding: 12px 28px; border-radius: 10px; font-size: 13px; font-weight: 800; text-decoration: none; transition: all .25s; }
+    .cta-btn1:hover { background: var(--dkgold); transform: translateY(-2px); }
+    .cta-btn2 { background: rgba(255,255,255,.1); border: 2px solid rgba(255,255,255,.3); color: #fff; padding: 12px 28px; border-radius: 10px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all .25s; }
+    .cta-btn2:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); }
+
+    /* ═══ FOOTER ═══ */
+    footer { background: var(--dkgreen); padding: 32px 40px; text-align: center; }
+    footer .ft-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+    footer a { color: var(--ltgreen); text-decoration: none; font-size: 13px; }
+    footer a:hover { color: var(--gold); }
+    footer p { font-size: 12px; color: rgba(255,255,255,.4); }
+
+    /* ═══ FLOAT WA ═══ */
+    .wa-float { position: fixed; bottom: 28px; right: 28px; z-index: 9000; }
+    .wa-btn { width: 56px; height: 56px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 20px rgba(37,211,102,.4); animation: waPulse 2.2s infinite; text-decoration: none; }
+    @keyframes waPulse { 0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.4)} 50%{box-shadow:0 4px 32px rgba(37,211,102,.7),0 0 0 10px rgba(37,211,102,.1)} }
+    .wa-btn i { font-size: 26px; color: #fff; }
+
+    /* ═══ TOAST ═══ */
+    #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .toast-item { background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px 20px; font-size:13px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 24px rgba(0,0,0,.12); animation:toastIn .3s ease; white-space:nowrap; }
+    .toast-item.ok { border-color:rgba(20,82,48,.3); }
+    @keyframes toastIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes toastOut { to{opacity:0;transform:translateY(16px)} }
+
+    @media (max-width: 900px) {
+      .topbar, .navbar, .page-hero, .quick-strip, .map-section, .cta-band, footer { padding-left:16px; padding-right:16px; }
+      .main-grid { grid-template-columns: 1fr; padding: 32px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .quick-inner { flex-direction: column; align-items: stretch; }
+      .qc-item { border-right: none; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+    <div class="topbar-item"><i class="ti ti-phone"></i>+880-1XXXXXXXXX</div>
+    <div class="topbar-item"><i class="ti ti-clock"></i>Sun–Thu 9am–5pm</div>
+  </div>
+  <div class="topbar-right">
+    <a class="topbar-soc" href="#"><i class="ti ti-brand-facebook"></i></a>
+    <a class="topbar-soc" href="#"><i class="ti ti-brand-youtube"></i></a>
+    <a class="topbar-soc" href="#"><i class="ti ti-brand-whatsapp"></i></a>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">KH</div>
+    <div class="nav-logo-text">
+      <h1>কর্জে হাসানা</h1>
+      <p>Interest-Free Loan Foundation</p>
+    </div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="about.html" class="nav-link">About Us</a>
+    <a href="loan-application.html" class="nav-link">Apply for Loan</a>
+    <a href="donation.html" class="nav-link">Donate</a>
+    <a href="dashboard.html" class="nav-link">Transparency</a>
+    <a href="contact.html" class="nav-link active">Contact</a>
+    <div class="nav-hover-bar" id="hoverBar"></div>
+  </div>
+  <div class="nav-cta">
+    <a href="donation.html" class="btn-donate">❤ Donate Now</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="page-hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><i class="ti ti-message-circle"></i>Contact Us · যোগাযোগ করুন</div>
+  <h1>আমরা সাহায্যের <span>জন্য প্রস্তুত</span></h1>
+  <p>Have a question about loans, donations, or partnerships? Reach out — our team responds within 24 hours.</p>
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <i class="ti ti-chevron-right" style="font-size:12px"></i>
+    <span style="color:var(--ltgreen)">Contact</span>
+  </div>
+</section>
+
+<!-- QUICK CONTACT STRIP -->
+<div class="quick-strip">
+  <div class="quick-inner">
+    <a class="qc-item" href="mailto:info@korjehasana.org">
+      <div class="qc-icon qci-g"><i class="ti ti-mail"></i></div>
+      <div class="qc-text"><div class="qc-label">Email</div><div class="qc-val">info@korjehasana.org</div></div>
+    </a>
+    <a class="qc-item" href="https://wa.me/8801XXXXXXXXX" target="_blank">
+      <div class="qc-icon qci-b"><i class="ti ti-brand-whatsapp"></i></div>
+      <div class="qc-text"><div class="qc-label">WhatsApp</div><div class="qc-val">+880-1XXXXXXXXX</div></div>
+    </a>
+    <a class="qc-item" href="tel:+8801XXXXXXXXX">
+      <div class="qc-icon qci-o"><i class="ti ti-phone"></i></div>
+      <div class="qc-text"><div class="qc-label">Phone</div><div class="qc-val">+880-1XXXXXXXXX</div></div>
+    </a>
+    <div class="qc-item">
+      <div class="qc-icon qci-p"><i class="ti ti-map-pin"></i></div>
+      <div class="qc-text"><div class="qc-label">Office</div><div class="qc-val">Dhaka Division, Bangladesh</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-grid">
+
+  <!-- CONTACT FORM -->
+  <div class="form-card">
+    <div class="sec-label"><i class="ti ti-send"></i>Send Message</div>
+    <div class="form-title">Send us a message</div>
+    <div class="form-sub">আপনার যেকোনো প্রশ্ন বা মন্তব্য জানান — আমরা ২৪ ঘণ্টার মধ্যে সাড়া দেব।</div>
+
+    <div style="margin-bottom:16px">
+      <div class="form-label" style="margin-bottom:8px">What's this about?</div>
+      <div class="subj-tabs">
+        <button class="subj-tab active" onclick="setSubject(this,'Loan enquiry')">🏦 Loan enquiry</button>
+        <button class="subj-tab" onclick="setSubject(this,'Donation info')">❤ Donation info</button>
+        <button class="subj-tab" onclick="setSubject(this,'Partnership')">🤝 Partnership</button>
+        <button class="subj-tab" onclick="setSubject(this,'Complaint')">📋 Complaint</button>
+        <button class="subj-tab" onclick="setSubject(this,'Other')">💬 Other</button>
+      </div>
+    </div>
+
+    <div id="contactForm">
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Full Name <span style="color:#ef4444">*</span></label>
+          <input type="text" class="form-input" id="cf_name" placeholder="Your full name">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Mobile Number <span style="color:#ef4444">*</span></label>
+          <input type="tel" class="form-input" id="cf_mobile" placeholder="01XXXXXXXXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="cf_email" placeholder="you@example.com">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">District</label>
+          <select class="form-select" id="cf_district">
+            <option value="">Select district</option>
+            <option>Dhaka</option><option>Gazipur</option><option>Narayanganj</option>
+            <option>Narsingdi</option><option>Manikganj</option><option>Munshiganj</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject</label>
+        <input type="text" class="form-input" id="cf_subject" value="Loan enquiry">
+      </div>
+      <div class="form-group" style="margin-bottom:4px">
+        <label class="form-label">Message <span style="color:#ef4444">*</span></label>
+        <textarea class="form-textarea" id="cf_msg" placeholder="আপনার বার্তা এখানে লিখুন…" oninput="updateCount(this)"></textarea>
+      </div>
+      <div class="char-count"><span id="charCount">0</span> / 1000 characters</div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" style="margin-bottom:8px">Priority</label>
+        <div class="priority-row">
+          <label class="pri-opt"><input type="radio" name="priority" value="normal" checked><div class="pri-dot"></div><span>Normal</span></label>
+          <label class="pri-opt"><input type="radio" name="priority" value="urgent"><div class="pri-dot"></div><span>Urgent</span></label>
+          <label class="pri-opt"><input type="radio" name="priority" value="emergency"><div class="pri-dot"></div><span>Emergency</span></label>
+        </div>
+      </div>
+
+      <div class="attach-zone" onclick="document.getElementById('attachInput').click()">
+        <i class="ti ti-paperclip"></i>
+        <p>Drag & drop files or <span>browse</span> — optional</p>
+        <div id="attachList"></div>
+      </div>
+      <input type="file" id="attachInput" multiple onchange="showFiles(this)">
+
+      <div class="submit-row">
+        <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+          <i class="ti ti-send"></i> Send Message
+        </button>
+        <div class="privacy-note">Your information is kept confidential.<br>We never share data with third parties.</div>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="success-msg" id="successMsg">
+      <i class="ti ti-circle-check"></i>
+      <h3>Message sent! ধন্যবাদ</h3>
+      <p>We've received your message and will reply within 24 hours to <strong id="replyTarget"></strong>.</p>
+      <p style="margin-top:10px">Reference: <strong id="ticketRef" style="color:var(--green)"></strong></p>
+      <button onclick="resetForm()" style="margin-top:16px;background:var(--green);color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Send another message</button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- Office info -->
+    <div class="info-card">
+      <div class="info-card-title"><i class="ti ti-building"></i>Office Information</div>
+      <div class="office-item">
+        <div class="oi-icon"><i class="ti ti-map-pin"></i></div>
+        <div class="oi-text"><div class="oi-label">Address</div><div class="oi-val">Korje Hasana Foundation<br>Dhaka Division, Bangladesh</div></div>
+      </div>
+      <div class="office-item">
+        <div class="oi-icon"><i class="ti ti-phone"></i></div>
+        <div class="oi-text"><div class="oi-label">Phone</div><div class="oi-val">+880-1XXXXXXXXX</div></div>
+      </div>
+      <div class="office-item">
+        <div class="oi-icon"><i class="ti ti-mail"></i></div>
+        <div class="oi-text"><div class="oi-label">Email</div><div class="oi-val">info@korjehasana.org<br>loans@korjehasana.org</div></div>
+      </div>
+      <div class="office-item">
+        <div class="oi-icon"><i class="ti ti-world"></i></div>
+        <div class="oi-text"><div class="oi-label">Website</div><div class="oi-val">www.korjehasana.org</div></div>
+      </div>
+    </div>
+
+    <!-- Office hours -->
+    <div class="info-card">
+      <div class="info-card-title"><i class="ti ti-clock"></i>Office Hours</div>
+      <div class="hours-row"><div class="hr-day">Sunday – Thursday</div><div class="hr-time">9:00am – 5:00pm</div></div>
+      <div class="hours-row"><div class="hr-day">Friday</div><div class="hr-time">9:00am – 12:00pm</div></div>
+      <div class="hours-row"><div class="hr-day">Saturday</div><div class="hr-closed">Closed</div></div>
+      <div class="hours-row"><div class="hr-day">Government holidays</div><div class="hr-closed">Closed</div></div>
+      <div style="margin-top:12px;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:10px;font-size:11px;color:var(--muted)">
+        <i class="ti ti-info-circle" style="color:var(--gold);margin-right:4px"></i>
+        WhatsApp support available 7 days, 8am–8pm.
+      </div>
+    </div>
+
+    <!-- WhatsApp CTA -->
+    <div class="wa-card">
+      <h3><i class="ti ti-brand-whatsapp"></i>Chat on WhatsApp</h3>
+      <p>Get an instant reply on WhatsApp. Our team is available 8am–8pm daily, 7 days a week.</p>
+      <a href="https://wa.me/8801XXXXXXXXX?text=আমি কর্জে হাসানা ফাউন্ডেশন সম্পর্কে জানতে চাই" target="_blank" class="wa-btn-card">
+        <i class="ti ti-brand-whatsapp"></i> Start WhatsApp Chat
+      </a>
+    </div>
+
+    <!-- Social -->
+    <div class="info-card">
+      <div class="info-card-title"><i class="ti ti-share"></i>Follow Us</div>
+      <div class="social-row">
+        <a href="#" class="soc-btn soc-fb"><i class="ti ti-brand-facebook"></i>Facebook</a>
+        <a href="#" class="soc-btn soc-yt"><i class="ti ti-brand-youtube"></i>YouTube</a>
+        <a href="mailto:info@korjehasana.org" class="soc-btn soc-em"><i class="ti ti-mail"></i>Email</a>
+      </div>
+    </div>
+
+    <!-- FAQ teaser -->
+    <div class="info-card">
+      <div class="info-card-title"><i class="ti ti-help-circle"></i>Common Questions</div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How do I apply for a loan?<i class="ti ti-chevron-down"></i></div>
+        <div class="faq-a">Click "Apply for Loan" in the nav, fill the 4-step form with your NID, purpose, and references. The committee reviews within 14 days.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Is the loan really 0% interest?<i class="ti ti-chevron-down"></i></div>
+        <div class="faq-a">Yes — absolutely zero interest. You repay only the principal amount. This is the core of Qard al-Hasan in Islam.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">How is my donation used?<i class="ti ti-chevron-down"></i></div>
+        <div class="faq-a">90% goes directly to the loan pool, 5% covers operations, and 5% is kept as an emergency reserve. All tracked publicly.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q">Can I get a tax rebate certificate?<i class="ti ti-chevron-down"></i></div>
+        <div class="faq-a">Yes. After donating, visit the Donation page and use the "Get Certificate" button to download your tax rebate certificate for any fiscal year.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAP SECTION -->
+<div class="map-section">
+  <div class="map-inner">
+    <div class="sec-label" style="justify-content:flex-start"><i class="ti ti-map"></i>Location</div>
+    <h2 style="font-size:26px;font-weight:800;color:var(--green);margin-bottom:6px">Find Our Office</h2>
+    <p style="font-size:14px;color:var(--muted)">We serve beneficiaries across 7 districts in Dhaka Division.</p>
+    <div class="map-box">
+      <!-- Google Maps embed placeholder -->
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d233668.37548970532!2d90.27923500000001!3d23.780573!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8b087026b81%3A0x8fa563bbdd5904c2!2sDhaka!5e0!3m2!1sen!2sbd!4v1687000000000!5m2!1sen!2sbd"
+        width="100%" height="360" style="border:0;display:block" allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade" title="Korje Hasana Foundation location">
+      </iframe>
+      <div class="map-overlay">
+        <i class="ti ti-map-pin"></i>
+        <div class="map-overlay-text">
+          <strong>Korje Hasana Foundation</strong>
+          <span>Dhaka Division, Bangladesh</span>
+        </div>
+      </div>
+    </div>
+    <!-- Service districts -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--muted)">Service districts:</div>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Dhaka</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Gazipur</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Narayanganj</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Narsingdi</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Manikganj</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Munshiganj</span>
+      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Rajbari</span>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2>Ready to make a difference?</h2>
+  <p>Every donation enters a revolving fund that helps family after family, forever.</p>
+  <div class="cta-btns">
+    <a href="donation.html" class="cta-btn1">❤ Donate Now</a>
+    <a href="loan-application.html" class="cta-btn2">Apply for a Loan</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="loan-application.html">Apply</a>
+    <a href="donation.html">Donate</a>
+    <a href="dashboard.html">Transparency</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <p>© 2026 Korje Hasana Foundation · korjehasana.org · All donations are 0% interest, Shariah-compliant</p>
+</footer>
+
+<!-- WhatsApp float -->
+<div class="wa-float">
+  <a class="wa-btn" href="https://wa.me/8801XXXXXXXXX" target="_blank" title="Chat on WhatsApp">
+    <i class="ti ti-brand-whatsapp"></i>
+  </a>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══ Nav hover bar ═══ */
+const hoverBar = document.getElementById('hoverBar');
+const activeLink = document.querySelector('.nav-link.active');
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('mouseenter', () => {
+    const r = link.getBoundingClientRect(), pr = document.getElementById('navLinks').getBoundingClientRect();
+    hoverBar.style.left = (r.left - pr.left) + 'px'; hoverBar.style.width = r.width + 'px'; hoverBar.style.opacity = '1';
+  });
+  link.addEventListener('mouseleave', () => {
+    if (activeLink) {
+      const r = activeLink.getBoundingClientRect(), pr = document.getElementById('navLinks').getBoundingClientRect();
+      hoverBar.style.left = (r.left - pr.left) + 'px'; hoverBar.style.width = r.width + 'px';
+    } else { hoverBar.style.opacity = '0'; }
+  });
+});
+setTimeout(() => {
+  if (activeLink) {
+    const r = activeLink.getBoundingClientRect(), pr = document.getElementById('navLinks').getBoundingClientRect();
+    hoverBar.style.left = (r.left - pr.left) + 'px'; hoverBar.style.width = r.width + 'px'; hoverBar.style.opacity = '1';
+  }
+}, 100);
+
+/* ═══ Subject tabs ═══ */
+function setSubject(el, val) {
+  document.querySelectorAll('.subj-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('cf_subject').value = val;
+}
+
+/* ═══ Char count ═══ */
+function updateCount(el) {
+  document.getElementById('charCount').textContent = el.value.length;
+  if (el.value.length > 900) document.getElementById('charCount').style.color = '#ef4444';
+  else document.getElementById('charCount').style.color = '';
+  if (el.value.length > 1000) el.value = el.value.slice(0, 1000);
+}
+
+/* ═══ Attachments ═══ */
+function showFiles(input) {
+  const list = document.getElementById('attachList');
+  list.innerHTML = Array.from(input.files).map(f => `<div style="margin-top:4px;color:var(--green)"><i class="ti ti-file" style="font-size:12px"></i> ${f.name}</div>`).join('');
+}
+
+/* ═══ FAQ toggle ═══ */
+function toggleFaq(el) { el.classList.toggle('open'); }
+
+/* ═══ Submit form ═══ */
+function submitForm() {
+  const name = document.getElementById('cf_name').value.trim();
+  const mobile = document.getElementById('cf_mobile').value.trim();
+  const msg = document.getElementById('cf_msg').value.trim();
+  if (!name) { toast('Please enter your name.', 'error'); return; }
+  if (!mobile || mobile.length < 10) { toast('Please enter a valid mobile number.', 'error'); return; }
+  if (!msg) { toast('Please write your message.', 'error'); return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Sending…';
+
+  setTimeout(() => {
+    const ref = 'KH-MSG-' + Date.now().toString().slice(-6);
+    document.getElementById('replyTarget').textContent = document.getElementById('cf_email').value || mobile;
+    document.getElementById('ticketRef').textContent = ref;
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+    toast('Message sent! আমরা শীঘ্রই সাড়া দেব।', 'ok');
+  }, 1800);
+}
+
+function resetForm() {
+  document.getElementById('contactForm').style.display = 'block';
+  document.getElementById('successMsg').style.display = 'none';
+  document.getElementById('cf_name').value = '';
+  document.getElementById('cf_mobile').value = '';
+  document.getElementById('cf_email').value = '';
+  document.getElementById('cf_msg').value = '';
+  document.getElementById('charCount').textContent = '0';
+  document.getElementById('attachList').innerHTML = '';
+  const btn = document.getElementById('submitBtn');
+  btn.classList.remove('loading');
+  btn.innerHTML = '<i class="ti ti-send"></i> Send Message';
+}
+
+/* ═══ Toast ═══ */
+function toast(msg, type = 'ok') {
+  const icons = { ok:'ti-circle-check', error:'ti-alert-circle' };
+  const colors = { ok:'#145230', error:'#ef4444' };
+  const el = document.createElement('div');
+  el.className = 'toast-item ' + type;
+  el.innerHTML = `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+/* spin keyframe */
+const style = document.createElement('style');
+style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>

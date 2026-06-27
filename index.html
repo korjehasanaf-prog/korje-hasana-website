@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Korje Hasana Foundation | 0% Interest Loans | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #145230;
+      --dkgreen: #0D3D22;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --dkgold:  #C07800;
+      --white:   #ffffff;
+      --offwhite:#FAFAFA;
+      --border:  #E5E7EB;
+      --text:    #1a1a1a;
+      --muted:   #6B7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; color: var(--text); background: #fff; overflow-x: hidden; }
+
+    /* ═══════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════ */
+    .topbar {
+      background: var(--dkgreen);
+      padding: 6px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-left { display: flex; gap: 20px; }
+    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 12px; }
+    .topbar-item i { font-size: 14px; color: var(--ltgreen); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-soc {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; text-decoration: none;
+    }
+    .topbar-soc:hover { background: rgba(255,255,255,.15); }
+    .topbar-soc i { font-size: 14px; color: rgba(255,255,255,.6); }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.1); border-radius: 20px; border: 1px solid rgba(255,255,255,.2); overflow: hidden; }
+    .lang-btn { font-size: 11px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
+    .lang-btn.active { background: var(--gold); color: var(--green); font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════════ */
+    .navbar {
+      background: var(--green);
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0,0,0,.3);
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 46px; height: 46px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700; color: var(--green);
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(240,165,0,.4);
+    }
+    .logo-texts { display: flex; flex-direction: column; }
+    .logo-bn { color: #fff; font-size: 15px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
+    .logo-en { color: var(--ltgreen); font-size: 10px; line-height: 1.3; }
+    .logo-sl { color: var(--gold); font-size: 9px; font-style: italic; opacity: .9; }
+
+    .nav-center { display: flex; position: relative; height: 68px; align-items: center; }
+    .nav-link {
+      color: rgba(255,255,255,.8); font-size: 13px; font-weight: 500;
+      padding: 0 16px; height: 68px; display: flex; align-items: center;
+      cursor: pointer; position: relative; transition: color .2s;
+      text-decoration: none; white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-indicator {
+      position: absolute; bottom: 0; height: 3px;
+      background: var(--gold);
+      border-radius: 2px 2px 0 0;
+      transition: left .28s cubic-bezier(.4,0,.2,1), width .28s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .donate-btn {
+      background: var(--gold); color: var(--green);
+      border: none; font-size: 13px; font-weight: 700;
+      padding: 10px 22px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,165,0,.35);
+    }
+    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(240,165,0,.55); }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, var(--green) 0%, var(--dkgreen) 100%);
+      padding: 50px 40px 40px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+      min-height: 460px; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(240,165,0,.06); pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -60px; left: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,.03); pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,165,0,.15); color: var(--gold);
+      font-size: 11px; padding: 5px 14px; border-radius: 20px;
+      border: 1px solid rgba(240,165,0,.35); margin-bottom: 14px;
+    }
+    .hero-h1 { color: #fff; font-size: 28px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+    .hero-h1 span { color: var(--gold); }
+    .hero-p { color: var(--ltgreen); font-size: 14px; line-height: 1.8; margin-bottom: 24px; max-width: 420px; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--green); border: none;
+      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,165,0,.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(240,165,0,.6); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,.4);
+      font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
+    .btn-gold-outline {
+      background: transparent; color: var(--gold);
+      border: 1.5px solid rgba(240,165,0,.5);
+      font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-gold-outline:hover { background: rgba(240,165,0,.1); }
+
+    /* FAN CAROUSEL */
+    .fan-section { position: relative; padding: 0 30px; }
+    .fan-container { position: relative; height: 220px; }
+    .fan-cards-wrap { position: relative; width: 100%; height: 200px; }
+    .fan-card {
+      position: absolute; border-radius: 14px; overflow: hidden;
+      cursor: pointer; transition: all .45s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    }
+    .fan-card-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      text-align: center; font-size: 11px; font-weight: 600; color: #fff;
+      background: rgba(0,0,0,.4); padding: 5px 0; backdrop-filter: blur(2px);
+    }
+    .fan-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; z-index: 20;
+    }
+    .fan-arrow:hover { background: rgba(255,255,255,.3); }
+    .fan-arrow i { font-size: 16px; color: #fff; }
+    .fan-arrow-l { left: 0; }
+    .fan-arrow-r { right: 0; }
+
+    /* ═══════════════════════════════════════
+       QURAN & HADITH SLIDER
+    ═══════════════════════════════════════ */
+    .quran-strip {
+      background: var(--dkgreen);
+      padding: 22px 60px; position: relative; overflow: hidden;
+    }
+    .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+    .quran-slide { min-width: 100%; text-align: center; padding: 0 60px; }
+    .quran-icon { font-size: 24px; color: var(--gold); margin-bottom: 10px; display: block; }
+    .quran-text-ar {
+      color: #fff; font-size: 15px; font-weight: 500; line-height: 1.7; margin-bottom: 6px;
+      font-family: 'Hind Siliguri', sans-serif;
+    }
+    .quran-text-en { color: var(--ltgreen); font-size: 12px; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .quran-ref {
+      display: inline-block; background: rgba(240,165,0,.15);
+      color: var(--gold); font-size: 11px; padding: 3px 12px; border-radius: 20px;
+      border: 1px solid rgba(240,165,0,.3);
+    }
+    .quran-nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,.1); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: background .2s;
+    }
+    .quran-nav-btn:hover { background: rgba(255,255,255,.2); }
+    .quran-nav-btn i { font-size: 16px; color: rgba(255,255,255,.6); }
+    .quran-nav-l { left: 16px; }
+    .quran-nav-r { right: 16px; }
+    .quran-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
+    .qdot {
+      height: 6px; border-radius: 3px; cursor: pointer;
+      transition: all .3s; background: rgba(255,255,255,.2);
+      width: 6px;
+    }
+    .qdot.active { background: var(--gold); width: 20px; }
+
+    /* ═══════════════════════════════════════
+       IMPACT DASHBOARD
+    ═══════════════════════════════════════ */
+    .impact-section { background: #0F172A; padding: 40px; }
+    .section-title-dark {
+      text-align: center; color: rgba(255,255,255,.5);
+      font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+    .impact-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    .impact-card {
+      border-radius: 16px; padding: 20px 16px; position: relative;
+      overflow: hidden; cursor: pointer; transition: all .3s;
+    }
+    .impact-card:hover { transform: translateY(-4px); }
+    .ic-1 { background: linear-gradient(135deg,#1565C0,#1976D2); box-shadow: 0 4px 24px rgba(21,101,192,.4); }
+    .ic-2 { background: linear-gradient(135deg,#1B5E20,#2E7D32); box-shadow: 0 4px 24px rgba(27,94,32,.4); }
+    .ic-3 { background: linear-gradient(135deg,#E65100,#F57C00); box-shadow: 0 4px 24px rgba(230,81,0,.4); }
+    .ic-4 { background: linear-gradient(135deg,#4A148C,#7B1FA2); box-shadow: 0 4px 24px rgba(74,20,140,.4); }
+    .ic-1:hover { box-shadow: 0 8px 36px rgba(21,101,192,.65); }
+    .ic-2:hover { box-shadow: 0 8px 36px rgba(27,94,32,.65); }
+    .ic-3:hover { box-shadow: 0 8px 36px rgba(230,81,0,.65); }
+    .ic-4:hover { box-shadow: 0 8px 36px rgba(74,20,140,.65); }
+    .impact-card::before {
+      content: ''; position: absolute; top: -30%; right: -20%;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(255,255,255,.08); pointer-events: none;
+    }
+    .ic-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+    .ic-num { font-size: 32px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .ic-lbl { font-size: 12px; color: rgba(255,255,255,.75); margin-bottom: 10px; line-height: 1.4; }
+    .ic-bar { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
+    .ic-bar-inner { height: 100%; background: rgba(255,255,255,.75); border-radius: 2px; width: 0; transition: width 1.5s ease; }
+    .ic-trend { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 6px; }
+    .ic-trend span { color: #4FC3F7; font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       SECTION COMMONS
+    ═══════════════════════════════════════ */
+    .section { padding: 60px 40px; }
+    .section-alt { background: var(--offwhite); }
+    .sec-hd { text-align: center; margin-bottom: 40px; }
+    .sec-tag {
+      display: inline-block; background: #EAF3DE; color: #3B6D11;
+      font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sec-h2 { font-size: 26px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+    .sec-p { font-size: 14px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    /* ═══════════════════════════════════════
+       SERVICES
+    ═══════════════════════════════════════ */
+    .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .srv-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px 20px; transition: all .25s; cursor: pointer;
+    }
+    .srv-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(20,82,48,.12); }
+    .srv-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 14px;
+    }
+    .srv-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .srv-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .srv-amt { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+    .srv-amt i { font-size: 14px; }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-section { background: var(--green); padding: 60px 40px; }
+    .how-section .sec-h2 { color: #fff; }
+    .how-section .sec-p { color: var(--ltgreen); }
+    .how-section .sec-tag { background: rgba(240,165,0,.15); color: var(--gold); border: 1px solid rgba(240,165,0,.3); }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; margin-top: 40px; }
+    .steps::before {
+      content: ''; position: absolute; top: 28px; left: 12%; right: 12%; height: 1px;
+      background: rgba(255,255,255,.2); pointer-events: none;
+    }
+    .step { text-align: center; padding: 0 12px; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--gold); color: var(--green);
+      font-size: 20px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; position: relative; z-index: 1;
+      box-shadow: 0 0 24px rgba(240,165,0,.5);
+    }
+    .step-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step-desc { font-size: 12px; color: var(--ltgreen); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       CUSTOMER CARE STRIP
+    ═══════════════════════════════════════ */
+    .cc-strip {
+      background: #FFFBEB; border-top: 3px solid var(--gold);
+      border-bottom: 1px solid #F0D080;
+      padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cc-left { display: flex; align-items: center; gap: 16px; }
+    .cc-icon-wrap { position: relative; }
+    .cc-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 0 20px rgba(37,211,102,.4);
+    }
+    .cc-icon i { font-size: 26px; color: #fff; }
+    .cc-ring {
+      position: absolute; top: -4px; right: -4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid #25D366;
+      animation: ringPulse 1.6s infinite;
+    }
+    @keyframes ringPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2.5);opacity:0} }
+    .cc-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+    .cc-sub { font-size: 12px; color: var(--muted); }
+    .cc-actions { display: flex; gap: 10px; }
+    .wa-btn {
+      background: #25D366; color: #fff; border: none;
+      font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all .2s; box-shadow: 0 4px 16px rgba(37,211,102,.4);
+      text-decoration: none;
+    }
+    .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.6); }
+    .call-btn {
+      background: transparent; color: var(--green);
+      border: 1.5px solid var(--green);
+      font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s;
+      text-decoration: none;
+    }
+    .call-btn:hover { background: var(--green); color: #fff; }
+
+    /* ═══════════════════════════════════════
+       SUCCESS STORIES
+    ═══════════════════════════════════════ */
+    .stories-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .story-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .story-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .story-img {
+      height: 100px; display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+    }
+    .story-body { padding: 16px; }
+    .story-tag { font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .story-quote { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .story-quote::before { content: '"'; font-size: 18px; color: var(--gold); }
+    .story-quote::after { content: '"'; font-size: 18px; color: var(--gold); }
+    .story-meta { font-size: 11px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       NEWS
+    ═══════════════════════════════════════ */
+    .news-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .news-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(20,82,48,.1); }
+    .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .news-body { padding: 14px; }
+    .news-cat { font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
+    .news-title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+    .news-date { font-size: 11px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       CTA BAND
+    ═══════════════════════════════════════ */
+    .cta-band {
+      background: linear-gradient(135deg, var(--gold) 0%, #E8A000 100%);
+      padding: 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cta-band h3 { font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+    .cta-band p { font-size: 13px; color: rgba(0,0,0,.55); }
+    .cta-btns { display: flex; gap: 12px; }
+    .cta-btn1 {
+      background: var(--green); color: #fff; border: none;
+      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .cta-btn1:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
+    .cta-btn2 {
+      background: transparent; color: var(--green);
+      border: 2px solid var(--green);
+      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s;
+    }
+    .cta-btn2:hover { background: rgba(0,0,0,.06); }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer { background: var(--dkgreen); padding: 50px 40px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 32px; margin-bottom: 36px; }
+    .ft-logo-bn { color: #fff; font-size: 16px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; }
+    .ft-logo-en { color: var(--ltgreen); font-size: 11px; margin-bottom: 3px; }
+    .ft-logo-sl { color: var(--gold); font-size: 10px; font-style: italic; margin-bottom: 14px; }
+    .ft-about { color: rgba(255,255,255,.45); font-size: 12px; line-height: 1.8; margin-bottom: 16px; }
+    .ft-nl { display: flex; gap: 8px; }
+    .ft-nl input {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px; padding: 8px 14px; font-size: 12px; color: #fff; flex: 1;
+    }
+    .ft-nl input::placeholder { color: rgba(255,255,255,.35); }
+    .ft-nl button {
+      background: var(--gold); color: var(--green); border: none;
+      border-radius: 24px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .ft-col h4 { color: var(--ltgreen); font-size: 12px; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.1); text-transform: uppercase; letter-spacing: .5px; }
+    .ft-links { display: flex; flex-direction: column; gap: 8px; }
+    .ft-link {
+      color: rgba(255,255,255,.45); font-size: 12px; text-decoration: none;
+      display: flex; align-items: center; gap: 5px; transition: all .2s;
+    }
+    .ft-link::before { content: '›'; opacity: .4; font-size: 14px; transition: opacity .2s; }
+    .ft-link:hover { color: var(--gold); padding-left: 4px; }
+    .ft-link:hover::before { opacity: 1; color: var(--gold); }
+    .ft-contact { display: flex; flex-direction: column; gap: 8px; }
+    .ft-contact-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 12px; }
+    .ft-contact-item i { font-size: 14px; color: var(--ltgreen); }
+    .footer-mid {
+      border-top: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 16px 0; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-socs { display: flex; gap: 10px; }
+    .foot-soc {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s; text-decoration: none;
+    }
+    .foot-soc i { font-size: 18px; color: rgba(255,255,255,.5); transition: color .25s; }
+    .foot-soc:hover { transform: translateY(-3px); }
+    .foot-soc.fb:hover { background: #1877F2; border-color: #1877F2; }
+    .foot-soc.fb:hover i { color: #fff; }
+    .foot-soc.yt:hover { background: #FF0000; border-color: #FF0000; }
+    .foot-soc.yt:hover i { color: #fff; }
+    .foot-soc.wa:hover { background: #25D366; border-color: #25D366; }
+    .foot-soc.wa:hover i { color: #fff; }
+    .foot-soc.li:hover { background: #0A66C2; border-color: #0A66C2; }
+    .foot-soc.li:hover i { color: #fff; }
+    .ft-badges { display: flex; gap: 8px; }
+    .ft-badge {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.4); font-size: 10px; padding: 4px 10px; border-radius: 12px;
+    }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .ft-copy { color: rgba(255,255,255,.3); font-size: 11px; }
+
+    /* ═══════════════════════════════════════
+       FLOATING BUTTONS
+    ═══════════════════════════════════════ */
+    .wa-float {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .wa-float-btn {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,.5);
+      cursor: pointer; transition: all .2s; text-decoration: none;
+      animation: waPulse 2.5s infinite;
+      position: relative;
+    }
+    @keyframes waPulse {
+      0%,100%  { box-shadow: 0 4px 20px rgba(37,211,102,.5); }
+      50%      { box-shadow: 0 4px 30px rgba(37,211,102,.8), 0 0 0 10px rgba(37,211,102,.15); }
+    }
+    .wa-float-btn i { font-size: 28px; color: #fff; }
+    .wa-float-tooltip {
+      background: #fff; color: var(--green); font-size: 12px; font-weight: 700;
+      padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      display: none; white-space: nowrap;
+    }
+    .wa-float:hover .wa-float-tooltip { display: block; }
+
+    .btt-btn {
+      position: fixed; bottom: 98px; right: 28px; z-index: 9999;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--green); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s;
+      opacity: 0; pointer-events: none;
+      box-shadow: 0 4px 16px rgba(20,82,48,.35);
+    }
+    .btt-btn.visible { opacity: 1; pointer-events: all; }
+    .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(20,82,48,.5); }
+    .btt-btn i { font-size: 20px; color: var(--gold); }
+
+    /* ═══════════════════════════════════════
+       DIVIDER
+    ═══════════════════════════════════════ */
+    .divider { height: 1px; background: var(--border); margin: 0 40px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 30px 20px; }
+      .fan-section { display: none; }
+      .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
+      .impact-grid { grid-template-columns: repeat(2,1fr); }
+      .steps { grid-template-columns: repeat(2,1fr); gap: 20px; }
+      .steps::before { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .topbar-left { display: none; }
+      .nav-center { display: none; }
+      .cta-band { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOP BAR
+════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-item"><i class="ti ti-phone"></i>+880-1XXXXXXXXX</div>
+    <div class="topbar-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+    <div class="topbar-item"><i class="ti ti-map-pin"></i>Dhaka Division, Bangladesh</div>
+  </div>
+  <div class="topbar-right">
+    <a href="#" class="topbar-soc"><i class="ti ti-brand-facebook"></i></a>
+    <a href="#" class="topbar-soc"><i class="ti ti-brand-youtube"></i></a>
+    <a href="https://wa.me/880XXXXXXXXXX" class="topbar-soc" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('bn')">বাং</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="logo-wrap">
+    <div class="logo-icon">KH</div>
+    <div class="logo-texts">
+      <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="logo-en">Korje Hasana Foundation</div>
+      <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+    </div>
+  </a>
+  <div class="nav-center" id="navCenter">
+    <a class="nav-link active" href="#hero">Home</a>
+    <a class="nav-link" href="#about">About</a>
+    <a class="nav-link" href="#programs">Programs</a>
+    <a class="nav-link" href="#apply">Apply</a>
+    <a class="nav-link" href="#dashboard">Dashboard</a>
+    <a class="nav-link" href="#news">News</a>
+    <a class="nav-link" href="#contact">Contact</a>
+    <div class="nav-indicator" id="navInd"></div>
+  </div>
+  <div class="nav-right">
+    <a href="#donate" class="donate-btn">Donate now</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div>
+    <div class="hero-badge">
+      <i class="ti ti-mosque" style="font-size:14px"></i>
+      Mosque-based · 0% interest · Sharia-compliant
+    </div>
+    <h1 class="hero-h1">
+      Interest-free loans<br>for those who <span>need it most</span>
+    </h1>
+    <p class="hero-p">
+      কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.
+    </p>
+    <div class="hero-btns">
+      <a href="#apply" class="btn-primary"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i>Apply for a loan</a>
+      <a href="#donate" class="btn-outline">Donate now</a>
+      <a href="#about" class="btn-gold-outline">Learn more</a>
+    </div>
+  </div>
+
+  <!-- FAN CAROUSEL -->
+  <div class="fan-section" id="fanSection">
+    <div class="fan-container">
+      <div class="fan-cards-wrap" id="fanCards"></div>
+    </div>
+    <div class="fan-arrow fan-arrow-l" id="fanL"><i class="ti ti-chevron-left"></i></div>
+    <div class="fan-arrow fan-arrow-r" id="fanR"><i class="ti ti-chevron-right"></i></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     QURAN & HADITH SLIDER
+════════════════════════════════════════════════════════ -->
+<div class="quran-strip">
+  <button class="quran-nav-btn quran-nav-l" id="qPrev"><i class="ti ti-chevron-left"></i></button>
+  <div style="overflow:hidden">
+    <div class="quran-track" id="qTrack">
+      <div class="quran-slide">
+        <i class="ti ti-book quran-icon"></i>
+        <div class="quran-text-ar">"মান যাল্লাযি ইউকরিদুল্লাহা কারদান হাসানান ফাইুদাআফাহু লাহু আদআফান কাসিরাহ"</div>
+        <div class="quran-text-en">"Who is it that would loan Allah a goodly loan so He may multiply it for him many times over? And it is Allah who withholds and grants abundance."</div>
+        <div class="quran-ref">সূরা আল-বাকারা · আয়াত ২৪৫</div>
+      </div>
+      <div class="quran-slide">
+        <i class="ti ti-book quran-icon"></i>
+        <div class="quran-text-ar">"মান যাল্লাযি ইউকরিদুল্লাহা কারদান হাসানান ফাইুদাআফাহু লাহু ওয়া লাহু আজরুন কারিম"</div>
+        <div class="quran-text-en">"Who will loan Allah a goodly loan? He will then multiply it for him, and he will have a noble reward."</div>
+        <div class="quran-ref">সূরা আল-হাদিদ · আয়াত ১১</div>
+      </div>
+      <div class="quran-slide">
+        <i class="ti ti-moon-stars quran-icon"></i>
+        <div class="quran-text-ar">রাসূল ﷺ বলেছেন: "যে ব্যক্তি কোনো মুসলমান ভাইয়ের দুনিয়ার একটি কষ্ট দূর করবে, আল্লাহ কিয়ামতের দিন তার একটি কষ্ট দূর করবেন।"</div>
+        <div class="quran-text-en">"Whoever relieves a Muslim from a difficulty of this world, Allah will relieve him from a difficulty on the Day of Resurrection."</div>
+        <div class="quran-ref">সহীহ মুসলিম · হাদিস</div>
+      </div>
+      <div class="quran-slide">
+        <i class="ti ti-moon-stars quran-icon"></i>
+        <div class="quran-text-ar">রাসূল ﷺ বলেছেন: "একবার কর্জে হাসানা দেওয়ার সওয়াব আঠারো গুণ — আর একবার সদকা করার সওয়াব দশ গুণ।"</div>
+        <div class="quran-text-en">"The reward of a single Qard Hasana is 18-fold, while a single act of charity (sadaqah) is only 10-fold."</div>
+        <div class="quran-ref">ইবনে মাজাহ · হাদিস</div>
+      </div>
+    </div>
+  </div>
+  <button class="quran-nav-btn quran-nav-r" id="qNext"><i class="ti ti-chevron-right"></i></button>
+  <div class="quran-dots" id="qDots">
+    <div class="qdot active"></div>
+    <div class="qdot"></div>
+    <div class="qdot"></div>
+    <div class="qdot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     IMPACT DASHBOARD
+════════════════════════════════════════════════════════ -->
+<section class="impact-section" id="dashboard">
+  <div class="section-title-dark">Live impact dashboard</div>
+  <div class="impact-grid">
+    <div class="impact-card ic-1">
+      <i class="ti ti-users ic-icon" style="color:#90CAF9"></i>
+      <div class="ic-num" data-target="127" id="cnt1">0</div>
+      <div class="ic-lbl">Total beneficiaries helped</div>
+      <div class="ic-bar"><div class="ic-bar-inner" data-w="72" id="bar1"></div></div>
+      <div class="ic-trend">This month: <span id="t1">+0</span> new families</div>
+    </div>
+    <div class="impact-card ic-2">
+      <i class="ti ti-currency-taka ic-icon" style="color:#A5D6A7"></i>
+      <div class="ic-num" id="cnt2">৳0L</div>
+      <div class="ic-lbl">Total taka disbursed</div>
+      <div class="ic-bar"><div class="ic-bar-inner" data-w="65" id="bar2"></div></div>
+      <div class="ic-trend">Average loan: <span>৳24,500</span></div>
+    </div>
+    <div class="impact-card ic-3">
+      <i class="ti ti-chart-line ic-icon" style="color:#FFCC80"></i>
+      <div class="ic-num" id="cnt3">0%</div>
+      <div class="ic-lbl">Repayment rate</div>
+      <div class="ic-bar"><div class="ic-bar-inner" data-w="99" id="bar3"></div></div>
+      <div class="ic-trend">On-time: <span>96%</span></div>
+    </div>
+    <div class="impact-card ic-4">
+      <i class="ti ti-heart-handshake ic-icon" style="color:#CE93D8"></i>
+      <div class="ic-num" data-target="84" id="cnt4">0</div>
+      <div class="ic-lbl">Active donors worldwide</div>
+      <div class="ic-bar"><div class="ic-bar-inner" data-w="84" id="bar4"></div></div>
+      <div class="ic-trend">From <span>12</span> countries</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PROGRAMS / SERVICES
+════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="programs">
+  <div class="sec-hd">
+    <div class="sec-tag">Our programs</div>
+    <h2 class="sec-h2">Interest-free loans for every need</h2>
+    <p class="sec-p">All loans are disbursed as goods or direct bill payments — never as cash. This protects both the borrower and the fund.</p>
+  </div>
+  <div class="services-grid">
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#EAF3DE"><i class="ti ti-plant-2" style="font-size:22px;color:#3B6D11"></i></div>
+      <div class="srv-title">Agriculture loan</div>
+      <div class="srv-desc">Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · Repay at harvest</div>
+    </div>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#E6F1FB"><i class="ti ti-building-store" style="font-size:22px;color:#185FA5"></i></div>
+      <div class="srv-title">Small business loan</div>
+      <div class="srv-desc">Goods and stock procured directly from wholesalers. No cash changes hands.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳75,000 · 12–24 months</div>
+    </div>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#FAEEDA"><i class="ti ti-school" style="font-size:22px;color:#854F0B"></i></div>
+      <div class="srv-title">Education loan</div>
+      <div class="srv-desc">Tuition and admission fees paid directly to the educational institution.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳50,000 · Flexible terms</div>
+    </div>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#FCEBEB"><i class="ti ti-stethoscope" style="font-size:22px;color:#A32D2D"></i></div>
+      <div class="srv-title">Medical loan</div>
+      <div class="srv-desc">Hospital bills, medicines, and medical expenses paid directly to the provider.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳1,00,000 · Fast-track 48h</div>
+    </div>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#FBEAF0"><i class="ti ti-home-heart" style="font-size:22px;color:#993556"></i></div>
+      <div class="srv-title">Family need loan</div>
+      <div class="srv-desc">Marriage expenses, home repair materials, utility bills — paid to the vendor.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · 12–18 months</div>
+    </div>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:#E1F5EE"><i class="ti ti-alert-triangle" style="font-size:22px;color:#0F6E56"></i></div>
+      <div class="srv-title">Emergency loan</div>
+      <div class="srv-desc">Disaster relief and urgent needs — disbursed within 48 hours of approval.</div>
+      <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳15,000 · Disbursed in 48h</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════════════════ -->
+<section class="how-section" id="apply">
+  <div class="sec-hd">
+    <div class="sec-tag">How it works</div>
+    <h2 class="sec-h2">Simple, transparent, dignified</h2>
+    <p class="sec-p">Four steps — from your first application to receiving what you need, with respect and care at every stage.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Apply online or in person</div>
+      <div class="step-desc">Fill out the application form on this website or WhatsApp us. Upload your NID card — fields fill automatically.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Verification visit</div>
+      <div class="step-desc">Our team visits your home or workplace to verify the need and meet your references.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Committee approval</div>
+      <div class="step-desc">The loan committee reviews and approves within 7–14 days. You receive an SMS notification.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Goods disbursed directly</div>
+      <div class="step-desc">We purchase the goods or pay the bills on your behalf. You repay only the principal — zero interest, forever.</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:36px">
+    <a href="loan-application.html" class="btn-primary" style="font-size:14px;padding:14px 32px">
+      <i class="ti ti-file-text" style="font-size:16px;vertical-align:-3px;margin-right:6px"></i>Start your loan application
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CUSTOMER CARE
+════════════════════════════════════════════════════════ -->
+<div class="cc-strip" id="contact">
+  <div class="cc-left">
+    <div class="cc-icon-wrap">
+      <div class="cc-icon"><i class="ti ti-brand-whatsapp"></i></div>
+      <div class="cc-ring"></div>
+    </div>
+    <div>
+      <div class="cc-title">Need help? Our team responds within minutes</div>
+      <div class="cc-sub">Available via WhatsApp · Phone · Email · Sunday–Thursday 9am–6pm</div>
+    </div>
+  </div>
+  <div class="cc-actions">
+    <a href="https://wa.me/880XXXXXXXXXX" class="wa-btn" target="_blank">
+      <i class="ti ti-brand-whatsapp" style="font-size:17px"></i>WhatsApp us now
+    </a>
+    <a href="tel:+880XXXXXXXXXX" class="call-btn">
+      <i class="ti ti-phone" style="font-size:17px"></i>Call us
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SUCCESS STORIES
+════════════════════════════════════════════════════════ -->
+<section class="section" id="about">
+  <div class="sec-hd">
+    <div class="sec-tag">Success stories</div>
+    <h2 class="sec-h2">Real lives changed</h2>
+    <p class="sec-p">Names changed for privacy. Every story is real — a loan given, goods purchased, a life improved.</p>
+  </div>
+  <div class="stories-grid">
+    <div class="story-card">
+      <div class="story-img" style="background:#EAF3DE">🌾</div>
+      <div class="story-body">
+        <div class="story-tag">Agriculture · Dhaka</div>
+        <div class="story-quote">We bought seeds and fertiliser together. My Boro harvest was the best in five years. I repaid on time and now applying again.</div>
+        <div class="story-meta">৳25,000 loan · Repaid in 12 months · 2025</div>
+      </div>
+    </div>
+    <div class="story-card">
+      <div class="story-img" style="background:#E6F1FB">🏪</div>
+      <div class="story-body">
+        <div class="story-tag">Small business · Narayanganj</div>
+        <div class="story-quote">My grocery shop stock doubled. The team came with me to the wholesaler. I repay ৳2,778 per month without any stress.</div>
+        <div class="story-meta">৳50,000 loan · 18-month term · 2026</div>
+      </div>
+    </div>
+    <div class="story-card">
+      <div class="story-img" style="background:#FAEEDA">🎓</div>
+      <div class="story-body">
+        <div class="story-tag">Education · Gazipur</div>
+        <div class="story-quote">My university admission fees were paid directly to the university. No interest, no shame. I can study without my family going into debt.</div>
+        <div class="story-meta">৳35,000 loan · Ongoing · 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     NEWS
+════════════════════════════════════════════════════════ -->
+<section class="section" id="news">
+  <div class="sec-hd">
+    <div class="sec-tag">Latest news</div>
+    <h2 class="sec-h2">Our activities</h2>
+  </div>
+  <div class="news-grid">
+    <div class="news-card">
+      <div class="news-img" style="background:#EAF3DE">📸</div>
+      <div class="news-body">
+        <div class="news-cat">Agriculture</div>
+        <div class="news-title">15 farmers receive seeds and fertiliser for Boro season 2026</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> June 2026</div>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="news-img" style="background:#E6F1FB">📸</div>
+      <div class="news-body">
+        <div class="news-cat">Education</div>
+        <div class="news-title">Tuition fees paid for 8 university students this semester</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> June 2026</div>
+      </div>
+    </div>
+    <div class="news-card">
+      <div class="news-img" style="background:#F1EFE8">📸</div>
+      <div class="news-body">
+        <div class="news-cat">Foundation</div>
+        <div class="news-title">Korje Hasana Foundation officially registered with the Department of Social Services</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> May 2026</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA BAND
+════════════════════════════════════════════════════════ -->
+<div class="cta-band" id="donate">
+  <div>
+    <h3>Every taka you give stays interest-free — forever.</h3>
+    <p>Your donation becomes a loan that is repaid, then lent again. It multiplies without end.</p>
+  </div>
+  <div class="cta-btns">
+    <button class="cta-btn1" onclick="window.location.href='donation.html'">Donate now</button>
+    <button class="cta-btn2" onclick="window.location.href='loan-application.html'">Apply for a loan</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="ft-logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="ft-logo-en">Korje Hasana Foundation</div>
+      <div class="ft-logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+      <div class="ft-about">Mosque-based 0% interest microfinance. Helping families across Dhaka Division break free from the cycle of debt — since 2026. All disbursements are in-kind; no cash is given.</div>
+      <div style="color:rgba(255,255,255,.4);font-size:11px;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Stay updated</div>
+      <div class="ft-nl">
+        <input type="email" placeholder="your@email.com">
+        <button>Subscribe</button>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Quick links</h4>
+      <div class="ft-links">
+        <a href="#about" class="ft-link">About us</a>
+        <a href="loan-application.html" class="ft-link">Apply for loan</a>
+        <a href="donation.html" class="ft-link">Donate</a>
+        <a href="#" class="ft-link">Success stories</a>
+        <a href="#" class="ft-link">Annual report</a>
+        <a href="#" class="ft-link">FAQ</a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Programs</h4>
+      <div class="ft-links">
+        <a href="#programs" class="ft-link">Agriculture loan</a>
+        <a href="#programs" class="ft-link">Small business</a>
+        <a href="#programs" class="ft-link">Education loan</a>
+        <a href="#programs" class="ft-link">Medical loan</a>
+        <a href="#programs" class="ft-link">Family need</a>
+        <a href="#programs" class="ft-link">Emergency loan</a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Transparency</h4>
+      <div class="ft-links">
+        <a href="#dashboard" class="ft-link">Live dashboard</a>
+        <a href="#" class="ft-link">Annual reports</a>
+        <a href="#" class="ft-link">Committee members</a>
+        <a href="#" class="ft-link">Volunteers</a>
+        <a href="#" class="ft-link">Privacy policy</a>
+      </div>
+      <h4 style="margin-top:20px">Contact</h4>
+      <div class="ft-contact">
+        <div class="ft-contact-item"><i class="ti ti-map-pin"></i>Dhaka Division, Bangladesh</div>
+        <div class="ft-contact-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+        <div class="ft-contact-item"><i class="ti ti-brand-whatsapp"></i>+880-1XXXXXXXXX</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-mid">
+    <div class="footer-socs">
+      <a href="#" class="foot-soc fb"><i class="ti ti-brand-facebook"></i></a>
+      <a href="#" class="foot-soc yt"><i class="ti ti-brand-youtube"></i></a>
+      <a href="https://wa.me/880XXXXXXXXXX" class="foot-soc wa" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
+      <a href="#" class="foot-soc li"><i class="ti ti-brand-linkedin"></i></a>
+    </div>
+    <div style="color:rgba(255,255,255,.35);font-size:11px">Registered · সমাজসেবা অধিদফতর · NGOAB (pending)</div>
+    <div class="ft-badges">
+      <span class="ft-badge">🔒 SSL Secured</span>
+      <span class="ft-badge">Non-profit</span>
+      <span class="ft-badge">Shariah-certified</span>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
+    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:13px;color:#F0A500"></i> for humanity</div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     FLOATING WHATSAPP & BACK TO TOP
+════════════════════════════════════════════════════════ -->
+<div class="wa-float">
+  <div class="wa-float-tooltip">Chat with us on WhatsApp</div>
+  <a href="https://wa.me/880XXXXXXXXXX" class="wa-float-btn" target="_blank" title="WhatsApp customer support">
+    <i class="ti ti-brand-whatsapp"></i>
+  </a>
+</div>
+
+<div class="btt-btn" id="bttBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+  <i class="ti ti-arrow-up"></i>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+<script>
+/* ── LANGUAGE TOGGLE ── */
+function setLang(lang) {
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+/* ── NAV HOVER SLIDING INDICATOR ── */
+(function() {
+  const navLinks = document.querySelectorAll('.nav-link');
+  const ind = document.getElementById('navInd');
+  const navCenter = document.getElementById('navCenter');
+  if (!ind || !navCenter) return;
+
+  function moveInd(el) {
+    const pr = navCenter.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    ind.style.left = (er.left - pr.left) + 'px';
+    ind.style.width = er.width + 'px';
+  }
+
+  navLinks.forEach(link => {
+    link.addEventListener('mouseenter', () => moveInd(link));
+    link.addEventListener('click', () => {
+      navLinks.forEach(x => x.classList.remove('active'));
+      link.classList.add('active');
+      moveInd(link);
+    });
+  });
+
+  const activeLink = document.querySelector('.nav-link.active');
+  if (activeLink) setTimeout(() => moveInd(activeLink), 150);
+
+  navCenter.addEventListener('mouseleave', () => {
+    const active = document.querySelector('.nav-link.active');
+    if (active) moveInd(active);
+  });
+})();
+
+/* ── FAN CAROUSEL ── */
+(function() {
+  const labels  = ['কৃষি ঋণ','ব্যবসা ঋণ','শিক্ষা ঋণ','কর্জে হাসানা','চিকিৎসা ঋণ','পারিবারিক','জরুরি সহায়তা'];
+  const icons   = ['ti-plant-2','ti-building-store','ti-school','ti-heart-handshake','ti-stethoscope','ti-home-heart','ti-alert-triangle'];
+  const colors  = ['#1B5E20','#1A237E','#E65100','#145230','#B71C1C','#880E4F','#004D40'];
+  let active = 3;
+
+  function render() {
+    const wrap = document.getElementById('fanCards');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    const total = 7;
+    const maxH = 175, minH = 100;
+    const maxW = 115, minW = 72;
+
+    for (let i = 0; i < total; i++) {
+      const off = i - active;
+      const abs = Math.abs(off);
+      const scale = 1 - abs * 0.13;
+      const rot = off * 11;
+      const tx = 50 + off * 12;
+      const w = Math.round(maxW * scale);
+      const h = Math.round(maxH * scale);
+      const z = total - abs;
+
+      const card = document.createElement('div');
+      card.className = 'fan-card';
+      card.style.cssText = `
+        width:${w}px; height:${h}px;
+        left: calc(${tx}% - ${w/2}px); bottom: 0;
+        transform: rotate(${rot}deg);
+        z-index: ${z};
+        background: ${colors[i]};
+        border: ${i === active ? '2.5px solid #F0A500' : '1px solid rgba(255,255,255,0.15)'};
+        opacity: ${i === active ? 1 : 0.65};
+        box-shadow: ${i === active ? '0 8px 32px rgba(0,0,0,0.4)' : 'none'};
+      `;
+      card.innerHTML = `
+        <i class="ti ${icons[i]}" style="font-size:${i===active?26:16}px;color:rgba(255,255,255,0.85)"></i>
+        ${i === active ? `<div style="font-size:10px;color:#F0A500;font-weight:700;text-align:center;padding:0 6px">${labels[i]}</div>` : ''}
+        <div class="fan-card-label">${labels[i]}</div>
+      `;
+      card.addEventListener('click', () => { active = i; render(); });
+      wrap.appendChild(card);
+    }
+  }
+
+  render();
+  document.getElementById('fanL').addEventListener('click', () => { if(active > 0){ active--; render(); } });
+  document.getElementById('fanR').addEventListener('click', () => { if(active < 6){ active++; render(); } });
+  setInterval(() => { active = (active + 1) % 7; render(); }, 3500);
+})();
+
+/* ── QURAN SLIDER ── */
+(function() {
+  let idx = 0;
+  const total = 4;
+  const track = document.getElementById('qTrack');
+  const dots = document.querySelectorAll('.qdot');
+
+  function goTo(n) {
+    idx = ((n % total) + total) % total;
+    track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  document.getElementById('qPrev').addEventListener('click', () => goTo(idx - 1));
+  document.getElementById('qNext').addEventListener('click', () => goTo(idx + 1));
+  dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+  setInterval(() => goTo(idx + 1), 5000);
+})();
+
+/* ── COUNTER ANIMATION ── */
+(function() {
+  let animated = false;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !animated) {
+      animated = true;
+      animateCounters();
+      animateBars();
+    }
+  }, { threshold: 0.2 });
+
+  const section = document.querySelector('.impact-section');
+  if (section) observer.observe(section);
+
+  function animateCounters() {
+    // Counter 1: 127
+    let v = 0; const t1 = setInterval(() => { v += 2; document.getElementById('cnt1').textContent = v; if(v >= 127){ document.getElementById('cnt1').textContent = '127'; clearInterval(t1); } }, 15);
+    // Counter 2: 18L
+    let v2 = 0; const t2 = setInterval(() => { v2 += 0.5; document.getElementById('cnt2').textContent = '৳' + v2.toFixed(1) + 'L'; if(v2 >= 18){ document.getElementById('cnt2').textContent = '৳18L'; clearInterval(t2); } }, 40);
+    // Counter 3: 99%
+    let v3 = 0; const t3 = setInterval(() => { v3++; document.getElementById('cnt3').textContent = v3 + '%'; if(v3 >= 99){ clearInterval(t3); } }, 12);
+    // Counter 4: 84
+    let v4 = 0; const t4 = setInterval(() => { v4 += 2; document.getElementById('cnt4').textContent = v4; if(v4 >= 84){ document.getElementById('cnt4').textContent = '84'; clearInterval(t4); } }, 20);
+    // Trend
+    setTimeout(() => { document.getElementById('t1').textContent = '+12'; }, 1800);
+  }
+
+  function animateBars() {
+    setTimeout(() => {
+      ['bar1','bar2','bar3','bar4'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.width = el.dataset.w + '%';
+      });
+    }, 400);
+  }
+})();
+
+/* ── BACK TO TOP ── */
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('bttBtn');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+});
+
+/* ── SMOOTH SCROLL FOR NAV LINKS ── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>
