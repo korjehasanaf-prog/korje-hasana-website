@@ -232,8 +232,7 @@ async function verifyRef(refOverride) {
   if (ref.startsWith('KH-DON') && ref.length >= 10) {
     const amt    = urlParams.amt    || null;
     const method = urlParams.method || null;
-    const name   = urlParams.name   || 'Verified Donor';
-    fillValid(ref, name, amt, method, new Date().toISOString());
+    fillValid(ref, 'Verified Donor', amt, method, new Date().toISOString());
   } else {
     document.getElementById('disp-ref2').textContent = ref;
     show('result-notfound');

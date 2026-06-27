@@ -1125,7 +1125,7 @@ function openVoucher() {
   qrEl.innerHTML = '';
   try {
     new QRCode(qrEl, {
-      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay) + '&name=' + encodeURIComponent(name),
+      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay),
       width: 90, height: 90,
       colorDark: '#145230', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.M
@@ -1136,45 +1136,31 @@ function openVoucher() {
 }
 function closeVoucher() { document.getElementById('voucherOverlay').classList.remove('show'); }
 function printVoucher() {
-  const doc = document.getElementById('voucherDoc').innerHTML;
-  const win = window.open('', '_blank', 'width=640,height=920');
-  win.document.write(`<!DOCTYPE html><html><head>
-  <meta charset="UTF-8">
-  <title>Donation Voucher</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
-  <style>
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:'Inter','Hind Siliguri',sans-serif; background:#f3f4f6; display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:24px; }
-    .v-actions { display:none !important; }
-    @media print {
-      body { background:#fff; padding:0; margin:0; }
-      .v-actions { display:none !important; }
+  const el = document.getElementById('voucherDoc');
+  const actions = el.querySelector('.v-actions');
+  if (actions) actions.style.display = 'none';
+
+  html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+    onclone: function(clonedDoc) {
+      const a = clonedDoc.querySelector('.v-actions');
+      if (a) a.style.display = 'none';
     }
-  </style>
-  </head><body>${doc}</body></html>`);
-  win.document.close();
-  // Re-generate QR code in the new window after fonts load
-  setTimeout(() => {
-    try {
-      const ref = document.getElementById('v_ref').textContent;
-      const vAmt = document.getElementById('v_amount').textContent.replace('৳','').replace(/,/g,'');
-      const vMethod = document.getElementById('v_method').textContent;
-      const vName = document.getElementById('v_name').textContent;
-      const qrEl = win.document.getElementById('v_qrcode');
-      if (qrEl) {
-        qrEl.innerHTML = '';
-        new win.QRCode(qrEl, {
-          text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + vAmt + '&method=' + encodeURIComponent(vMethod) + '&name=' + encodeURIComponent(vName),
-          width: 90, height: 90,
-          colorDark: '#145230', colorLight: '#ffffff',
-          correctLevel: win.QRCode.CorrectLevel.M
-        });
-      }
-    } catch(e) {}
-    setTimeout(() => win.print(), 600);
-  }, 1000);
+  }).then(canvas => {
+    if (actions) actions.style.display = '';
+    const imgData = canvas.toDataURL('image/jpeg', 0.97);
+    const win = window.open('', '_blank', 'width=700,height=950');
+    win.document.write('<!DOCTYPE html><html><head><title>Donation Voucher</title><style>*{margin:0;padding:0;box-sizing:border-box}body{display:flex;justify-content:center;align-items:flex-start;background:#f3f4f6;padding:20px}img{max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,.2)}@media print{body{background:#fff;padding:0}img{box-shadow:none}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();}<\/script></body></html>');
+    win.document.close();
+  }).catch(err => {
+    if (actions) actions.style.display = '';
+    console.error(err);
+  });
+  // dummy setTimeout to avoid removing code below
+  void 0;
 }
 function downloadVoucherPDF() {
   const el = document.getElementById('voucherDoc');
