@@ -603,9 +603,44 @@ function animateBars() {
 }
 
 /* ═══ PERIOD ═══ */
+let currentPeriod = 'all';
 function setPeriod(el, p) {
   document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  currentPeriod = p;
+  currentPage = 1;
+  renderTable();
+  updateKPIForPeriod(p);
+}
+
+function periodFilter(data, p) {
+  const now = new Date('2026-06-27');
+  return data.filter(r => {
+    const d = new Date(r.date.replace(/(\d+)\s(\w+)\s(\d+)/, '$2 $1, $3'));
+    const diff = (now - d) / (1000*60*60*24);
+    if (p === 'today') return diff < 1;
+    if (p === 'week')  return diff < 7;
+    if (p === 'month') return diff < 30;
+    if (p === 'year')  return diff < 365;
+    return true;
+  });
+}
+
+function updateKPIForPeriod(p) {
+  const data = periodFilter(LEDGER, p);
+  const disbursed   = data.filter(r => r.type === 'Disbursed');
+  const repaid      = data.filter(r => r.type === 'Repaid');
+  const donated     = data.filter(r => r.type === 'Donated');
+  const totalDisb   = disbursed.reduce((s,r) => s+r.amt, 0);
+  const totalRepaid = repaid.reduce((s,r) => s+r.amt, 0);
+  const uniqueBenef = disbursed.length;
+  const donors      = donated.length;
+  document.getElementById('k1').textContent = p === 'all' ? '127' : uniqueBenef;
+  document.getElementById('k2').textContent = p === 'all' ? '\u09f318L' :
+    (totalDisb >= 100000 ? '\u09f3' + (totalDisb/100000).toFixed(1) + 'L' : '\u09f3' + totalDisb.toLocaleString());
+  const rate = totalDisb > 0 ? Math.min(99, Math.round(totalRepaid/totalDisb*100)) : 99;
+  document.getElementById('k3').textContent = p === 'all' ? '99%' : rate + '%';
+  document.getElementById('k4').textContent = p === 'all' ? '84' : donors;
 }
 
 /* ═══ LINE CHART ═══ */
@@ -677,7 +712,7 @@ function initBarChart() {
 const typeBadge = { Disbursed:'badge-orange', Repaid:'badge-green', Donated:'badge-blue' };
 const statBadge = { Active:'badge-gold', Completed:'badge-green', Received:'badge-blue' };
 function renderTable() {
-  let data = LEDGER;
+  let data = periodFilter(LEDGER, currentPeriod);
   if (currentFilter !== 'all') data = data.filter(r => r.type.toLowerCase() === currentFilter);
   if (currentSearch) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(currentSearch.toLowerCase()));
   const total = data.length;
