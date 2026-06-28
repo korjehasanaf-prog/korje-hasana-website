@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Loan Application | Korje Hasana Foundation</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -358,11 +359,10 @@
               <input type="file" id="nidBackFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('back', this)">
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:4px">
-            <button class="ocr-btn" id="ocrBtn" onclick="runOCR()" disabled style="flex:1">
-              <i class="ti ti-sparkles"></i> AI দিয়ে তথ্য বের করুন
+          <div style="margin-top:4px">
+            <button class="ocr-btn" id="ocrBtn" onclick="runOCR()" disabled style="width:100%">
+              <i class="ti ti-scan"></i> NID স্ক্যান করে তথ্য বের করুন
             </button>
-            <button onclick="showApiKeyModal()" title="Gemini API Key সেটআপ" style="background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:10px;padding:0 14px;cursor:pointer;font-size:18px">⚙️</button>
           </div>
           <div class="ocr-status" id="ocrStatus"></div>
         </div>
@@ -877,134 +877,99 @@ function updateOcrBtn() {
   if (!btn) return;
   const hasImg = nidImageData.front || nidImageData.back;
   btn.disabled = !hasImg;
-  const key = localStorage.getItem('kh_gemini_key') || '';
   if (hasImg) {
-    btn.innerHTML = key
-      ? '<i class="ti ti-sparkles"></i> AI দিয়ে তথ্য বের করুন'
-      : '<i class="ti ti-sparkles"></i> তথ্য বের করুন (⚙️ API key প্রয়োজন)';
+    btn.innerHTML = '<i class="ti ti-scan"></i> NID স্ক্যান করে তথ্য বের করুন';
   }
 }
 
-/* ── OCR — Google Gemini Vision ── */
+/* ── OCR — Tesseract.js (browser-based, no API key needed) ── */
 async function runOCR() {
   const imgSrc = nidImageData.front || nidImageData.back;
   if (!imgSrc) { alert('আগে NID কার্ডের ছবি আপলোড করুন।'); return; }
 
-  const apiKey = localStorage.getItem('kh_gemini_key') || '';
-  if (!apiKey) {
-    showApiKeyModal();
-    return;
-  }
-
   const btn    = document.getElementById('ocrBtn') || document.getElementById('ocrBtn2');
   const status = document.getElementById('ocrStatus');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block"></i> AI স্ক্যান করছে...'; }
-  if (status) { status.className = 'ocr-status show'; status.textContent = 'Gemini AI দিয়ে NID স্ক্যান করা হচ্ছে...'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block"></i> স্ক্যান চলছে...'; }
+  if (status) { status.className = 'ocr-status show'; status.style.color = ''; status.textContent = 'NID কার্ড পড়া হচ্ছে, একটু অপেক্ষা করুন...'; }
 
   try {
-    // If both sides uploaded, run OCR on front; also run on back for address
-    const results = [];
+    const extracted = { nameBn:'', nameEn:'', nid:'', dob:'', father:'', mother:'', address:'' };
+
     for (const [side, src] of [['front', nidImageData.front], ['back', nidImageData.back]]) {
       if (!src) continue;
-      const base64 = src.split(',')[1];
-      const mime   = src.split(';')[0].split(':')[1] || 'image/jpeg';
-      // Support both AIzaSy... (API key) and AQ.... (OAuth token) formats
-      const isOAuth = apiKey.startsWith('AQ.') || apiKey.startsWith('ya29.');
-      const url = isOAuth
-        ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-        : 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey;
-      const headers = isOAuth
-        ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey }
-        : { 'Content-Type': 'application/json' };
-      const resp   = await fetch(url, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
-            contents: [{ parts: [
-              { inline_data: { mime_type: mime, data: base64 } },
-              { text: 'This is a Bangladesh National ID Card (' + side + ' side). Extract ALL text and return ONLY a JSON object — no markdown, no explanation:\n{\n"nameBn":"Bengali name in Bengali script",\n"nameEn":"English name",\n"nid":"ID number digits only",\n"dob":"date of birth YYYY-MM-DD",\n"father":"father name",\n"mother":"mother name",\n"address":"full address"\n}\nEmpty string for missing fields.' }
-            ]}]
-          })
+      if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ পড়া হচ্ছে...';
+
+      const worker = await Tesseract.createWorker(['ben', 'eng'], 1, {
+        logger: m => {
+          if (status && m.status === 'recognizing text') {
+            status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ: ' + Math.round(m.progress * 100) + '%';
+          }
         }
-      );
-      if (!resp.ok) {
-        const errBody = await resp.json().catch(() => ({}));
-        const errMsg = errBody?.error?.message || ('API error ' + resp.status);
-        console.error('Gemini API error:', resp.status, errBody);
-        throw new Error('API error ' + resp.status + ': ' + errMsg);
-      }
-      const json = await resp.json();
-      const raw  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      const match = raw.match(/\{[\s\S]*\}/);
-      if (match) results.push(JSON.parse(match[0]));
+      });
+
+      const { data: { text } } = await worker.recognize(src);
+      await worker.terminate();
+
+      parseNIDText(text, extracted, side);
     }
 
-    if (!results.length) throw new Error('No data extracted');
-
-    // Merge: front takes priority, back fills in address if missing
-    const merged = Object.assign({}, results[0]);
-    if (results[1]) {
-      if (!merged.address && results[1].address) merged.address = results[1].address;
-      if (!merged.father  && results[1].father)  merged.father  = results[1].father;
-      if (!merged.mother  && results[1].mother)  merged.mother  = results[1].mother;
-    }
-
-    fillExtracted(merged);
-    if (btn) { btn.innerHTML = '<i class="ti ti-circle-check"></i> তথ্য বের হয়েছে'; }
-    if (status) { status.textContent = '✓ তথ্য সফলভাবে বের হয়েছে। নিচে যাচাই করুন।'; status.style.color = 'var(--success)'; }
+    fillExtracted(extracted);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-circle-check"></i> স্ক্যান সম্পন্ন'; }
+    if (status) { status.textContent = '✓ তথ্য বের হয়েছে। নিচে যাচাই করুন ও প্রয়োজনে সংশোধন করুন।'; status.style.color = 'var(--success)'; }
 
   } catch(err) {
     console.error('OCR error:', err);
-    const msg = err.message.includes('403') ? 'API key ভুল বা মেয়াদ শেষ। বিস্তারিত: ' + err.message :
-                err.message.includes('429') ? 'অনেক request হয়েছে, কিছুক্ষণ পর চেষ্টা করুন।' :
-                'তথ্য বের করা যায়নি: ' + err.message;
-    if (status) { status.className = 'ocr-status show'; status.textContent = '✗ ' + msg; status.style.color = '#dc2626'; }
+    if (status) { status.className = 'ocr-status show'; status.textContent = '✗ স্ক্যান ব্যর্থ হয়েছে। ম্যানুয়ালি তথ্য দিন।'; status.style.color = '#dc2626'; }
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> পুনরায় চেষ্টা করুন'; }
   }
 }
 
-/* ── API Key Modal ── */
-function showApiKeyModal() {
-  const existing = document.getElementById('apiKeyModal');
-  if (existing) { existing.style.display='flex'; return; }
-  const modal = document.createElement('div');
-  modal.id = 'apiKeyModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-  modal.innerHTML =
-    '<div style="background:#fff;border-radius:16px;padding:28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)">' +
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
-        '<div style="width:40px;height:40px;background:linear-gradient(135deg,#F0A500,#FFD54F);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>' +
-        '<div>' +
-          '<div style="font-size:15px;font-weight:800;color:#145230">Gemini AI OCR সেটআপ</div>' +
-          '<div style="font-size:12px;color:#6B7280">একবার সেট করলেই চিরকাল মনে রাখবে</div>' +
-        '</div>' +
-      '</div>' +
-      '<p style="font-size:13px;color:#374151;margin-bottom:16px;line-height:1.6">NID কার্ড থেকে তথ্য বের করতে Google Gemini AI ব্যবহার করা হয়। এটি <strong>বিনামূল্যে</strong> পাওয়া যায়।</p>' +
-      '<ol style="font-size:12px;color:#374151;margin-bottom:16px;padding-left:18px;line-height:2">' +
-        '<li><a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#145230;font-weight:700">aistudio.google.com/app/apikey</a> এ যান</li>' +
-        '<li>"Create API Key" বাটনে ক্লিক করুন</li>' +
-        '<li>API key কপি করে নিচে পেস্ট করুন</li>' +
-      '</ol>' +
-      '<input type="text" id="geminiKeyInput" placeholder="AIzaSy... অথবা AQ...." style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size:13px;font-family:monospace;margin-bottom:12px;box-sizing:border-box">' +
-      '<div style="display:flex;gap:10px">' +
-        '<button onclick="saveApiKey()" style="flex:1;background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">সংরক্ষণ করুন ও স্ক্যান করুন</button>' +
-        '<button onclick="document.getElementById(\'apiKeyModal\').style.display=\'none\'" style="background:#f3f4f6;border:none;border-radius:8px;padding:11px 16px;cursor:pointer;font-size:13px;color:#374151">বাতিল</button>' +
-      '</div>' +
-    '</div>';
-  // Pre-fill if key exists
-  document.body.appendChild(modal);
-  const saved = localStorage.getItem('kh_gemini_key') || '';
-  if (saved) document.getElementById('geminiKeyInput').value = saved;
-  modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
-}
+function parseNIDText(text, out, side) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
 
-function saveApiKey() {
-  const key = document.getElementById('geminiKeyInput').value.trim();
-  if (!key) { alert('API key লিখুন।'); return; }
-  localStorage.setItem('kh_gemini_key', key);
-  document.getElementById('apiKeyModal').style.display = 'none';
-  updateOcrBtn();
-  runOCR(); // retry immediately
+  // NID number: 10 or 17 consecutive digits
+  if (!out.nid) {
+    const m = text.replace(/\s/g,'').match(/\b\d{10}\b|\b\d{17}\b/);
+    if (m) out.nid = m[0];
+  }
+
+  // Date of birth: various formats
+  if (!out.dob) {
+    const m = text.match(/(\d{1,2}[\s\-\/]\w{3,}[\s\-\/]\d{4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|\d{2}[\-\/]\d{2}[\-\/]\d{4})/i);
+    if (m) out.dob = m[0];
+  }
+
+  // English name: consecutive UPPERCASE words (at least 2 words)
+  if (!out.nameEn) {
+    const m = text.match(/\b([A-Z]{2,}(?:\s+[A-Z]{2,})+)\b/);
+    if (m) out.nameEn = m[1].trim();
+  }
+
+  // Bengali name: lines with Bengali script, skip very short lines
+  if (!out.nameBn && side === 'front') {
+    for (const line of lines) {
+      if (/[ঀ-৿]{3,}/.test(line) && line.length >= 4 && !/জাতীয়|বাংলাদেশ|কার্ড|নম্বর|পিতা|মাতা|ঠিকানা/.test(line)) {
+        out.nameBn = line;
+        break;
+      }
+    }
+  }
+
+  // Father / Mother names from Bengali text
+  for (const line of lines) {
+    if (!out.father && /পিতা|Father/i.test(line)) {
+      out.father = line.replace(/পিতা\s*:?\s*/,'').replace(/Father\s*:?\s*/i,'').trim();
+    }
+    if (!out.mother && /মাতা|Mother/i.test(line)) {
+      out.mother = line.replace(/মাতা\s*:?\s*/,'').replace(/Mother\s*:?\s*/i,'').trim();
+    }
+  }
+
+  // Address from back side
+  if (side === 'back' && !out.address) {
+    const addrLines = lines.filter(l => /[ঀ-৿]/.test(l) && !/জাতীয়|বাংলাদেশ/.test(l));
+    if (addrLines.length) out.address = addrLines.join(', ');
+  }
 }
 function fillExtracted(data) {
   document.getElementById('ex_nameBn').value = data.nameBn;
