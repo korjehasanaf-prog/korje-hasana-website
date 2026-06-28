@@ -927,7 +927,12 @@ async function runOCR() {
           })
         }
       );
-      if (!resp.ok) throw new Error('API error ' + resp.status);
+      if (!resp.ok) {
+        const errBody = await resp.json().catch(() => ({}));
+        const errMsg = errBody?.error?.message || ('API error ' + resp.status);
+        console.error('Gemini API error:', resp.status, errBody);
+        throw new Error('API error ' + resp.status + ': ' + errMsg);
+      }
       const json = await resp.json();
       const raw  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
       const match = raw.match(/\{[\s\S]*\}/);
@@ -950,9 +955,9 @@ async function runOCR() {
 
   } catch(err) {
     console.error('OCR error:', err);
-    const msg = err.message.includes('403') ? 'API key ভুল বা মেয়াদ শেষ।' :
+    const msg = err.message.includes('403') ? 'API key ভুল বা মেয়াদ শেষ। বিস্তারিত: ' + err.message :
                 err.message.includes('429') ? 'অনেক request হয়েছে, কিছুক্ষণ পর চেষ্টা করুন।' :
-                'তথ্য বের করা যায়নি। পুনরায় চেষ্টা করুন।';
+                'তথ্য বের করা যায়নি: ' + err.message;
     if (status) { status.className = 'ocr-status show'; status.textContent = '✗ ' + msg; status.style.color = '#dc2626'; }
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> পুনরায় চেষ্টা করুন'; }
   }
@@ -980,7 +985,7 @@ function showApiKeyModal() {
         '<li>"Create API Key" বাটনে ক্লিক করুন</li>' +
         '<li>API key কপি করে নিচে পেস্ট করুন</li>' +
       '</ol>' +
-      '<input type="text" id="geminiKeyInput" placeholder="AIzaSy..." style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size:13px;font-family:monospace;margin-bottom:12px;box-sizing:border-box">' +
+      '<input type="text" id="geminiKeyInput" placeholder="AIzaSy... অথবা AQ...." style="width:100%;border:1.5px solid #d1d5db;border-radius:8px;padding:10px 12px;font-size:13px;font-family:monospace;margin-bottom:12px;box-sizing:border-box">' +
       '<div style="display:flex;gap:10px">' +
         '<button onclick="saveApiKey()" style="flex:1;background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:8px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">সংরক্ষণ করুন ও স্ক্যান করুন</button>' +
         '<button onclick="document.getElementById(\'apiKeyModal\').style.display=\'none\'" style="background:#f3f4f6;border:none;border-radius:8px;padding:11px 16px;cursor:pointer;font-size:13px;color:#374151">বাতিল</button>' +
