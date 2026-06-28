@@ -961,13 +961,13 @@ function handleNidUpload(side, input) {
 }
 
 function updateOcrBtn() {
-  const btn = document.getElementById('ocrBtn');
-  if (!btn) return;
   const hasImg = nidImageData.front || nidImageData.back;
-  btn.disabled = !hasImg;
-  if (hasImg) {
-    btn.innerHTML = '<i class="ti ti-scan"></i> NID স্ক্যান করে তথ্য বের করুন';
-  }
+  ['ocrBtn', 'ocrBtn2'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.disabled = !hasImg;
+    if (hasImg) btn.innerHTML = '<i class="ti ti-scan"></i> NID স্ক্যান করে তথ্য বের করুন';
+  });
 }
 
 /* ── OCR — Tesseract.js (browser-based, no API key needed) ── */
