@@ -927,48 +927,72 @@ async function runOCR() {
 function parseNIDText(text, out, side) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
 
-  // NID number: 10 or 17 consecutive digits
+  // NID number: 10 or 17 digits — allow spaces/dashes OCR noise between digit groups
   if (!out.nid) {
-    const m = text.replace(/\s/g,'').match(/\b\d{10}\b|\b\d{17}\b/);
+    // Remove spaces & common OCR noise chars, then look for digit runs
+    const compact = text.replace(/[\s\-—]/g, '');
+    const m = compact.match(/\d{17}|\d{10}/);
     if (m) out.nid = m[0];
+    else {
+      // Fallback: find digit clusters that together form 10 or 17 digits
+      const allDigits = (text.match(/\d+/g) || []).join('');
+      const m2 = allDigits.match(/\d{17}|\d{10}/);
+      if (m2) out.nid = m2[0];
+    }
   }
 
   // Date of birth: various formats
   if (!out.dob) {
-    const m = text.match(/(\d{1,2}[\s\-\/]\w{3,}[\s\-\/]\d{4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|\d{2}[\-\/]\d{2}[\-\/]\d{4})/i);
-    if (m) out.dob = m[0];
+    const m = text.match(/(\d{1,2}\s+\w{3,}\s+\d{4}|\d{1,2}[\-\/]\w{3,}[\-\/]\d{4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|\d{2}[\-\/]\d{2}[\-\/]\d{4})/i);
+    if (m) out.dob = m[0].trim();
   }
 
-  // English name: consecutive UPPERCASE words (at least 2 words)
-  if (!out.nameEn) {
-    const m = text.match(/\b([A-Z]{2,}(?:\s+[A-Z]{2,})+)\b/);
-    if (m) out.nameEn = m[1].trim();
-  }
-
-  // Bengali name: lines with Bengali script, skip very short lines
-  if (!out.nameBn && side === 'front') {
+  // English name: look for a line with mostly uppercase ASCII letters (2+ words)
+  if (!out.nameEn && side === 'front') {
     for (const line of lines) {
-      if (/[ঀ-৿]{3,}/.test(line) && line.length >= 4 && !/জাতীয়|বাংলাদেশ|কার্ড|নম্বর|পিতা|মাতা|ঠিকানা/.test(line)) {
+      // Line must be mostly uppercase letters and spaces, at least 5 chars
+      if (/^[A-Z][A-Z\s\.]{4,}$/.test(line) && line.trim().includes(' ')) {
+        out.nameEn = line.trim();
+        break;
+      }
+    }
+    // Fallback: find best uppercase sequence anywhere in text
+    if (!out.nameEn) {
+      const m = text.match(/\b([A-Z]{2,}(?:\s+[A-Z]{2,})+)\b/);
+      if (m) out.nameEn = m[1].trim();
+    }
+  }
+
+  // Bengali name: first meaningful Bengali-script line on front (skip headers)
+  if (!out.nameBn && side === 'front') {
+    const skipPat = /জাতীয়|বাংলাদেশ|কার্ড|নম্বর|পিতা|মাতা|ঠিকানা|সরকার|নির্বাচন/;
+    for (const line of lines) {
+      if (/[ঀ-৿]{3,}/.test(line) && !skipPat.test(line) && line.length >= 4) {
         out.nameBn = line;
         break;
       }
     }
   }
 
-  // Father / Mother names from Bengali text
+  // Father / Mother from labeled lines
   for (const line of lines) {
     if (!out.father && /পিতা|Father/i.test(line)) {
-      out.father = line.replace(/পিতা\s*:?\s*/,'').replace(/Father\s*:?\s*/i,'').trim();
+      out.father = line.replace(/পিতা\s*[:\-]?\s*/,'').replace(/Father\s*[:\-]?\s*/i,'').trim();
     }
     if (!out.mother && /মাতা|Mother/i.test(line)) {
-      out.mother = line.replace(/মাতা\s*:?\s*/,'').replace(/Mother\s*:?\s*/i,'').trim();
+      out.mother = line.replace(/মাতা\s*[:\-]?\s*/,'').replace(/Mother\s*[:\-]?\s*/i,'').trim();
     }
   }
 
-  // Address from back side
+  // Address from back side — keep only lines with meaningful Bengali content
   if (side === 'back' && !out.address) {
-    const addrLines = lines.filter(l => /[ঀ-৿]/.test(l) && !/জাতীয়|বাংলাদেশ/.test(l));
-    if (addrLines.length) out.address = addrLines.join(', ');
+    const skipPat = /জাতীয়|বাংলাদেশ|Bangladesh|National|Issue|Date|Place/i;
+    const addrLines = lines.filter(l =>
+      /[ঀ-৿]{2,}/.test(l) &&        // has Bengali chars
+      !skipPat.test(l) &&             // not header/footer
+      l.length > 3                    // not too short
+    );
+    if (addrLines.length) out.address = addrLines.slice(0,4).join(', ');
   }
 }
 function fillExtracted(data) {
