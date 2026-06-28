@@ -339,23 +339,23 @@
         <!-- UPLOAD METHOD -->
         <div class="nid-capture-area active" id="method-upload">
           <div class="nid-cards">
-            <div>
-              <div class="nid-label">Front side of NID</div>
-              <div class="nid-card-box" id="nidFront" onclick="document.getElementById('nidFrontFile').click()">
+            <div style="position:relative">
+              <div class="nid-label">NID সামনের অংশ (Front)</div>
+              <label for="nidFrontFile" class="nid-card-box" id="nidFront" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
-                <span>Tap to upload front</span>
-                <small style="font-size:10px;color:var(--muted)">JPG, PNG · Max 5MB</small>
-              </div>
-              <input type="file" id="nidFrontFile" accept="image/*" hidden onchange="handleNidUpload('front', this)">
+                <span>ছবি আপলোড করুন</span>
+                <small style="font-size:10px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+              </label>
+              <input type="file" id="nidFrontFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('front', this)">
             </div>
-            <div>
-              <div class="nid-label">Back side of NID</div>
-              <div class="nid-card-box" id="nidBack" onclick="document.getElementById('nidBackFile').click()">
+            <div style="position:relative">
+              <div class="nid-label">NID পিছনের অংশ (Back)</div>
+              <label for="nidBackFile" class="nid-card-box" id="nidBack" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
-                <span>Tap to upload back</span>
-                <small style="font-size:10px;color:var(--muted)">JPG, PNG · Max 5MB</small>
-              </div>
-              <input type="file" id="nidBackFile" accept="image/*" hidden onchange="handleNidUpload('back', this)">
+                <span>ছবি আপলোড করুন</span>
+                <small style="font-size:10px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+              </label>
+              <input type="file" id="nidBackFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('back', this)">
             </div>
           </div>
           <button class="ocr-btn" id="ocrBtn" onclick="runOCR()" disabled>
@@ -366,9 +366,16 @@
 
         <!-- CAMERA METHOD -->
         <div class="nid-capture-area" id="method-camera">
-          <div class="camera-wrap active">
-            <video id="cameraVideo" autoplay muted playsinline></video>
-            <button class="camera-capture-btn" onclick="capturePhoto()">📷</button>
+          <div id="cameraError" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:#856404">
+            <i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px"></i>
+            <strong>ক্যামেরা চালু হয়নি।</strong> অনুগ্রহ করে ব্রাউজারে ক্যামেরা অনুমতি দিন অথবা <strong>Upload</strong> পদ্ধতি ব্যবহার করুন।
+          </div>
+          <div class="camera-wrap" id="cameraWrap">
+            <video id="cameraVideo" autoplay muted playsinline style="width:100%;height:200px;object-fit:cover;border-radius:10px;background:#000;display:block"></video>
+          </div>
+          <div style="display:flex;gap:8px;margin:10px 0">
+            <button class="ocr-btn" style="flex:1;background:#374151" onclick="setCamSide('front');capturePhoto()"><i class="ti ti-id-badge-2"></i> সামনের অংশ</button>
+            <button class="ocr-btn" style="flex:1;background:#1E7D42" onclick="setCamSide('back');capturePhoto()"><i class="ti ti-id-badge-2"></i> পিছনের অংশ</button>
           </div>
           <div class="nid-cards">
             <div>
@@ -380,11 +387,7 @@
               <div class="nid-card-box" id="camBack"><i class="ti ti-camera-off"></i><span>Not captured</span></div>
             </div>
           </div>
-          <div style="display:flex;gap:10px;margin-bottom:10px">
-            <button class="ocr-btn" style="flex:1;background:#555" onclick="setCamSide('front')"><i class="ti ti-id-badge-2"></i>Capture Front</button>
-            <button class="ocr-btn" style="flex:1;background:#1E7D42" onclick="setCamSide('back')"><i class="ti ti-id-badge-2"></i>Capture Back</button>
-          </div>
-          <button class="ocr-btn" id="ocrBtn2" onclick="runOCR()" disabled><i class="ti ti-sparkles"></i>Extract automatically</button>
+          <button class="ocr-btn" id="ocrBtn2" onclick="runOCR()" disabled style="margin-top:6px"><i class="ti ti-sparkles"></i>তথ্য বের করুন</button>
         </div>
 
         <!-- MANUAL METHOD -->
@@ -800,12 +803,37 @@ function setNidMethod(m) {
 
 /* ── CAMERA ── */
 function startCamera() {
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
-      cameraStream = stream;
-      document.getElementById('cameraVideo').srcObject = stream;
-    }).catch(() => alert('Camera access denied. Please allow camera or use upload method.'));
+  const errEl = document.getElementById('cameraError');
+  const wrap = document.getElementById('cameraWrap');
+  if (errEl) errEl.style.display = 'none';
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (errEl) errEl.style.display = 'block';
+    if (wrap) wrap.style.display = 'none';
+    return;
   }
+  // Try rear camera first, fall back to any camera
+  const constraints = [
+    { video: { facingMode: { exact: 'environment' }, width: { ideal: 1280 } } },
+    { video: { facingMode: 'environment' } },
+    { video: true }
+  ];
+  function tryNext(i) {
+    if (i >= constraints.length) {
+      if (errEl) errEl.style.display = 'block';
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
+    navigator.mediaDevices.getUserMedia(constraints[i])
+      .then(stream => {
+        cameraStream = stream;
+        const vid = document.getElementById('cameraVideo');
+        vid.srcObject = stream;
+        if (wrap) wrap.style.display = 'block';
+        vid.play().catch(() => {});
+      })
+      .catch(() => tryNext(i + 1));
+  }
+  tryNext(0);
 }
 function stopCamera() { if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; } }
 function setCamSide(side) { camSide = side; }
@@ -823,12 +851,21 @@ function capturePhoto() {
 
 /* ── NID UPLOAD ── */
 function handleNidUpload(side, input) {
-  if (!input.files[0]) return;
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
   const box = document.getElementById(side === 'front' ? 'nidFront' : 'nidBack');
-  box.innerHTML = `<i class="ti ti-circle-check"></i><span>${side === 'front' ? 'Front' : 'Back'} uploaded ✓</span>`;
-  box.classList.add('captured');
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    box.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<i class="ti ti-circle-check"></i> ' + (side === 'front' ? 'সামনে আপলোড ✓' : 'পিছনে আপলোড ✓') + '</div>';
+    box.style.position = 'relative';
+    box.classList.add('captured');
+  };
+  reader.readAsDataURL(file);
   nidCaptured[side] = true;
-  if (nidCaptured.front || nidCaptured.back) document.getElementById('ocrBtn').disabled = false;
+  const ocrBtn = document.getElementById('ocrBtn');
+  if (ocrBtn) ocrBtn.disabled = false;
 }
 
 /* ── OCR (SIMULATED) ── */
@@ -868,7 +905,6 @@ function fillManual() {
   if (!nid || !dob) { alert('Please enter both NID number and date of birth.'); return; }
   fillExtracted({ nameBn:'', nameEn:'', nid, dob, address:'' });
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── PHOTO UPLOADS ── */
 function handlePhotoUpload(type, input) {
