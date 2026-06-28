@@ -970,7 +970,42 @@ function updateOcrBtn() {
   });
 }
 
-/* ── OCR — Tesseract.js (browser-based, no API key needed) ── */
+/* ── Image preprocessing for better OCR accuracy ── */
+function preprocessForOCR(dataUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      // Scale up: Tesseract works best at ~300 DPI (roughly 1800px wide for a card)
+      const targetW = Math.max(img.width, 1400);
+      const scale   = targetW / img.width;
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      // Use high-quality scaling
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      // Grayscale + contrast boost
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const d = imgData.data;
+      const contrast = 60; // 0–255; 60 is a good boost for NID cards
+      const factor   = (259 * (contrast + 255)) / (255 * (259 - contrast));
+      for (let i = 0; i < d.length; i += 4) {
+        const gray = Math.round(0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2]);
+        const adjusted = Math.max(0, Math.min(255, Math.round(factor * (gray - 128) + 128)));
+        d[i] = d[i+1] = d[i+2] = adjusted;
+      }
+      ctx.putImageData(imgData, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve(dataUrl); // fallback: use original
+    img.src = dataUrl;
+  });
+}
+
+/* ── OCR — Tesseract.js with image preprocessing ── */
 async function runOCR() {
   const imgSrc = nidImageData.front || nidImageData.back;
   if (!imgSrc) { alert('আগে NID কার্ডের ছবি আপলোড করুন।'); return; }
@@ -985,6 +1020,11 @@ async function runOCR() {
 
     for (const [side, src] of [['front', nidImageData.front], ['back', nidImageData.back]]) {
       if (!src) continue;
+      if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' ছবি প্রক্রিয়া করা হচ্ছে...';
+
+      // Preprocess: grayscale + contrast boost + scale up for better Tesseract accuracy
+      const processed = await preprocessForOCR(src);
+
       if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ পড়া হচ্ছে...';
 
       const worker = await Tesseract.createWorker(['ben', 'eng'], 1, {
@@ -995,7 +1035,13 @@ async function runOCR() {
         }
       });
 
-      const { data: { text } } = await worker.recognize(src);
+      // Also configure Tesseract for better accuracy on ID cards
+      await worker.setParameters({
+        tessedit_char_whitelist: '', // allow all chars
+        preserve_interword_spaces: '1',
+      });
+
+      const { data: { text } } = await worker.recognize(processed);
       await worker.terminate();
 
       parseNIDText(text, extracted, side);
@@ -1015,15 +1061,19 @@ async function runOCR() {
 function parseNIDText(text, out, side) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
 
-  // NID number: 10 or 17 digits — allow spaces/dashes OCR noise between digit groups
+  // Normalize OCR noise: Bangla digit lookalikes → ASCII digits
+  const normalizeDigits = str => str
+    .replace(/[০-৯]/g, d => d.charCodeAt(0) - 0x09E6)  // Bengali digits
+    .replace(/[O0]/g, '0') // OCR often confuses O and 0 in numeric context
+    .replace(/[Il|]/g, '1'); // OCR noise
+
+  // NID number: 10 or 17 digits
   if (!out.nid) {
-    // Remove spaces & common OCR noise chars, then look for digit runs
-    const compact = text.replace(/[\s\-—]/g, '');
+    const compact = normalizeDigits(text).replace(/[\s\-—.]/g, '');
     const m = compact.match(/\d{17}|\d{10}/);
     if (m) out.nid = m[0];
     else {
-      // Fallback: find digit clusters that together form 10 or 17 digits
-      const allDigits = (text.match(/\d+/g) || []).join('');
+      const allDigits = (normalizeDigits(text).match(/\d+/g) || []).join('');
       const m2 = allDigits.match(/\d{17}|\d{10}/);
       if (m2) out.nid = m2[0];
     }
@@ -1031,56 +1081,64 @@ function parseNIDText(text, out, side) {
 
   // Date of birth: various formats
   if (!out.dob) {
-    const m = text.match(/(\d{1,2}\s+\w{3,}\s+\d{4}|\d{1,2}[\-\/]\w{3,}[\-\/]\d{4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|\d{2}[\-\/]\d{2}[\-\/]\d{4})/i);
+    const months = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|জানু|ফেব্রু|মার্চ|এপ্রিল|মে|জুন|জুলাই|আগস্ট|সেপ্টে|অক্টো|নভে|ডিসে';
+    const m = text.match(
+      new RegExp('(\\d{1,2}\\s+(?:' + months + ')\\w*\\s+\\d{4}|\\d{4}[\\-\\/]\\d{2}[\\-\\/]\\d{2}|\\d{2}[\\-\\/]\\d{2}[\\-\\/]\\d{4})', 'i')
+    );
     if (m) out.dob = m[0].trim();
   }
 
-  // English name: look for a line with mostly uppercase ASCII letters (2+ words)
+  // English name: uppercase ASCII words, ≥2 words, on the front
   if (!out.nameEn && side === 'front') {
+    // Prefer lines that look like proper names (Title Case or ALL CAPS, 2+ words)
     for (const line of lines) {
-      // Line must be mostly uppercase letters and spaces, at least 5 chars
-      if (/^[A-Z][A-Z\s\.]{4,}$/.test(line) && line.trim().includes(' ')) {
-        out.nameEn = line.trim();
+      const clean = line.trim();
+      if (/^[A-Z][A-Za-z\s\.]{4,}$/.test(clean) && /\s/.test(clean) && !/\d/.test(clean)) {
+        out.nameEn = clean.replace(/\s+/g, ' ').toUpperCase();
         break;
       }
     }
-    // Fallback: find best uppercase sequence anywhere in text
     if (!out.nameEn) {
       const m = text.match(/\b([A-Z]{2,}(?:\s+[A-Z]{2,})+)\b/);
       if (m) out.nameEn = m[1].trim();
     }
   }
 
-  // Bengali name: first meaningful Bengali-script line on front (skip headers)
+  // Bengali name: first Bengali line on front (skip label words)
   if (!out.nameBn && side === 'front') {
-    const skipPat = /জাতীয়|বাংলাদেশ|কার্ড|নম্বর|পিতা|মাতা|ঠিকানা|সরকার|নির্বাচন/;
+    const skipPat = /জাতীয়|বাংলাদেশ|কার্ড|নম্বর|পিতা|মাতা|ঠিকানা|সরকার|নির্বাচন|স্থায়ী/;
     for (const line of lines) {
-      if (/[ঀ-৿]{3,}/.test(line) && !skipPat.test(line) && line.length >= 4) {
-        out.nameBn = line;
-        break;
+      if (/[ঀ-৿]{3,}/.test(line) && !skipPat.test(line) && line.length >= 4 && !/\d{3}/.test(line)) {
+        out.nameBn = line.replace(/[^ঀ-৿\s]/g, '').trim();
+        if (out.nameBn.length >= 3) break;
+        out.nameBn = '';
       }
     }
   }
 
-  // Father / Mother from labeled lines
-  for (const line of lines) {
+  // Father / Mother — look at line + next line for value
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const next  = lines[i + 1] || '';
     if (!out.father && /পিতা|Father/i.test(line)) {
-      out.father = line.replace(/পিতা\s*[:\-]?\s*/,'').replace(/Father\s*[:\-]?\s*/i,'').trim();
+      let val = line.replace(/পিতা\s*[:\-]?\s*/,'').replace(/Father\s*[:\-]?\s*/i,'').trim();
+      if (!val && /[ঀ-৿A-Za-z]/.test(next)) val = next;
+      out.father = val;
     }
     if (!out.mother && /মাতা|Mother/i.test(line)) {
-      out.mother = line.replace(/মাতা\s*[:\-]?\s*/,'').replace(/Mother\s*[:\-]?\s*/i,'').trim();
+      let val = line.replace(/মাতা\s*[:\-]?\s*/,'').replace(/Mother\s*[:\-]?\s*/i,'').trim();
+      if (!val && /[ঀ-৿A-Za-z]/.test(next)) val = next;
+      out.mother = val;
     }
   }
 
-  // Address from back side — keep only lines with meaningful Bengali content
+  // Address from back side
   if (side === 'back' && !out.address) {
-    const skipPat = /জাতীয়|বাংলাদেশ|Bangladesh|National|Issue|Date|Place/i;
+    const skipPat = /জাতীয়|বাংলাদেশ|Bangladesh|National|Issue|Date|Place|NID|Voter/i;
     const addrLines = lines.filter(l =>
-      /[ঀ-৿]{2,}/.test(l) &&        // has Bengali chars
-      !skipPat.test(l) &&             // not header/footer
-      l.length > 3                    // not too short
+      /[ঀ-৿]{2,}/.test(l) && !skipPat.test(l) && l.length > 3
     );
-    if (addrLines.length) out.address = addrLines.slice(0,4).join(', ');
+    if (addrLines.length) out.address = addrLines.slice(0, 4).join(', ');
   }
 }
 function fillExtracted(data) {
