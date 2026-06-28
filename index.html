@@ -156,31 +156,38 @@
     }
     .btn-gold-outline:hover { background: rgba(240,165,0,.1); }
 
-    /* FAN CAROUSEL */
-    .fan-section { position: relative; padding: 0 30px; }
-    .fan-container { position: relative; height: 220px; }
-    .fan-cards-wrap { position: relative; width: 100%; height: 200px; }
-    .fan-card {
-      position: absolute; border-radius: 14px; overflow: hidden;
-      cursor: pointer; transition: all .45s cubic-bezier(.4,0,.2,1);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    /* KH PHOTO CAROUSEL */
+    .khc-section { position: relative; width: 100%; padding: 8px 0; }
+    .khc-wrap {
+      position: relative; width: 100%; height: 380px;
+      perspective: 1100px; overflow: visible;
     }
-    .fan-card-label {
+    .khc-card {
+      position: absolute; top: 50%; left: 50%;
+      width: 210px; height: 315px;
+      border-radius: 18px; overflow: hidden; cursor: pointer;
+      will-change: transform, opacity;
+      transition: transform 0.65s cubic-bezier(.25,.46,.45,.94), opacity 0.65s ease;
+    }
+    .khc-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .khc-label {
       position: absolute; bottom: 0; left: 0; right: 0;
-      text-align: center; font-size: 11px; font-weight: 600; color: #fff;
-      background: rgba(0,0,0,.4); padding: 5px 0; backdrop-filter: blur(2px);
+      padding: 32px 14px 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      color: #fff; font-size: 13px; font-weight: 700;
+      font-family: 'Hind Siliguri', sans-serif;
+      text-align: center; letter-spacing: .3px;
     }
-    .fan-arrow {
+    .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #F0A500; }
+    .khc-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 32px; height: 32px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .2s; z-index: 20;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; z-index: 20; font-size: 18px;
     }
-    .fan-arrow:hover { background: rgba(255,255,255,.3); }
-    .fan-arrow i { font-size: 16px; color: #fff; }
-    .fan-arrow-l { left: 0; }
-    .fan-arrow-r { right: 0; }
+    .khc-nav:hover { background: rgba(255,255,255,.3); }
+    .khc-prev { left: -4px; } .khc-next { right: -4px; }
 
     /* ═══════════════════════════════════════
        QURAN & HADITH SLIDER
@@ -525,7 +532,7 @@
     /* Responsive tweaks */
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; padding: 30px 20px; }
-      .fan-section { display: none; }
+      .khc-section { display: none; }
       .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
       .impact-grid { grid-template-columns: repeat(2,1fr); }
       .steps { grid-template-columns: repeat(2,1fr); gap: 20px; }
@@ -600,8 +607,8 @@
     <a href="#" class="topbar-soc"><i class="ti ti-brand-youtube"></i></a>
     <a href="https://wa.me/880XXXXXXXXXX" class="topbar-soc" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
     <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('bn')">বাং</button>
+      <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
+      <button class="lang-btn" onclick="setLang('bn',this)">বাং</button>
     </div>
   </div>
 </div>
@@ -619,17 +626,17 @@
     </div>
   </a>
   <div class="nav-center nav-links" id="navCenter">
-    <a class="nav-link active" href="#hero">Home</a>
-    <a class="nav-link" href="#about">About</a>
-    <a class="nav-link" href="#programs">Programs</a>
-    <a class="nav-link" href="#apply">Apply</a>
-    <a class="nav-link" href="#dashboard">Dashboard</a>
-    <a class="nav-link" href="#news">News</a>
-    <a class="nav-link" href="#contact">Contact</a>
+    <a class="nav-link active" href="#hero" data-i18n="nav-home">Home</a>
+    <a class="nav-link" href="#about" data-i18n="nav-about">About</a>
+    <a class="nav-link" href="#programs" data-i18n="nav-programs">Programs</a>
+    <a class="nav-link" href="#apply" data-i18n="nav-apply">Apply</a>
+    <a class="nav-link" href="#dashboard" data-i18n="nav-dashboard">Dashboard</a>
+    <a class="nav-link" href="#news" data-i18n="nav-news">News</a>
+    <a class="nav-link" href="#contact" data-i18n="nav-contact">Contact</a>
     <div class="nav-indicator" id="navInd"></div>
   </div>
   <div class="nav-right">
-    <a href="#donate" class="donate-btn">Donate now</a>
+    <a href="#donate" class="donate-btn" data-i18n="nav-donate">Donate now</a>
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
   <span></span><span></span><span></span>
@@ -643,28 +650,22 @@
   <div>
     <div class="hero-badge">
       <i class="ti ti-mosque" style="font-size:14px"></i>
-      Mosque-based · 0% interest · Sharia-compliant
+      <span data-i18n="hero-badge">Mosque-based · 0% interest · Sharia-compliant</span>
     </div>
-    <h1 class="hero-h1">
-      Interest-free loans<br>for those who <span>need it most</span>
-    </h1>
-    <p class="hero-p">
-      কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.
-    </p>
+    <h1 class="hero-h1" data-i18n-html="hero-h1">Interest-free loans<br>for those who <span>need it most</span></h1>
+    <p class="hero-p" data-i18n="hero-p">কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.</p>
     <div class="hero-btns">
-      <a href="#apply" class="btn-primary"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i>Apply for a loan</a>
-      <a href="#donate" class="btn-outline">Donate now</a>
-      <a href="#about" class="btn-gold-outline">Learn more</a>
+      <a href="#apply" class="btn-primary"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></a>
+      <a href="#donate" class="btn-outline" data-i18n="hero-btn-donate">Donate now</a>
+      <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
     </div>
   </div>
 
-  <!-- FAN CAROUSEL -->
-  <div class="fan-section" id="fanSection">
-    <div class="fan-container">
-      <div class="fan-cards-wrap" id="fanCards"></div>
-    </div>
-    <div class="fan-arrow fan-arrow-l" id="fanL"><i class="ti ti-chevron-left"></i></div>
-    <div class="fan-arrow fan-arrow-r" id="fanR"><i class="ti ti-chevron-right"></i></div>
+  <!-- KH PHOTO CAROUSEL -->
+  <div class="khc-section" id="khcSection">
+    <div class="khc-wrap" id="khcWrap"></div>
+    <button class="khc-nav khc-prev" id="khcPrev"><i class="ti ti-chevron-left"></i></button>
+    <button class="khc-nav khc-next" id="khcNext"><i class="ti ti-chevron-right"></i></button>
   </div>
 </section>
 
@@ -714,33 +715,33 @@
      IMPACT DASHBOARD
 ════════════════════════════════════════════════════════ -->
 <section class="impact-section" id="dashboard">
-  <div class="section-title-dark">Live impact dashboard</div>
+  <div class="section-title-dark" data-i18n="impact-title">Live impact dashboard</div>
   <div class="impact-grid">
     <div class="impact-card ic-1">
       <i class="ti ti-users ic-icon" style="color:#90CAF9"></i>
       <div class="ic-num" data-target="127" id="cnt1">0</div>
-      <div class="ic-lbl">Total beneficiaries helped</div>
+      <div class="ic-lbl" data-i18n="impact-lbl1">Total beneficiaries helped</div>
       <div class="ic-bar"><div class="ic-bar-inner" data-w="72" id="bar1"></div></div>
       <div class="ic-trend">This month: <span id="t1">+0</span> new families</div>
     </div>
     <div class="impact-card ic-2">
       <i class="ti ti-currency-taka ic-icon" style="color:#A5D6A7"></i>
       <div class="ic-num" id="cnt2">৳0L</div>
-      <div class="ic-lbl">Total taka disbursed</div>
+      <div class="ic-lbl" data-i18n="impact-lbl2">Total taka disbursed</div>
       <div class="ic-bar"><div class="ic-bar-inner" data-w="65" id="bar2"></div></div>
       <div class="ic-trend">Average loan: <span>৳24,500</span></div>
     </div>
     <div class="impact-card ic-3">
       <i class="ti ti-chart-line ic-icon" style="color:#FFCC80"></i>
       <div class="ic-num" id="cnt3">0%</div>
-      <div class="ic-lbl">Repayment rate</div>
+      <div class="ic-lbl" data-i18n="impact-lbl3">Repayment rate</div>
       <div class="ic-bar"><div class="ic-bar-inner" data-w="99" id="bar3"></div></div>
       <div class="ic-trend">On-time: <span>96%</span></div>
     </div>
     <div class="impact-card ic-4">
       <i class="ti ti-heart-handshake ic-icon" style="color:#CE93D8"></i>
       <div class="ic-num" data-target="84" id="cnt4">0</div>
-      <div class="ic-lbl">Active donors worldwide</div>
+      <div class="ic-lbl" data-i18n="impact-lbl4">Active donors worldwide</div>
       <div class="ic-bar"><div class="ic-bar-inner" data-w="84" id="bar4"></div></div>
       <div class="ic-trend">From <span>12</span> countries</div>
     </div>
@@ -757,45 +758,45 @@
 ════════════════════════════════════════════════════════ -->
 <section class="section section-alt" id="programs">
   <div class="sec-hd">
-    <div class="sec-tag">Our programs</div>
-    <h2 class="sec-h2">Interest-free loans for every need</h2>
-    <p class="sec-p">All loans are disbursed as goods or direct bill payments — never as cash. This protects both the borrower and the fund.</p>
+    <div class="sec-tag" data-i18n="programs-tag">Our programs</div>
+    <h2 class="sec-h2" data-i18n="programs-h2">Interest-free loans for every need</h2>
+    <p class="sec-p" data-i18n="programs-p">All loans are disbursed as goods or direct bill payments — never as cash. This protects both the borrower and the fund.</p>
   </div>
   <div class="services-grid">
     <div class="srv-card">
       <div class="srv-icon" style="background:#EAF3DE"><i class="ti ti-plant-2" style="font-size:22px;color:#3B6D11"></i></div>
-      <div class="srv-title">Agriculture loan</div>
-      <div class="srv-desc">Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.</div>
+      <div class="srv-title" data-i18n="srv1-title">Agriculture loan</div>
+      <div class="srv-desc" data-i18n="srv1-desc">Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · Repay at harvest</div>
     </div>
     <div class="srv-card">
       <div class="srv-icon" style="background:#E6F1FB"><i class="ti ti-building-store" style="font-size:22px;color:#185FA5"></i></div>
-      <div class="srv-title">Small business loan</div>
-      <div class="srv-desc">Goods and stock procured directly from wholesalers. No cash changes hands.</div>
+      <div class="srv-title" data-i18n="srv2-title">Small business loan</div>
+      <div class="srv-desc" data-i18n="srv2-desc">Goods and stock procured directly from wholesalers. No cash changes hands.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳75,000 · 12–24 months</div>
     </div>
     <div class="srv-card">
       <div class="srv-icon" style="background:#FAEEDA"><i class="ti ti-school" style="font-size:22px;color:#854F0B"></i></div>
-      <div class="srv-title">Education loan</div>
-      <div class="srv-desc">Tuition and admission fees paid directly to the educational institution.</div>
+      <div class="srv-title" data-i18n="srv3-title">Education loan</div>
+      <div class="srv-desc" data-i18n="srv3-desc">Tuition and admission fees paid directly to the educational institution.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳50,000 · Flexible terms</div>
     </div>
     <div class="srv-card">
       <div class="srv-icon" style="background:#FCEBEB"><i class="ti ti-stethoscope" style="font-size:22px;color:#A32D2D"></i></div>
-      <div class="srv-title">Medical loan</div>
-      <div class="srv-desc">Hospital bills, medicines, and medical expenses paid directly to the provider.</div>
+      <div class="srv-title" data-i18n="srv4-title">Medical loan</div>
+      <div class="srv-desc" data-i18n="srv4-desc">Hospital bills, medicines, and medical expenses paid directly to the provider.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳1,00,000 · Fast-track 48h</div>
     </div>
     <div class="srv-card">
       <div class="srv-icon" style="background:#FBEAF0"><i class="ti ti-home-heart" style="font-size:22px;color:#993556"></i></div>
-      <div class="srv-title">Family need loan</div>
-      <div class="srv-desc">Marriage expenses, home repair materials, utility bills — paid to the vendor.</div>
+      <div class="srv-title" data-i18n="srv5-title">Family need loan</div>
+      <div class="srv-desc" data-i18n="srv5-desc">Marriage expenses, home repair materials, utility bills — paid to the vendor.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · 12–18 months</div>
     </div>
     <div class="srv-card">
       <div class="srv-icon" style="background:#E1F5EE"><i class="ti ti-alert-triangle" style="font-size:22px;color:#0F6E56"></i></div>
-      <div class="srv-title">Emergency loan</div>
-      <div class="srv-desc">Disaster relief and urgent needs — disbursed within 48 hours of approval.</div>
+      <div class="srv-title" data-i18n="srv6-title">Emergency loan</div>
+      <div class="srv-desc" data-i18n="srv6-desc">Disaster relief and urgent needs — disbursed within 48 hours of approval.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳15,000 · Disbursed in 48h</div>
     </div>
   </div>
@@ -806,30 +807,30 @@
 ════════════════════════════════════════════════════════ -->
 <section class="how-section" id="apply">
   <div class="sec-hd">
-    <div class="sec-tag">How it works</div>
-    <h2 class="sec-h2">Simple, transparent, dignified</h2>
-    <p class="sec-p">Four steps — from your first application to receiving what you need, with respect and care at every stage.</p>
+    <div class="sec-tag" data-i18n="how-tag">How it works</div>
+    <h2 class="sec-h2" data-i18n="how-h2">Simple, transparent, dignified</h2>
+    <p class="sec-p" data-i18n="how-p">Four steps — from your first application to receiving what you need, with respect and care at every stage.</p>
   </div>
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
-      <div class="step-title">Apply online or in person</div>
-      <div class="step-desc">Fill out the application form on this website or WhatsApp us. Upload your NID card — fields fill automatically.</div>
+      <div class="step-title" data-i18n="step1-title">Apply online or in person</div>
+      <div class="step-desc" data-i18n="step1-desc">Fill out the application form on this website or WhatsApp us. Upload your NID card — fields fill automatically.</div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-title">Verification visit</div>
-      <div class="step-desc">Our team visits your home or workplace to verify the need and meet your references.</div>
+      <div class="step-title" data-i18n="step2-title">Verification visit</div>
+      <div class="step-desc" data-i18n="step2-desc">Our team visits your home or workplace to verify the need and meet your references.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
-      <div class="step-title">Committee approval</div>
-      <div class="step-desc">The loan committee reviews and approves within 7–14 days. You receive an SMS notification.</div>
+      <div class="step-title" data-i18n="step3-title">Committee approval</div>
+      <div class="step-desc" data-i18n="step3-desc">The loan committee reviews and approves within 7–14 days. You receive an SMS notification.</div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
-      <div class="step-title">Goods disbursed directly</div>
-      <div class="step-desc">We purchase the goods or pay the bills on your behalf. You repay only the principal — zero interest, forever.</div>
+      <div class="step-title" data-i18n="step4-title">Goods disbursed directly</div>
+      <div class="step-desc" data-i18n="step4-desc">We purchase the goods or pay the bills on your behalf. You repay only the principal — zero interest, forever.</div>
     </div>
   </div>
   <div style="text-align:center;margin-top:36px">
@@ -868,9 +869,9 @@
 ════════════════════════════════════════════════════════ -->
 <section class="section" id="about">
   <div class="sec-hd">
-    <div class="sec-tag">Success stories</div>
-    <h2 class="sec-h2">Real lives changed</h2>
-    <p class="sec-p">Names changed for privacy. Every story is real — a loan given, goods purchased, a life improved.</p>
+    <div class="sec-tag" data-i18n="stories-tag">Success stories</div>
+    <h2 class="sec-h2" data-i18n="stories-h2">Real lives changed</h2>
+    <p class="sec-p" data-i18n="stories-p">Names changed for privacy. Every story is real — a loan given, goods purchased, a life improved.</p>
   </div>
   <div class="stories-grid">
     <div class="story-card">
@@ -907,8 +908,8 @@
 ════════════════════════════════════════════════════════ -->
 <section class="section" id="news">
   <div class="sec-hd">
-    <div class="sec-tag">Latest news</div>
-    <h2 class="sec-h2">Our activities</h2>
+    <div class="sec-tag" data-i18n="news-tag">Latest news</div>
+    <h2 class="sec-h2" data-i18n="news-h2">Our activities</h2>
   </div>
   <div class="news-grid">
     <div class="news-card">
@@ -943,12 +944,12 @@
 ════════════════════════════════════════════════════════ -->
 <div class="cta-band" id="donate">
   <div>
-    <h3>Every taka you give stays interest-free — forever.</h3>
-    <p>Your donation becomes a loan that is repaid, then lent again. It multiplies without end.</p>
+    <h3 data-i18n="cta-h3">Every taka you give stays interest-free — forever.</h3>
+    <p data-i18n="cta-p">Your donation becomes a loan that is repaid, then lent again. It multiplies without end.</p>
   </div>
   <div class="cta-btns">
-    <button class="cta-btn1" onclick="window.location.href='donation.html'">Donate now</button>
-    <button class="cta-btn2" onclick="window.location.href='loan-application.html'">Apply for a loan</button>
+    <button class="cta-btn1" onclick="window.location.href='donation.html'" data-i18n="cta-btn1">Donate now</button>
+    <button class="cta-btn2" onclick="window.location.href='loan-application.html'" data-i18n="cta-btn2">Apply for a loan</button>
   </div>
 </div>
 
@@ -1046,9 +1047,98 @@
 ════════════════════════════════════════════════════════ -->
 <script>
 /* ── LANGUAGE TOGGLE ── */
-function setLang(lang) {
+/* ── LANGUAGE TRANSLATIONS ── */
+const TRANS = {
+  en: {
+    'nav-home':'Home','nav-about':'About','nav-programs':'Programs',
+    'nav-apply':'Apply','nav-dashboard':'Dashboard','nav-news':'News',
+    'nav-contact':'Contact','nav-donate':'Donate now',
+    'hero-badge':'Mosque-based · 0% interest · Sharia-compliant',
+    'hero-h1':'Interest-free loans<br>for those who <span>need it most</span>',
+    'hero-p':"কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.",
+    'hero-btn-apply':'Apply for a loan','hero-btn-donate':'Donate now','hero-btn-learn':'Learn more',
+    'impact-title':'Live impact dashboard',
+    'impact-lbl1':'Total beneficiaries helped','impact-lbl2':'Total taka disbursed',
+    'impact-lbl3':'Repayment rate','impact-lbl4':'Active donors worldwide',
+    'programs-tag':'Our programs','programs-h2':'Interest-free loans for every need',
+    'programs-p':'All loans are disbursed as goods or direct bill payments — never as cash. This protects both the borrower and the fund.',
+    'srv1-title':'Agriculture loan','srv1-desc':'Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.',
+    'srv2-title':'Small business loan','srv2-desc':'Goods and stock procured directly from wholesalers. No cash changes hands.',
+    'srv3-title':'Education loan','srv3-desc':'Tuition and admission fees paid directly to the educational institution.',
+    'srv4-title':'Medical loan','srv4-desc':'Hospital bills, medicines, and medical expenses paid directly to the provider.',
+    'srv5-title':'Family need loan','srv5-desc':'Marriage expenses, home repair materials, utility bills — paid to the vendor.',
+    'srv6-title':'Emergency loan','srv6-desc':'Disaster relief and urgent needs — disbursed within 48 hours of approval.',
+    'how-tag':'How it works','how-h2':'Simple, transparent, dignified',
+    'how-p':'Four steps — from your first application to receiving what you need, with respect and care at every stage.',
+    'step1-title':'Apply online or in person',
+    'step1-desc':'Fill out the application form on this website or WhatsApp us. Upload your NID card — fields fill automatically.',
+    'step2-title':'Verification visit',
+    'step2-desc':'Our team visits your home or workplace to verify the need and meet your references.',
+    'step3-title':'Committee approval',
+    'step3-desc':'The loan committee reviews and approves within 7–14 days. You receive an SMS notification.',
+    'step4-title':'Goods disbursed directly',
+    'step4-desc':'We purchase the goods or pay the bills on your behalf. You repay only the principal — zero interest, forever.',
+    'stories-tag':'Success stories','stories-h2':'Real lives changed',
+    'stories-p':'Names changed for privacy. Every story is real — a loan given, goods purchased, a life improved.',
+    'news-tag':'Latest news','news-h2':'Our activities',
+    'cta-h3':'Every taka you give stays interest-free — forever.',
+    'cta-p':'Your donation becomes a loan that is repaid, then lent again. It multiplies without end.',
+    'cta-btn1':'Donate now','cta-btn2':'Apply for a loan'
+  },
+  bn: {
+    'nav-home':'হোম','nav-about':'সম্পর্কে','nav-programs':'কার্যক্রম',
+    'nav-apply':'আবেদন','nav-dashboard':'ড্যাশবোর্ড','nav-news':'সংবাদ',
+    'nav-contact':'যোগাযোগ','nav-donate':'দান করুন',
+    'hero-badge':'মসজিদ-ভিত্তিক · ০% সুদ · শরিয়াহ-সম্মত',
+    'hero-h1':'সুদমুক্ত ঋণ<br>যাদের সবচেয়ে বেশি <span>প্রয়োজন</span>',
+    'hero-p':'কর্জে হাসানা ফাউন্ডেশন কৃষক, ক্ষুদ্র ব্যবসায়ী, শিক্ষার্থী এবং পরিবারের জন্য ০% সুদে ঋণ প্রদান করে — কুরআনের সর্বোচ্চ আহ্বান থেকে অনুপ্রাণিত। পণ্য ও বিল সরাসরি আপনার পক্ষে পরিশোধ করা হয়।',
+    'hero-btn-apply':'ঋণের আবেদন করুন','hero-btn-donate':'দান করুন','hero-btn-learn':'আরও জানুন',
+    'impact-title':'সরাসরি প্রভাব ড্যাশবোর্ড',
+    'impact-lbl1':'মোট উপকারভোগী','impact-lbl2':'মোট বিতরণকৃত টাকা',
+    'impact-lbl3':'পরিশোধের হার','impact-lbl4':'সক্রিয় দাতা',
+    'programs-tag':'আমাদের কার্যক্রম','programs-h2':'প্রতিটি প্রয়োজনে সুদমুক্ত ঋণ',
+    'programs-p':'সমস্ত ঋণ পণ্য বা সরাসরি বিল পরিশোধ হিসেবে বিতরণ করা হয় — কখনও নগদ নয়। এটি ঋণগ্রহীতা এবং তহবিল উভয়কেই সুরক্ষিত রাখে।',
+    'srv1-title':'কৃষি ঋণ','srv1-desc':'বীজ, সার এবং সেচ সরঞ্জাম ঋণগ্রহীতার উপস্থিতিতে দোকান থেকে ক্রয় করা হয়।',
+    'srv2-title':'ক্ষুদ্র ব্যবসা ঋণ','srv2-desc':'পণ্য ও স্টক সরাসরি পাইকারি ব্যবসায়ীদের কাছ থেকে ক্রয় করা হয়। কোনো নগদ অর্থ লেনদেন হয় না।',
+    'srv3-title':'শিক্ষা ঋণ','srv3-desc':'টিউশন ও ভর্তি ফি সরাসরি শিক্ষা প্রতিষ্ঠানে পরিশোধ করা হয়।',
+    'srv4-title':'চিকিৎসা ঋণ','srv4-desc':'হাসপাতাল বিল, ওষুধ এবং চিকিৎসা ব্যয় সরাসরি সেবাদাতাকে পরিশোধ করা হয়।',
+    'srv5-title':'পারিবারিক ঋণ','srv5-desc':'বিবাহ ব্যয়, গৃহ মেরামত সামগ্রী, ইউটিলিটি বিল — বিক্রেতাকে সরাসরি পরিশোধ।',
+    'srv6-title':'জরুরি ঋণ','srv6-desc':'দুর্যোগ ত্রাণ এবং জরুরি প্রয়োজন — অনুমোদনের ৪৮ ঘন্টার মধ্যে বিতরণ।',
+    'how-tag':'কীভাবে কাজ করে','how-h2':'সহজ, স্বচ্ছ, সম্মানজনক',
+    'how-p':'চারটি ধাপ — আপনার প্রথম আবেদন থেকে শুরু করে প্রয়োজনীয় জিনিস পাওয়া পর্যন্ত, প্রতিটি পদক্ষেপে সম্মান ও যত্নসহ।',
+    'step1-title':'অনলাইনে বা সরাসরি আবেদন করুন',
+    'step1-desc':'এই ওয়েবসাইটে আবেদন ফর্ম পূরণ করুন বা হোয়াটসঅ্যাপে যোগাযোগ করুন। আপনার এনআইডি কার্ড আপলোড করুন — ফিল্ড স্বয়ংক্রিয়ভাবে পূরণ হবে।',
+    'step2-title':'যাচাই পরিদর্শন',
+    'step2-desc':'আমাদের দল আপনার বাড়ি বা কর্মক্ষেত্র পরিদর্শন করে প্রয়োজনীয়তা যাচাই করে এবং আপনার রেফারেন্সদের সাথে সাক্ষাৎ করে।',
+    'step3-title':'কমিটির অনুমোদন',
+    'step3-desc':'ঋণ কমিটি ৭-১৪ দিনের মধ্যে পর্যালোচনা করে অনুমোদন দেয়। আপনি এসএমএস বিজ্ঞপ্তি পাবেন।',
+    'step4-title':'সরাসরি পণ্য বিতরণ',
+    'step4-desc':'আমরা আপনার পক্ষে পণ্য ক্রয় করি বা বিল পরিশোধ করি। আপনি শুধুমাত্র মূল অর্থ ফেরত দেবেন — সুদ শূন্য, চিরকাল।',
+    'stories-tag':'সাফল্যের গল্প','stories-h2':'বাস্তব জীবন পরিবর্তন',
+    'stories-p':'গোপনীয়তার জন্য নাম পরিবর্তিত। প্রতিটি গল্প বাস্তব — একটি ঋণ দেওয়া, পণ্য ক্রয়, একটি জীবন উন্নত।',
+    'news-tag':'সর্বশেষ সংবাদ','news-h2':'আমাদের কার্যক্রম',
+    'cta-h3':'আপনার প্রতিটি টাকা সুদমুক্তই থাকবে — চিরকাল।',
+    'cta-p':'আপনার দান একটি ঋণ হয়ে পরিশোধ হয়, তারপর আবার ঋণ দেওয়া হয়। এটি অনন্তকাল গুণ হতে থাকে।',
+    'cta-btn1':'দান করুন','cta-btn2':'ঋণের আবেদন করুন'
+  }
+};
+
+let currentLang = 'en';
+function setLang(lang, btn) {
+  currentLang = lang;
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
+  const t = TRANS[lang];
+  // text nodes
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    if (t[el.dataset.i18n] !== undefined) el.textContent = t[el.dataset.i18n];
+  });
+  // innerHTML nodes (for elements with <br> / <span> inside)
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    if (t[el.dataset.i18nHtml] !== undefined) el.innerHTML = t[el.dataset.i18nHtml];
+  });
+  // persist choice
+  try { localStorage.setItem('kh_lang', lang); } catch(e){}
 }
 
 /* ── NAV HOVER SLIDING INDICATOR ── */
@@ -1083,57 +1173,107 @@ function setLang(lang) {
   });
 })();
 
-/* ── FAN CAROUSEL ── */
+/* ── KH PHOTO CAROUSEL ── */
 (function() {
-  const labels  = ['কৃষি ঋণ','ব্যবসা ঋণ','শিক্ষা ঋণ','কর্জে হাসানা','চিকিৎসা ঋণ','পারিবারিক','জরুরি সহায়তা'];
-  const icons   = ['ti-plant-2','ti-building-store','ti-school','ti-heart-handshake','ti-stethoscope','ti-home-heart','ti-alert-triangle'];
-  const colors  = ['#1B5E20','#1A237E','#E65100','#145230','#B71C1C','#880E4F','#004D40'];
-  let active = 3;
+  const ITEMS = [
+    { label:'কৃষি ঋণ',     sub:'Agriculture Loan', img:'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=300&h=450&fit=crop&q=80' },
+    { label:'ব্যবসা ঋণ',   sub:'Business Loan',    img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=450&fit=crop&q=80' },
+    { label:'শিক্ষা ঋণ',   sub:'Education Loan',   img:'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&h=450&fit=crop&q=80' },
+    { label:'চিকিৎসা ঋণ', sub:'Medical Loan',     img:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=450&fit=crop&q=80' },
+    { label:'পারিবারিক ঋণ',sub:'Family Loan',      img:'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=300&h=450&fit=crop&q=80' },
+    { label:'জরুরি সহায়তা',sub:'Emergency Aid',    img:'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=300&h=450&fit=crop&q=80' },
+    { label:'কর্জে হাসানা', sub:'Qard al-Hasan',   img:'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=300&h=450&fit=crop&q=80' },
+  ];
+  // [tx_offset_px, rotateY_deg, scale, opacity, zIndex]
+  // for positions -3, -2, -1, 0, +1, +2, +3
+  const POS = [
+    [-308, 30, 0.40, 0.38, 1],
+    [-195, 20, 0.58, 0.58, 2],
+    [-102, 10, 0.77, 0.80, 3],
+    [   0,  0, 1.00, 1.00, 5],
+    [ 102,-10, 0.77, 0.80, 3],
+    [ 195,-20, 0.58, 0.58, 2],
+    [ 308,-30, 0.40, 0.38, 1],
+  ];
+  const N = ITEMS.length;
+  let active = 0, animating = false, autoTimer = null;
 
-  function render() {
-    const wrap = document.getElementById('fanCards');
-    if (!wrap) return;
-    wrap.innerHTML = '';
-    const total = 7;
-    const maxH = 175, minH = 100;
-    const maxW = 115, minW = 72;
+  const wrap = document.getElementById('khcWrap');
+  if (!wrap) return;
+  const cards = [];
 
-    for (let i = 0; i < total; i++) {
-      const off = i - active;
-      const abs = Math.abs(off);
-      const scale = 1 - abs * 0.13;
-      const rot = off * 11;
-      const tx = 50 + off * 12;
-      const w = Math.round(maxW * scale);
-      const h = Math.round(maxH * scale);
-      const z = total - abs;
+  ITEMS.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'khc-card';
+    const img = document.createElement('img');
+    img.src = item.img; img.alt = item.label; img.loading = 'lazy';
+    const lbl = document.createElement('div');
+    lbl.className = 'khc-label';
+    lbl.innerHTML = item.label + '<br><span style="font-size:10px;font-weight:400;opacity:.8">' + item.sub + '<\/span>';
+    card.appendChild(img); card.appendChild(lbl);
+    card.addEventListener('click', () => goTo(i));
+    wrap.appendChild(card);
+    cards.push(card);
+  });
 
-      const card = document.createElement('div');
-      card.className = 'fan-card';
-      card.style.cssText = `
-        width:${w}px; height:${h}px;
-        left: calc(${tx}% - ${w/2}px); bottom: 0;
-        transform: rotate(${rot}deg);
-        z-index: ${z};
-        background: ${colors[i]};
-        border: ${i === active ? '2.5px solid #F0A500' : '1px solid rgba(255,255,255,0.15)'};
-        opacity: ${i === active ? 1 : 0.65};
-        box-shadow: ${i === active ? '0 8px 32px rgba(0,0,0,0.4)' : 'none'};
-      `;
-      card.innerHTML = `
-        <i class="ti ${icons[i]}" style="font-size:${i===active?26:16}px;color:rgba(255,255,255,0.85)"></i>
-        ${i === active ? `<div style="font-size:10px;color:#F0A500;font-weight:700;text-align:center;padding:0 6px">${labels[i]}</div>` : ''}
-        <div class="fan-card-label">${labels[i]}</div>
-      `;
-      card.addEventListener('click', () => { active = i; render(); });
-      wrap.appendChild(card);
-    }
+  function getRel(idx) {
+    let r = idx - active;
+    if (r > Math.floor(N/2)) r -= N;
+    if (r < -Math.floor(N/2)) r += N;
+    return r;
   }
 
-  render();
-  document.getElementById('fanL').addEventListener('click', () => { if(active > 0){ active--; render(); } });
-  document.getElementById('fanR').addEventListener('click', () => { if(active < 6){ active++; render(); } });
-  setInterval(() => { active = (active + 1) % 7; render(); }, 3500);
+  function applyPos(card, rel, animate) {
+    if (Math.abs(rel) > 3) { card.style.opacity = '0'; card.style.pointerEvents = 'none'; return; }
+    const [tx, ry, sc, op, zi] = POS[rel + 3];
+    card.style.transition = animate ? 'transform .65s cubic-bezier(.25,.46,.45,.94), opacity .65s ease' : 'none';
+    card.style.transform = 'translateX(calc(-50% + ' + tx + 'px)) translateY(-50%) rotateY(' + ry + 'deg) scale(' + sc + ')';
+    card.style.opacity = op;
+    card.style.zIndex = zi;
+    card.style.pointerEvents = 'auto';
+    card.classList.toggle('is-active', rel === 0);
+  }
+
+  function render(animate) {
+    cards.forEach((c, i) => applyPos(c, getRel(i), animate));
+  }
+
+  function shift(dir) {
+    if (animating) return;
+    animating = true;
+    const prev = active;
+    active = ((active + dir) % N + N) % N;
+    // Card that wraps around: was at rel=dir*3, now jumps to rel=-dir*3
+    const jumpIdx = ((prev + dir * 3) % N + N) % N;
+    const jumpCard = cards[jumpIdx];
+    jumpCard.style.transition = 'none';
+    const targetRel = -dir * 3;
+    const [tx, ry, sc, op, zi] = POS[targetRel + 3];
+    jumpCard.style.transform = 'translateX(calc(-50% + ' + tx + 'px)) translateY(-50%) rotateY(' + ry + 'deg) scale(' + sc + ')';
+    jumpCard.style.opacity = op; jumpCard.style.zIndex = zi;
+    jumpCard.classList.remove('is-active');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      cards.forEach((c, i) => { if (i !== jumpIdx) applyPos(c, getRel(i), true); });
+      setTimeout(() => { animating = false; }, 700);
+    }));
+  }
+
+  function goTo(idx) {
+    if (idx === active || animating) return;
+    active = idx; render(true);
+  }
+
+  function startAuto() { autoTimer = setInterval(() => shift(1), 3800); }
+  function stopAuto()  { clearInterval(autoTimer); autoTimer = null; }
+
+  render(false);
+  startAuto();
+
+  document.getElementById('khcPrev').addEventListener('click', () => { stopAuto(); shift(-1); startAuto(); });
+  document.getElementById('khcNext').addEventListener('click', () => { stopAuto(); shift(1); startAuto(); });
+  const sec = document.getElementById('khcSection');
+  sec.addEventListener('mouseenter', stopAuto);
+  sec.addEventListener('mouseleave', startAuto);
 })();
 
 /* ── QURAN SLIDER ── */
@@ -1225,6 +1365,17 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
     if (btn) btn.classList.remove('active');
   });
 });
+
+/* ── RESTORE SAVED LANGUAGE ── */
+(function() {
+  try {
+    const saved = localStorage.getItem('kh_lang');
+    if (saved && saved !== 'en') {
+      const btn = document.querySelector('.lang-btn:last-child');
+      if (btn) setLang(saved, btn);
+    }
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
