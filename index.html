@@ -696,7 +696,7 @@
     <div class="nav-indicator" id="navInd"></div>
   </div>
   <div class="nav-right">
-    <a href="donation.html" class="donate-btn" data-i18n="nav-donate">Donate now</a>
+    <button class="donate-btn" onclick="window.location.href='donation.html'" data-i18n="nav-donate">Donate now</button>
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
   <span></span><span></span><span></span>
@@ -715,8 +715,8 @@
     <h1 class="hero-h1" data-i18n-html="hero-h1">Interest-free loans<br>for those who <span>need it most</span></h1>
     <p class="hero-p" data-i18n="hero-p">কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.</p>
     <div class="hero-btns">
-      <a href="loan-application.html" class="btn-primary"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></a>
-      <a href="donation.html" class="btn-outline" data-i18n="hero-btn-donate">Donate now</a>
+      <button class="btn-primary" onclick="window.location.href='loan-application.html'"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></button>
+      <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
       <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
     </div>
   </div>
@@ -894,9 +894,7 @@
     </div>
   </div>
   <div style="text-align:center;margin-top:36px">
-    <a href="loan-application.html" class="btn-primary" style="font-size:14px;padding:14px 32px">
-      <i class="ti ti-file-text" style="font-size:16px;vertical-align:-3px;margin-right:6px"></i>Start your loan application
-    </a>
+    <button class="btn-primary" onclick="window.location.href='loan-application.html'" style="font-size:14px;padding:14px 32px;border:none;cursor:pointer"><i class="ti ti-file-text" style="font-size:16px;vertical-align:-3px;margin-right:6px"></i>Start your loan application</button>
   </div>
 </section>
 
@@ -1481,7 +1479,9 @@ window.addEventListener('scroll', () => {
 /* ── SMOOTH SCROLL FOR NAV LINKS ── */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
+    const h = a.getAttribute('href');
+    if (!h || !h.startsWith('#')) return; // never intercept real page links
+    const target = document.querySelector(h);
     if (target) {
       e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
