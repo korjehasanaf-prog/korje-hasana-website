@@ -589,6 +589,66 @@
   section, .section { padding:40px 16px !important; }
   .container, .section-inner { padding:0 16px !important; }
 }
+    /* ═══════════════════════════════════════
+       MISSION & VISION SECTION
+    ═══════════════════════════════════════ */
+    .mv-section {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #071e0f 0%, #0d3d22 45%, #0a2e1a 100%);
+      padding: 72px 40px;
+    }
+    .mv-orb { position:absolute; border-radius:50%; filter:blur(70px); opacity:.18; pointer-events:none; }
+    .mv-orb1 { width:420px;height:420px; background:#1E7D42; top:-100px; left:-80px; }
+    .mv-orb2 { width:320px;height:320px; background:#F0A500; bottom:-80px; right:-60px; }
+    .mv-orb3 { width:200px;height:200px; background:#9ED8B0; top:40%; left:45%; }
+    .mv-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+    .mv-hd { text-align:center; margin-bottom:52px; }
+    .mv-tag {
+      display:inline-block; background:rgba(240,165,0,.15);
+      border:1px solid rgba(240,165,0,.35); color:#F0A500;
+      font-size:11px; font-weight:700; letter-spacing:1.5px;
+      text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:14px;
+    }
+    .mv-title { color:#fff; font-size:32px; font-weight:900; font-family:'Hind Siliguri',sans-serif; line-height:1.2; margin-bottom:10px; }
+    .mv-sub { color:rgba(255,255,255,.5); font-size:14px; }
+    .mv-cards { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-bottom:36px; }
+    .mv-card {
+      position:relative; overflow:hidden; border-radius:20px; padding:36px 32px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .mv-card-glow { position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; filter:blur(55px); opacity:.45; }
+    .mv-card.mission { background:linear-gradient(135deg,rgba(20,82,48,.6),rgba(13,61,34,.85)); }
+    .mv-card.mission .mv-card-glow { background:#F0A500; }
+    .mv-card.vision  { background:linear-gradient(135deg,rgba(30,125,66,.5),rgba(9,45,25,.85)); }
+    .mv-card.vision  .mv-card-glow { background:#9ED8B0; }
+    .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; position:relative; z-index:1; }
+    .mission .mv-card-icon { background:linear-gradient(135deg,#F0A500,#FFD54F); color:#145230; }
+    .vision  .mv-card-icon { background:linear-gradient(135deg,#1E7D42,#9ED8B0); color:#fff; }
+    .mv-card-tag { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
+    .mission .mv-card-tag { color:#F0A500; }
+    .vision  .mv-card-tag  { color:#9ED8B0; }
+    .mv-card-h { font-size:20px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
+    .mv-card-p { font-size:13.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
+    .mv-card-en { font-size:12px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
+    .mv-values { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px; }
+    .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:13px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
+    .mv-val i { font-size:16px; }
+    .mv-val-1 { background:rgba(240,165,0,.12);  color:#FFD54F; }
+    .mv-val-2 { background:rgba(30,125,66,.2);   color:#9ED8B0; }
+    .mv-val-3 { background:rgba(96,165,250,.12); color:#93C5FD; }
+    .mv-val-4 { background:rgba(232,121,249,.1); color:#E879F9; }
+    .mv-val-5 { background:rgba(52,211,153,.12); color:#6EE7B7; }
+    .mv-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .mv-tgt { text-align:center; padding:20px 14px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
+    .mv-tgt-num { font-size:28px; font-weight:900; color:#F0A500; }
+    .mv-tgt-lbl { font-size:12px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
+    @media (max-width:768px) {
+      .mv-section { padding:48px 20px; }
+      .mv-cards { grid-template-columns:1fr; }
+      .mv-targets { grid-template-columns:repeat(2,1fr); }
+      .mv-title { font-size:24px; }
+    }
+
 </style>
 </head>
 <body>
@@ -863,6 +923,86 @@
     </a>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MISSION & VISION
+════════════════════════════════════════════════════════ -->
+<section class="mv-section">
+  <div class="mv-orb mv-orb1"></div>
+  <div class="mv-orb mv-orb2"></div>
+  <div class="mv-orb mv-orb3"></div>
+  <div class="mv-inner">
+
+    <!-- Heading -->
+    <div class="mv-hd">
+      <div class="mv-tag"><i class="ti ti-star" style="font-size:10px;vertical-align:-1px"></i> আমাদের পরিচয়</div>
+      <div class="mv-title">মিশন ও ভিশন<br><span style="font-size:22px;font-weight:600;color:rgba(255,255,255,.6)">Mission &amp; Vision</span></div>
+      <p class="mv-sub">সুদমুক্ত ঋণের মাধ্যমে মানুষের জীবন বদলে দেওয়ার স্বপ্ন</p>
+    </div>
+
+    <!-- Mission + Vision cards -->
+    <div class="mv-cards">
+      <!-- MISSION -->
+      <div class="mv-card mission">
+        <div class="mv-card-glow"></div>
+        <div class="mv-card-icon"><i class="ti ti-target"></i></div>
+        <div class="mv-card-tag">● মিশন · Mission</div>
+        <div class="mv-card-h">আমাদের লক্ষ্য</div>
+        <p class="mv-card-p">
+          সুদমুক্ত ঋণ প্রদানের মাধ্যমে সমাজের সুবিধাবঞ্চিত মানুষদের আর্থিক স্বাধীনতা নিশ্চিত করা।
+          কর্জে হাসানা ইসলামী নীতিতে পরিচালিত এই ফাউন্ডেশন কৃষক, ক্ষুদ্র ব্যবসায়ী,
+          শিক্ষার্থী ও পরিবারের আর্থিক মুক্তির পথে কাজ করে — কোনো সুদ নেই, কোনো শোষণ নেই।
+        </p>
+        <p class="mv-card-en">
+          To ensure financial freedom for the underprivileged through interest-free (Qard al-Hasan)
+          loans — guided by Islamic principles, serving farmers, students, small businesses and families.
+        </p>
+      </div>
+
+      <!-- VISION -->
+      <div class="mv-card vision">
+        <div class="mv-card-glow"></div>
+        <div class="mv-card-icon"><i class="ti ti-eye"></i></div>
+        <div class="mv-card-tag">● ভিশন · Vision</div>
+        <div class="mv-card-h">আমাদের স্বপ্ন</div>
+        <p class="mv-card-p">
+          ২০৩০ সালের মধ্যে ফরিদপুর জেলার ১০,০০০ পরিবারকে সুদমুক্ত ঋণ সেবায় অন্তর্ভুক্ত করা
+          এবং বাংলাদেশের প্রতিটি জেলায় একটি টেকসই সুদমুক্ত অর্থনৈতিক মডেল প্রতিষ্ঠা করা।
+        </p>
+        <p class="mv-card-en">
+          By 2030, reach 10,000 families across Faridpur District and establish a sustainable
+          interest-free economic model in every district of Bangladesh.
+        </p>
+      </div>
+    </div>
+
+    <!-- Core Values -->
+    <div class="mv-values">
+      <div class="mv-val mv-val-1"><i class="ti ti-shield-check"></i> আমানত · Trustworthiness</div>
+      <div class="mv-val mv-val-2"><i class="ti ti-heart-handshake"></i> সুদমুক্ত · Zero Interest</div>
+      <div class="mv-val mv-val-3"><i class="ti ti-eye"></i> স্বচ্ছতা · Transparency</div>
+      <div class="mv-val mv-val-4"><i class="ti ti-users"></i> মানবিক মর্যাদা · Dignity</div>
+      <div class="mv-val mv-val-5"><i class="ti ti-refresh"></i> টেকসই · Sustainability</div>
+    </div>
+
+    <!-- 2030 Targets -->
+    <div class="mv-targets">
+      <div class="mv-tgt">
+        <div class="mv-tgt-num">১০,০০০</div>
+        <div class="mv-tgt-lbl">২০৩০ সালের মধ্যে উপকারভোগী পরিবার<br>Target families by 2030</div>
+      </div>
+      <div class="mv-tgt">
+        <div class="mv-tgt-num">৬৪</div>
+        <div class="mv-tgt-lbl">জেলায় বিস্তার করার লক্ষ্য<br>Districts to reach</div>
+      </div>
+      <div class="mv-tgt">
+        <div class="mv-tgt-num">০%</div>
+        <div class="mv-tgt-lbl">চিরকালের জন্য সুদমুক্ত<br>Interest — forever</div>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <!-- ═══════════════════════════════════════════════════════
      SUCCESS STORIES
