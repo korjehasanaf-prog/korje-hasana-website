@@ -432,6 +432,14 @@
               <label class="form-label">Date of Birth</label>
               <input type="text" class="form-input autofilled" id="ex_dob" value="">
             </div>
+            <div class="form-group">
+              <label class="form-label">Father's Name</label>
+              <input type="text" class="form-input autofilled" id="ex_father" value="">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mother's Name</label>
+              <input type="text" class="form-input autofilled" id="ex_mother" value="">
+            </div>
             <div class="form-group full">
               <label class="form-label">Address (as on NID)</label>
               <input type="text" class="form-input autofilled" id="ex_address" value="">
@@ -496,13 +504,25 @@
           </div>
           <div class="form-group">
             <label class="form-label">Marital Status</label>
-            <select class="form-select" id="p_marital">
+            <select class="form-select" id="p_marital" onchange="onMaritalChange()">
               <option value="">Select</option>
               <option>Married</option>
               <option>Unmarried</option>
               <option>Widowed</option>
               <option>Divorced</option>
             </select>
+          </div>
+          <div id="spouseFields" style="display:none;grid-column:1/-1;display:none">
+            <div class="form-grid" style="padding:0">
+              <div class="form-group">
+                <label class="form-label">Spouse Name <span class="req">*</span></label>
+                <input type="text" class="form-input" id="p_spouse" placeholder="স্বামী/স্ত্রীর নাম">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Spouse Mobile</label>
+                <input type="tel" class="form-input" id="p_spouse_mobile" placeholder="01XXXXXXXXX">
+              </div>
+            </div>
           </div>
 
           <div class="field-section"><i class="ti ti-phone"></i>Contact Details</div>
@@ -521,16 +541,15 @@
           </div>
           <div class="form-group">
             <label class="form-label">District <span class="req">*</span></label>
-            <select class="form-select" id="p_district">
+            <select class="form-select" id="p_district" onchange="updateUpazila()">
               <option value="">Select district</option>
-              <option>Dhaka</option><option>Gazipur</option><option>Narayanganj</option>
-              <option>Narsingdi</option><option>Manikganj</option><option>Munshiganj</option>
-              <option>Other</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Upazila</label>
-            <input type="text" class="form-input" id="p_upazila" placeholder="Upazila name">
+            <label class="form-label">Upazila / Thana <span class="req">*</span></label>
+            <select class="form-select" id="p_upazila">
+              <option value="">Select district first</option>
+            </select>
           </div>
 
           <div class="field-section"><i class="ti ti-briefcase"></i>Occupation</div>
@@ -614,16 +633,18 @@
         <div class="form-grid" style="margin-top:20px">
           <div class="form-group">
             <label class="form-label">Loan amount needed (৳) <span class="req">*</span></label>
-            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="1000" max="100000">
+            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="1000" max="100000" onchange="calcEMI()" oninput="calcEMI()">
             <span class="form-hint" id="l_amountHint">Agriculture: max ৳35,000</span>
           </div>
           <div class="form-group">
             <label class="form-label">Repayment duration <span class="req">*</span></label>
-            <select class="form-select" id="l_duration">
+            <select class="form-select" id="l_duration" onchange="calcEMI()">
               <option value="">Select</option>
-              <option>6 months</option><option>12 months</option>
-              <option>18 months</option><option>24 months</option>
-              <option>At harvest (seasonal)</option>
+              <option value="6">6 মাস</option>
+              <option value="12">12 মাস</option>
+              <option value="18">18 মাস</option>
+              <option value="24">24 মাস</option>
+              <option value="0">মৌসুমি (ফসলের পর একসাথে)</option>
             </select>
           </div>
           <div class="form-group full">
@@ -636,13 +657,43 @@
             <span class="form-hint">We will purchase the goods directly from this supplier</span>
           </div>
           <div class="form-group">
-            <label class="form-label">Repayment method preference</label>
-            <select class="form-select" id="l_repay">
-              <option>Monthly installment</option>
-              <option>Weekly installment</option>
-              <option>Lump sum at end of term</option>
-              <option>Seasonal (after harvest)</option>
+            <label class="form-label">কিস্তির ধরন <span class="req">*</span></label>
+            <select class="form-select" id="l_repay" onchange="calcEMI()">
+              <option value="">Select</option>
+              <option value="monthly">মাসিক কিস্তি (Monthly)</option>
+              <option value="weekly">সাপ্তাহিক কিস্তি (Weekly)</option>
+              <option value="biweekly">পাক্ষিক কিস্তি (Bi-weekly)</option>
+              <option value="lumpsum">মৌসুমে একসাথে (Lump sum)</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">প্রথম কিস্তির তারিখ</label>
+            <input type="date" class="form-input" id="l_firstEmi">
+          </div>
+          <div id="emiPanel" style="display:none;grid-column:1/-1;background:linear-gradient(135deg,#f0f9f4,#e8f5e9);border:1.5px solid var(--ltgreen);border-radius:14px;padding:18px;margin-top:4px">
+            <div style="font-size:13px;font-weight:800;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+              <i class="ti ti-calculator" style="font-size:18px"></i> কিস্তির বিবরণ (০% সুদে)
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+              <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">প্রতি কিস্তি</div>
+                <div style="font-size:22px;font-weight:800;color:var(--green)" id="emiAmt">৳০</div>
+              </div>
+              <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">মোট কিস্তি সংখ্যা</div>
+                <div style="font-size:22px;font-weight:800;color:var(--green)" id="emiCount">০</div>
+              </div>
+              <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">মোট পরিশোধ</div>
+                <div style="font-size:22px;font-weight:800;color:var(--gold)" id="emiTotal">৳০</div>
+              </div>
+              <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">সুদ</div>
+                <div style="font-size:22px;font-weight:800;color:var(--success)">০%</div>
+              </div>
+            </div>
+            <div id="emiScheduleHead" style="font-size:12px;color:var(--muted);margin:14px 0 8px;font-weight:600">প্রথম ৫টি কিস্তির সময়সূচি:</div>
+            <div id="emiSchedule" style="font-size:12px;color:var(--text)"></div>
           </div>
           <div class="form-group">
             <label class="form-label">bKash / Nagad number (for repayment)</label>
@@ -996,21 +1047,28 @@ function parseNIDText(text, out, side) {
   }
 }
 function fillExtracted(data) {
-  document.getElementById('ex_nameBn').value = data.nameBn;
-  document.getElementById('ex_nameEn').value = data.nameEn;
-  document.getElementById('ex_nid').value = data.nid;
-  document.getElementById('ex_dob').value = data.dob;
-  document.getElementById('ex_address').value = data.address;
+  // Fill preview fields only — step 2 fields are synced on Next click
+  const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setV('ex_nameBn',  data.nameBn);
+  setV('ex_nameEn',  data.nameEn);
+  setV('ex_nid',     data.nid);
+  setV('ex_dob',     data.dob);
+  setV('ex_father',  data.father);
+  setV('ex_mother',  data.mother);
+  setV('ex_address', data.address);
   document.getElementById('extractedPreview').classList.remove('hidden');
-  // Also fill step 2 fields
-  document.getElementById('p_nameBn').value = data.nameBn;
-  document.getElementById('p_nameEn').value = data.nameEn;
-  document.getElementById('p_nid').value = data.nid;
-  document.getElementById('p_dob').value = data.dob;
-  document.getElementById('p_address').value = data.address;
-  ['p_nameBn','p_nameEn','p_nid','p_dob','p_address'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('autofilled');
+}
+function syncPreviewToStep2() {
+  const map = [
+    ['ex_nameBn','p_nameBn'], ['ex_nameEn','p_nameEn'],
+    ['ex_nid','p_nid'],       ['ex_dob','p_dob'],
+    ['ex_father','p_father'], ['ex_mother','p_mother'],
+    ['ex_address','p_address']
+  ];
+  map.forEach(([from, to]) => {
+    const f = document.getElementById(from);
+    const t = document.getElementById(to);
+    if (f && t && f.value) { t.value = f.value; t.classList.add('autofilled'); }
   });
 }
 function fillManual() {
@@ -1043,9 +1101,183 @@ function selectLoanType(el, type) {
   document.getElementById('l_amountHint').textContent = type + ': max ' + loanLimits[type];
 }
 
+/* ── MARITAL STATUS ── */
+function onMaritalChange() {
+  const val = document.getElementById('p_marital').value;
+  const sf = document.getElementById('spouseFields');
+  if (sf) sf.style.display = (val === 'Married') ? 'block' : 'none';
+}
+
+/* ── DISTRICT / UPAZILA DATA ── */
+const BD_UPAZILAS = {
+  'Bagerhat':['Bagerhat Sadar','Chitalmari','Fakirhat','Kachua','Mollahat','Mongla','Morrelganj','Rampal','Sarankhola'],
+  'Bandarban':['Ali Kadam','Bandarban Sadar','Lama','Naikhongchhari','Rowangchhari','Ruma','Thanchi'],
+  'Barguna':['Amtali','Bamna','Barguna Sadar','Betagi','Pathorghata','Taltali'],
+  'Barishal':['Agailjhara','Babuganj','Barishal Sadar','Bakerganj','Banaripara','Gaurnadi','Hizla','Mehendiganj','Muladi','Uzirpur'],
+  'Bhola':['Bhola Sadar','Borhanuddin','Char Fasson','Daulatkhan','Lalmohan','Manpura','Tazumuddin'],
+  'Bogura':['Adamdighi','Bogura Sadar','Dhunat','Dhupchanchia','Gabtali','Kahaloo','Nandigram','Sariakandi','Shajahanpur','Sherpur','Shibganj','Sonatala'],
+  'Brahmanbaria':['Akhaura','Ashuganj','Banchharampur','Bijoynagar','Brahmanbaria Sadar','Kasba','Nabinagar','Nasirnagar','Sarail'],
+  'Chandpur':['Chandpur Sadar','Faridganj','Haimchar','Haziganj','Kachua','Matlab North','Matlab South','Shahrasti'],
+  'Chapai Nawabganj':['Bholahat','Chapai Nawabganj Sadar','Gomastapur','Nachole','Shibganj'],
+  'Chattogram':['Anwara','Banshkhali','Bayazid','Boalkhali','Chandanaish','Double Mooring','Fatikchhari','Hathazari','Karnaphuli','Kotwali','Lohagara','Mirsharai','Pahartali','Panchlaish','Patiya','Rangunia','Raozan','Sandwip','Satkania','Sitakunda'],
+  'Chuadanga':['Alamdanga','Chuadanga Sadar','Damurhuda','Jibannagar'],
+  "Cox's Bazar":['Chakaria','Kutubdia','Maheshkhali','Pekua','Ramu','Teknaf','Ukhia',"Cox's Bazar Sadar"],
+  'Cumilla':['Barura','Brahmanpara','Burichong','Chandina','Chauddagram','Cumilla Sadar South','Daudkandi','Debidwar','Homna','Laksam','Lalmai','Manoharganj','Meghna','Muradnagar','Nangalkot','Titas'],
+  'Dhaka':['Adabor','Badda','Bangshal','Bimanbandar','Dakshin Khan','Demra','Dhamrai','Dohar','Gulshan','Kafrul','Kadamtali','Kalabagan','Kamrangirchar','Keraniganj','Khilgaon','Khilkhet','Kotwali','Lalbagh','Mirpur','Mohammadpur','Motijheel','Nawabganj','Pallabi','Ramna','Rayer Bazar','Rupnagar','Sabujbagh','Savar','Shah Ali','Shahjahanpur','Shyampur','Sutrapur','Tejgaon','Turag','Uttara','Uttarkhan','Wari'],
+  'Dinajpur':['Birampur','Birganj','Biral','Bochaganj','Chirirbandar','Dinajpur Sadar','Fulbari','Ghoraghat','Hakimpur','Kaharole','Khansama','Nawabganj','Parbatipur'],
+  'Faridpur':['Alfadanga','Bhanga','Boalmari','Char Bhadrashan','Faridpur Sadar','Madhukhali','Nagarkanda','Sadarpur','Saltha'],
+  'Feni':['Chhagalnaiya','Daganbhuiyan','Feni Sadar','Parshuram','Sonagazi'],
+  'Gaibandha':['Fulchhari','Gaibandha Sadar','Gobindaganj','Palashbari','Sadullapur','Saghata','Sundarganj'],
+  'Gazipur':['Gazipur Sadar','Kaliakair','Kaliganj','Kapasia','Sreepur','Tongi'],
+  'Gopalganj':['Gopalganj Sadar','Kashiani','Kotalipara','Muksudpur','Tungipara'],
+  'Habiganj':['Ajmiriganj','Baniachong','Bahubal','Chunarughat','Habiganj Sadar','Lakhai','Madhabpur','Nabiganj'],
+  'Jamalpur':['Bakshiganj','Dewanganj','Islampur','Jamalpur Sadar','Madarganj','Melandaha','Sarishabari'],
+  'Jessore':['Abhaynagar','Bagherpara','Chaugachha','Jessore Sadar','Jhikargachha','Keshabpur','Manirampur','Sharsha'],
+  'Jhalakathi':['Jhalakathi Sadar','Kathalia','Nalchity','Rajapur'],
+  'Jhenaidah':['Harinakunda','Jhenaidah Sadar','Kaliganj','Kotchandpur','Maheshpur','Shailkupa'],
+  'Joypurhat':['Akkelpur','Joypurhat Sadar','Kalai','Khetlal','Panchbibi'],
+  'Khagrachhari':['Dighinala','Guimara','Khagrachhari Sadar','Lakshmichhari','Mahalchhari','Manikchhari','Matiranga','Panchhari','Ramgarh'],
+  'Khulna':['Batiaghata','Dacope','Dighalia','Dumuria','Fultala','Koyra','Paikgachha','Phultala','Rupsa','Terokhada','Khulna Sadar'],
+  'Kishoreganj':['Austagram','Bajitpur','Bhairab','Hossainpur','Itna','Karimganj','Katiadi','Kishoreganj Sadar','Kuliarchar','Mithamain','Nikli','Pakundia','Tarail'],
+  'Kurigram':['Bhurungamari','Chilmari','Kurigram Sadar','Nageshwari','Phulbari','Rajibpur','Rajarhat','Rowmari','Ulipur'],
+  'Kushtia':['Bheramara','Daulatpur','Khoksa','Kumarkhali','Kushtia Sadar','Mirpur'],
+  'Lakshmipur':['Kamalnagar','Lakshmipur Sadar','Ramganj','Ramgati','Roypur'],
+  'Lalmonirhat':['Aditmari','Hatibandha','Kaliganj','Lalmonirhat Sadar','Patgram'],
+  'Madaripur':['Kalkini','Madaripur Sadar','Rajoir','Shibchar'],
+  'Magura':['Magura Sadar','Mohammadpur','Shalikha','Sreepur'],
+  'Manikganj':['Daulatpur','Ghior','Harirampur','Manikganj Sadar','Saturia','Shivalaya','Singair'],
+  'Meherpur':['Gangni','Meherpur Sadar','Mujib Nagar'],
+  'Moulvibazar':['Barlekha','Juri','Kamalganj','Kulaura','Moulvibazar Sadar','Rajnagar','Sreemangal'],
+  'Munshiganj':['Gazaria','Louhajang','Munshiganj Sadar','Sirajdikhan','Sreenagar','Tongibari'],
+  'Mymensingh':['Bhaluka','Dhobaura','Fulbaria','Gaffargaon','Gauripur','Haluaghat','Ishwarganj','Muktagachha','Mymensingh Sadar','Nandail','Phulpur','Trishal'],
+  'Naogaon':['Atrai','Badalgachhi','Dhamoirhat','Manda','Mahadebpur','Naogaon Sadar','Niamatpur','Patnitala','Porsha','Raninagar','Sapahar'],
+  'Narail':['Kalia','Lohagara','Narail Sadar'],
+  'Narayanganj':['Araihazar','Bandar','Narayanganj Sadar','Rupganj','Sonargaon'],
+  'Narsingdi':['Belabo','Monohardi','Narsingdi Sadar','Palash','Raipura','Shibpur'],
+  'Natore':['Bagatipara','Baraigram','Gurudaspur','Lalpur','Natore Sadar','Singra'],
+  'Netrokona':['Atpara','Barhatta','Durgapur','Kalmakanda','Kendua','Khaliajuri','Kolmakanda','Madan','Mohanganj','Netrokona Sadar','Purbadhala'],
+  'Nilphamari':['Dimla','Domar','Jaldhaka','Kishoreganj','Nilphamari Sadar','Saidpur'],
+  'Noakhali':['Begumganj','Chatkhil','Companiganj','Hatiya','Kabir Hat','Noakhali Sadar','Senbagh','Sonaimuri','Subarnachar'],
+  'Pabna':['Atgharia','Bera','Bhangura','Chatmohar','Faridpur','Ishwardi','Pabna Sadar','Santhia','Sujanagar'],
+  'Panchagarh':['Atwari','Boda','Debiganj','Panchagarh Sadar','Tetulia'],
+  'Patuakhali':['Bauphal','Dashmina','Dumki','Galachipa','Kalapara','Mirzaganj','Patuakhali Sadar','Rangabali'],
+  'Pirojpur':['Bhandaria','Kawkhali','Mathbaria','Nazirpur','Nesarabad','Pirojpur Sadar','Zianagar'],
+  'Rajbari':['Baliakandi','Goalandaghat','Kalukhali','Pangsha','Rajbari Sadar'],
+  'Rajshahi':['Bagha','Bagmara','Charghat','Durgapur','Godagari','Mohanpur','Paba','Puthia','Rajshahi Sadar','Tanore'],
+  'Rangamati':['Bagaichhari','Barkal','Belaichhari','Juraichhari','Kaptai','Kaukhali','Langadu','Naniarchar','Rajasthali','Rangamati Sadar'],
+  'Rangpur':['Badarganj','Gangachara','Kaunia','Mithapukur','Pirgachha','Pirganj','Rangpur Sadar','Taraganj'],
+  'Satkhira':['Assasuni','Debhata','Kalaroa','Kaliganj','Satkhira Sadar','Shyamnagar','Tala'],
+  'Shariatpur':['Bhedarganj','Damudya','Goshairhat','Jajira','Naria','Shariatpur Sadar','Zanjira'],
+  'Sherpur':['Jhenaigati','Nakla','Nalitabari','Sherpur Sadar','Sreebordi'],
+  'Sirajganj':['Belkuchi','Chauhali','Enayetpur','Kamarkhanda','Kazipur','Raiganj','Shahjadpur','Sirajganj Sadar','Tarash','Ullapara'],
+  'Sunamganj':['Bishwamvarpur','Chhatak','Derai','Dharampasha','Dowarabazar','Jagannathpur','Jamalganj','Shalla','Sunamganj Sadar','Tahirpur'],
+  'Sylhet':['Balaganj','Beani Bazar','Bishwanath','Companiganj','Dakshin Surma','Fenchuganj','Golapganj','Gowainghat','Jaintiapur','Kanaighat','Osmani Nagar','Sylhet Sadar','Zakiganj'],
+  'Tangail':['Basail','Bhuapur','Delduar','Dhanbari','Ghatail','Gopalpur','Kalihati','Madhupur','Mirzapur','Nagarpur','Sakhipur','Tangail Sadar'],
+  'Thakurgaon':['Baliadangi','Haripur','Pirganj','Ranisankail','Thakurgaon Sadar']
+};
+
+function populateDistricts() {
+  const sel = document.getElementById('p_district');
+  if (!sel) return;
+  const sorted = Object.keys(BD_UPAZILAS).sort();
+  sorted.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = d;
+    sel.appendChild(opt);
+  });
+}
+
+function updateUpazila() {
+  const dist = document.getElementById('p_district').value;
+  const sel  = document.getElementById('p_upazila');
+  sel.innerHTML = '';
+  if (!dist || !BD_UPAZILAS[dist]) {
+    sel.innerHTML = '<option value="">Select district first</option>';
+    return;
+  }
+  const def = document.createElement('option');
+  def.value = ''; def.textContent = 'Select upazila';
+  sel.appendChild(def);
+  BD_UPAZILAS[dist].forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u; opt.textContent = u;
+    sel.appendChild(opt);
+  });
+}
+
+/* ── EMI CALCULATOR (0% interest) ── */
+function calcEMI() {
+  const amt    = parseFloat(document.getElementById('l_amount').value) || 0;
+  const dur    = parseInt(document.getElementById('l_duration').value) || 0;
+  const method = document.getElementById('l_repay').value;
+  const panel  = document.getElementById('emiPanel');
+
+  if (!amt || !dur || !method || method === 'lumpsum') {
+    if (panel) {
+      if (method === 'lumpsum' && amt) {
+        panel.style.display = 'block';
+        document.getElementById('emiAmt').textContent   = '৳' + amt.toLocaleString('bn-BD');
+        document.getElementById('emiCount').textContent = '১';
+        document.getElementById('emiTotal').textContent = '৳' + amt.toLocaleString('bn-BD');
+        document.getElementById('emiSchedule').textContent = 'মেয়াদ শেষে একসাথে পরিশোধ।';
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+    return;
+  }
+
+  let installments;
+  let intervalDays;
+  let labelBn;
+  if (method === 'monthly')   { installments = dur;      intervalDays = 30; labelBn = 'মাসিক'; }
+  else if (method === 'weekly')    { installments = dur * 4;  intervalDays = 7;  labelBn = 'সাপ্তাহিক'; }
+  else if (method === 'biweekly')  { installments = dur * 2;  intervalDays = 14; labelBn = 'পাক্ষিক'; }
+  else return;
+
+  const emiAmt = Math.ceil(amt / installments);
+  const total  = emiAmt * installments;
+
+  document.getElementById('emiAmt').textContent   = '৳' + emiAmt.toLocaleString('bn-BD');
+  document.getElementById('emiCount').textContent = installments.toString();
+  document.getElementById('emiTotal').textContent = '৳' + total.toLocaleString('bn-BD');
+
+  // First EMI date logic
+  const firstEmiInput = document.getElementById('l_firstEmi');
+  let startDate;
+  if (firstEmiInput && firstEmiInput.value) {
+    startDate = new Date(firstEmiInput.value);
+  } else {
+    startDate = new Date();
+    startDate.setDate(startDate.getDate() + intervalDays);
+    if (firstEmiInput) firstEmiInput.value = startDate.toISOString().split('T')[0];
+  }
+
+  // Show first 5 installments
+  const schedLines = [];
+  const showCount = Math.min(5, installments);
+  for (let i = 0; i < showCount; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i * intervalDays);
+    const dStr = d.toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' });
+    schedLines.push((i + 1) + '. ' + dStr + ' — ৳' + emiAmt.toLocaleString('bn-BD'));
+  }
+  if (installments > 5) schedLines.push('... এবং আরও ' + (installments - 5) + 'টি কিস্তি');
+
+  document.getElementById('emiSchedule').innerHTML = schedLines.join('<br>');
+  document.getElementById('emiScheduleHead').textContent = labelBn + ' কিস্তির সময়সূচি (প্রথম ' + showCount + 'টি):';
+  panel.style.display = 'block';
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', function() {
+  populateDistricts();
+});
+
 /* ── STEP NAVIGATION ── */
 function nextStep() {
   stopCamera();
+  if (currentStep === 1) syncPreviewToStep2();
   if (currentStep < 5) {
     updateStepper(currentStep, 'done');
     currentStep++;
@@ -1138,3 +1370,4 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 </body>
 </html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
