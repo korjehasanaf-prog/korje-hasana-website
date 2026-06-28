@@ -633,7 +633,7 @@
         <div class="form-grid" style="margin-top:20px">
           <div class="form-group">
             <label class="form-label">Loan amount needed (৳) <span class="req">*</span></label>
-            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="1000" max="100000" onchange="calcEMI()" oninput="calcEMI()">
+            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="1000" max="100000" onchange="clampAmount();calcEMI()" oninput="clampAmount();calcEMI()">
             <span class="form-hint" id="l_amountHint">Agriculture: max ৳35,000</span>
           </div>
           <div class="form-group">
@@ -839,10 +839,24 @@ let nidImageData  = { front: null,  back: null  };
 let camSide = 'front';
 let cameraStream = null;
 
-const loanLimits = {
-  Agriculture: '৳35,000', Business: '৳75,000', Education: '৳50,000',
-  Medical: '৳1,00,000', 'Family need': '৳35,000', Emergency: '৳15,000'
+/* Default loan products — super admin can override via admin panel */
+const DEFAULT_LOAN_PRODUCTS = {
+  Agriculture:   { maxAmt: 35000,  durations: [6,12,18,24], seasonal: true  },
+  Business:      { maxAmt: 75000,  durations: [6,12,18,24], seasonal: false },
+  Education:     { maxAmt: 50000,  durations: [6,12,18,24], seasonal: false },
+  Medical:       { maxAmt: 100000, durations: [6,12,18,24], seasonal: false },
+  'Family need': { maxAmt: 35000,  durations: [6,12,18,24], seasonal: false },
+  Emergency:     { maxAmt: 15000,  durations: [6,12],       seasonal: false },
 };
+function getLoanProducts() {
+  try {
+    const stored = localStorage.getItem('kh_loan_products');
+    return stored ? JSON.parse(stored) : DEFAULT_LOAN_PRODUCTS;
+  } catch(e) { return DEFAULT_LOAN_PRODUCTS; }
+}
+const loanLimits = Object.fromEntries(
+  Object.entries(DEFAULT_LOAN_PRODUCTS).map(([k,v]) => [k, '৳' + v.maxAmt.toLocaleString('en-IN')])
+);
 
 /* ── NID METHOD ── */
 function setNidMethod(m) {
@@ -894,14 +908,37 @@ function stopCamera() { if (cameraStream) { cameraStream.getTracks().forEach(t =
 function setCamSide(side) { camSide = side; }
 function capturePhoto() {
   const video = document.getElementById('cameraVideo');
+  if (!video || !video.videoWidth) { alert('ক্যামেরা প্রস্তুত নয়। একটু অপেক্ষা করুন।'); return; }
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth; canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
-  const box = document.getElementById(camSide === 'front' ? 'camFront' : 'camBack');
-  box.innerHTML = `<i class="ti ti-circle-check"></i><span>${camSide === 'front' ? 'Front' : 'Back'} captured</span>`;
-  box.classList.add('captured');
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+  // Store image data for OCR (same as upload method)
+  nidImageData[camSide] = dataUrl;
   nidCaptured[camSide] = true;
-  if (nidCaptured.front && nidCaptured.back) document.getElementById('ocrBtn2').disabled = false;
+
+  // Update camera-method preview boxes
+  const camBox = document.getElementById(camSide === 'front' ? 'camFront' : 'camBack');
+  if (camBox) {
+    camBox.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<i class="ti ti-circle-check"></i> ' + (camSide === 'front' ? 'সামনে ক্যাপচার ✓' : 'পিছনে ক্যাপচার ✓') + '</div>';
+    camBox.style.position = 'relative';
+    camBox.classList.add('captured');
+  }
+
+  // Also update upload-section preview boxes so user sees it regardless of method
+  const nidBox = document.getElementById(camSide === 'front' ? 'nidFront' : 'nidBack');
+  if (nidBox) {
+    nidBox.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<i class="ti ti-circle-check"></i> ' + (camSide === 'front' ? 'সামনে ✓' : 'পিছনে ✓') + '</div>';
+    nidBox.style.position = 'relative';
+    nidBox.classList.add('captured');
+  }
+
+  updateOcrBtn();
 }
 
 /* ── NID UPLOAD ── */
@@ -1058,18 +1095,36 @@ function fillExtracted(data) {
   setV('ex_address', data.address);
   document.getElementById('extractedPreview').classList.remove('hidden');
 }
+function parseDOBtoISO(str) {
+  if (!str) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;           // already ISO
+  // "21 Aug 1993" or "21-Aug-1993" etc.
+  const d = new Date(str.replace(/(\d{1,2})\s+(\w+)\s+(\d{4})/, '$1 $2 $3'));
+  if (!isNaN(d)) return d.toISOString().split('T')[0];
+  // DD/MM/YYYY
+  const m = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (m) return m[3] + '-' + m[2].padStart(2,'0') + '-' + m[1].padStart(2,'0');
+  return '';
+}
 function syncPreviewToStep2() {
-  const map = [
+  const textFields = [
     ['ex_nameBn','p_nameBn'], ['ex_nameEn','p_nameEn'],
-    ['ex_nid','p_nid'],       ['ex_dob','p_dob'],
+    ['ex_nid','p_nid'],
     ['ex_father','p_father'], ['ex_mother','p_mother'],
     ['ex_address','p_address']
   ];
-  map.forEach(([from, to]) => {
+  textFields.forEach(([from, to]) => {
     const f = document.getElementById(from);
     const t = document.getElementById(to);
     if (f && t && f.value) { t.value = f.value; t.classList.add('autofilled'); }
   });
+  // Special: DOB text → date input (YYYY-MM-DD)
+  const dobSrc = document.getElementById('ex_dob');
+  const dobDst = document.getElementById('p_dob');
+  if (dobSrc && dobDst && dobSrc.value) {
+    const iso = parseDOBtoISO(dobSrc.value);
+    if (iso) { dobDst.value = iso; dobDst.classList.add('autofilled'); }
+  }
 }
 function fillManual() {
   const nid = document.getElementById('manualNid').value.trim();
@@ -1098,7 +1153,33 @@ function selectLoanType(el, type) {
   document.querySelectorAll('.loan-type-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   loanType = type;
-  document.getElementById('l_amountHint').textContent = type + ': max ' + loanLimits[type];
+  const products = getLoanProducts();
+  const cfg = products[type] || DEFAULT_LOAN_PRODUCTS[type] || { maxAmt:100000, durations:[6,12,18,24], seasonal:false };
+
+  // Update amount max + hint
+  const amtInput = document.getElementById('l_amount');
+  amtInput.max = cfg.maxAmt;
+  if (parseFloat(amtInput.value) > cfg.maxAmt) amtInput.value = cfg.maxAmt;
+  document.getElementById('l_amountHint').textContent =
+    type + ': সর্বোচ্চ ৳' + cfg.maxAmt.toLocaleString('en-IN');
+
+  // Rebuild duration options
+  const durSel = document.getElementById('l_duration');
+  const curDur = durSel.value;
+  durSel.innerHTML = '<option value="">নির্বাচন করুন</option>';
+  cfg.durations.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = m + ' মাস';
+    durSel.appendChild(opt);
+  });
+  if (cfg.seasonal) {
+    const opt = document.createElement('option');
+    opt.value = '0'; opt.textContent = 'মৌসুমি (ফসলের পর একসাথে)';
+    durSel.appendChild(opt);
+  }
+  if (cfg.durations.includes(parseInt(curDur))) durSel.value = curDur;
+
+  calcEMI();
 }
 
 /* ── MARITAL STATUS ── */
@@ -1206,43 +1287,73 @@ function updateUpazila() {
 }
 
 /* ── EMI CALCULATOR (0% interest) ── */
+let _lastEmiMethod = '';  // track method changes for date reset
+
+function clampAmount() {
+  const inp = document.getElementById('l_amount');
+  const mx = parseFloat(inp.max) || 100000;
+  if (parseFloat(inp.value) > mx) { inp.value = mx; }
+}
+
+function buildSchedule(amt, installments, intervalDays, startDate) {
+  const regularEMI = Math.floor(amt / installments);
+  const lastEMI    = amt - regularEMI * (installments - 1); // exact, no rounding error
+  const rows = [];
+  for (let i = 0; i < installments; i++) {
+    const d = new Date(startDate);
+    d.setDate(d.getDate() + i * intervalDays);
+    const emi = (i === installments - 1) ? lastEMI : regularEMI;
+    rows.push({ n: i+1, date: d, emi });
+  }
+  return rows;
+}
+
 function calcEMI() {
   const amt    = parseFloat(document.getElementById('l_amount').value) || 0;
   const dur    = parseInt(document.getElementById('l_duration').value) || 0;
   const method = document.getElementById('l_repay').value;
   const panel  = document.getElementById('emiPanel');
 
-  if (!amt || !dur || !method || method === 'lumpsum') {
+  // Reset first EMI date when method changes
+  if (method !== _lastEmiMethod) {
+    const fi = document.getElementById('l_firstEmi');
+    if (fi) fi.value = '';
+    _lastEmiMethod = method;
+  }
+
+  if (!amt || !method) { if (panel) panel.style.display = 'none'; return; }
+
+  if (method === 'lumpsum') {
     if (panel) {
-      if (method === 'lumpsum' && amt) {
-        panel.style.display = 'block';
-        document.getElementById('emiAmt').textContent   = '৳' + amt.toLocaleString('bn-BD');
-        document.getElementById('emiCount').textContent = '১';
-        document.getElementById('emiTotal').textContent = '৳' + amt.toLocaleString('bn-BD');
-        document.getElementById('emiSchedule').textContent = 'মেয়াদ শেষে একসাথে পরিশোধ।';
-      } else {
-        panel.style.display = 'none';
-      }
+      panel.style.display = 'block';
+      document.getElementById('emiAmt').textContent   = '৳' + amt.toLocaleString('en-IN');
+      document.getElementById('emiCount').textContent = '১';
+      document.getElementById('emiTotal').textContent = '৳' + amt.toLocaleString('en-IN');
+      document.getElementById('emiScheduleHead').textContent = 'পরিশোধের সময়সূচি:';
+      document.getElementById('emiSchedule').textContent = 'মেয়াদ শেষে সম্পূর্ণ ৳' + amt.toLocaleString('en-IN') + ' একসাথে পরিশোধ।';
+      const fb = document.getElementById('emiFullBtn');
+      if (fb) fb.style.display = 'none';
     }
     return;
   }
 
-  let installments;
-  let intervalDays;
-  let labelBn;
-  if (method === 'monthly')   { installments = dur;      intervalDays = 30; labelBn = 'মাসিক'; }
-  else if (method === 'weekly')    { installments = dur * 4;  intervalDays = 7;  labelBn = 'সাপ্তাহিক'; }
-  else if (method === 'biweekly')  { installments = dur * 2;  intervalDays = 14; labelBn = 'পাক্ষিক'; }
+  if (!dur) { if (panel) panel.style.display = 'none'; return; }
+
+  let installments, intervalDays, labelBn;
+  if (method === 'monthly')  { installments = dur;     intervalDays = 30; labelBn = 'মাসিক'; }
+  else if (method === 'weekly')   { installments = dur*4;   intervalDays = 7;  labelBn = 'সাপ্তাহিক'; }
+  else if (method === 'biweekly') { installments = dur*2;   intervalDays = 14; labelBn = 'পাক্ষিক'; }
   else return;
 
-  const emiAmt = Math.ceil(amt / installments);
-  const total  = emiAmt * installments;
+  const regularEMI = Math.floor(amt / installments);
+  const lastEMI    = amt - regularEMI * (installments - 1);
 
-  document.getElementById('emiAmt').textContent   = '৳' + emiAmt.toLocaleString('bn-BD');
+  document.getElementById('emiAmt').textContent   = '৳' + regularEMI.toLocaleString('en-IN') +
+    (lastEMI !== regularEMI ? ' (শেষটি ৳' + lastEMI.toLocaleString('en-IN') + ')' : '');
   document.getElementById('emiCount').textContent = installments.toString();
-  document.getElementById('emiTotal').textContent = '৳' + total.toLocaleString('bn-BD');
+  document.getElementById('emiTotal').textContent = '৳' + amt.toLocaleString('en-IN');
 
-  // First EMI date logic
+  // First EMI date
   const firstEmiInput = document.getElementById('l_firstEmi');
   let startDate;
   if (firstEmiInput && firstEmiInput.value) {
@@ -1254,19 +1365,64 @@ function calcEMI() {
   }
 
   // Show first 5 installments
-  const schedLines = [];
+  const schedule = buildSchedule(amt, installments, intervalDays, startDate);
   const showCount = Math.min(5, installments);
-  for (let i = 0; i < showCount; i++) {
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + i * intervalDays);
-    const dStr = d.toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' });
-    schedLines.push((i + 1) + '. ' + dStr + ' — ৳' + emiAmt.toLocaleString('bn-BD'));
-  }
-  if (installments > 5) schedLines.push('... এবং আরও ' + (installments - 5) + 'টি কিস্তি');
+  const lines = schedule.slice(0, showCount).map(r => {
+    const dStr = r.date.toLocaleDateString('bn-BD', { year:'numeric', month:'long', day:'numeric' });
+    return r.n + '. ' + dStr + ' — ৳' + r.emi.toLocaleString('en-IN');
+  });
+  if (installments > 5) lines.push(
+    '<button onclick="showFullSchedule(' + JSON.stringify({amt,installments,intervalDays,startISO:startDate.toISOString()}) + ')" ' +
+    'style="margin-top:8px;background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-weight:600">' +
+    '<i class="ti ti-calendar-stats"></i> সম্পূর্ণ ' + installments + 'টি কিস্তির সময়সূচি দেখুন</button>'
+  );
 
-  document.getElementById('emiSchedule').innerHTML = schedLines.join('<br>');
+  document.getElementById('emiSchedule').innerHTML = lines.join('<br>');
   document.getElementById('emiScheduleHead').textContent = labelBn + ' কিস্তির সময়সূচি (প্রথম ' + showCount + 'টি):';
   panel.style.display = 'block';
+}
+
+function showFullSchedule(cfg) {
+  const { amt, installments, intervalDays, startISO } = cfg;
+  const startDate = new Date(startISO);
+  const schedule  = buildSchedule(amt, installments, intervalDays, startDate);
+  const regularEMI = Math.floor(amt / installments);
+  const lastEMI    = amt - regularEMI * (installments - 1);
+
+  let rows = schedule.map(r => {
+    const dStr = r.date.toLocaleDateString('bn-BD', { year:'numeric', month:'short', day:'numeric' });
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + r.n +
+      '</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + dStr +
+      '</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:700;color:var(--green)">৳' +
+      r.emi.toLocaleString('en-IN') + '</td></tr>';
+  }).join('');
+
+  const existing = document.getElementById('khFullSched');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'khFullSched';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">' +
+      '<div style="background:linear-gradient(135deg,var(--green),var(--mdgreen));color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div><div style="font-size:15px;font-weight:800">সম্পূর্ণ কিস্তির সময়সূচি</div>' +
+        '<div style="font-size:12px;opacity:.8">মোট ' + installments + ' কিস্তি | মোট পরিশোধ: ৳' + amt.toLocaleString('en-IN') + ' | সুদ: ০%</div></div>' +
+        '<button onclick="document.getElementById(\'khFullSched\').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">✕ বন্ধ</button>' +
+      '</div>' +
+      '<div style="overflow-y:auto;flex:1">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+          '<thead><tr style="background:#f9fafb">' +
+            '<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted)">#</th>' +
+            '<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted)">তারিখ</th>' +
+            '<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted)">পরিমাণ</th>' +
+          '</tr></thead><tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div style="padding:14px 20px;background:#f9fafb;font-size:12px;color:var(--muted);text-align:center">' +
+        '* শেষ কিস্তিতে ভগ্নাংশ সমন্বয় করা হয়েছে। মোট আদায় = মূল ঋণ (৳' + amt.toLocaleString('en-IN') + ')</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
 
 /* ── INIT ── */
