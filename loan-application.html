@@ -316,6 +316,10 @@
           <h2>NID Card Verification</h2>
           <p>Upload or capture your NID card to auto-fill your information</p>
         </div>
+        <button onclick="showOCRSettings()" title="OCR Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0">
+          <i class="ti ti-settings" style="font-size:15px"></i>
+          <span id="ocrEngineLabel">OCR</span>
+        </button>
       </div>
       <div class="card-body">
         <div class="info-box">
@@ -970,6 +974,181 @@ function updateOcrBtn() {
   });
 }
 
+/* ── OCR Engine label updater ── */
+function updateOcrEngineLabel() {
+  const groqKey   = localStorage.getItem('kh_groq_key') || '';
+  const geminiKey = localStorage.getItem('kh_gemini_key') || '';
+  const lbl = document.getElementById('ocrEngineLabel');
+  if (!lbl) return;
+  if (groqKey.startsWith('gsk_'))    lbl.textContent = '⚡ Groq AI';
+  else if (geminiKey.startsWith('AIzaSy')) lbl.textContent = '⚡ Gemini AI';
+  else                                lbl.textContent = '🔍 Tesseract';
+}
+updateOcrEngineLabel();
+
+/* ── OCR Settings Modal ── */
+function showOCRSettings() {
+  const existing = document.getElementById('khOCRModal');
+  if (existing) existing.remove();
+  const groqKey   = localStorage.getItem('kh_groq_key') || '';
+  const geminiKey = localStorage.getItem('kh_gemini_key') || '';
+
+  const modal = document.createElement('div');
+  modal.id = 'khOCRModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);margin:auto">' +
+      '<div style="background:linear-gradient(135deg,var(--green),var(--mdgreen));color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div><div style="font-size:16px;font-weight:700">⚡ OCR সেটিংস</div><div style="font-size:12px;opacity:.75">NID স্ক্যানের জন্য AI Engine বেছে নিন</div></div>' +
+        '<button onclick="document.getElementById(\'khOCRModal\').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">×</button>' +
+      '</div>' +
+      '<div style="padding:20px">' +
+
+        /* ── Groq (recommended) ── */
+        '<div style="background:#f0fdf4;border:2px solid #16a34a;border-radius:12px;padding:14px;margin-bottom:16px">' +
+          '<div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:6px">🏆 সেরা বিকল্প: Groq AI (বিনামূল্যে)</div>' +
+          '<div style="font-size:12px;color:#166534;line-height:1.75">' +
+            '✔ Google account ছাড়াই কাজ করে<br>' +
+            '✔ বাংলা NID-এ ৯০%+ নির্ভুলতা<br>' +
+            '✔ প্রতি মিনিটে ৩০ বার ফ্রি<br><br>' +
+            '<strong>Key পাওয়ার পদ্ধতি (৩ মিনিট):</strong><br>' +
+            '1. <a href="https://console.groq.com/keys" target="_blank" style="color:#15803d;font-weight:700">console.groq.com/keys</a> এ যান<br>' +
+            '2. Sign up করুন (যেকোনো email দিয়ে)<br>' +
+            '3. "Create API Key" → Copy করুন<br>' +
+            '4. Key দেখতে হবে: <code style="background:#d1fae5;padding:1px 5px;border-radius:3px">gsk_...</code>' +
+          '</div>' +
+          '<label style="font-size:12px;font-weight:600;color:#166534;display:block;margin-top:10px;margin-bottom:4px">Groq API Key</label>' +
+          '<input id="groqKeyInput" type="password" placeholder="gsk_..." value="' + groqKey + '" ' +
+            'style="width:100%;border:1px solid #86efac;border-radius:8px;padding:9px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;background:#fff">' +
+          '<div id="groqKeyStatus" style="font-size:11px;margin-top:4px;color:' + (groqKey.startsWith('gsk_') ? '#15803d' : '#6b7280') + '">' +
+            (groqKey.startsWith('gsk_') ? '✓ Groq AI সক্রিয় — সর্বোচ্চ নির্ভুলতা' : 'Key দিন — সবচেয়ে ভালো OCR') +
+          '</div>' +
+          '<button onclick="saveGroqKey()" style="margin-top:10px;width:100%;background:#15803d;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">Groq Key সংরক্ষণ করুন</button>' +
+        '</div>' +
+
+        /* ── Gemini (alternative) ── */
+        '<details style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px">' +
+          '<summary style="font-size:12px;font-weight:600;color:var(--muted);cursor:pointer">Google Gemini AI (বিকল্প — personal Gmail লাগবে)</summary>' +
+          '<div style="margin-top:10px;font-size:12px;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px;line-height:1.7">' +
+            '⚠️ org/work Gmail (যেমন @grameenbank.org.bd) দিয়ে <strong>কাজ করবে না</strong><br>' +
+            'শুধুমাত্র personal @gmail.com account থেকে <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#b45309">aistudio.google.com</a> এ গিয়ে key নিন।<br>' +
+            'Key দেখতে হবে: <code>AIzaSy...</code>' +
+          '</div>' +
+          '<input id="geminiKeyInput" type="password" placeholder="AIzaSy..." value="' + geminiKey + '" ' +
+            'style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;margin-top:8px">' +
+          '<button onclick="saveGeminiKey()" style="margin-top:8px;width:100%;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Gemini Key সংরক্ষণ করুন</button>' +
+        '</details>' +
+
+        '<div style="font-size:11px;color:var(--muted);text-align:center">Key আপনার browser-এ সংরক্ষিত থাকে — server-এ যায় না</div>' +
+        '<button onclick="clearAllKeys()" style="margin-top:10px;width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;color:var(--muted)">সব Key মুছুন (Tesseract-এ ফিরে যান)</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+  document.getElementById('groqKeyInput').addEventListener('input', function() {
+    const st = document.getElementById('groqKeyStatus');
+    st.textContent = this.value.startsWith('gsk_') ? '✓ Valid Groq key format' : '⚠ Key টি gsk_ দিয়ে শুরু হওয়া উচিত';
+    st.style.color  = this.value.startsWith('gsk_') ? '#15803d' : '#d97706';
+  });
+}
+
+function saveGroqKey() {
+  const val = (document.getElementById('groqKeyInput').value || '').trim();
+  if (!val) { alert('Key দিন।'); return; }
+  if (!val.startsWith('gsk_')) { alert('❌ Groq key টি gsk_ দিয়ে শুরু হওয়া উচিত। console.groq.com থেকে নিন।'); return; }
+  localStorage.setItem('kh_groq_key', val);
+  updateOcrEngineLabel();
+  document.getElementById('khOCRModal').remove();
+  alert('✅ Groq API key সংরক্ষিত! এখন NID আপলোড করে স্ক্যান করুন।');
+}
+function saveGeminiKey() {
+  const val = (document.getElementById('geminiKeyInput').value || '').trim();
+  if (!val) return;
+  if (!val.startsWith('AIzaSy')) { alert('❌ Gemini key টি AIzaSy দিয়ে শুরু হওয়া উচিত।'); return; }
+  localStorage.setItem('kh_gemini_key', val);
+  updateOcrEngineLabel();
+  document.getElementById('khOCRModal').remove();
+  alert('✅ Gemini API key সংরক্ষিত!');
+}
+function clearAllKeys() {
+  localStorage.removeItem('kh_groq_key');
+  localStorage.removeItem('kh_gemini_key');
+  updateOcrEngineLabel();
+  document.getElementById('khOCRModal').remove();
+}
+
+/* ── Groq Vision OCR (primary AI engine) ── */
+async function runGroqOCR(imgDataUrl, side) {
+  const key = localStorage.getItem('kh_groq_key') || '';
+  if (!key.startsWith('gsk_')) return null;
+
+  const mime    = imgDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+  const prompt  =
+    'You are reading the ' + (side === 'front' ? 'FRONT' : 'BACK') + ' side of a Bangladesh National ID (NID) card.\n' +
+    'Extract exactly these fields. Return ONLY a JSON object, no extra text:\n' +
+    '{"nameBn":"Bengali name on front","nameEn":"ENGLISH NAME IN CAPS on front","nid":"10 or 17 digit number only","dob":"date of birth e.g. 21 Aug 1993","father":"father name in Bengali after পিতা (front only)","mother":"mother name in Bengali after মাতা (front only)","address":"full Bengali address from back side after ঠিকানা"}\n' +
+    'Use empty string for fields not visible on this side. NID must be digits only.';
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [{ role: 'user', content: [
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: imgDataUrl } }
+        ]}],
+        temperature: 0,
+        max_tokens: 400,
+        response_format: { type: 'json_object' }
+      })
+    });
+    const json = await res.json();
+    if (json.error) { console.error('Groq error:', json.error.message); return null; }
+    const text = json.choices?.[0]?.message?.content || '';
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    return JSON.parse(match[0]);
+  } catch (e) { console.error('Groq OCR exception:', e); return null; }
+}
+
+/* ── Gemini Flash Vision OCR (fallback if Groq unavailable) ── */
+async function runGeminiOCR(imgDataUrl, side) {
+  const key = localStorage.getItem('kh_gemini_key') || '';
+  if (!key.startsWith('AIzaSy')) return null;
+
+  const base64 = imgDataUrl.replace(/^data:image\/\w+;base64,/, '');
+  const mime   = imgDataUrl.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+  const prompt =
+    'This is the ' + (side === 'front' ? 'FRONT' : 'BACK') + ' side of a Bangladesh National ID (NID) card.\n' +
+    'Return ONLY a JSON object:\n' +
+    '{"nameBn":"Bengali name (front)","nameEn":"ENGLISH NAME (front)","nid":"digits only 10 or 17","dob":"e.g. 21 Aug 1993","father":"পিতা name (front)","mother":"মাতা name (front)","address":"address (back)"}\n' +
+    'Empty string for fields not on this side.';
+
+  try {
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mime, data: base64 } }] }],
+          generationConfig: { temperature: 0, maxOutputTokens: 400 }
+        })
+      }
+    );
+    const json = await res.json();
+    if (json.error) { console.error('Gemini error:', json.error.message); return null; }
+    const text  = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    return JSON.parse(match[0]);
+  } catch (e) { console.error('Gemini OCR exception:', e); return null; }
+}
+
 /* ── Image preprocessing for better OCR accuracy ── */
 function preprocessForOCR(dataUrl) {
   return new Promise((resolve) => {
@@ -1005,56 +1184,93 @@ function preprocessForOCR(dataUrl) {
   });
 }
 
-/* ── OCR — Tesseract.js with image preprocessing ── */
+/* ── Main OCR: Gemini Flash first, Tesseract fallback ── */
 async function runOCR() {
   const imgSrc = nidImageData.front || nidImageData.back;
   if (!imgSrc) { alert('আগে NID কার্ডের ছবি আপলোড করুন।'); return; }
 
-  const btn    = document.getElementById('ocrBtn') || document.getElementById('ocrBtn2');
+  // Disable both OCR buttons
+  ['ocrBtn','ocrBtn2'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) { b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block"></i> স্ক্যান চলছে...'; }
+  });
   const status = document.getElementById('ocrStatus');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite;display:inline-block"></i> স্ক্যান চলছে...'; }
-  if (status) { status.className = 'ocr-status show'; status.style.color = ''; status.textContent = 'NID কার্ড পড়া হচ্ছে, একটু অপেক্ষা করুন...'; }
+  if (status) { status.className = 'ocr-status show'; status.style.color = ''; status.textContent = 'NID কার্ড পড়া হচ্ছে...'; }
+
+  const hasGroq   = (localStorage.getItem('kh_groq_key')   || '').startsWith('gsk_');
+  const hasGemini = (localStorage.getItem('kh_gemini_key') || '').startsWith('AIzaSy');
+  const useAI     = hasGroq || hasGemini;
+  const extracted = { nameBn:'', nameEn:'', nid:'', dob:'', father:'', mother:'', address:'' };
+  const FIELDS    = ['nameBn','nameEn','nid','dob','father','mother','address'];
+  const merge     = (res) => { if (res) FIELDS.forEach(f => { if (!extracted[f] && res[f]) extracted[f] = String(res[f]).trim(); }); };
 
   try {
-    const extracted = { nameBn:'', nameEn:'', nid:'', dob:'', father:'', mother:'', address:'' };
+    /* ─── Path 1: AI Vision (Groq → Gemini) ─── */
+    if (useAI) {
+      const engine = hasGroq ? '⚡ Groq AI' : '⚡ Gemini AI';
+      if (status) status.textContent = engine + ' দিয়ে NID বিশ্লেষণ করা হচ্ছে...';
 
-    for (const [side, src] of [['front', nidImageData.front], ['back', nidImageData.back]]) {
-      if (!src) continue;
-      if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' ছবি প্রক্রিয়া করা হচ্ছে...';
+      for (const [side, src] of [['front', nidImageData.front], ['back', nidImageData.back]]) {
+        if (!src) continue;
+        if (status) status.textContent = engine + ': ' + (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ পড়া হচ্ছে...';
 
-      // Preprocess: grayscale + contrast boost + scale up for better Tesseract accuracy
-      const processed = await preprocessForOCR(src);
+        let aiResult = hasGroq ? await runGroqOCR(src, side) : null;
+        if (!aiResult && hasGemini) aiResult = await runGeminiOCR(src, side);
 
-      if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ পড়া হচ্ছে...';
-
-      const worker = await Tesseract.createWorker(['ben', 'eng'], 1, {
-        logger: m => {
-          if (status && m.status === 'recognizing text') {
-            status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ: ' + Math.round(m.progress * 100) + '%';
-          }
+        if (aiResult) {
+          merge(aiResult);
+        } else {
+          // AI failed — Tesseract fallback for this side
+          if (status) status.textContent = 'AI ব্যর্থ — Tesseract দিয়ে চেষ্টা করা হচ্ছে...';
+          const processed = await preprocessForOCR(src);
+          const worker = await Tesseract.createWorker(['ben', 'eng'], 1);
+          await worker.setParameters({ preserve_interword_spaces: '1' });
+          const { data: { text } } = await worker.recognize(processed);
+          await worker.terminate();
+          parseNIDText(text, extracted, side);
         }
-      });
+      }
 
-      // Also configure Tesseract for better accuracy on ID cards
-      await worker.setParameters({
-        tessedit_char_whitelist: '', // allow all chars
-        preserve_interword_spaces: '1',
-      });
+    /* ─── Path 2: Tesseract only ─── */
+    } else {
+      if (status) status.textContent = '🔍 Tesseract দিয়ে স্ক্যান হচ্ছে... (OCR Settings থেকে Groq key যোগ করলে আরও ভালো হবে)';
 
-      const { data: { text } } = await worker.recognize(processed);
-      await worker.terminate();
-
-      parseNIDText(text, extracted, side);
+      for (const [side, src] of [['front', nidImageData.front], ['back', nidImageData.back]]) {
+        if (!src) continue;
+        const processed = await preprocessForOCR(src);
+        if (status) status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ পড়া হচ্ছে...';
+        const worker = await Tesseract.createWorker(['ben', 'eng'], 1, {
+          logger: m => {
+            if (status && m.status === 'recognizing text')
+              status.textContent = (side === 'front' ? 'সামনের' : 'পিছনের') + ' অংশ: ' + Math.round(m.progress * 100) + '%';
+          }
+        });
+        await worker.setParameters({ preserve_interword_spaces: '1' });
+        const { data: { text } } = await worker.recognize(processed);
+        await worker.terminate();
+        parseNIDText(text, extracted, side);
+      }
     }
 
     fillExtracted(extracted);
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-circle-check"></i> স্ক্যান সম্পন্ন'; }
-    if (status) { status.textContent = '✓ তথ্য বের হয়েছে। নিচে যাচাই করুন ও প্রয়োজনে সংশোধন করুন।'; status.style.color = 'var(--success)'; }
+
+    ['ocrBtn','ocrBtn2'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) { b.disabled = false; b.innerHTML = '<i class="ti ti-circle-check"></i> স্ক্যান সম্পন্ন'; }
+    });
+    if (status) {
+      const engine = hasGroq ? '⚡ Groq AI' : hasGemini ? '⚡ Gemini AI' : '🔍 Tesseract';
+      status.textContent = '✓ ' + engine + ' দিয়ে তথ্য বের হয়েছে। নিচে যাচাই করুন ও প্রয়োজনে সংশোধন করুন।';
+      status.style.color = 'var(--success)';
+    }
 
   } catch(err) {
     console.error('OCR error:', err);
-    if (status) { status.className = 'ocr-status show'; status.textContent = '✗ স্ক্যান ব্যর্থ হয়েছে। ম্যানুয়ালি তথ্য দিন।'; status.style.color = '#dc2626'; }
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-refresh"></i> পুনরায় চেষ্টা করুন'; }
+    if (status) { status.textContent = '✗ স্ক্যান ব্যর্থ হয়েছে। ম্যানুয়ালি তথ্য দিন।'; status.style.color = '#dc2626'; }
+    ['ocrBtn','ocrBtn2'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) { b.disabled = false; b.innerHTML = '<i class="ti ti-refresh"></i> পুনরায় চেষ্টা করুন'; }
+    });
   }
 }
 
