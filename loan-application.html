@@ -1448,7 +1448,7 @@ const DISTRICT_BN_EN = {
 function autoSelectDistrictFromAddress(address) {
   const distSel = document.getElementById('p_district');
   const upaSel  = document.getElementById('p_upazila');
-  if (!distSel || !upaSel || !window.BD_UPAZILAS) return;
+  if (!distSel || !upaSel) return;
 
   let matchedDist = null;
 
