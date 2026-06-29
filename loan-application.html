@@ -1093,8 +1093,8 @@ async function runGroqOCR(imgDataUrl, side) {
   const prompt  =
     'You are reading the ' + (side === 'front' ? 'FRONT' : 'BACK') + ' side of a Bangladesh National ID (NID) card.\n' +
     'Extract exactly these fields. Return ONLY a JSON object, no extra text:\n' +
-    '{"nameBn":"Bengali name on front","nameEn":"ENGLISH NAME IN CAPS on front","nid":"10 or 17 digit number only","dob":"date of birth e.g. 21 Aug 1993","father":"father name in Bengali after পিতা (front only)","mother":"mother name in Bengali after মাতা (front only)","address":"full Bengali address from back side after ঠিকানা"}\n' +
-    'Use empty string for fields not visible on this side. NID must be digits only.';
+    '{"nameBn":"Bengali name on front","nameEn":"ENGLISH NAME IN CAPS on front","nid":"10 or 17 digit number only","dob":"date of birth e.g. 21 Aug 1993","father":"father name in Bengali after পিতা (front only)","mother":"mother name in Bengali after মাতা (front only)","address":"full Bengali address from back side after ঠিকানা","districtEn":"district name in English from address e.g. Faridpur, Dhaka, Chattogram (back only)","upazilaEn":"upazila or thana name in English from address e.g. Faridpur Sadar, Mirpur, Kotwali (back only)"}\n' +
+    'Use empty string for fields not visible on this side. NID must be digits only. districtEn and upazilaEn must be in English.';
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1130,8 +1130,8 @@ async function runGeminiOCR(imgDataUrl, side) {
   const prompt =
     'This is the ' + (side === 'front' ? 'FRONT' : 'BACK') + ' side of a Bangladesh National ID (NID) card.\n' +
     'Return ONLY a JSON object:\n' +
-    '{"nameBn":"Bengali name (front)","nameEn":"ENGLISH NAME (front)","nid":"digits only 10 or 17","dob":"e.g. 21 Aug 1993","father":"পিতা name (front)","mother":"মাতা name (front)","address":"address (back)"}\n' +
-    'Empty string for fields not on this side.';
+    '{"nameBn":"Bengali name (front)","nameEn":"ENGLISH NAME (front)","nid":"digits only 10 or 17","dob":"e.g. 21 Aug 1993","father":"পিতা name (front)","mother":"মাতা name (front)","address":"address (back)","districtEn":"district in English e.g. Faridpur (back only)","upazilaEn":"upazila in English e.g. Faridpur Sadar (back only)"}\n' +
+    'Empty string for fields not on this side. districtEn and upazilaEn must be in English.';
 
   try {
     const res = await fetch(
@@ -1205,8 +1205,8 @@ async function runOCR() {
   const hasGroq   = (localStorage.getItem('kh_groq_key')   || '').startsWith('gsk_');
   const hasGemini = (localStorage.getItem('kh_gemini_key') || '').startsWith('AIzaSy');
   const useAI     = hasGroq || hasGemini;
-  const extracted = { nameBn:'', nameEn:'', nid:'', dob:'', father:'', mother:'', address:'' };
-  const FIELDS    = ['nameBn','nameEn','nid','dob','father','mother','address'];
+  const extracted = { nameBn:'', nameEn:'', nid:'', dob:'', father:'', mother:'', address:'', districtEn:'', upazilaEn:'' };
+  const FIELDS    = ['nameBn','nameEn','nid','dob','father','mother','address','districtEn','upazilaEn'];
   const merge     = (res) => { if (res) FIELDS.forEach(f => { if (!extracted[f] && res[f]) extracted[f] = String(res[f]).trim(); }); };
 
   try {
@@ -1362,6 +1362,10 @@ function parseNIDText(text, out, side) {
     if (addrLines.length) out.address = addrLines.slice(0, 4).join(', ');
   }
 }
+// Store AI-extracted English district/upazila for auto-select
+let _extractedDistrictEn = '';
+let _extractedUpazilaEn  = '';
+
 function fillExtracted(data) {
   // Fill preview fields only — step 2 fields are synced on Next click
   const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
@@ -1372,6 +1376,9 @@ function fillExtracted(data) {
   setV('ex_father',  data.father);
   setV('ex_mother',  data.mother);
   setV('ex_address', data.address);
+  // Save English district/upazila from AI for auto-select on next step
+  _extractedDistrictEn = data.districtEn || '';
+  _extractedUpazilaEn  = data.upazilaEn  || '';
   document.getElementById('extractedPreview').classList.remove('hidden');
 }
 function parseDOBtoISO(str) {
@@ -1415,36 +1422,89 @@ function syncPreviewToStep2() {
   if (addrEl && addrEl.value) autoSelectDistrictFromAddress(addrEl.value);
 }
 
-/* ── Auto-select District & Upazila from NID address text ── */
+/* ── Bengali district name → English key mapping ── */
+const DISTRICT_BN_EN = {
+  'বাগেরহাট':'Bagerhat','বান্দরবান':'Bandarban','বরগুনা':'Barguna','বরিশাল':'Barishal',
+  'ভোলা':'Bhola','বগুড়া':'Bogura','ব্রাহ্মণবাড়িয়া':'Brahmanbaria','চাঁদপুর':'Chandpur',
+  'চাঁপাইনবাবগঞ্জ':'Chapai Nawabganj','চট্টগ্রাম':'Chattogram','চুয়াডাঙ্গা':'Chuadanga',
+  'কক্সবাজার':"Cox's Bazar",'কুমিল্লা':'Cumilla','ঢাকা':'Dhaka','দিনাজপুর':'Dinajpur',
+  'ফরিদপুর':'Faridpur','ফেনী':'Feni','গাইবান্ধা':'Gaibandha','গাজীপুর':'Gazipur',
+  'গোপালগঞ্জ':'Gopalganj','হবিগঞ্জ':'Habiganj','জামালপুর':'Jamalpur','যশোর':'Jessore',
+  'ঝালকাঠি':'Jhalakathi','ঝিনাইদহ':'Jhenaidah','জয়পুরহাট':'Joypurhat',
+  'খাগড়াছড়ি':'Khagrachhari','খুলনা':'Khulna','কিশোরগঞ্জ':'Kishoreganj',
+  'কুড়িগ্রাম':'Kurigram','কুষ্টিয়া':'Kushtia','লক্ষ্মীপুর':'Lakshmipur',
+  'লালমনিরহাট':'Lalmonirhat','মাদারীপুর':'Madaripur','মাগুরা':'Magura',
+  'মানিকগঞ্জ':'Manikganj','মেহেরপুর':'Meherpur','মৌলভীবাজার':'Moulvibazar',
+  'মুন্সীগঞ্জ':'Munshiganj','ময়মনসিংহ':'Mymensingh','নারায়ণগঞ্জ':'Narayanganj',
+  'নরসিংদী':'Narsingdi','নাটোর':'Natore','নওগাঁ':'Naogaon','নেত্রকোনা':'Netrokona',
+  'নীলফামারী':'Nilphamari','নোয়াখালী':'Noakhali','পাবনা':'Pabna','পঞ্চগড়':'Panchagarh',
+  'পটুয়াখালী':'Patuakhali','পিরোজপুর':'Pirojpur','রাজবাড়ী':'Rajbari',
+  'রাজশাহী':'Rajshahi','রাঙামাটি':'Rangamati','রংপুর':'Rangpur','সাতক্ষীরা':'Satkhira',
+  'শরীয়তপুর':'Shariatpur','শেরপুর':'Sherpur','সিরাজগঞ্জ':'Sirajganj',
+  'সুনামগঞ্জ':'Sunamganj','সিলেট':'Sylhet','টাঙ্গাইল':'Tangail','ঠাকুরগাঁও':'Thakurgaon'
+};
+
+/* ── Auto-select District & Upazila ── */
 function autoSelectDistrictFromAddress(address) {
-  if (!address || !window.BD_UPAZILAS) return;
   const distSel = document.getElementById('p_district');
   const upaSel  = document.getElementById('p_upazila');
-  if (!distSel || !upaSel) return;
+  if (!distSel || !upaSel || !window.BD_UPAZILAS) return;
 
-  const districts = Object.keys(BD_UPAZILAS);
   let matchedDist = null;
 
-  // Search for district name in address string
-  for (const dist of districts) {
-    if (address.includes(dist)) { matchedDist = dist; break; }
+  // 1st priority: use English district from AI response directly
+  if (_extractedDistrictEn) {
+    const aiDist = _extractedDistrictEn.trim();
+    // Exact match
+    if (BD_UPAZILAS[aiDist]) {
+      matchedDist = aiDist;
+    } else {
+      // Fuzzy match (case-insensitive, partial)
+      const lower = aiDist.toLowerCase();
+      matchedDist = Object.keys(BD_UPAZILAS).find(k => k.toLowerCase().includes(lower) || lower.includes(k.toLowerCase())) || null;
+    }
+  }
+
+  // 2nd priority: Bengali→English mapping on address text
+  if (!matchedDist && address) {
+    for (const [bn, en] of Object.entries(DISTRICT_BN_EN)) {
+      if (address.includes(bn)) { matchedDist = en; break; }
+    }
+  }
+
+  // 3rd priority: try English district names directly in address
+  if (!matchedDist && address) {
+    matchedDist = Object.keys(BD_UPAZILAS).find(k => address.includes(k)) || null;
   }
 
   if (!matchedDist) return;
 
-  // Set district
   distSel.value = matchedDist;
   distSel.classList.add('autofilled');
-  updateUpazila(); // populate upazila options for this district
+  updateUpazila();
 
-  // Try to match upazila from address
-  const upazilas = BD_UPAZILAS[matchedDist] || [];
-  for (const upa of upazilas) {
-    if (address.includes(upa)) {
-      upaSel.value = upa;
-      upaSel.classList.add('autofilled');
-      break;
-    }
+  // Match upazila
+  let matchedUpa = null;
+
+  // 1st: use English upazila from AI
+  if (_extractedUpazilaEn) {
+    const aiUpa = _extractedUpazilaEn.trim();
+    const upaList = BD_UPAZILAS[matchedDist] || [];
+    const lowerUpa = aiUpa.toLowerCase();
+    matchedUpa = upaList.find(u => u.toLowerCase() === lowerUpa)
+              || upaList.find(u => u.toLowerCase().includes(lowerUpa) || lowerUpa.includes(u.toLowerCase()))
+              || null;
+  }
+
+  // 2nd: scan upazila list in address text
+  if (!matchedUpa && address) {
+    const upaList = BD_UPAZILAS[matchedDist] || [];
+    matchedUpa = upaList.find(u => address.includes(u)) || null;
+  }
+
+  if (matchedUpa) {
+    upaSel.value = matchedUpa;
+    upaSel.classList.add('autofilled');
   }
 }
 function fillManual() {
