@@ -150,6 +150,56 @@
     .dist-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), #E8A000); width: 0; transition: width 1.4s ease; }
     .dist-count { font-size: 11px; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
 
+    /* ── FUND BREAKDOWN ── */
+    .fund-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+    .fund-section-title { font-size:15px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
+    .fund-section-title::before { content:''; display:block; width:4px; height:20px; border-radius:2px; background:linear-gradient(180deg,#F0A500,#E8A000); }
+    .fund-section-sub { font-size:11px; color:var(--muted); }
+    .fund-total-bar { background:linear-gradient(135deg,#1a2744,#0f1a35); border:1px solid rgba(240,165,0,.25); border-radius:14px; padding:16px 24px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    .fund-total-item { text-align:center; }
+    .fund-total-num { font-size:22px; font-weight:800; color:#fff; }
+    .fund-total-lbl { font-size:10px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
+    .fund-total-divider { width:1px; height:40px; background:rgba(255,255,255,.08); }
+    .fund-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+    .fund-card { border-radius:18px; padding:22px; position:relative; overflow:hidden; transition:all .35s; cursor:default; }
+    .fund-card:hover { transform:translateY(-4px); }
+    /* STATE: good */
+    .fund-good { background:linear-gradient(145deg,#0f3d24,#145230,#1E7D42); box-shadow:0 6px 28px rgba(20,82,48,.5); border:1px solid rgba(134,239,172,.15); }
+    /* STATE: warning (>=75% spent) */
+    .fund-warn { background:linear-gradient(145deg,#431407,#7c2d12,#c2410c); box-shadow:0 6px 28px rgba(194,65,12,.5); border:1px solid rgba(253,186,116,.2); }
+    /* STATE: danger (overspent) */
+    .fund-danger { background:linear-gradient(145deg,#450a0a,#7f1d1d,#dc2626); box-shadow:0 6px 28px rgba(220,38,38,.55); border:1px solid rgba(252,165,165,.2); animation:pulse-danger 2s infinite; }
+    @keyframes pulse-danger { 0%,100%{box-shadow:0 6px 28px rgba(220,38,38,.55)} 50%{box-shadow:0 8px 40px rgba(220,38,38,.85),0 0 0 4px rgba(220,38,38,.15)} }
+    .fund-card::after { content:''; position:absolute; top:-40px; right:-30px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
+    .fund-card::before { content:''; position:absolute; bottom:-30px; left:-20px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.03); pointer-events:none; }
+    .fund-name-bn { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
+    .fund-name-en { font-size:10px; color:rgba(255,255,255,.55); margin-bottom:16px; text-transform:uppercase; letter-spacing:.6px; }
+    .fund-icon { position:absolute; top:18px; right:20px; font-size:28px; opacity:.35; }
+    .fund-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; }
+    .fund-metric { text-align:center; padding:10px 6px; }
+    .fund-metric:not(:last-child) { border-right:1px solid rgba(255,255,255,.08); }
+    .fm-num { font-size:15px; font-weight:800; color:#fff; line-height:1; margin-bottom:3px; }
+    .fm-lbl-bn { font-size:10px; color:rgba(255,255,255,.55); margin-bottom:1px; }
+    .fm-lbl-en { font-size:9px; color:rgba(255,255,255,.35); }
+    .fund-divider { height:1px; background:rgba(255,255,255,.1); margin:14px 0; }
+    .fund-progress-wrap { margin-top:2px; }
+    .fund-progress-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .fund-pct { font-size:12px; font-weight:700; color:#fff; }
+    .fund-status-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; }
+    .fsb-good    { background:rgba(134,239,172,.2); color:#86efac; }
+    .fsb-warn    { background:rgba(253,186,116,.2); color:#fdba74; }
+    .fsb-danger  { background:rgba(252,165,165,.2); color:#fca5a5; }
+    .fund-prog-track { height:6px; background:rgba(255,255,255,.12); border-radius:3px; overflow:hidden; }
+    .fund-prog-fill  { height:100%; border-radius:3px; transition:width 1.6s cubic-bezier(.4,0,.2,1); }
+    .fpf-good   { background:linear-gradient(90deg,#4ade80,#86efac); }
+    .fpf-warn   { background:linear-gradient(90deg,#fb923c,#fde68a); }
+    .fpf-danger { background:linear-gradient(90deg,#f87171,#fca5a5); }
+    @media(max-width:900px){
+      .fund-grid { grid-template-columns:1fr; }
+      .fund-metrics { grid-template-columns:1fr 1fr 1fr; }
+      .fund-total-bar { justify-content:center; gap:12px; }
+    }
+
     /* ── TRANSPARENCY ── */
     .trans-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
     .trans-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; }
@@ -248,6 +298,49 @@
       <div class="kpi-lbl">Active donors</div>
       <div class="kpi-bar"><div class="kpi-bar-fill" data-w="84" id="kb4"></div></div>
       <div class="kpi-trend">From <span class="up">12</span>&nbsp;countries</div>
+    </div>
+  </div>
+
+  <!-- ══ FUND BREAKDOWN ══ -->
+  <div style="margin-bottom:24px">
+    <div class="fund-section-header">
+      <div>
+        <div class="fund-section-title">তহবিল বিভাজন — Fund Breakdown</div>
+        <div class="fund-section-sub">প্রাপ্ত সকল দান ০৩টি তহবিলে বিভক্ত · RLF · Operational · Risk Management</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:right">
+        <span style="color:var(--success)">●</span> সচল &nbsp;
+        <span style="color:#fb923c">●</span> সতর্কতা (≥75%) &nbsp;
+        <span style="color:#f87171">●</span> অতিরিক্ত ব্যয়
+      </div>
+    </div>
+
+    <!-- Grand totals bar -->
+    <div class="fund-total-bar">
+      <div class="fund-total-item">
+        <div class="fund-total-num" id="ftTotalReceived">৳০</div>
+        <div class="fund-total-lbl">মোট প্রাপ্তি / Total Received</div>
+      </div>
+      <div class="fund-total-divider"></div>
+      <div class="fund-total-item">
+        <div class="fund-total-num" id="ftTotalSpent">৳০</div>
+        <div class="fund-total-lbl">মোট খরচ / Total Spent</div>
+      </div>
+      <div class="fund-total-divider"></div>
+      <div class="fund-total-item">
+        <div class="fund-total-num" id="ftTotalBalance" style="color:var(--success)">৳০</div>
+        <div class="fund-total-lbl">মোট ব্যালেন্স / Total Balance</div>
+      </div>
+      <div class="fund-total-divider"></div>
+      <div class="fund-total-item">
+        <div class="fund-total-num" id="ftOverallPct">০%</div>
+        <div class="fund-total-lbl">সামগ্রিক ব্যয় হার / Overall Spend Rate</div>
+      </div>
+    </div>
+
+    <!-- 3 Fund Cards -->
+    <div class="fund-grid" id="fundGrid">
+      <!-- Rendered by JS -->
     </div>
   </div>
 
@@ -790,6 +883,135 @@ async function loadLiveKPIs() {
 
 // Load on page ready
 window.addEventListener('DOMContentLoaded', loadLiveKPIs);
+
+/* ═══════════════════════════════════════════════════════
+   FUND BREAKDOWN — 3-fund dashboard
+   ═══════════════════════════════════════════════════════ */
+const FUNDS = [
+  {
+    id: 'loan',
+    nameBn: 'ঋণ বিতরণ তহবিল',
+    nameEn: 'REVOLVING LOAN FUND (RLF)',
+    icon: 'ti-cash',
+    desc: 'সুদমুক্ত আবর্তনশীল ঋণ বিতরণ · Interest-free revolving loan disbursement (RLF)',
+    split: '৬০%',
+    totalReceived: 1080000,   // ৳10,80,000 (60% of total donations)
+    totalSpent:    810000,    // ৳8,10,000 disbursed so far
+  },
+  {
+    id: 'admin',
+    nameBn: 'পরিচালন তহবিল',
+    nameEn: 'OPERATIONAL FUND',
+    icon: 'ti-building-community',
+    desc: 'সংগঠন পরিচালনা ব্যয় · Organisational & operational expenses',
+    split: '২০%',
+    totalReceived: 360000,    // ৳3,60,000 (20%)
+    totalSpent:    290000,    // ৳2,90,000 spent
+  },
+  {
+    id: 'zakat',
+    nameBn: 'ঝুঁকি ব্যবস্থাপনা তহবিল',
+    nameEn: 'RISK MANAGEMENT FUND',
+    icon: 'ti-shield-check',
+    desc: 'ঋণ ঝুঁকি ও জরুরি রিজার্ভ · Loan risk reserve & contingency',
+    split: '২০%',
+    totalReceived: 360000,    // ৳3,60,000 (20%)
+    totalSpent:    420000,    // intentionally overspent for demo of red state
+  },
+];
+
+function fmtTk(n) {
+  if (n >= 100000) return '৳' + (n/100000).toFixed(1) + 'L';
+  if (n >= 1000)   return '৳' + (n/1000).toFixed(1) + 'K';
+  return '৳' + n.toLocaleString('bn-BD');
+}
+
+function getFundState(f) {
+  const balance = f.totalReceived - f.totalSpent;
+  const pct     = f.totalSpent / f.totalReceived;
+  if (f.totalSpent > f.totalReceived) return { state:'danger', pct: Math.min(pct,1), balance };
+  if (pct >= 0.75)                    return { state:'warn',   pct,                  balance };
+  return                                     { state:'good',   pct,                  balance };
+}
+
+function renderFunds() {
+  const grid = document.getElementById('fundGrid');
+  if (!grid) return;
+
+  let grandReceived = 0, grandSpent = 0;
+  FUNDS.forEach(f => { grandReceived += f.totalReceived; grandSpent += f.totalSpent; });
+  const grandBalance = grandReceived - grandSpent;
+  const grandPct     = Math.round(grandSpent / grandReceived * 100);
+
+  document.getElementById('ftTotalReceived').textContent = fmtTk(grandReceived);
+  document.getElementById('ftTotalSpent').textContent    = fmtTk(grandSpent);
+  const balEl = document.getElementById('ftTotalBalance');
+  balEl.textContent = fmtTk(Math.abs(grandBalance));
+  balEl.style.color = grandBalance < 0 ? 'var(--red)' : 'var(--success)';
+  document.getElementById('ftOverallPct').textContent = grandPct + '%';
+
+  grid.innerHTML = FUNDS.map(f => {
+    const {state, pct, balance} = getFundState(f);
+    const pctDisplay = Math.round(pct * 100);
+    const barPct     = Math.min(pct * 100, 100);
+
+    const cardClass  = state === 'danger' ? 'fund-danger' : state === 'warn' ? 'fund-warn' : 'fund-good';
+    const badgeClass = state === 'danger' ? 'fsb-danger' : state === 'warn' ? 'fsb-warn' : 'fsb-good';
+    const fillClass  = state === 'danger' ? 'fpf-danger' : state === 'warn' ? 'fpf-warn' : 'fpf-good';
+    const badgeTxt   = state === 'danger' ? '⚠ অতিরিক্ত ব্যয়' : state === 'warn' ? '⚡ সতর্কতা' : '✓ স্বাভাবিক';
+    const balColor   = balance < 0 ? '#fca5a5' : '#fff';
+    const balTxt     = (balance < 0 ? '-' : '') + fmtTk(Math.abs(balance));
+
+    return `
+    <div class="fund-card ${cardClass}">
+      <i class="ti ${f.icon} fund-icon"></i>
+      <div class="fund-name-bn">${f.nameBn}</div>
+      <div class="fund-name-en">${f.nameEn} · ${f.split}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:14px">${f.desc}</div>
+
+      <div class="fund-metrics">
+        <div class="fund-metric">
+          <div class="fm-num">${fmtTk(f.totalReceived)}</div>
+          <div class="fm-lbl-bn">মোট প্রাপ্তি</div>
+          <div class="fm-lbl-en">Total Received</div>
+        </div>
+        <div class="fund-metric">
+          <div class="fm-num">${fmtTk(f.totalSpent)}</div>
+          <div class="fm-lbl-bn">মোট খরচ</div>
+          <div class="fm-lbl-en">Total Spent</div>
+        </div>
+        <div class="fund-metric">
+          <div class="fm-num" style="color:${balColor}">${balTxt}</div>
+          <div class="fm-lbl-bn">ব্যালেন্স</div>
+          <div class="fm-lbl-en">Balance</div>
+        </div>
+      </div>
+
+      <div class="fund-divider"></div>
+
+      <div class="fund-progress-wrap">
+        <div class="fund-progress-top">
+          <div class="fund-pct">${pctDisplay}% ব্যয়িত</div>
+          <div class="fund-status-badge ${badgeClass}">${badgeTxt}</div>
+        </div>
+        <div class="fund-prog-track">
+          <div class="fund-prog-fill ${fillClass}" id="fpf-${f.id}" style="width:0%"></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Animate bars after render
+  requestAnimationFrame(() => {
+    FUNDS.forEach(f => {
+      const {state, pct} = getFundState(f);
+      const el = document.getElementById('fpf-' + f.id);
+      if (el) setTimeout(() => { el.style.width = Math.min(pct*100,100) + '%'; }, 200);
+    });
+  });
+}
+
+window.addEventListener('DOMContentLoaded', renderFunds);
 </script>
 <script>
 /* Mobile menu */
