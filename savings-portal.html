@@ -6,98 +6,7 @@
   <title>আমানত পোর্টাল | কর্জে হাসানা ফাউন্ডেশন</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// ─── Sidebar panel navigation ─────────────────────────────────────
-function showPanel(name) {
-  // Hide all panels
-  document.querySelectorAll('.portal-panel').forEach(p => p.classList.remove('active'));
-  // Remove active from all sidebar items
-  document.querySelectorAll('.portal-sidebar .sidebar-item').forEach(b => b.classList.remove('active'));
-  // Show target panel
-  const panel = document.getElementById('panel-' + name);
-  if(panel) panel.classList.add('active');
-  // Mark sidebar item active
-  const sb = document.getElementById('sb-' + name);
-  if(sb) sb.classList.add('active');
-  // Sync history panel if needed
-  if(name === 'history') renderTrx2(allTrx);
-  window.scrollTo({top:68, behavior:'smooth'});
-}
-
-// ─── History panel filter ─────────────────────────────────────────
-function filterTrx2(f, btn) {
-  document.querySelectorAll('#panel-history .filter-pill').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  let list = allTrx;
-  if(f==='deposit')    list = allTrx.filter(t=>t.type==='deposit');
-  if(f==='withdrawal') list = allTrx.filter(t=>t.type==='withdrawal');
-  if(f==='pending')    list = allTrx.filter(t=>t.status==='pending');
-  renderTrx2(list);
-}
-
-function renderTrx2(list) {
-  const c = document.getElementById('trxContainer2');
-  if(!c) return;
-  if(!list || list.length === 0) {
-    c.innerHTML = '<div class="empty-state"><i class="ti ti-receipt-off"></i>কোনো লেনদেন নেই</div>';
-    return;
-  }
-  c.innerHTML = `<table class="trx-table">
-    <thead><tr>
-      <th>তারিখ</th><th>ধরন</th><th>পরিমাণ</th><th>রেফারেন্স</th><th>অবস্থা</th>
-    </tr></thead><tbody>
-    ${list.map(t => `
-      <tr>
-        <td>${new Date(t.created_at).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'})}</td>
-        <td><span class="trx-type ${t.type}">
-          <i class="ti ti-${t.type==='deposit'?'arrow-down-circle':'arrow-up-circle'}"></i>
-          ${t.type==='deposit'?'জমা':'উত্তোলন'}
-        </span></td>
-        <td><span class="trx-amount ${t.type}">${t.type==='deposit'?'+':'-'}৳${fmt(t.amount)}</span></td>
-        <td style="color:var(--muted);font-size:12px">${t.reference||'—'}</td>
-        <td><span class="status-badge ${t.status}">${{pending:'অপেক্ষামান',approved:'অনুমোদিত',rejected:'বাতিল'}[t.status]||t.status}</span></td>
-      </tr>`).join('')}
-    </tbody></table>`;
-}
-
-// ─── Panel deposit submit ─────────────────────────────────────────
-async function submitDepositPanel() {
-  const amount = parseFloat(document.getElementById('depositAmountPanel').value);
-  const ref    = document.getElementById('depositRefPanel').value.trim();
-  const note   = document.getElementById('depositNotePanel').value.trim();
-  const msgEl  = document.getElementById('depositMsgPanel');
-  if(!amount || amount < 10) { showMsg('depositMsgPanel','কমপক্ষে ১০ টাকা জমা দিন।','error'); return; }
-  if(!ref) { showMsg('depositMsgPanel','রেফারেন্স নম্বর আবশ্যক।','error'); return; }
-  const { error } = await _db.from('savings_transactions').insert({
-    depositor_id: currentUser.id, type: 'deposit',
-    amount, reference: ref, notes: note, status: 'pending'
-  });
-  if(error) { showMsg('depositMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
-  showMsg('depositMsgPanel','জমার অনুরোধ সফলভাবে পাঠানো হয়েছে! অনুমোদনের পর স্থিতি আপডেট হবে।','success');
-  document.getElementById('depositAmountPanel').value='';
-  document.getElementById('depositRefPanel').value='';
-  document.getElementById('depositNotePanel').value='';
-  setTimeout(() => loadPortal(currentUser), 1500);
-}
-
-// ─── Panel withdrawal submit ──────────────────────────────────────
-async function submitWithdrawPanel() {
-  const amount = parseFloat(document.getElementById('withdrawAmountPanel').value);
-  const note   = document.getElementById('withdrawNotePanel').value.trim();
-  if(!amount || amount < 10) { showMsg('withdrawMsgPanel','কমপক্ষে ১০ টাকা উত্তোলন করুন।','error'); return; }
-  if(amount > currentBalance)  { showMsg('withdrawMsgPanel','অপর্যাপ্ত স্থিতি।','error'); return; }
-  const { error } = await _db.from('savings_transactions').insert({
-    depositor_id: currentUser.id, type: 'withdrawal',
-    amount, notes: note, status: 'pending'
-  });
-  if(error) { showMsg('withdrawMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
-  showMsg('withdrawMsgPanel','উত্তোলনের অনুরোধ সফলভাবে পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে প্রেরণ করা হবে।','success');
-  document.getElementById('withdrawAmountPanel').value='';
-  document.getElementById('withdrawNotePanel').value='';
-  setTimeout(() => loadPortal(currentUser), 1500);
-}
-
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="_supabase.js"></script>
   <style>
     :root {
@@ -1191,6 +1100,97 @@ async function loadHeroStats() {
   const { data: { session } } = await _db.auth.getSession();
   if(session?.user) await loadPortal(session.user);
 })();
+
+// ─── Sidebar panel navigation ─────────────────────────────────────
+function showPanel(name) {
+  // Hide all panels
+  document.querySelectorAll('.portal-panel').forEach(p => p.classList.remove('active'));
+  // Remove active from all sidebar items
+  document.querySelectorAll('.portal-sidebar .sidebar-item').forEach(b => b.classList.remove('active'));
+  // Show target panel
+  const panel = document.getElementById('panel-' + name);
+  if(panel) panel.classList.add('active');
+  // Mark sidebar item active
+  const sb = document.getElementById('sb-' + name);
+  if(sb) sb.classList.add('active');
+  // Sync history panel if needed
+  if(name === 'history') renderTrx2(allTrx);
+  window.scrollTo({top:68, behavior:'smooth'});
+}
+
+// ─── History panel filter ─────────────────────────────────────────
+function filterTrx2(f, btn) {
+  document.querySelectorAll('#panel-history .filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  let list = allTrx;
+  if(f==='deposit')    list = allTrx.filter(t=>t.type==='deposit');
+  if(f==='withdrawal') list = allTrx.filter(t=>t.type==='withdrawal');
+  if(f==='pending')    list = allTrx.filter(t=>t.status==='pending');
+  renderTrx2(list);
+}
+
+function renderTrx2(list) {
+  const c = document.getElementById('trxContainer2');
+  if(!c) return;
+  if(!list || list.length === 0) {
+    c.innerHTML = '<div class="empty-state"><i class="ti ti-receipt-off"></i>কোনো লেনদেন নেই</div>';
+    return;
+  }
+  c.innerHTML = `<table class="trx-table">
+    <thead><tr>
+      <th>তারিখ</th><th>ধরন</th><th>পরিমাণ</th><th>রেফারেন্স</th><th>অবস্থা</th>
+    </tr></thead><tbody>
+    ${list.map(t => `
+      <tr>
+        <td>${new Date(t.created_at).toLocaleDateString('bn-BD',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><span class="trx-type ${t.type}">
+          <i class="ti ti-${t.type==='deposit'?'arrow-down-circle':'arrow-up-circle'}"></i>
+          ${t.type==='deposit'?'জমা':'উত্তোলন'}
+        </span></td>
+        <td><span class="trx-amount ${t.type}">${t.type==='deposit'?'+':'-'}৳${fmt(t.amount)}</span></td>
+        <td style="color:var(--muted);font-size:12px">${t.reference||'—'}</td>
+        <td><span class="status-badge ${t.status}">${{pending:'অপেক্ষামান',approved:'অনুমোদিত',rejected:'বাতিল'}[t.status]||t.status}</span></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// ─── Panel deposit submit ─────────────────────────────────────────
+async function submitDepositPanel() {
+  const amount = parseFloat(document.getElementById('depositAmountPanel').value);
+  const ref    = document.getElementById('depositRefPanel').value.trim();
+  const note   = document.getElementById('depositNotePanel').value.trim();
+  const msgEl  = document.getElementById('depositMsgPanel');
+  if(!amount || amount < 10) { showMsg('depositMsgPanel','কমপক্ষে ১০ টাকা জমা দিন।','error'); return; }
+  if(!ref) { showMsg('depositMsgPanel','রেফারেন্স নম্বর আবশ্যক।','error'); return; }
+  const { error } = await _db.from('savings_transactions').insert({
+    depositor_id: currentUser.id, type: 'deposit',
+    amount, reference: ref, notes: note, status: 'pending'
+  });
+  if(error) { showMsg('depositMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
+  showMsg('depositMsgPanel','জমার অনুরোধ সফলভাবে পাঠানো হয়েছে! অনুমোদনের পর স্থিতি আপডেট হবে।','success');
+  document.getElementById('depositAmountPanel').value='';
+  document.getElementById('depositRefPanel').value='';
+  document.getElementById('depositNotePanel').value='';
+  setTimeout(() => loadPortal(currentUser), 1500);
+}
+
+// ─── Panel withdrawal submit ──────────────────────────────────────
+async function submitWithdrawPanel() {
+  const amount = parseFloat(document.getElementById('withdrawAmountPanel').value);
+  const note   = document.getElementById('withdrawNotePanel').value.trim();
+  if(!amount || amount < 10) { showMsg('withdrawMsgPanel','কমপক্ষে ১০ টাকা উত্তোলন করুন।','error'); return; }
+  if(amount > currentBalance)  { showMsg('withdrawMsgPanel','অপর্যাপ্ত স্থিতি।','error'); return; }
+  const { error } = await _db.from('savings_transactions').insert({
+    depositor_id: currentUser.id, type: 'withdrawal',
+    amount, notes: note, status: 'pending'
+  });
+  if(error) { showMsg('withdrawMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
+  showMsg('withdrawMsgPanel','উত্তোলনের অনুরোধ সফলভাবে পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে প্রেরণ করা হবে।','success');
+  document.getElementById('withdrawAmountPanel').value='';
+  document.getElementById('withdrawNotePanel').value='';
+  setTimeout(() => loadPortal(currentUser), 1500);
+}
+
 </script>
 
 </body>
