@@ -692,11 +692,11 @@ async function submitWithdrawPanel() {
 
     <!-- Action buttons -->
     <div class="actions-row">
-      <button class="btn-deposit-glow" onclick="openDepositModal()">
+      <button class="btn-deposit-glow" onclick="showPanel('deposit')">
         <i class="ti ti-piggy-bank"></i>
         সুদ বিহীন সঞ্চয় জমা করুন
       </button>
-      <button class="btn-withdraw" onclick="openWithdrawModal()">
+      <button class="btn-withdraw" onclick="showPanel('withdraw')">
         <i class="ti ti-cash-banknote"></i>
         আমানত উত্তোলন
       </button>
@@ -1018,7 +1018,7 @@ async function doLogout() {
 async function loadPortal(user) {
   currentUser = user;
   document.getElementById('guestView').style.display = 'none';
-  document.getElementById('portalView').style.display = '';
+  document.getElementById('portalView').style.display = 'block';
 
   // Load depositor profile
   const { data: dep, error: depLoadErr } = await _db.from('depositors').select('*').eq('id', user.id).single();
@@ -1112,7 +1112,7 @@ function renderTrx(list) {
 }
 
 function filterTrx(f, btn) {
-  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#panel-dashboard .filter-pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   let list = allTrx;
   if(f==='deposit')   list = allTrx.filter(t=>t.type==='deposit');

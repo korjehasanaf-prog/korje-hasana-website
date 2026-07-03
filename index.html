@@ -188,6 +188,27 @@
       pointer-events: none;
     }
     .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ═══ NAV SAVINGS BUTTON ═══ */
+    .nav-savings-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,165,0,.15); color: var(--gold);
+      border: 1.5px solid rgba(240,165,0,.5);
+      font-size: 12px; font-weight: 700;
+      padding: 8px 18px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+      animation: navSavGlow 2.5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .nav-savings-btn:hover {
+      background: var(--gold); color: var(--green);
+      border-color: var(--gold); animation: none;
+      transform: translateY(-1px);
+    }
+    @keyframes navSavGlow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+      50%      { box-shadow: 0 0 12px 3px rgba(240,165,0,.25); }
+    }
     .donate-btn {
       background: var(--gold); color: var(--green);
       border: none; font-size: 13px; font-weight: 700;
@@ -1087,6 +1108,7 @@
     <div class="nav-indicator" id="navInd"></div>
   </div>
   <div class="nav-right">
+    <a href="savings-portal.html" class="nav-savings-btn"><i class="ti ti-piggy-bank" style="font-size:15px"></i>সুদ বিহীন সঞ্চয়</a>
     <button class="donate-btn" onclick="window.location.href='donation.html'" data-i18n="nav-donate">Donate now</button>
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
