@@ -1,1625 +1,1332 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Public Dashboard | Korje Hasana Foundation</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="_supabase.js"></script>
-  <style>
-    :root {
-      --bg:      #0a0f1a;
-      --bg2:     #111827;
-      --bg3:     #1f2937;
-      --border:  rgba(255,255,255,.08);
-      --green:   #145230;
-      --mdgreen: #1E7D42;
-      --ltgreen: #9ED8B0;
-      --gold:    #F0A500;
-      --text:    #f1f5f9;
-      --muted:   #94a3b8;
-      --success: #22c55e;
-      --blue:    #3b82f6;
-      --orange:  #f97316;
-      --purple:  #a855f7;
-      --red:     #ef4444;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>অ্যাডমিন প্যানেল | কর্জে হাসানা ফাউন্ডেশন</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="_supabase.js"></script>
+<style>
+:root{
+  --sb-bg:#0b1f14;--sb-hover:#152e1e;--sb-active:#1a3d28;--sb-border:rgba(255,255,255,.07);
+  --sb-text:#b0c4b8;--sb-active-text:#fff;--sb-gold:#F0A500;
+  --bg:#0a0f1a;--bg2:#111827;--bg3:#1a2535;--border:rgba(255,255,255,.08);
+  --green:#145230;--mdgreen:#1E7D42;--ltgreen:#9ED8B0;--gold:#F0A500;
+  --text:#f1f5f9;--muted:#94a3b8;--success:#22c55e;--blue:#3b82f6;
+  --orange:#f97316;--purple:#a855f7;--red:#ef4444;--warn:#eab308;
+  --sb-w:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-    /* ── NAVBAR ── */
-    .navbar {
-      background: rgba(17,24,39,.95); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 32px; display: flex; align-items: center; justify-content: space-between;
-      height: 60px; position: sticky; top: 0; z-index: 1000;
-    }
-    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon { width: 38px; height: 38px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: var(--green); box-shadow: 0 0 16px rgba(240,165,0,.4); }
-    .logo-bn { color: #fff; font-size: 13px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
-    .logo-en { color: var(--muted); font-size: 10px; }
-    .nav-right { display: flex; align-items: center; gap: 12px; }
-    .nav-link { color: var(--muted); font-size: 12px; text-decoration: none; padding: 6px 12px; border-radius: 8px; transition: all .2s; }
-    .nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
-    .live-badge { display: flex; align-items: center; gap: 5px; background: rgba(34,197,94,.12); border: 1px solid rgba(34,197,94,.3); color: var(--success); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
-    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink 1.4s infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-    .donate-btn { background: var(--gold); color: var(--green); border: none; font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 20px; cursor: pointer; text-decoration: none; box-shadow: 0 0 16px rgba(240,165,0,.3); transition: all .2s; }
-    .donate-btn:hover { box-shadow: 0 0 28px rgba(240,165,0,.55); transform: translateY(-1px); }
+/* ── ACCESS DENIED ── */
+#accessDenied{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#accessDenied.show{display:flex}
+.ad-icon{font-size:64px;color:var(--red);opacity:.8}
+.ad-title{font-size:22px;font-weight:700;color:#fff}
+.ad-sub{color:var(--muted);font-size:14px}
+.ad-btn{margin-top:8px;padding:10px 24px;background:var(--gold);color:#000;font-weight:700;border:none;border-radius:24px;cursor:pointer;font-size:14px}
 
-    /* ── PAGE HEADER ── */
-    .page-header {
-      background: linear-gradient(135deg, #0d1829 0%, #111827 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 28px 32px; position: relative; overflow: hidden;
-    }
-    .page-header::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(240,165,0,.04); pointer-events:none; }
-    .ph-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-    .ph-title { font-size: 20px; font-weight: 700; color: #fff; }
-    .ph-sub { font-size: 12px; color: var(--muted); }
-    .period-tabs { display: flex; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-    .ptab { font-size: 11px; font-weight: 600; padding: 6px 14px; cursor: pointer; color: var(--muted); border: none; background: none; transition: all .2s; }
-    .ptab.active { background: var(--gold); color: var(--green); }
+/* ── LAYOUT ── */
+#adminLayout{display:none;width:100%;min-height:100vh}
+#adminLayout.show{display:flex}
 
-    /* ── MAIN ── */
-    .main { padding: 24px 32px; max-width: 1280px; margin: 0 auto; }
+/* ── SIDEBAR ── */
+#sidebar{
+  width:var(--sb-w);min-width:var(--sb-w);min-height:100vh;
+  background:linear-gradient(180deg,#0b1f14 0%,#0d2318 100%);
+  border-right:1px solid rgba(240,165,0,.12);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
+}
+.sb-head{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.sb-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0b1f14;box-shadow:0 0 16px rgba(240,165,0,.4);flex-shrink:0}
+.sb-logo-text .t1{font-size:12px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;line-height:1.2}
+.sb-logo-text .t2{font-size:9px;color:rgba(255,255,255,.4)}
+.sb-user{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px}
+.sb-user-name{font-size:12px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.sb-user-desig{font-size:10px;color:var(--gold);margin-top:2px}
+.sb-role-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px}
+.rb-super{background:rgba(240,165,0,.2);color:var(--gold);border:1px solid rgba(240,165,0,.3)}
+.rb-admin{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
 
-    /* ── KPI GRID ── */
-    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-    .kpi-card {
-      border-radius: 16px; padding: 18px 20px;
-      position: relative; overflow: hidden; cursor: pointer;
-      transition: all .3s; border: 1px solid transparent;
-    }
-    .kpi-card:hover { transform: translateY(-3px); }
-    .kc-blue   { background: linear-gradient(135deg,#1e3a5f,#1e40af); box-shadow: 0 4px 20px rgba(30,64,175,.35); }
-    .kc-green  { background: linear-gradient(135deg,#14532d,#166534); box-shadow: 0 4px 20px rgba(20,83,45,.35); }
-    .kc-orange { background: linear-gradient(135deg,#7c2d12,#9a3412); box-shadow: 0 4px 20px rgba(154,52,18,.35); }
-    .kc-purple { background: linear-gradient(135deg,#4a1d96,#6d28d9); box-shadow: 0 4px 20px rgba(109,40,217,.35); }
-    .kc-gold   { background: linear-gradient(135deg,#78350f,#92400e); box-shadow: 0 4px 20px rgba(146,64,14,.35); }
-    .kc-teal   { background: linear-gradient(135deg,#134e4a,#0f766e); box-shadow: 0 4px 20px rgba(15,118,110,.35); }
-    .kpi-card:hover.kc-blue   { box-shadow: 0 8px 32px rgba(30,64,175,.55); }
-    .kpi-card:hover.kc-green  { box-shadow: 0 8px 32px rgba(20,83,45,.55); }
-    .kpi-card:hover.kc-orange { box-shadow: 0 8px 32px rgba(154,52,18,.55); }
-    .kpi-card:hover.kc-purple { box-shadow: 0 8px 32px rgba(109,40,217,.55); }
-    .kpi-card::after { content:''; position:absolute; top:-30%; right:-20%; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,.06); pointer-events:none; }
-    .kpi-icon { font-size:24px; margin-bottom:10px; display:block; }
-    .kpi-num { font-size:28px; font-weight:800; color:#fff; line-height:1; margin-bottom:4px; }
-    .kpi-lbl { font-size:11px; color:rgba(255,255,255,.65); margin-bottom:8px; line-height:1.4; }
-    .kpi-bar { height:3px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden; margin-bottom:6px; }
-    .kpi-bar-fill { height:100%; background:rgba(255,255,255,.7); border-radius:2px; width:0; transition:width 1.6s ease; }
-    .kpi-trend { font-size:10px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:3px; }
-    .kpi-trend .up { color:#4ade80; } .kpi-trend .dn { color:#f87171; }
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-section{padding:8px 14px 4px;font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;margin:1px 8px;border-radius:8px;
+  cursor:pointer;color:var(--sb-text);font-size:12.5px;
+  font-family:'Hind Siliguri',sans-serif;font-weight:500;
+  transition:all .15s;border:1px solid transparent;text-decoration:none;position:relative;
+}
+.sb-item:hover{background:var(--sb-hover);color:#e2ece6}
+.sb-item.active{background:rgba(30,125,66,.25);color:#fff;border-color:rgba(30,125,66,.4)}
+.sb-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:2px}
+.sb-item i{font-size:16px;flex-shrink:0;opacity:.8}
+.sb-item.active i{opacity:1;color:var(--ltgreen)}
+.sb-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}
+.sb-badge.gold{background:var(--gold);color:#000}
 
-    /* ── CHART ROW ── */
-    .chart-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; margin-bottom: 20px; }
-    .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
-    .chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .chart-title { font-size: 13px; font-weight: 700; color: #fff; }
-    .chart-sub { font-size: 11px; color: var(--muted); margin-top:2px; }
-    .chart-legend { display: flex; gap: 12px; flex-wrap: wrap; }
-    .leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
-    .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+.sb-foot{padding:12px 8px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-logout{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;cursor:pointer;color:#f87171;font-size:12.5px;font-family:'Hind Siliguri',sans-serif;background:none;border:none;width:100%;transition:all .15s}
+.sb-logout:hover{background:rgba(239,68,68,.1)}
+.sb-logout i{font-size:16px}
 
-    /* ── SECOND ROW ── */
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+/* ── MAIN WRAP ── */
+#mainWrap{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 
-    /* ── PROGRAM BARS ── */
-    .prog-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .prog-label { font-size: 12px; color: var(--muted); width: 110px; flex-shrink: 0; }
-    .prog-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 4px; height: 8px; overflow: hidden; }
-    .prog-bar-fill { height: 100%; border-radius: 4px; width: 0; transition: width 1.4s ease; }
-    .prog-val { font-size: 12px; font-weight: 700; color: #fff; width: 44px; text-align: right; flex-shrink: 0; }
+/* ── TOPBAR ── */
+#adminTopbar{
+  height:58px;background:rgba(17,24,39,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;position:sticky;top:0;z-index:500;flex-shrink:0;
+}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-pagetitle{font-size:15px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.tb-date{font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);padding:4px 10px;border-radius:20px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-live{display:flex;align-items:center;gap:5px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--success);font-size:10px;font-weight:600;padding:4px 10px;border-radius:20px}
+.tb-live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tb-home{color:var(--muted);font-size:12px;text-decoration:none;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:5px;transition:all .2s}
+.tb-home:hover{color:#fff;background:rgba(255,255,255,.06)}
 
-    /* ── TABLE ── */
-    .table-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
-    .table-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .table-title { font-size: 13px; font-weight: 700; color: #fff; }
-    .table-search { background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--text); font-family: inherit; width: 200px; }
-    .table-search:focus { outline: none; border-color: var(--gold); }
-    .table-search::placeholder { color: var(--muted); }
-    .filter-tabs { display: flex; gap: 6px; }
-    .ftab { font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: none; transition: all .2s; }
-    .ftab.active { background: var(--gold); color: var(--green); border-color: var(--gold); }
-    table { width: 100%; border-collapse: collapse; }
-    thead th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border); }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; cursor: pointer; }
-    tbody tr:last-child { border: none; }
-    tbody tr:hover { background: rgba(255,255,255,.03); }
-    tbody td { padding: 12px 16px; font-size: 13px; color: var(--text); }
-    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-    .badge-green  { background: rgba(34,197,94,.12);  color: var(--success); }
-    .badge-blue   { background: rgba(59,130,246,.12); color: var(--blue); }
-    .badge-orange { background: rgba(249,115,22,.12); color: var(--orange); }
-    .badge-gold   { background: rgba(240,165,0,.12);  color: var(--gold); }
-    .badge-red    { background: rgba(239,68,68,.12);  color: var(--red); }
-    .badge-purple { background: rgba(168,85,247,.12); color: var(--purple); }
-    .amt-pos { color: var(--success); font-weight: 700; }
-    .amt-neg { color: var(--orange); font-weight: 700; }
+/* ── PANEL WRAP ── */
+#panelWrap{flex:1;overflow-y:auto;padding:24px}
 
-    /* ── GEO / DISTRICT ── */
-    .dist-list { display: flex; flex-direction: column; gap: 8px; }
-    .dist-item { display: flex; align-items: center; gap: 8px; }
-    .dist-name { font-size: 12px; color: var(--muted); width: 100px; flex-shrink: 0; }
-    .dist-bar-wrap { flex: 1; background: rgba(255,255,255,.06); border-radius: 3px; height: 6px; overflow: hidden; }
-    .dist-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), #E8A000); width: 0; transition: width 1.4s ease; }
-    .dist-count { font-size: 11px; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
+/* ── PANEL ── */
+.panel{display:none}
+.panel.active{display:block}
+.panel-title{font-size:18px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;margin-bottom:4px}
+.panel-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
 
-    /* ── FUND BREAKDOWN ── */
-    .fund-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .fund-section-title { font-size:15px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
-    .fund-section-title::before { content:''; display:block; width:4px; height:20px; border-radius:2px; background:linear-gradient(180deg,#F0A500,#E8A000); }
-    .fund-section-sub { font-size:11px; color:var(--muted); }
-    .fund-total-bar { background:linear-gradient(135deg,#1a2744,#0f1a35); border:1px solid rgba(240,165,0,.25); border-radius:14px; padding:16px 24px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
-    .fund-total-item { text-align:center; }
-    .fund-total-num { font-size:22px; font-weight:800; color:#fff; }
-    .fund-total-lbl { font-size:10px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
-    .fund-total-divider { width:1px; height:40px; background:rgba(255,255,255,.08); }
-    .fund-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
-    .fund-card { border-radius:18px; padding:22px; position:relative; overflow:hidden; transition:all .35s; cursor:default; }
-    .fund-card:hover { transform:translateY(-4px); }
-    /* STATE: good */
-    .fund-good { background:linear-gradient(145deg,#0f3d24,#145230,#1E7D42); box-shadow:0 6px 28px rgba(20,82,48,.5); border:1px solid rgba(134,239,172,.15); }
-    /* STATE: warning (>=75% spent) */
-    .fund-warn { background:linear-gradient(145deg,#431407,#7c2d12,#c2410c); box-shadow:0 6px 28px rgba(194,65,12,.5); border:1px solid rgba(253,186,116,.2); }
-    /* STATE: danger (overspent) */
-    .fund-danger { background:linear-gradient(145deg,#450a0a,#7f1d1d,#dc2626); box-shadow:0 6px 28px rgba(220,38,38,.55); border:1px solid rgba(252,165,165,.2); animation:pulse-danger 2s infinite; }
-    @keyframes pulse-danger { 0%,100%{box-shadow:0 6px 28px rgba(220,38,38,.55)} 50%{box-shadow:0 8px 40px rgba(220,38,38,.85),0 0 0 4px rgba(220,38,38,.15)} }
-    .fund-card::after { content:''; position:absolute; top:-40px; right:-30px; width:120px; height:120px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none; }
-    .fund-card::before { content:''; position:absolute; bottom:-30px; left:-20px; width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.03); pointer-events:none; }
-    .fund-name-bn { font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; }
-    .fund-name-en { font-size:10px; color:rgba(255,255,255,.55); margin-bottom:16px; text-transform:uppercase; letter-spacing:.6px; }
-    .fund-icon { position:absolute; top:18px; right:20px; font-size:28px; opacity:.35; }
-    .fund-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; }
-    .fund-metric { text-align:center; padding:10px 6px; }
-    .fund-metric:not(:last-child) { border-right:1px solid rgba(255,255,255,.08); }
-    .fm-num { font-size:15px; font-weight:800; color:#fff; line-height:1; margin-bottom:3px; }
-    .fm-lbl-bn { font-size:10px; color:rgba(255,255,255,.55); margin-bottom:1px; }
-    .fm-lbl-en { font-size:9px; color:rgba(255,255,255,.35); }
-    .fund-divider { height:1px; background:rgba(255,255,255,.1); margin:14px 0; }
-    .fund-progress-wrap { margin-top:2px; }
-    .fund-progress-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
-    .fund-pct { font-size:12px; font-weight:700; color:#fff; }
-    .fund-status-badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; }
-    .fsb-good    { background:rgba(134,239,172,.2); color:#86efac; }
-    .fsb-warn    { background:rgba(253,186,116,.2); color:#fdba74; }
-    .fsb-danger  { background:rgba(252,165,165,.2); color:#fca5a5; }
-    .fund-prog-track { height:6px; background:rgba(255,255,255,.12); border-radius:3px; overflow:hidden; }
-    .fund-prog-fill  { height:100%; border-radius:3px; transition:width 1.6s cubic-bezier(.4,0,.2,1); }
-    .fpf-good   { background:linear-gradient(90deg,#4ade80,#86efac); }
-    .fpf-warn   { background:linear-gradient(90deg,#fb923c,#fde68a); }
-    .fpf-danger { background:linear-gradient(90deg,#f87171,#fca5a5); }
-    @media(max-width:900px){
-      .fund-grid { grid-template-columns:1fr; }
-      .fund-metrics { grid-template-columns:1fr 1fr 1fr; }
-      .fund-total-bar { justify-content:center; gap:12px; }
-    }
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:1100px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;border:1px solid transparent;transition:transform .2s}
+.stat-card:hover{transform:translateY(-2px)}
+.sc-blue{background:linear-gradient(135deg,#1e3a5f,#1e40af);box-shadow:0 4px 20px rgba(30,64,175,.3)}
+.sc-green{background:linear-gradient(135deg,#14532d,#166534);box-shadow:0 4px 20px rgba(20,83,45,.3)}
+.sc-orange{background:linear-gradient(135deg,#7c2d12,#9a3412);box-shadow:0 4px 20px rgba(154,52,18,.3)}
+.sc-purple{background:linear-gradient(135deg,#4a1d96,#6d28d9);box-shadow:0 4px 20px rgba(109,40,217,.3)}
+.sc-teal{background:linear-gradient(135deg,#134e4a,#0f766e);box-shadow:0 4px 20px rgba(15,118,110,.3)}
+.sc-gold{background:linear-gradient(135deg,#78350f,#92400e);box-shadow:0 4px 20px rgba(146,64,14,.3)}
+.stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
+.stat-ico{font-size:22px;margin-bottom:8px;display:block}
+.stat-num{font-size:26px;font-weight:800;color:#fff;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.6);line-height:1.4}
 
-    /* ── TRANSPARENCY ── */
-    .trans-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
-    .trans-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-align: center; }
-    .trans-icon { font-size: 28px; margin-bottom: 8px; display: block; }
-    .trans-val { font-size: 22px; font-weight: 800; margin-bottom:4px; }
-    .trans-lbl { font-size: 12px; color: var(--muted); line-height: 1.4; }
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:18px}
+.card-title{font-size:14px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title i{color:var(--gold);font-size:18px}
 
-    /* ── PAGINATION ── */
-    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); }
-    .pag-info { font-size: 12px; color: var(--muted); }
-    .pag-btns { display: flex; gap: 6px; }
-    .pag-btn { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: none; color: var(--muted); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
-    .pag-btn.active { background: var(--gold); color: var(--green); border-color: var(--gold); font-weight: 700; }
-    .pag-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid.col3{grid-template-columns:1fr 1fr 1fr}
+.form-full{grid-column:1/-1}
+.fld label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;font-family:'Hind Siliguri',sans-serif}
+.fld input,.fld select,.fld textarea{
+  width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  border-radius:8px;padding:10px 12px;font-size:13px;color:#fff;
+  font-family:'Hind Siliguri','Inter',sans-serif;
+  transition:border .2s;outline:none
+}
+.fld input:focus,.fld select,.fld textarea:focus{border-color:var(--mdgreen)}
+.fld select option{background:#1a2535;color:#fff}
+.fld textarea{resize:vertical;min-height:72px}
+.fld input::placeholder{color:rgba(255,255,255,.25)}
 
-    /* ── FOOTER ── */
-    .dash-footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); }
+/* ── BUTTONS ── */
+.btn{border:none;cursor:pointer;border-radius:8px;font-weight:600;font-family:'Hind Siliguri','Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:linear-gradient(135deg,#1E7D42,#145230);color:#fff;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(30,125,66,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(30,125,66,.55);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,#F0A500,#d4900a);color:#000;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(240,165,0,.3)}
+.btn-gold:hover{box-shadow:0 6px 20px rgba(240,165,0,.5);transform:translateY(-1px)}
+.btn-danger{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);padding:7px 16px;font-size:12px}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.btn-success{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3);padding:7px 16px;font-size:12px}
+.btn-success:hover{background:rgba(34,197,94,.25)}
+.btn-sm{padding:6px 14px;font-size:11px}
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @media (max-width: 900px) {
-      .kpi-grid { grid-template-columns: repeat(2,1fr); }
-      .chart-row, .row2 { grid-template-columns: 1fr; }
-      .trans-grid { grid-template-columns: 1fr 1fr; }
-      .main { padding: 16px; }
-      .navbar { padding: 0 16px; }
-    }
-  
-    /* ═══ SAVINGS APPROVAL SECTION ═══ */
-    .approval-section {
-      background: #fff; border-radius: 16px;
-      box-shadow: 0 2px 16px rgba(0,0,0,.07); margin: 28px 0;
-      overflow: hidden;
-    }
-    .approval-header {
-      background: linear-gradient(135deg, #0D3D22, #145230);
-      padding: 18px 24px; display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    }
-    .approval-header h3 { color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .approval-header h3 i { font-size: 20px; color: #F0A500; }
-    .approval-tabs { display: flex; gap: 6px; }
-    .apv-tab {
-      padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
-      cursor: pointer; border: 1.5px solid rgba(255,255,255,.3); color: rgba(255,255,255,.7);
-      background: transparent; font-family: inherit; transition: all .2s;
-    }
-    .apv-tab.active { background: #F0A500; color: #0D3D22; border-color: #F0A500; }
-    .approval-body { padding: 20px 24px; }
-    /* Admin login */
-    .admin-login-wrap { max-width: 380px; margin: 16px auto 8px; }
-    .admin-login-wrap .al-title { font-size: 15px; font-weight: 700; color: #0D3D22; margin-bottom: 4px; }
-    .admin-login-wrap .al-sub { font-size: 12px; color: #6B7280; margin-bottom: 18px; }
-    .al-input { width: 100%; padding: 10px 14px; border: 1.5px solid #E5E7EB; border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 10px; outline: none; }
-    .al-input:focus { border-color: #145230; }
-    .al-btn { width: 100%; padding: 12px; background: #145230; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
-    .al-btn:hover { background: #1E7D42; }
-    .al-msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
-    .al-msg.error { color: #dc2626; }
-    .al-msg.ok { color: #16a34a; }
-    /* Approval table */
-    .apv-table-wrap { overflow-x: auto; }
-    .apv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .apv-table th { background: #f4f7f5; color: #6B7280; font-weight: 600; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
-    .apv-table td { padding: 11px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
-    .apv-table tr:last-child td { border-bottom: none; }
-    .apv-badge-deposit   { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .apv-badge-withdraw  { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .apv-badge-pending   { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .apv-badge-approved  { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .apv-badge-rejected  { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .apv-action-btns { display: flex; gap: 6px; }
-    .btn-approve { background: #145230; color: #fff; border: none; padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; }
-    .btn-approve:hover { background: #1E7D42; }
-    .btn-reject  { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
-    .btn-reject:hover { background: #dc2626; color: #fff; }
-    .apv-empty { text-align: center; padding: 32px 20px; color: #9CA3AF; font-size: 14px; }
-    .apv-empty i { font-size: 40px; display: block; margin-bottom: 8px; opacity: .4; }
-    .apv-admin-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
-    .apv-admin-info { font-size: 12px; color: #6B7280; }
-    .apv-admin-info strong { color: #145230; }
-    .btn-admin-logout { background: none; border: 1px solid #E5E7EB; color: #6B7280; padding: 5px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
-    .btn-admin-logout:hover { border-color: #dc2626; color: #dc2626; }
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead th{background:rgba(255,255,255,.04);font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding:10px 14px;text-align:left;white-space:nowrap}
+tbody tr{border-top:1px solid rgba(255,255,255,.04);transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind Siliguri','Inter',sans-serif;vertical-align:middle}
+.td-name{font-weight:600;color:#fff}
+.td-amount{font-weight:700;color:var(--gold);white-space:nowrap}
+.td-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 
-    /* ═══ ROLE-BASED ACCESS ═══ */
-    .super-only { display: none !important; }
-    .admin-only  { display: none !important; }
-    body.role-super_admin .super-only { display: block !important; }
-    body.role-super_admin .admin-only  { display: block !important; }
-    body.role-admin       .admin-only  { display: block !important; }
-    .admin-topbar {
-      background: linear-gradient(90deg, #0D3D22, #145230);
-      padding: 10px 28px; display: flex; align-items: center;
-      justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    }
-    .admin-topbar-left { display: flex; align-items: center; gap: 12px; }
-    .admin-topbar-logo { color: #F0A500; font-size: 14px; font-weight: 800; }
-    .admin-role-badge { padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-    .badge-super { background: rgba(240,165,0,.2); color: #F0A500; border: 1px solid rgba(240,165,0,.4); }
-    .badge-admin { background: rgba(158,216,176,.15); color: #9ED8B0; border: 1px solid rgba(158,216,176,.3); }
-    .admin-topbar-right { display: flex; align-items: center; gap: 10px; }
-    .admin-email-display { color: rgba(255,255,255,.65); font-size: 12px; }
-    .btn-admin-topbar-logout {
-      background: rgba(220,38,38,.15); color: #f87171; border: 1px solid rgba(220,38,38,.3);
-      padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
-      cursor: pointer; font-family: inherit;
-    }
-    .btn-admin-topbar-logout:hover { background: #dc2626; color: #fff; }
-    .access-denied {
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; text-align: center;
-      background: #f4f7f5; padding: 40px;
-    }
-    .access-denied i { font-size: 64px; color: #dc2626; opacity: .4; display: block; margin-bottom: 20px; }
-    .access-denied h2 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
-    .access-denied p  { color: #6B7280; margin-bottom: 24px; }
-    .btn-goto-login { background: #145230; color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; }
+/* ── STATUS BADGES ── */
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.b-pending{background:rgba(234,179,8,.15);color:#fde047;border:1px solid rgba(234,179,8,.25)}
+.b-approved{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.b-rejected{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.b-confirmed{background:rgba(59,130,246,.15);color:#93c5fd;border:1px solid rgba(59,130,246,.25)}
+.b-review{background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.25)}
+.b-disbursed{background:rgba(20,83,45,.4);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+
+/* ── MSG ── */
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px;display:none;font-family:'Hind Siliguri',sans-serif}
+.msg.ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
+.msg.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171}
+.msg.show{display:block}
+
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;gap:10px;margin-bottom:16px}
+.search-bar input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 14px;color:#fff;font-size:13px;font-family:'Hind Siliguri','Inter',sans-serif;outline:none}
+.search-bar input:focus{border-color:var(--mdgreen)}
+.search-bar button{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:13px;transition:all .2s}
+.search-bar button:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+/* ── LOG ── */
+.log-entry{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px}
+.log-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.log-type{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.08);color:var(--muted)}
+.log-amount{font-size:15px;font-weight:800;color:var(--gold)}
+.log-meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.6}
+.log-desig{color:var(--ltgreen);font-weight:600}
+.log-subject{color:#fff;font-weight:600}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state i{font-size:40px;opacity:.3;display:block;margin-bottom:10px}
+.empty-state p{font-size:13px;font-family:'Hind Siliguri',sans-serif}
+
+/* ── APPROVAL DETAIL ── */
+.apv-card{background:var(--bg3);border:1px solid rgba(240,165,0,.15);border-radius:12px;padding:16px;margin-bottom:12px}
+.apv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.apv-name{font-size:14px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.apv-info{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.6;font-family:'Hind Siliguri',sans-serif}
+.apv-amount-big{font-size:22px;font-weight:800;color:var(--gold);white-space:nowrap}
+.apv-note{margin-bottom:10px}
+.apv-note textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:8px 10px;color:var(--muted);font-size:11px;resize:none;outline:none;font-family:'Hind Siliguri','Inter',sans-serif}
+.apv-note textarea:focus{border-color:var(--mdgreen);color:#fff}
+.apv-btns{display:flex;gap:8px}
+
+/* ── ADMIN MGMT ── */
+.admin-row{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.ar-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--mdgreen));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;flex-shrink:0}
+.ar-info{flex:1;min-width:0}
+.ar-name{font-size:13px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif}
+.ar-email{font-size:11px;color:var(--muted)}
+.ar-desig-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px;font-family:'Hind Siliguri','Inter',sans-serif;width:200px;outline:none}
+.ar-desig-input:focus{border-color:var(--gold)}
+
+/* ── SPINNER ── */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── FILTERS ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.fpill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif}
+.fpill:hover{border-color:rgba(255,255,255,.2);color:#fff}
+.fpill.active{background:rgba(240,165,0,.15);border-color:rgba(240,165,0,.4);color:var(--gold)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  :root{--sb-w:220px}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.col3{grid-template-columns:1fr}
+  #panelWrap{padding:16px}
+  .apv-top{flex-direction:column}
+}
 </style>
 </head>
 <body>
 
-<!-- Admin Access Denied Screen (shown if not logged in) -->
-<div id="accessDeniedScreen" class="access-denied" style="display:none">
-  <i class="ti ti-shield-lock"></i>
-  <h2>অ্যাক্সেস অনুমতি নেই</h2>
-  <p>এই ড্যাশবোর্ড শুধুমাত্র অ্যাডমিনদের জন্য। অনুগ্রহ করে লগইন করুন।</p>
-  <a href="admin-login.html" class="btn-goto-login"><i class="ti ti-login"></i> অ্যাডমিন লগইন</a>
+<!-- ACCESS DENIED -->
+<div id="accessDenied">
+  <i class="ti ti-shield-x ad-icon"></i>
+  <div class="ad-title">অ্যাক্সেস অস্বীকৃত</div>
+  <div class="ad-sub">এই পৃষ্ঠাটি শুধুমাত্র অনুমোদিত অ্যাডমিনদের জন্য</div>
+  <button class="ad-btn" onclick="window.location.href='admin-login.html'"><i class="ti ti-login"></i> লগইন করুন</button>
 </div>
 
-<!-- Admin Top Bar -->
-<div class="admin-topbar" id="adminTopBar" style="display:none">
-  <div class="admin-topbar-left">
-    <span class="admin-topbar-logo">KH Admin</span>
-    <span class="admin-role-badge badge-super" id="adminRoleBadge">Super Admin</span>
-  </div>
-  <div class="admin-topbar-right">
-    <span class="admin-email-display" id="adminEmailBar">—</span>
-    <button class="btn-admin-topbar-logout" onclick="adminTopbarLogout()">
-      <i class="ti ti-logout"></i> লগআউট
-    </button>
-  </div>
-</div>
+<!-- ADMIN LAYOUT -->
+<div id="adminLayout">
 
-<div id="dashboardMain" style="display:none">
-<!-- NAVBAR -->
-<nav class="navbar">
-  <a href="index.html" class="logo-wrap">
-    <div class="logo-icon">KH</div>
-    <div>
-      <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
-      <div class="logo-en">Public Transparency Dashboard</div>
-    </div>
-  </a>
-  <div class="nav-right">
-    <div class="live-badge"><div class="live-dot"></div>Live data</div>
-    <a href="index.html" class="nav-link">Home</a>
-    <a href="donation.html" class="donate-btn">Donate</a>
-  </div>
-  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
-  <span></span><span></span><span></span>
-</button>
-</nav>
-
-<!-- PAGE HEADER -->
-<div class="page-header">
-  <div class="ph-top">
-    <div>
-      <div class="ph-title">Foundation Transparency Dashboard</div>
-      <div class="ph-sub">All figures are real-time · Updated every 24 hours · Last updated: <span id="lastUpdated">—</span></div>
-    </div>
-    <div class="period-tabs">
-      <button class="ptab" onclick="setPeriod(this,'today')">Today</button>
-      <button class="ptab" onclick="setPeriod(this,'week')">This week</button>
-      <button class="ptab active" onclick="setPeriod(this,'month')">This month</button>
-      <button class="ptab" onclick="setPeriod(this,'year')">This year</button>
-      <button class="ptab" onclick="setPeriod(this,'all')">All time</button>
-    </div>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- KPI CARDS -->
-  <div class="kpi-grid">
-    <div class="kpi-card kc-blue">
-      <i class="ti ti-users kpi-icon" style="color:#93c5fd"></i>
-      <div class="kpi-num" data-target="127" id="k1">0</div>
-      <div class="kpi-lbl">Total beneficiaries helped</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="72" id="kb1"></div></div>
-      <div class="kpi-trend"><i class="ti ti-trending-up up" style="font-size:12px"></i><span class="up">+12</span>&nbsp;this month</div>
-    </div>
-    <div class="kpi-card kc-green">
-      <i class="ti ti-currency-taka kpi-icon" style="color:#86efac"></i>
-      <div class="kpi-num" id="k2">৳0</div>
-      <div class="kpi-lbl">Total taka disbursed</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="65" id="kb2"></div></div>
-      <div class="kpi-trend"><i class="ti ti-trending-up up" style="font-size:12px"></i><span class="up">৳2.8L</span>&nbsp;this month</div>
-    </div>
-    <div class="kpi-card kc-orange">
-      <i class="ti ti-refresh kpi-icon" style="color:#fdba74"></i>
-      <div class="kpi-num" id="k3">0%</div>
-      <div class="kpi-lbl">Repayment rate</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="99" id="kb3"></div></div>
-      <div class="kpi-trend">On-time: <span class="up">96%</span>&nbsp;· Late: <span class="dn">3%</span></div>
-    </div>
-    <div class="kpi-card kc-purple">
-      <i class="ti ti-heart-handshake kpi-icon" style="color:#d8b4fe"></i>
-      <div class="kpi-num" data-target="84" id="k4">0</div>
-      <div class="kpi-lbl">Active donors</div>
-      <div class="kpi-bar"><div class="kpi-bar-fill" data-w="84" id="kb4"></div></div>
-      <div class="kpi-trend">From <span class="up">12</span>&nbsp;countries</div>
-    </div>
-  </div>
-
-  <!-- ══ FUND BREAKDOWN ══ -->
-  <div style="margin-bottom:24px">
-    <div class="fund-section-header">
-      <div>
-        <div class="fund-section-title">তহবিল বিভাজন — Fund Breakdown</div>
-        <div class="fund-section-sub">প্রাপ্ত সকল দান ০৩টি তহবিলে বিভক্ত · RLF · Operational · Risk Management</div>
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-logo-icon">ক.হ</div>
+        <div class="sb-logo-text">
+          <div class="t1">কর্জে হাসানা</div>
+          <div class="t2">Admin Panel</div>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--muted);text-align:right">
-        <span style="color:var(--success)">●</span> সচল &nbsp;
-        <span style="color:#fb923c">●</span> সতর্কতা (≥75%) &nbsp;
-        <span style="color:#f87171">●</span> অতিরিক্ত ব্যয়
+      <div class="sb-user">
+        <div class="sb-user-name" id="sbUserName">লোড হচ্ছে...</div>
+        <div class="sb-user-desig" id="sbDesig"></div>
+        <span class="sb-role-badge" id="sbRoleBadge"></span>
       </div>
     </div>
 
-    <!-- Grand totals bar -->
-    <div class="fund-total-bar">
-      <div class="fund-total-item">
-        <div class="fund-total-num" id="ftTotalReceived">৳০</div>
-        <div class="fund-total-lbl">মোট প্রাপ্তি / Total Received</div>
+    <nav class="sb-nav">
+      <div class="sb-section">মূল বিভাগ</div>
+      <div class="sb-item active" id="mi-dashboard" onclick="switchPanel('dashboard')">
+        <i class="ti ti-layout-dashboard"></i> ড্যাশবোর্ড
       </div>
-      <div class="fund-total-divider"></div>
-      <div class="fund-total-item">
-        <div class="fund-total-num" id="ftTotalSpent">৳০</div>
-        <div class="fund-total-lbl">মোট খরচ / Total Spent</div>
+
+      <div class="sb-section">আর্থিক এন্ট্রি</div>
+      <div class="sb-item" id="mi-donation-cash" onclick="switchPanel('donation-cash')">
+        <i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি
       </div>
-      <div class="fund-total-divider"></div>
-      <div class="fund-total-item">
-        <div class="fund-total-num" id="ftTotalBalance" style="color:var(--success)">৳০</div>
-        <div class="fund-total-lbl">মোট ব্যালেন্স / Total Balance</div>
+      <div class="sb-item" id="mi-savings-entry" onclick="switchPanel('savings-entry')">
+        <i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি
       </div>
-      <div class="fund-total-divider"></div>
-      <div class="fund-total-item">
-        <div class="fund-total-num" id="ftOverallPct">০%</div>
-        <div class="fund-total-lbl">সামগ্রিক ব্যয় হার / Overall Spend Rate</div>
+      <div class="sb-item" id="mi-installment" onclick="switchPanel('installment')">
+        <i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি
       </div>
+      <div class="sb-item" id="mi-expense" onclick="switchPanel('expense')">
+        <i class="ti ti-receipt-2"></i> খরচ এন্ট্রি
+      </div>
+
+      <div class="sb-section">অনুমোদন</div>
+      <div class="sb-item" id="mi-loan-approve" onclick="switchPanel('loan-approve')">
+        <i class="ti ti-file-check"></i> ঋণ আবেদন
+        <span class="sb-badge" id="badge-loan">0</span>
+      </div>
+      <div class="sb-item" id="mi-donation-online" onclick="switchPanel('donation-online')">
+        <i class="ti ti-credit-card-refund"></i> অনলাইন ডোনেশন
+        <span class="sb-badge" id="badge-donation">0</span>
+      </div>
+      <div class="sb-item" id="mi-savings-approve" onclick="switchPanel('savings-approve')">
+        <i class="ti ti-arrows-exchange"></i> সঞ্চয় উত্তোলন
+        <span class="sb-badge" id="badge-savings">0</span>
+      </div>
+
+      <div class="sb-section">রিপোর্ট</div>
+      <div class="sb-item" id="mi-log" onclick="switchPanel('log')">
+        <i class="ti ti-list-check"></i> অনুমোদন লগ
+      </div>
+
+      <div class="sb-section super-only" id="sbSecAdmin">সুপার এডমিন</div>
+      <div class="sb-item super-only" id="mi-admin-mgmt" onclick="switchPanel('admin-mgmt')">
+        <i class="ti ti-users-group"></i> এডমিন ব্যবস্থাপনা
+      </div>
+    </nav>
+
+    <div class="sb-foot">
+      <a href="index.html" class="sb-item" style="color:var(--sb-text);margin-bottom:4px">
+        <i class="ti ti-world"></i> প্রধান ওয়েবসাইট
+      </a>
+      <button class="sb-logout" onclick="doLogout()">
+        <i class="ti ti-logout"></i> লগআউট
+      </button>
     </div>
+  </aside>
 
-    <!-- 3 Fund Cards -->
-    <div class="fund-grid" id="fundGrid">
-      <!-- Rendered by JS -->
-    </div>
-  </div>
-
-
-  <!-- ══ SAVINGS STATS SECTION ══ -->
-  <div class="savings-stats-section">
-    <div class="savings-section-head">
-      <div class="savings-section-title">
-        <i class="ti ti-piggy-bank"></i> আমানতকারী পরিসংখ্যান — Savings Overview
+  <!-- MAIN WRAP -->
+  <div id="mainWrap">
+    <!-- TOPBAR -->
+    <header id="adminTopbar">
+      <div class="tb-left">
+        <div class="tb-pagetitle" id="tbTitle">ড্যাশবোর্ড</div>
+        <div class="tb-date" id="tbDate"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="savings-time-filters">
-          <button class="sav-filter active" onclick="loadSavingsStats('today',this)">আজ</button>
-          <button class="sav-filter" onclick="loadSavingsStats('week',this)">এ সপ্তাহ</button>
-          <button class="sav-filter" onclick="loadSavingsStats('month',this)">এ মাস</button>
-          <button class="sav-filter" onclick="loadSavingsStats('year',this)">এ বছর</button>
-          <button class="sav-filter" onclick="loadSavingsStats('all',this)">এ পর্যন্ত</button>
-        </div>
-        <a href="savings-portal.html" class="sav-link-btn" target="_blank">
-          <i class="ti ti-external-link"></i> আমানত পোর্টাল
-        </a>
+      <div class="tb-right">
+        <div class="tb-live"><span class="tb-live-dot"></span> লাইভ</div>
       </div>
-    </div>
-    <div class="savings-kpi-grid">
-      <div class="sav-kpi">
-        <div class="sav-kpi-icon"><i class="ti ti-users"></i></div>
-        <div class="sav-kpi-val" id="savDepositors">—</div>
-        <div class="sav-kpi-label">মোট আমানতকারী</div>
-      </div>
-      <div class="sav-kpi">
-        <div class="sav-kpi-icon"><i class="ti ti-arrow-down-circle"></i></div>
-        <div class="sav-kpi-val" id="savDeposited">—</div>
-        <div class="sav-kpi-label">মোট আমানত জমা</div>
-      </div>
-      <div class="sav-kpi">
-        <div class="sav-kpi-icon"><i class="ti ti-arrow-up-circle"></i></div>
-        <div class="sav-kpi-val" id="savWithdrawn">—</div>
-        <div class="sav-kpi-label">মোট উত্তোলন</div>
-      </div>
-      <div class="sav-kpi">
-        <div class="sav-kpi-icon"><i class="ti ti-wallet"></i></div>
-        <div class="sav-kpi-val" id="savBalance">—</div>
-        <div class="sav-kpi-label">বর্তমান স্থিতি</div>
-      </div>
-    </div>
-  </div>
+    </header>
 
-  <!-- CHARTS ROW 1 -->
-  <div class="chart-row">
+    <!-- PANELS -->
+    <main id="panelWrap">
 
-    <!-- Disbursement trend line chart -->
-    <div class="chart-card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">Monthly Disbursements & Repayments</div>
-          <div class="chart-sub">Taka in / out — last 12 months</div>
+      <!-- ══════════════ PANEL: DASHBOARD ══════════════ -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="panel-title">📊 ড্যাশবোর্ড</div>
+        <div class="panel-sub">সংস্থার সামগ্রিক তথ্য একনজরে</div>
+
+        <div class="stat-grid" id="statGrid">
+          <div class="stat-card sc-blue"><span class="stat-ico">📋</span><div class="stat-num" id="ds-loans">—</div><div class="stat-lbl">সক্রিয় ঋণ</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">💵</span><div class="stat-num" id="ds-donations">—</div><div class="stat-lbl">মোট ডোনেশন (৳)</div></div>
+          <div class="stat-card sc-teal"><span class="stat-ico">🏦</span><div class="stat-num" id="ds-savings">—</div><div class="stat-lbl">মোট সঞ্চয় (৳)</div></div>
+          <div class="stat-card sc-orange"><span class="stat-ico">⏳</span><div class="stat-num" id="ds-pending">—</div><div class="stat-lbl">অপেক্ষমাণ অনুমোদন</div></div>
+          <div class="stat-card sc-purple"><span class="stat-ico">👥</span><div class="stat-num" id="ds-borrowers">—</div><div class="stat-lbl">নিবন্ধিত ঋণগ্রহীতা</div></div>
+          <div class="stat-card sc-gold"><span class="stat-ico">💸</span><div class="stat-num" id="ds-repaid">—</div><div class="stat-lbl">আদায় কিস্তি (৳)</div></div>
+          <div class="stat-card sc-blue"><span class="stat-ico">💰</span><div class="stat-num" id="ds-depositors">—</div><div class="stat-lbl">সঞ্চয়কারী</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">📊</span><div class="stat-num" id="ds-expense">—</div><div class="stat-lbl">মোট খরচ (৳)</div></div>
         </div>
-        <div class="chart-legend">
-          <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Disbursed</div>
-          <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Repaid</div>
-        </div>
-      </div>
-      <canvas id="lineChart" height="160"></canvas>
-    </div>
 
-    <!-- Loan type donut -->
-    <div class="chart-card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">Loans by Program</div>
-          <div class="chart-sub">Distribution of all disbursements</div>
-        </div>
-      </div>
-      <canvas id="donutChart" height="160"></canvas>
-      <div class="chart-legend" style="margin-top:10px;flex-wrap:wrap;gap:8px 16px">
-        <div class="leg-item"><div class="leg-dot" style="background:#22c55e"></div>Agriculture 32%</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#3b82f6"></div>Business 28%</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Education 16%</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#ef4444"></div>Medical 12%</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div>Family 8%</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#06b6d4"></div>Emergency 4%</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ROW 2 -->
-  <div class="row2">
-
-    <!-- Program progress bars -->
-    <div class="chart-card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">Loan Program Breakdown</div>
-          <div class="chart-sub">Number of active loans per category</div>
-        </div>
-      </div>
-      <div style="margin-top:4px">
-        <div class="prog-item">
-          <div class="prog-label">Agriculture</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="72" style="background:linear-gradient(90deg,#16a34a,#22c55e)"></div></div>
-          <div class="prog-val">41</div>
-        </div>
-        <div class="prog-item">
-          <div class="prog-label">Small Business</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="63" style="background:linear-gradient(90deg,#1d4ed8,#3b82f6)"></div></div>
-          <div class="prog-val">36</div>
-        </div>
-        <div class="prog-item">
-          <div class="prog-label">Education</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="35" style="background:linear-gradient(90deg,#b45309,#f59e0b)"></div></div>
-          <div class="prog-val">20</div>
-        </div>
-        <div class="prog-item">
-          <div class="prog-label">Medical</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="21" style="background:linear-gradient(90deg,#b91c1c,#ef4444)"></div></div>
-          <div class="prog-val">15</div>
-        </div>
-        <div class="prog-item">
-          <div class="prog-label">Family Need</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="14" style="background:linear-gradient(90deg,#7e22ce,#a855f7)"></div></div>
-          <div class="prog-val">10</div>
-        </div>
-        <div class="prog-item">
-          <div class="prog-label">Emergency</div>
-          <div class="prog-bar-wrap"><div class="prog-bar-fill" data-w="9" style="background:linear-gradient(90deg,#0e7490,#06b6d4)"></div></div>
-          <div class="prog-val">5</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Geographic distribution -->
-    <div class="chart-card">
-      <div class="chart-head">
-        <div>
-          <div class="chart-title">Geographic Distribution</div>
-          <div class="chart-sub">Beneficiaries by district</div>
-        </div>
-      </div>
-      <div class="dist-list" style="margin-top:4px">
-        <div class="dist-item">
-          <div class="dist-name">Dhaka</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="68"></div></div>
-          <div class="dist-count">38</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Gazipur</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="45"></div></div>
-          <div class="dist-count">25</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Narayanganj</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="32"></div></div>
-          <div class="dist-count">18</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Narsingdi</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="20"></div></div>
-          <div class="dist-count">11</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Manikganj</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="14"></div></div>
-          <div class="dist-count">8</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Munshiganj</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="9"></div></div>
-          <div class="dist-count">5</div>
-        </div>
-        <div class="dist-item">
-          <div class="dist-name">Other</div>
-          <div class="dist-bar-wrap"><div class="dist-bar-fill" data-w="7"></div></div>
-          <div class="dist-count">4</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DONATION BAR CHART -->
-  <div class="chart-card" style="margin-bottom:20px">
-    <div class="chart-head">
-      <div>
-        <div class="chart-title">Donation Inflow by Month</div>
-        <div class="chart-sub">Total donations received — 2025–26 fiscal year</div>
-      </div>
-      <div class="chart-legend">
-        <div class="leg-item"><div class="leg-dot" style="background:#F0A500"></div>Donations</div>
-        <div class="leg-item"><div class="leg-dot" style="background:#a855f7"></div>Repayments received</div>
-      </div>
-    </div>
-    <canvas id="barChart" height="90"></canvas>
-  </div>
-
-  <!-- TRANSPARENCY STATS -->
-  <div class="trans-grid">
-    <div class="trans-card">
-      <i class="ti ti-shield-check trans-icon" style="color:var(--success)"></i>
-      <div class="trans-val" style="color:var(--success)">0%</div>
-      <div class="trans-lbl">Interest charged<br>Ever. To anyone.</div>
-    </div>
-    <div class="trans-card">
-      <i class="ti ti-refresh trans-icon" style="color:var(--blue)"></i>
-      <div class="trans-val" style="color:var(--blue)">৳18L</div>
-      <div class="trans-lbl">Total revolving fund value<br>(donations + repayments)</div>
-    </div>
-    <div class="trans-card">
-      <i class="ti ti-calendar-check trans-icon" style="color:var(--gold)"></i>
-      <div class="trans-val" style="color:var(--gold)">2026</div>
-      <div class="trans-lbl">Founded · Operating since<br>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
-    </div>
-  </div>
-
-  <!-- TRANSACTION LEDGER -->
-  <div class="table-card">
-    <div class="table-head">
-      <div>
-        <div class="table-title">Public Transaction Ledger</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">All disbursements and repayments — anonymized for privacy</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div class="filter-tabs">
-          <button class="ftab active" onclick="filterTable(this,'all')">All</button>
-          <button class="ftab" onclick="filterTable(this,'disbursed')">Disbursed</button>
-          <button class="ftab" onclick="filterTable(this,'repaid')">Repaid</button>
-          <button class="ftab" onclick="filterTable(this,'donated')">Donated</button>
-        </div>
-        <input type="text" class="table-search" placeholder="🔍 Search…" oninput="searchTable(this.value)">
-      </div>
-    </div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead>
-          <tr>
-            <th>Ref #</th>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Program</th>
-            <th>District</th>
-            <th>Amount</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="ledgerBody"></tbody>
-      </table>
-    </div>
-    <div class="pagination">
-      <div class="pag-info" id="pagInfo">Showing 1–15 of 48 transactions</div>
-      <div class="pag-btns">
-        <button class="pag-btn" onclick="changePage(-1)"><i class="ti ti-chevron-left" style="font-size:14px"></i></button>
-        <button class="pag-btn active" id="p1" onclick="gotoPage(1)">1</button>
-        <button class="pag-btn" id="p2" onclick="gotoPage(2)">2</button>
-        <button class="pag-btn" id="p3" onclick="gotoPage(3)">3</button>
-        <button class="pag-btn" onclick="changePage(1)"><i class="ti ti-chevron-right" style="font-size:14px"></i></button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- FOOTER -->
-<div class="dash-footer">
-  <span>© 2026 Korje Hasana Foundation · korjehasana.org · All transactions are public for accountability</span>
-  <span style="display:flex;align-items:center;gap:6px"><i class="ti ti-lock" style="color:var(--success)"></i> SSL secured · Data updated daily</span>
-</div>
-
-<!-- FLOATING WA -->
-<a href="https://wa.me/880XXXXXXXXXX" style="position:fixed;bottom:24px;right:24px;z-index:9999;width:50px;height:50px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);animation:waPulse 2.5s infinite;text-decoration:none" target="_blank">
-  <i class="ti ti-brand-whatsapp" style="font-size:24px;color:#fff"></i>
-</a>
-<style>@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 30px rgba(37,211,102,.8),0 0 0 10px rgba(37,211,102,.15)}}
-
-/* ═══ HAMBURGER ═══ */
-.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
-.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
-.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
-.nav-hamburger.active span:nth-child(2) { opacity:0; }
-.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
-
-/* ═══ MOBILE RESPONSIVE ═══ */
-@media (max-width:768px) {
-  .topbar { display:none !important; }
-  .navbar { padding:0 16px !important; position:relative; }
-  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); }
-  .nav-links.open { display:flex !important; }
-  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
-  .nav-hover-bar { display:none !important; }
-  .nav-cta { display:none !important; }
-  .nav-hamburger { display:flex !important; }
-  .page-hero { padding:32px 16px 72px !important; }
-  .page-hero h1 { font-size:24px !important; }
-  .page-hero p { font-size:13px !important; }
-  /* whatsapp float */
-  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
-  .kpi-grid, .stats-cards { grid-template-columns:1fr 1fr !important; gap:12px !important; }
-  .chart-grid, .charts-row { grid-template-columns:1fr !important; }
-  .dash-header { flex-direction:column !important; gap:12px !important; padding:16px !important; }
-  .dash-sidebar { display:none !important; }
-  .dash-main { padding:16px !important; }
-  table { font-size:12px !important; }
-  td, th { padding:6px 8px !important; }
-}
-
-    /* ═══ SAVINGS STATS ═══ */
-    .savings-stats-section { margin-bottom: 20px; }
-    .savings-section-head {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
-    }
-    .savings-section-title {
-      font-size: 15px; font-weight: 700; color: #fff;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .savings-section-title::before {
-      content:''; display:block; width:4px; height:20px;
-      border-radius:2px; background:linear-gradient(180deg,#60A5FA,#3B82F6);
-    }
-    .savings-time-filters { display: flex; gap: 6px; flex-wrap: wrap; }
-    .sav-filter {
-      padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
-      cursor: pointer; border: 1px solid rgba(255,255,255,.15);
-      color: rgba(255,255,255,.55); background: rgba(255,255,255,.06);
-      transition: all .2s; font-family: inherit;
-    }
-    .sav-filter.active { background: #3B82F6; color: #fff; border-color: #3B82F6; }
-
-    .savings-kpi-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px;
-    }
-    .sav-kpi {
-      background: linear-gradient(135deg, rgba(59,130,246,.15) 0%, rgba(37,99,235,.08) 100%);
-      border: 1px solid rgba(59,130,246,.2);
-      border-radius: 14px; padding: 18px 16px;
-      position: relative; overflow: hidden;
-    }
-    .sav-kpi::before {
-      content:''; position:absolute; top:-10px; right:-10px;
-      width:60px; height:60px; border-radius:50%;
-      background: rgba(59,130,246,.08);
-    }
-    .sav-kpi-icon { font-size: 22px; color: #60A5FA; margin-bottom: 8px; }
-    .sav-kpi-val { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 3px; }
-    .sav-kpi-label { font-size: 11px; color: rgba(255,255,255,.55); font-weight: 500; }
-
-    .sav-link-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3);
-      color: #60A5FA; font-size: 12px; font-weight: 600;
-      padding: 6px 14px; border-radius: 20px; text-decoration: none;
-      transition: all .2s; cursor: pointer;
-    }
-    .sav-link-btn:hover { background: #3B82F6; color: #fff; border-color: #3B82F6; }
-
-    @media (max-width: 768px) {
-      .savings-kpi-grid { grid-template-columns: 1fr 1fr; }
-    }
-</style>
-
-<script>
-/* ═══ DATA ═══ */
-const LEDGER = [
-  { ref:'KH-D-0127', date:'26 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Gazipur',      amt:25000, status:'Active' },
-  { ref:'KH-R-0126', date:'25 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:3500,  status:'Completed' },
-  { ref:'KH-DON-1241',date:'25 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:10000, status:'Received' },
-  { ref:'KH-D-0126', date:'24 Jun 2026', type:'Disbursed', prog:'Education',    district:'Narsingdi',     amt:35000, status:'Active' },
-  { ref:'KH-R-0125', date:'23 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Gazipur',       amt:2083,  status:'Completed' },
-  { ref:'KH-DON-1240',date:'22 Jun 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:5000,  status:'Received' },
-  { ref:'KH-D-0125', date:'21 Jun 2026', type:'Disbursed', prog:'Medical',      district:'Narayanganj',   amt:50000, status:'Active' },
-  { ref:'KH-R-0124', date:'20 Jun 2026', type:'Repaid',    prog:'Education',    district:'Narsingdi',     amt:2917,  status:'Completed' },
-  { ref:'KH-DON-1239',date:'19 Jun 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
-  { ref:'KH-D-0124', date:'18 Jun 2026', type:'Disbursed', prog:'Family Need',  district:'Manikganj',     amt:20000, status:'Active' },
-  { ref:'KH-R-0123', date:'17 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:6250,  status:'Completed' },
-  { ref:'KH-DON-1238',date:'16 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:25000, status:'Received' },
-  { ref:'KH-D-0123', date:'15 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Munshiganj',    amt:30000, status:'Active' },
-  { ref:'KH-R-0122', date:'14 Jun 2026', type:'Repaid',    prog:'Family Need',  district:'Manikganj',     amt:1667,  status:'Completed' },
-  { ref:'KH-D-0122', date:'13 Jun 2026', type:'Disbursed', prog:'Business',     district:'Dhaka',         amt:75000, status:'Active' },
-  { ref:'KH-DON-1237',date:'12 Jun 2026',type:'Donated',   prog:'—',            district:'Narayanganj',   amt:1000,  status:'Received' },
-  { ref:'KH-R-0121', date:'11 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Gazipur',       amt:2083,  status:'Completed' },
-  { ref:'KH-D-0121', date:'10 Jun 2026', type:'Disbursed', prog:'Emergency',    district:'Dhaka',         amt:15000, status:'Active' },
-  { ref:'KH-DON-1236',date:'09 Jun 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:50000, status:'Received' },
-  { ref:'KH-R-0120', date:'08 Jun 2026', type:'Repaid',    prog:'Medical',      district:'Narayanganj',   amt:4167,  status:'Completed' },
-  { ref:'KH-D-0120', date:'07 Jun 2026', type:'Disbursed', prog:'Education',    district:'Dhaka',         amt:40000, status:'Active' },
-  { ref:'KH-DON-1235',date:'06 Jun 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:3000,  status:'Received' },
-  { ref:'KH-R-0119', date:'05 Jun 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:6250,  status:'Completed' },
-  { ref:'KH-D-0119', date:'04 Jun 2026', type:'Disbursed', prog:'Agriculture',  district:'Narsingdi',     amt:20000, status:'Active' },
-  { ref:'KH-DON-1234',date:'03 Jun 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
-  { ref:'KH-R-0118', date:'02 Jun 2026', type:'Repaid',    prog:'Agriculture',  district:'Munshiganj',    amt:2500,  status:'Completed' },
-  { ref:'KH-D-0118', date:'01 Jun 2026', type:'Disbursed', prog:'Medical',      district:'Dhaka',         amt:80000, status:'Active' },
-  { ref:'KH-DON-1233',date:'31 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:15000, status:'Received' },
-  { ref:'KH-R-0117', date:'30 May 2026', type:'Repaid',    prog:'Education',    district:'Dhaka',         amt:3333,  status:'Completed' },
-  { ref:'KH-D-0117', date:'29 May 2026', type:'Disbursed', prog:'Family Need',  district:'Narayanganj',   amt:25000, status:'Active' },
-  { ref:'KH-R-0116', date:'28 May 2026', type:'Repaid',    prog:'Business',     district:'Dhaka',         amt:4167,  status:'Completed' },
-  { ref:'KH-DON-1232',date:'27 May 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:5000,  status:'Received' },
-  { ref:'KH-D-0116', date:'26 May 2026', type:'Disbursed', prog:'Agriculture',  district:'Gazipur',       amt:35000, status:'Completed' },
-  { ref:'KH-R-0115', date:'25 May 2026', type:'Repaid',    prog:'Medical',      district:'Narayanganj',   amt:8333,  status:'Completed' },
-  { ref:'KH-DON-1231',date:'24 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:10000, status:'Received' },
-  { ref:'KH-D-0115', date:'23 May 2026', type:'Disbursed', prog:'Business',     district:'Dhaka',         amt:60000, status:'Active' },
-  { ref:'KH-R-0114', date:'22 May 2026', type:'Repaid',    prog:'Agriculture',  district:'Narsingdi',     amt:1667,  status:'Completed' },
-  { ref:'KH-DON-1230',date:'21 May 2026',type:'Donated',   prog:'—',            district:'Dhaka',         amt:1000,  status:'Received' },
-  { ref:'KH-D-0114', date:'20 May 2026', type:'Disbursed', prog:'Emergency',    district:'Gazipur',       amt:10000, status:'Completed' },
-  { ref:'KH-R-0113', date:'19 May 2026', type:'Repaid',    prog:'Family Need',  district:'Manikganj',     amt:2500,  status:'Completed' },
-  { ref:'KH-DON-1229',date:'18 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:8000,  status:'Received' },
-  { ref:'KH-D-0113', date:'17 May 2026', type:'Disbursed', prog:'Education',    district:'Dhaka',         amt:50000, status:'Active' },
-  { ref:'KH-R-0112', date:'16 May 2026', type:'Repaid',    prog:'Business',     district:'Narayanganj',   amt:6250,  status:'Completed' },
-  { ref:'KH-DON-1228',date:'15 May 2026',type:'Donated',   prog:'—',            district:'Gazipur',       amt:2500,  status:'Received' },
-  { ref:'KH-D-0112', date:'14 May 2026', type:'Disbursed', prog:'Agriculture',  district:'Munshiganj',    amt:25000, status:'Active' },
-  { ref:'KH-R-0111', date:'13 May 2026', type:'Repaid',    prog:'Agriculture',  district:'Dhaka',         amt:2917,  status:'Completed' },
-  { ref:'KH-DON-1227',date:'12 May 2026',type:'Donated',   prog:'—',            district:'Overseas',      amt:20000, status:'Received' },
-  { ref:'KH-D-0111', date:'11 May 2026', type:'Disbursed', prog:'Medical',      district:'Narsingdi',     amt:45000, status:'Active' },
-  { ref:'KH-R-0110', date:'10 May 2026', type:'Repaid',    prog:'Education',    district:'Gazipur',       amt:2917,  status:'Completed' },
-];
-
-/* ═══ STATE ═══ */
-let currentFilter = 'all';
-let currentSearch = '';
-let currentPage   = 1;
-const PER_PAGE    = 15;
-
-/* ═══ INIT ═══ */
-window.addEventListener('load', () => {
-  document.getElementById('lastUpdated').textContent = new Date().toLocaleString('en-BD',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  animateKPIs();
-  animateBars();
-  initLineChart();
-  initDonutChart();
-  initBarChart();
-  renderTable();
-});
-
-/* ═══ KPI ANIMATION ═══ */
-function animateKPIs() {
-  countUp('k1', 127, 20);
-  countUpTaka('k2', 18, 40);
-  countUpPct('k3', 99, 12);
-  countUp('k4', 84, 25);
-}
-function countUp(id, target, speed) {
-  let v = 0; const t = setInterval(() => { v += Math.ceil(target / 40); if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = v; }, speed);
-}
-function countUpTaka(id, target, speed) {
-  let v = 0; const t = setInterval(() => { v += 0.5; if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = '৳' + v.toFixed(1) + 'L'; }, speed);
-}
-function countUpPct(id, target, speed) {
-  let v = 0; const t = setInterval(() => { v++; if (v >= target) { v = target; clearInterval(t); } document.getElementById(id).textContent = v + '%'; }, speed);
-}
-function animateBars() {
-  setTimeout(() => {
-    document.querySelectorAll('.kpi-bar-fill, .prog-bar-fill, .dist-bar-fill').forEach(el => {
-      el.style.width = el.dataset.w + '%';
-    });
-  }, 400);
-}
-
-/* ═══ PERIOD ═══ */
-let currentPeriod = 'all';
-function setPeriod(el, p) {
-  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  currentPeriod = p;
-  currentPage = 1;
-  renderTable();
-  updateKPIForPeriod(p);
-}
-
-function periodFilter(data, p) {
-  const now = new Date('2026-06-27');
-  return data.filter(r => {
-    const d = new Date(r.date.replace(/(\d+)\s(\w+)\s(\d+)/, '$2 $1, $3'));
-    const diff = (now - d) / (1000*60*60*24);
-    if (p === 'today') return diff < 1;
-    if (p === 'week')  return diff < 7;
-    if (p === 'month') return diff < 30;
-    if (p === 'year')  return diff < 365;
-    return true;
-  });
-}
-
-function updateKPIForPeriod(p) {
-  const data = periodFilter(LEDGER, p);
-  const disbursed   = data.filter(r => r.type === 'Disbursed');
-  const repaid      = data.filter(r => r.type === 'Repaid');
-  const donated     = data.filter(r => r.type === 'Donated');
-  const totalDisb   = disbursed.reduce((s,r) => s+r.amt, 0);
-  const totalRepaid = repaid.reduce((s,r) => s+r.amt, 0);
-  const uniqueBenef = disbursed.length;
-  const donors      = donated.length;
-  document.getElementById('k1').textContent = p === 'all' ? '127' : uniqueBenef;
-  document.getElementById('k2').textContent = p === 'all' ? '\u09f318L' :
-    (totalDisb >= 100000 ? '\u09f3' + (totalDisb/100000).toFixed(1) + 'L' : '\u09f3' + totalDisb.toLocaleString());
-  const rate = totalDisb > 0 ? Math.min(99, Math.round(totalRepaid/totalDisb*100)) : 99;
-  document.getElementById('k3').textContent = p === 'all' ? '99%' : rate + '%';
-  document.getElementById('k4').textContent = p === 'all' ? '84' : donors;
-}
-
-/* ═══ LINE CHART ═══ */
-function initLineChart() {
-  const months = ['Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun'];
-  const disb   = [120000,95000,180000,210000,160000,140000,220000,190000,250000,280000,175000,240000];
-  const repaid = [30000,45000,60000,80000,95000,110000,130000,155000,170000,195000,140000,180000];
-  new Chart(document.getElementById('lineChart'), {
-    type: 'line',
-    data: {
-      labels: months,
-      datasets: [
-        { label:'Disbursed', data: disb, borderColor:'#F0A500', backgroundColor:'rgba(240,165,0,.08)', tension:.4, fill:true, pointBackgroundColor:'#F0A500', pointRadius:3 },
-        { label:'Repaid',    data: repaid, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,.06)', tension:.4, fill:true, pointBackgroundColor:'#22c55e', pointRadius:3 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:true,
-      plugins:{ legend:{ display:false } },
-      scales:{
-        x:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10} } },
-        y:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10}, callback: v => '৳'+(v/1000)+'k' } }
-      }
-    }
-  });
-}
-
-/* ═══ DONUT CHART ═══ */
-function initDonutChart() {
-  new Chart(document.getElementById('donutChart'), {
-    type: 'doughnut',
-    data: {
-      labels: ['Agriculture','Business','Education','Medical','Family','Emergency'],
-      datasets:[{ data:[32,28,16,12,8,4], backgroundColor:['#22c55e','#3b82f6','#F0A500','#ef4444','#a855f7','#06b6d4'], borderWidth:0, hoverOffset:6 }]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:true, cutout:'65%',
-      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => ctx.label+': '+ctx.parsed+'%' } } }
-    }
-  });
-}
-
-/* ═══ BAR CHART ═══ */
-function initBarChart() {
-  const months = ['Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26'];
-  const don    = [45000,32000,68000,55000,78000,90000,42000,85000,70000,95000,62000,84500];
-  const rep    = [20000,28000,35000,42000,58000,65000,72000,80000,92000,88000,70000,65000];
-  new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: {
-      labels: months,
-      datasets: [
-        { label:'Donations', data: don, backgroundColor:'rgba(240,165,0,.75)', borderRadius:4 },
-        { label:'Repayments',data: rep, backgroundColor:'rgba(168,85,247,.6)',  borderRadius:4 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:true,
-      plugins:{ legend:{ display:false } },
-      scales:{
-        x:{ grid:{ display:false }, ticks:{ color:'#94a3b8', font:{size:10} } },
-        y:{ grid:{ color:'rgba(255,255,255,.04)' }, ticks:{ color:'#94a3b8', font:{size:10}, callback: v => '৳'+(v/1000)+'k' } }
-      }
-    }
-  });
-}
-
-/* ═══ TABLE ═══ */
-const typeBadge = { Disbursed:'badge-orange', Repaid:'badge-green', Donated:'badge-blue' };
-const statBadge = { Active:'badge-gold', Completed:'badge-green', Received:'badge-blue' };
-function renderTable() {
-  let data = periodFilter(LEDGER, currentPeriod);
-  if (currentFilter !== 'all') data = data.filter(r => r.type.toLowerCase() === currentFilter);
-  if (currentSearch) data = data.filter(r => JSON.stringify(r).toLowerCase().includes(currentSearch.toLowerCase()));
-  const total = data.length;
-  const pages = Math.ceil(total / PER_PAGE);
-  if (currentPage > pages) currentPage = 1;
-  const slice = data.slice((currentPage-1)*PER_PAGE, currentPage*PER_PAGE);
-  document.getElementById('pagInfo').textContent = `Showing ${(currentPage-1)*PER_PAGE+1}–${Math.min(currentPage*PER_PAGE,total)} of ${total} transactions`;
-  document.getElementById('ledgerBody').innerHTML = slice.map(r => `
-    <tr>
-      <td style="color:var(--blue);font-weight:600;font-size:12px">${r.ref}</td>
-      <td style="color:var(--muted);font-size:12px">${r.date}</td>
-      <td><span class="badge ${typeBadge[r.type]}">${r.type === 'Disbursed' ? '↓' : r.type === 'Repaid' ? '↑' : '❤'} ${r.type}</span></td>
-      <td style="font-size:12px">${r.prog}</td>
-      <td style="font-size:12px;color:var(--muted)">${r.district}</td>
-      <td class="${r.type === 'Disbursed' ? 'amt-neg' : 'amt-pos'}">৳${r.amt.toLocaleString()}</td>
-      <td><span class="badge ${statBadge[r.status]}">${r.status}</span></td>
-    </tr>`).join('');
-  // Update pagination buttons
-  for (let i = 1; i <= 3; i++) {
-    const btn = document.getElementById('p'+i);
-    if (!btn) continue;
-    btn.textContent = i;
-    btn.classList.toggle('active', i === currentPage);
-    btn.style.display = i <= pages ? '' : 'none';
-  }
-}
-function filterTable(el, f) {
-  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  currentFilter = f; currentPage = 1; renderTable();
-}
-function searchTable(q) { currentSearch = q; currentPage = 1; renderTable(); }
-function gotoPage(p)    { currentPage = p; renderTable(); }
-function changePage(d)  { currentPage = Math.max(1, Math.min(3, currentPage + d)); renderTable(); }
-
-/* ══════════════════════════════════
-   SUPABASE INTEGRATION — Live KPIs
-══════════════════════════════════ */
-async function loadLiveKPIs() {
-  if (typeof KH === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT')) return;
-  const { data } = await KH.getDashboardKPIs();
-  if (!data) return;
-
-  // Map KPI values to the dashboard stat cards
-  // Cards expected: total disbursed, total collected, active loans, donors, pending apps, overdue
-  const map = {
-    total_disbursed:       data.total_disbursed,
-    total_collected:       data.total_collected,
-    active_loans:          data.active_loans,
-    total_donors:          data.total_donors,
-    pending_applications:  data.pending_applications,
-    overdue_count:         data.overdue_count,
-    total_donated:         data.total_donated
-  };
-
-  // Update any element with data-kpi attribute
-  document.querySelectorAll('[data-kpi]').forEach(el => {
-    const key = el.getAttribute('data-kpi');
-    if (map[key] !== undefined) {
-      const isMoney = ['total_disbursed','total_collected','total_donated'].includes(key);
-      el.textContent = isMoney ? KH.bdt(map[key]) : Number(map[key]).toLocaleString();
-    }
-  });
-
-  // Also update stat-num elements in order (fallback if data-kpi not set)
-  const statNums = document.querySelectorAll('.stat-num');
-  const vals = [
-    KH.bdt(data.total_disbursed),
-    KH.bdt(data.total_donated),
-    (data.active_loans || 0).toLocaleString(),
-    (data.total_donors || 0).toLocaleString()
-  ];
-  statNums.forEach((el, i) => { if (vals[i]) el.textContent = vals[i]; });
-}
-
-// Load on page ready
-window.addEventListener('DOMContentLoaded', loadLiveKPIs);
-
-/* ═══════════════════════════════════════════════════════
-   FUND BREAKDOWN — 3-fund dashboard
-   ═══════════════════════════════════════════════════════ */
-const FUNDS = [
-  {
-    id: 'loan',
-    nameBn: 'ঋণ বিতরণ তহবিল',
-    nameEn: 'REVOLVING LOAN FUND (RLF)',
-    icon: 'ti-cash',
-    desc: 'সুদমুক্ত আবর্তনশীল ঋণ বিতরণ · Interest-free revolving loan disbursement (RLF)',
-    split: '৬০%',
-    totalReceived: 1080000,   // ৳10,80,000 (60% of total donations)
-    totalSpent:    810000,    // ৳8,10,000 disbursed so far
-  },
-  {
-    id: 'admin',
-    nameBn: 'পরিচালন তহবিল',
-    nameEn: 'OPERATIONAL FUND',
-    icon: 'ti-building-community',
-    desc: 'সংগঠন পরিচালনা ব্যয় · Organisational & operational expenses',
-    split: '২০%',
-    totalReceived: 360000,    // ৳3,60,000 (20%)
-    totalSpent:    290000,    // ৳2,90,000 spent
-  },
-  {
-    id: 'zakat',
-    nameBn: 'ঝুঁকি ব্যবস্থাপনা তহবিল',
-    nameEn: 'RISK MANAGEMENT FUND',
-    icon: 'ti-shield-check',
-    desc: 'ঋণ ঝুঁকি ও জরুরি রিজার্ভ · Loan risk reserve & contingency',
-    split: '২০%',
-    totalReceived: 360000,    // ৳3,60,000 (20%)
-    totalSpent:    420000,    // intentionally overspent for demo of red state
-  },
-];
-
-function fmtTk(n) {
-  if (n >= 100000) return '৳' + (n/100000).toFixed(1) + 'L';
-  if (n >= 1000)   return '৳' + (n/1000).toFixed(1) + 'K';
-  return '৳' + n.toLocaleString('bn-BD');
-}
-
-function getFundState(f) {
-  const balance = f.totalReceived - f.totalSpent;
-  const pct     = f.totalSpent / f.totalReceived;
-  if (f.totalSpent > f.totalReceived) return { state:'danger', pct: Math.min(pct,1), balance };
-  if (pct >= 0.75)                    return { state:'warn',   pct,                  balance };
-  return                                     { state:'good',   pct,                  balance };
-}
-
-function renderFunds() {
-  const grid = document.getElementById('fundGrid');
-  if (!grid) return;
-
-  let grandReceived = 0, grandSpent = 0;
-  FUNDS.forEach(f => { grandReceived += f.totalReceived; grandSpent += f.totalSpent; });
-  const grandBalance = grandReceived - grandSpent;
-  const grandPct     = Math.round(grandSpent / grandReceived * 100);
-
-  document.getElementById('ftTotalReceived').textContent = fmtTk(grandReceived);
-  document.getElementById('ftTotalSpent').textContent    = fmtTk(grandSpent);
-  const balEl = document.getElementById('ftTotalBalance');
-  balEl.textContent = fmtTk(Math.abs(grandBalance));
-  balEl.style.color = grandBalance < 0 ? 'var(--red)' : 'var(--success)';
-  document.getElementById('ftOverallPct').textContent = grandPct + '%';
-
-  grid.innerHTML = FUNDS.map(f => {
-    const {state, pct, balance} = getFundState(f);
-    const pctDisplay = Math.round(pct * 100);
-    const barPct     = Math.min(pct * 100, 100);
-
-    const cardClass  = state === 'danger' ? 'fund-danger' : state === 'warn' ? 'fund-warn' : 'fund-good';
-    const badgeClass = state === 'danger' ? 'fsb-danger' : state === 'warn' ? 'fsb-warn' : 'fsb-good';
-    const fillClass  = state === 'danger' ? 'fpf-danger' : state === 'warn' ? 'fpf-warn' : 'fpf-good';
-    const badgeTxt   = state === 'danger' ? '⚠ অতিরিক্ত ব্যয়' : state === 'warn' ? '⚡ সতর্কতা' : '✓ স্বাভাবিক';
-    const balColor   = balance < 0 ? '#fca5a5' : '#fff';
-    const balTxt     = (balance < 0 ? '-' : '') + fmtTk(Math.abs(balance));
-
-    return `
-    <div class="fund-card ${cardClass}">
-      <i class="ti ${f.icon} fund-icon"></i>
-      <div class="fund-name-bn">${f.nameBn}</div>
-      <div class="fund-name-en">${f.nameEn} · ${f.split}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,.45);margin-bottom:14px">${f.desc}</div>
-
-      <div class="fund-metrics">
-        <div class="fund-metric">
-          <div class="fm-num">${fmtTk(f.totalReceived)}</div>
-          <div class="fm-lbl-bn">মোট প্রাপ্তি</div>
-          <div class="fm-lbl-en">Total Received</div>
-        </div>
-        <div class="fund-metric">
-          <div class="fm-num">${fmtTk(f.totalSpent)}</div>
-          <div class="fm-lbl-bn">মোট খরচ</div>
-          <div class="fm-lbl-en">Total Spent</div>
-        </div>
-        <div class="fund-metric">
-          <div class="fm-num" style="color:${balColor}">${balTxt}</div>
-          <div class="fm-lbl-bn">ব্যালেন্স</div>
-          <div class="fm-lbl-en">Balance</div>
-        </div>
-      </div>
-
-      <div class="fund-divider"></div>
-
-      <div class="fund-progress-wrap">
-        <div class="fund-progress-top">
-          <div class="fund-pct">${pctDisplay}% ব্যয়িত</div>
-          <div class="fund-status-badge ${badgeClass}">${badgeTxt}</div>
-        </div>
-        <div class="fund-prog-track">
-          <div class="fund-prog-fill ${fillClass}" id="fpf-${f.id}" style="width:0%"></div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Animate bars after render
-  requestAnimationFrame(() => {
-    FUNDS.forEach(f => {
-      const {state, pct} = getFundState(f);
-      const el = document.getElementById('fpf-' + f.id);
-      if (el) setTimeout(() => { el.style.width = Math.min(pct*100,100) + '%'; }, 200);
-    });
-  });
-}
-
-window.addEventListener('DOMContentLoaded', renderFunds);
-</script>
-<script>
-/* Mobile menu */
-function toggleMenu() {
-  var links = document.querySelector('.nav-links');
-  var btn = document.querySelector('.nav-hamburger');
-  if (!links || !btn) return;
-  links.classList.toggle('open');
-  btn.classList.toggle('active');
-}
-document.querySelectorAll('.nav-link').forEach(function(l) {
-  l.addEventListener('click', function() {
-    var links = document.querySelector('.nav-links');
-    var btn = document.querySelector('.nav-hamburger');
-    if (links) links.classList.remove('open');
-    if (btn) btn.classList.remove('active');
-  });
-});
-
-  // ─── SAVINGS STATS ───────────────────────────────────────────────────
-  async function loadSavingsStats(period, btn) {
-    if(btn) {
-      document.querySelectorAll('.sav-filter').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    try {
-      let query = _db
-        .from('savings_transactions')
-        .select('type, amount, status, depositor_id, created_at')
-        .eq('status','approved');
-
-      const now = new Date();
-      if(period === 'today') {
-        const today = now.toISOString().slice(0,10);
-        query = query.gte('created_at', today + 'T00:00:00').lte('created_at', today + 'T23:59:59');
-      } else if(period === 'week') {
-        const d = new Date(now); d.setDate(d.getDate()-7);
-        query = query.gte('created_at', d.toISOString());
-      } else if(period === 'month') {
-        const d = new Date(now.getFullYear(), now.getMonth(), 1);
-        query = query.gte('created_at', d.toISOString());
-      } else if(period === 'year') {
-        const d = new Date(now.getFullYear(), 0, 1);
-        query = query.gte('created_at', d.toISOString());
-      }
-
-      const { data: trx } = await query;
-      const { data: deps } = await _db.from('depositors').select('id', {count:'exact'});
-
-      let deposited = 0, withdrawn = 0;
-      (trx||[]).forEach(t => {
-        if(t.type==='deposit')    deposited  += parseFloat(t.amount||0);
-        if(t.type==='withdrawal') withdrawn  += parseFloat(t.amount||0);
-      });
-      const balance = deposited - withdrawn;
-      const depCount = deps?.length || 0;
-
-      const fmtTk = v => '৳' + parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:0});
-      document.getElementById('savDepositors').textContent = depCount + ' জন';
-      document.getElementById('savDeposited').textContent  = fmtTk(deposited);
-      document.getElementById('savWithdrawn').textContent  = fmtTk(withdrawn);
-      document.getElementById('savBalance').textContent    = fmtTk(balance);
-    } catch(e) {
-      console.log('Savings stats error:', e);
-      ['savDepositors','savDeposited','savWithdrawn','savBalance'].forEach(id=>{
-        document.getElementById(id).textContent = '—';
-      });
-    }
-  }
-  loadSavingsStats('today');
-
-</script>
-
-
-  <!-- ═══ ADMIN USER MANAGEMENT (Super Admin only) ═══ -->
-  <div class="approval-section super-only" id="adminUserSection" style="margin-top:28px">
-    <div class="approval-header" style="background:linear-gradient(135deg,#1a3a5c,#1e4d8c)">
-      <h3><i class="ti ti-users-group" style="color:#60a5fa"></i> অ্যাডমিন ব্যবহারকারী ব্যবস্থাপনা</h3>
-      <span style="font-size:12px;color:rgba(255,255,255,.6)">Super Admin only</span>
-    </div>
-    <div class="approval-body">
-      <div class="apv-table-wrap">
-        <table class="apv-table">
-          <thead><tr><th>ইমেইল</th><th>ভূমিকা</th></tr></thead>
-          <tbody id="adminUserListContainer">
-            <tr><td colspan="2" style="text-align:center;color:#9CA3AF;padding:20px">লোড হচ্ছে...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ SAVINGS APPROVAL SECTION ═══ -->
-  <div class="approval-section admin-only" id="savingsApprovalSection" style="scroll-margin-top:80px">
-  <a id="adminLogin" style="display:block;height:0;visibility:hidden"></a>
-    <div class="approval-header">
-      <h3><i class="ti ti-shield-check"></i> আমানত অনুমোদন — Admin Panel</h3>
-      <div class="approval-tabs">
-        <button class="apv-tab active" onclick="apvTab('pending',this)">অপেক্ষামান</button>
-        <button class="apv-tab" onclick="apvTab('all',this)">সব লেনদেন</button>
-      </div>
-    </div>
-    <div class="approval-body">
-
-      <!-- Admin Login Form (shown when not logged in) -->
-      <div id="adminLoginForm">
-        <div class="admin-login-wrap">
-          <div class="al-title"><i class="ti ti-lock" style="color:#145230"></i> অ্যাডমিন লগইন</div>
-          <div class="al-sub">সঞ্চয় অনুমোদন করতে অ্যাডমিন ইমেইল ও পাসওয়ার্ড দিন</div>
-          <input class="al-input" id="adminEmail" type="email" placeholder="admin@example.com">
-          <input class="al-input" id="adminPass" type="password" placeholder="পাসওয়ার্ড">
-          <button class="al-btn" onclick="adminLogin()"><i class="ti ti-login"></i> লগইন করুন</button>
-          <div class="al-msg" id="adminLoginMsg"></div>
-        </div>
-      </div>
-
-      <!-- Approval Panel (shown when admin logged in) -->
-      <div id="adminApprovalPanel" style="display:none">
-        <div class="apv-admin-bar">
-          <div class="apv-admin-info">লগইন: <strong id="adminEmailDisplay">—</strong></div>
-          <button class="btn-admin-logout" onclick="adminLogout()"><i class="ti ti-logout"></i> লগআউট</button>
-        </div>
-        <div class="apv-table-wrap">
-          <div id="apvTableContainer">
-            <div class="apv-empty"><i class="ti ti-clock"></i>লোড হচ্ছে...</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="card">
+            <div class="card-title"><i class="ti ti-clock-hour-3"></i> সাম্প্রতিক ঋণ আবেদন</div>
+            <div id="recentLoans"><div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো তথ্য নেই</p></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title"><i class="ti ti-activity"></i> সাম্প্রতিক লেনদেন</div>
+            <div id="recentTrx"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো তথ্য নেই</p></div></div>
           </div>
         </div>
       </div>
 
-    </div>
-  </div>
+      <!-- ══════════════ PANEL: CASH DONATION ══════════════ -->
+      <div class="panel" id="panel-donation-cash">
+        <div class="panel-title">💵 নগদ ডোনেশন এন্ট্রি</div>
+        <div class="panel-sub">সরাসরি নগদ দানের তথ্য নথিভুক্ত করুন</div>
 
+        <div class="card">
+          <div class="card-title"><i class="ti ti-forms"></i> দান তথ্য</div>
+          <div class="form-grid">
+            <div class="fld"><label>দাতার নাম *</label><input id="dn-name" type="text" placeholder="দাতার পূর্ণ নাম লিখুন"></div>
+            <div class="fld"><label>মোবাইল নম্বর</label><input id="dn-mobile" type="tel" placeholder="01XXXXXXXXX"></div>
+            <div class="fld"><label>পরিমাণ (৳) *</label><input id="dn-amount" type="number" min="1" placeholder="0.00"></div>
+            <div class="fld"><label>উদ্দেশ্য</label>
+              <select id="dn-purpose">
+                <option value="general">সাধারণ</option>
+                <option value="loan_fund">ঋণ তহবিল</option>
+                <option value="zakat">যাকাত</option>
+                <option value="sadaqah">সাদাকাহ</option>
+                <option value="emergency">জরুরি সহায়তা</option>
+              </select>
+            </div>
+            <div class="fld"><label>তারিখ</label><input id="dn-date" type="date"></div>
+            <div class="fld"><label>বেনামী দান?</label>
+              <select id="dn-anon"><option value="false">না (নাম সহ)</option><option value="true">হ্যাঁ (বেনামী)</option></select>
+            </div>
+            <div class="fld form-full"><label>মন্তব্য</label><textarea id="dn-notes" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-gold" onclick="submitCashDonation()"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="resetDonationForm()">রিসেট</button>
+          </div>
+          <div id="dn-msg" class="msg"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-history"></i> আজকের নগদ দান</div>
+          <div id="todayDonations"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>আজ কোনো নগদ দান নেই</p></div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: SAVINGS ENTRY ══════════════ -->
+      <div class="panel" id="panel-savings-entry">
+        <div class="panel-title">🏦 সঞ্চয় জমা এন্ট্রি</div>
+        <div class="panel-sub">সঞ্চয়কারীর পক্ষে জমা এন্ট্রি করুন</div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-search"></i> সঞ্চয়কারী খুঁজুন</div>
+          <div class="search-bar">
+            <input id="se-search" type="text" placeholder="নাম, মোবাইল বা NID দিয়ে খুঁজুন..." onkeyup="if(event.key==='Enter')searchDepositor()">
+            <button onclick="searchDepositor()"><i class="ti ti-search"></i> খুঁজুন</button>
+          </div>
+          <div id="se-results"></div>
+        </div>
+
+        <div class="card" id="se-formCard" style="display:none">
+          <div class="card-title"><i class="ti ti-cash-register"></i> জমা তথ্য</div>
+          <div style="background:rgba(30,125,66,.1);border:1px solid rgba(30,125,66,.25);border-radius:8px;padding:12px;margin-bottom:14px">
+            <div style="font-size:12px;color:var(--ltgreen);font-family:'Hind Siliguri',sans-serif">নির্বাচিত সঞ্চয়কারী</div>
+            <div id="se-selectedName" style="font-size:15px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;margin-top:3px"></div>
+            <div id="se-selectedInfo" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+          </div>
+          <input type="hidden" id="se-depositorId">
+          <div class="form-grid">
+            <div class="fld"><label>জমার পরিমাণ (৳) *</label><input id="se-amount" type="number" min="1" placeholder="0.00"></div>
+            <div class="fld"><label>তারিখ</label><input id="se-date" type="date"></div>
+            <div class="fld form-full"><label>রেফারেন্স / নোট</label><input id="se-ref" type="text" placeholder="রসিদ নম্বর বা মন্তব্য"></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="submitSavingsEntry()"><i class="ti ti-device-floppy"></i> জমা নথিভুক্ত করুন</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="cancelSavingsEntry()">বাতিল</button>
+          </div>
+          <div id="se-msg" class="msg"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: INSTALLMENT ══════════════ -->
+      <div class="panel" id="panel-installment">
+        <div class="panel-title">📋 কিস্তি এন্ট্রি</div>
+        <div class="panel-sub">ঋণগ্রহীতার কিস্তি পরিশোধ নথিভুক্ত করুন</div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-search"></i> ঋণ খুঁজুন</div>
+          <div class="search-bar">
+            <input id="inst-search" type="text" placeholder="ঋণ নং বা ঋণগ্রহীতার নাম / মোবাইল..." onkeyup="if(event.key==='Enter')searchLoan()">
+            <button onclick="searchLoan()"><i class="ti ti-search"></i> খুঁজুন</button>
+          </div>
+          <div id="inst-results"></div>
+        </div>
+
+        <div class="card" id="inst-formCard" style="display:none">
+          <div class="card-title"><i class="ti ti-calendar-dollar"></i> কিস্তি তথ্য</div>
+          <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:12px;margin-bottom:14px">
+            <div style="font-size:12px;color:#93c5fd">নির্বাচিত ঋণ</div>
+            <div id="inst-loanInfo" style="font-size:14px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;margin-top:3px"></div>
+            <div id="inst-loanMeta" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
+          </div>
+          <input type="hidden" id="inst-loanId">
+          <input type="hidden" id="inst-borrowerId">
+          <div class="form-grid col3">
+            <div class="fld"><label>কিস্তি নং *</label><input id="inst-no" type="number" min="1" placeholder="কিস্তি নম্বর"></div>
+            <div class="fld"><label>পরিশোধের তারিখ *</label><input id="inst-date" type="date"></div>
+            <div class="fld"><label>পরিমাণ (৳) *</label><input id="inst-amount" type="number" min="1" placeholder="0.00"></div>
+            <div class="fld"><label>পেমেন্ট পদ্ধতি</label>
+              <select id="inst-method">
+                <option value="cash">নগদ</option>
+                <option value="bkash">বিকাশ</option>
+                <option value="nagad">নগদ (অনলাইন)</option>
+                <option value="bank">ব্যাংক</option>
+                <option value="other">অন্যান্য</option>
+              </select>
+            </div>
+            <div class="fld"><label>লেনদেন রেফারেন্স</label><input id="inst-ref" type="text" placeholder="ট্রানজ্যাকশন ID"></div>
+            <div class="fld"><label>দেরি হয়েছে?</label>
+              <select id="inst-late"><option value="false">না</option><option value="true">হ্যাঁ</option></select>
+            </div>
+          </div>
+          <div class="fld" style="margin-top:10px"><label>নোট</label><textarea id="inst-notes" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-primary" onclick="submitInstallment()"><i class="ti ti-device-floppy"></i> কিস্তি সংরক্ষণ করুন</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="cancelInstallment()">বাতিল</button>
+          </div>
+          <div id="inst-msg" class="msg"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: EXPENSE ══════════════ -->
+      <div class="panel" id="panel-expense">
+        <div class="panel-title">💸 খরচ এন্ট্রি</div>
+        <div class="panel-sub">সংস্থার যাবতীয় ব্যয় নথিভুক্ত করুন</div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-receipt-2"></i> খরচ তথ্য</div>
+          <div class="form-grid">
+            <div class="fld"><label>তারিখ *</label><input id="exp-date" type="date"></div>
+            <div class="fld"><label>পরিমাণ (৳) *</label><input id="exp-amount" type="number" min="1" placeholder="0.00"></div>
+            <div class="fld form-full"><label>বিবরণ *</label><input id="exp-desc" type="text" placeholder="খরচের বিস্তারিত বিবরণ"></div>
+            <div class="fld"><label>বিভাগ</label>
+              <select id="exp-cat">
+                <option value="operations">পরিচালনা ব্যয়</option>
+                <option value="general">সাধারণ</option>
+                <option value="reserve">রিজার্ভ</option>
+                <option value="loan_fund">ঋণ তহবিল</option>
+              </select>
+            </div>
+            <div class="fld"><label>রেফারেন্স নম্বর</label><input id="exp-ref" type="text" placeholder="ভাউচার / চালান নম্বর"></div>
+            <div class="fld form-full"><label>মন্তব্য</label><textarea id="exp-notes" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
+          </div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <button class="btn btn-gold" onclick="submitExpense()"><i class="ti ti-device-floppy"></i> খরচ সংরক্ষণ করুন</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="resetExpenseForm()">রিসেট</button>
+          </div>
+          <div id="exp-msg" class="msg"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-history"></i> সাম্প্রতিক খরচ</div>
+          <div id="recentExpenses"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো তথ্য নেই</p></div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: LOAN APPROVAL ══════════════ -->
+      <div class="panel" id="panel-loan-approve">
+        <div class="panel-title">✅ ঋণ আবেদন অনুমোদন</div>
+        <div class="panel-sub">অপেক্ষমাণ ঋণ আবেদনসমূহ পর্যালোচনা করুন</div>
+
+        <div class="filter-bar">
+          <div class="fpill active" onclick="filterLoanApps('pending',this)">অপেক্ষমাণ</div>
+          <div class="fpill" onclick="filterLoanApps('review',this)">পর্যালোচনাধীন</div>
+          <div class="fpill" onclick="filterLoanApps('approved',this)">অনুমোদিত</div>
+          <div class="fpill" onclick="filterLoanApps('rejected',this)">বাতিল</div>
+        </div>
+
+        <div id="loanAppsContainer">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: ONLINE DONATION APPROVAL ══════════════ -->
+      <div class="panel" id="panel-donation-online">
+        <div class="panel-title">✅ অনলাইন ডোনেশন অনুমোদন</div>
+        <div class="panel-sub">অপেক্ষমাণ অনলাইন দানসমূহ নিশ্চিত করুন</div>
+
+        <div class="filter-bar">
+          <div class="fpill active" onclick="filterDonations('pending',this)">অপেক্ষমাণ</div>
+          <div class="fpill" onclick="filterDonations('confirmed',this)">নিশ্চিত</div>
+          <div class="fpill" onclick="filterDonations('all',this)">সব</div>
+        </div>
+
+        <div id="donationApproveContainer">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: SAVINGS WITHDRAWAL APPROVAL ══════════════ -->
+      <div class="panel" id="panel-savings-approve">
+        <div class="panel-title">✅ সঞ্চয় উত্তোলন অনুমোদন</div>
+        <div class="panel-sub">অপেক্ষমাণ সঞ্চয় উত্তোলন আবেদন</div>
+
+        <div id="savingsApproveContainer">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: APPROVAL LOG ══════════════ -->
+      <div class="panel" id="panel-log">
+        <div class="panel-title">📝 অনুমোদন লগ</div>
+        <div class="panel-sub">সকল অনুমোদন ও এন্ট্রির বিস্তারিত নথি</div>
+
+        <div class="filter-bar">
+          <div class="fpill active" onclick="filterLog('all',this)">সব</div>
+          <div class="fpill" onclick="filterLog('savings',this)">সঞ্চয়</div>
+          <div class="fpill" onclick="filterLog('donation',this)">ডোনেশন</div>
+          <div class="fpill" onclick="filterLog('loan',this)">ঋণ</div>
+          <div class="fpill" onclick="filterLog('expense',this)">খরচ</div>
+        </div>
+
+        <div id="logContainer">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: ADMIN MANAGEMENT ══════════════ -->
+      <div class="panel" id="panel-admin-mgmt">
+        <div class="panel-title">👤 এডমিন ব্যবস্থাপনা</div>
+        <div class="panel-sub">অ্যাডমিন ব্যবহারকারীদের পদবী ও তথ্য নির্ধারণ</div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-users"></i> সকল অ্যাডমিন</div>
+          <div id="adminListContainer">
+            <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /panelWrap -->
+  </div><!-- /mainWrap -->
+</div><!-- /adminLayout -->
 
 <script>
-// ═══ SAVINGS APPROVAL — Admin Panel ════════════════════════════
-// Uses _db from _supabase.js
+// ════════════════════════════════════════
+//  GLOBALS
+// ════════════════════════════════════════
+let _currentUser = null;
+let _adminInfo = null; // {role, name_bn, designation_bn, email}
+let _allLoanApps = [];
+let _allDonations = [];
+let _allSavingsTrx = [];
+let _allLogItems = [];
 
-let apvFilter = 'pending';
-let adminUser = null;
-let apvAllTrx = [];
-
-// ── Admin login ──
-async function adminLogin() {
-  const email = document.getElementById('adminEmail').value.trim();
-  const pass  = document.getElementById('adminPass').value;
-  const msgEl = document.getElementById('adminLoginMsg');
-  msgEl.textContent = ''; msgEl.className = 'al-msg';
-  if(!email || !pass) { msgEl.textContent = 'ইমেইল ও পাসওয়ার্ড প্রয়োজন'; msgEl.className='al-msg error'; return; }
-
-  const { data, error } = await _db.auth.signInWithPassword({ email, password: pass });
-  if(error) { msgEl.textContent = 'ভুল ইমেইল বা পাসওয়ার্ড'; msgEl.className='al-msg error'; return; }
-
-  adminUser = data.user;
-  document.getElementById('adminLoginForm').style.display = 'none';
-  document.getElementById('adminApprovalPanel').style.display = '';
-  document.getElementById('adminEmailDisplay').textContent = email;
-  await loadApvTrx();
-}
-
-// ── Admin logout ──
-async function adminLogout() {
-  await _db.auth.signOut();
-  adminUser = null;
-  document.getElementById('adminApprovalPanel').style.display = 'none';
-  document.getElementById('adminLoginForm').style.display = '';
-  document.getElementById('adminEmail').value = '';
-  document.getElementById('adminPass').value = '';
-}
-
-// ── Tab switch ──
-function apvTab(filter, btn) {
-  apvFilter = filter;
-  document.querySelectorAll('.apv-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderApvTable();
-}
-
-// ── Load all savings transactions with depositor name ──
-async function loadApvTrx() {
-  const { data, error } = await _db
-    .from('savings_transactions')
-    .select('*, depositors(full_name, phone)')
-    .order('created_at', { ascending: false });
-  if(error) {
-    document.getElementById('apvTableContainer').innerHTML =
-      '<div class="apv-empty"><i class="ti ti-alert-circle"></i>ডেটা লোড করতে ব্যর্থ: ' + error.message + '</div>';
-    return;
-  }
-  apvAllTrx = data || [];
-  renderApvTable();
-}
-
-// ── Render table ──
-function renderApvTable() {
-  const container = document.getElementById('apvTableContainer');
-  let list = apvAllTrx;
-  if(apvFilter === 'pending') list = apvAllTrx.filter(t => t.status === 'pending');
-
-  if(!list.length) {
-    container.innerHTML = '<div class="apv-empty"><i class="ti ti-circle-check"></i>' +
-      (apvFilter==='pending' ? 'কোনো অপেক্ষামান লেনদেন নেই' : 'কোনো লেনদেন নেই') + '</div>';
-    return;
-  }
-
-  const rows = list.map(t => {
-    const name  = t.depositors?.full_name || '—';
-    const phone = t.depositors?.phone || '—';
-    const date  = new Date(t.created_at).toLocaleDateString('bn-BD', {day:'numeric',month:'short',year:'numeric'});
-    const typeLabel = t.type==='deposit' ? 'জমা' : 'উত্তোলন';
-    const typeBadge = t.type==='deposit'
-      ? '<span class="apv-badge-deposit">জমা</span>'
-      : '<span class="apv-badge-withdraw">উত্তোলন</span>';
-    const statusBadge = {
-      pending:  '<span class="apv-badge-pending">অপেক্ষামান</span>',
-      approved: '<span class="apv-badge-approved">অনুমোদিত</span>',
-      rejected: '<span class="apv-badge-rejected">বাতিল</span>',
-    }[t.status] || t.status;
-
-    const actions = t.status === 'pending'
-      ? `<div class="apv-action-btns">
-           <button class="btn-approve" onclick="approveTrx('${t.id}','approved')">
-             <i class="ti ti-check"></i> অনুমোদন
-           </button>
-           <button class="btn-reject" onclick="approveTrx('${t.id}','rejected')">
-             <i class="ti ti-x"></i> বাতিল
-           </button>
-         </div>`
-      : '<span style="color:#9CA3AF;font-size:12px">সম্পন্ন</span>';
-
-    return `<tr>
-      <td>${date}</td>
-      <td><strong>${name}</strong><br><span style="color:#9CA3AF;font-size:11px">${phone}</span></td>
-      <td>${typeBadge}</td>
-      <td style="font-weight:700;color:${t.type==='deposit'?'#16a34a':'#dc2626'}">
-        ${t.type==='deposit'?'+':'-'}৳${parseFloat(t.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}
-      </td>
-      <td style="font-size:12px;color:#6B7280">${t.reference||'—'}</td>
-      <td>${statusBadge}</td>
-      <td>${actions}</td>
-    </tr>`;
-  }).join('');
-
-  container.innerHTML = `<table class="apv-table">
-    <thead><tr>
-      <th>তারিখ</th><th>আমানতকারী</th><th>ধরন</th>
-      <th>পরিমাণ</th><th>রেফারেন্স</th><th>অবস্থা</th><th>পদক্ষেপ</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table>`;
-}
-
-// ── Approve / Reject ──
-async function approveTrx(id, status) {
-  const btn = event.target.closest('button');
-  const origText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i>';
-
-  const { error } = await _db
-    .from('savings_transactions')
-    .update({ status, approved_by: adminUser?.id, approved_at: new Date().toISOString() })
-    .eq('id', id);
-
-  if(error) {
-    alert('ত্রুটি: ' + error.message);
-    btn.disabled = false;
-    btn.innerHTML = origText;
-    return;
-  }
-  // Refresh table
-  await loadApvTrx();
-}
-
-// ── Check if already logged in on page load ──
-(async () => {
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+async function initAdmin() {
   const { data: { session } } = await _db.auth.getSession();
-  if(session?.user) {
-    adminUser = session.user;
-    document.getElementById('adminLoginForm').style.display = 'none';
-    document.getElementById('adminApprovalPanel').style.display = '';
-    document.getElementById('adminEmailDisplay').textContent = session.user.email;
-    await loadApvTrx();
-  }
-})();
-</script>
+  if (!session?.user) { showAccessDenied(); return; }
+  _currentUser = session.user;
 
-
-</div><!-- /dashboardMain -->
-
-<script>
-// ═══ ROLE-BASED DASHBOARD ACCESS ════════════════════════════════
-
-async function initAdminDashboard() {
-  // Check URL param or sessionStorage
-  const urlRole = new URLSearchParams(window.location.search).get('role');
-  const storedRole  = sessionStorage.getItem('kh_admin_role');
-  const storedEmail = sessionStorage.getItem('kh_admin_email');
-
-  // Verify Supabase session
-  const { data: { session } } = await _db.auth.getSession();
-
-  if(!session?.user) {
-    // Not logged in
-    showAccessDenied();
-    return;
-  }
-
-  // Get role from DB (authoritative check)
-  const { data: dbRole } = await _db.rpc('get_my_admin_role');
-  if(!dbRole) {
+  const { data: info, error } = await _db.rpc('get_my_admin_info');
+  if (error || !info || info.length === 0) {
     await _db.auth.signOut();
     showAccessDenied();
     return;
   }
+  _adminInfo = info[0];
 
-  const role  = dbRole;
-  const email = session.user.email;
-
-  // Apply role class to body
-  document.body.classList.add('role-' + role);
-
-  // Show admin topbar
-  document.getElementById('adminTopBar').style.display = '';
-  document.getElementById('adminEmailBar').textContent = email;
-  const badge = document.getElementById('adminRoleBadge');
-  if(role === 'super_admin') {
-    badge.textContent = '⭐ Super Admin';
-    badge.className   = 'admin-role-badge badge-super';
+  // Update sidebar user info
+  document.getElementById('sbUserName').textContent = _adminInfo.name_bn || _adminInfo.email;
+  document.getElementById('sbDesig').textContent = _adminInfo.designation_bn || '';
+  const badge = document.getElementById('sbRoleBadge');
+  if (_adminInfo.role === 'super_admin') {
+    badge.textContent = 'সুপার এডমিন';
+    badge.className = 'sb-role-badge rb-super';
   } else {
-    badge.textContent = '🛡 Admin';
-    badge.className   = 'admin-role-badge badge-admin';
+    badge.textContent = 'এডমিন';
+    badge.className = 'sb-role-badge rb-admin';
   }
 
-  // Show main dashboard content
-  document.getElementById('dashboardMain').style.display = '';
-
-  // If admin (not super), hide loan/donation charts & stats, show only savings
-  if(role === 'admin') {
-    // Hide all sections except savings
+  // Show/hide super-only items
+  if (_adminInfo.role !== 'super_admin') {
     document.querySelectorAll('.super-only').forEach(el => el.style.display = 'none');
-    // Scroll to savings approval
-    setTimeout(() => {
-      const el = document.getElementById('savingsApprovalSection');
-      if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 300);
   }
 
-  // Pre-fill admin login panel & auto-load approval table
-  const loginForm = document.getElementById('adminLoginForm');
-  const apvPanel  = document.getElementById('adminApprovalPanel');
-  if(loginForm && apvPanel) {
-    loginForm.style.display = 'none';
-    apvPanel.style.display  = '';
-    const emailDisp = document.getElementById('adminEmailDisplay');
-    if(emailDisp) emailDisp.textContent = email;
-    adminUser = session.user;
-    await loadApvTrx();
-  }
+  document.getElementById('adminLayout').classList.add('show');
 
-  // Super admin: load admin user list
-  if(role === 'super_admin') {
-    loadAdminUsers();
-  }
+  // Date display
+  const now = new Date();
+  document.getElementById('tbDate').textContent = now.toLocaleDateString('bn-BD', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Set default dates
+  const today = now.toISOString().split('T')[0];
+  ['dn-date','se-date','inst-date','exp-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = today;
+  });
+
+  // Load dashboard
+  loadDashboard();
+  loadPendingBadges();
 }
 
 function showAccessDenied() {
-  document.getElementById('accessDeniedScreen').style.display = 'flex';
-  const main = document.getElementById('dashboardMain');
-  if(main) main.style.display = 'none';
-  document.getElementById('adminTopBar').style.display = 'none';
+  document.getElementById('accessDenied').classList.add('show');
 }
 
-async function adminTopbarLogout() {
+// ════════════════════════════════════════
+//  PANEL SWITCHING
+// ════════════════════════════════════════
+const PANEL_TITLES = {
+  'dashboard':'ড্যাশবোর্ড', 'donation-cash':'নগদ ডোনেশন এন্ট্রি',
+  'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
+  'expense':'খরচ এন্ট্রি', 'loan-approve':'ঋণ আবেদন অনুমোদন',
+  'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় উত্তোলন অনুমোদন',
+  'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা'
+};
+function switchPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const p = document.getElementById('panel-' + name);
+  if (p) p.classList.add('active');
+  const mi = document.getElementById('mi-' + name);
+  if (mi) mi.classList.add('active');
+  document.getElementById('tbTitle').textContent = PANEL_TITLES[name] || name;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  // Lazy load panels
+  if (name === 'loan-approve') loadLoanApps('pending');
+  if (name === 'donation-online') loadDonationApprovals('pending');
+  if (name === 'savings-approve') loadSavingsApprovals();
+  if (name === 'log') loadLog('all');
+  if (name === 'admin-mgmt') loadAdminUsers();
+  if (name === 'donation-cash') loadTodayDonations();
+  if (name === 'expense') loadRecentExpenses();
+}
+
+// ════════════════════════════════════════
+//  PENDING BADGES
+// ════════════════════════════════════════
+async function loadPendingBadges() {
+  const [loanRes, donRes, savRes] = await Promise.all([
+    _db.from('loan_applications').select('id',{count:'exact',head:true}).in('status',['pending','review']),
+    _db.from('donations').select('id',{count:'exact',head:true}).eq('status','pending'),
+    _db.from('savings_transactions').select('id',{count:'exact',head:true}).eq('status','pending').eq('type','withdrawal'),
+  ]);
+  setBadge('badge-loan', loanRes.count);
+  setBadge('badge-donation', donRes.count);
+  setBadge('badge-savings', savRes.count);
+}
+function setBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = count || '0';
+  el.style.display = count > 0 ? 'block' : 'none';
+}
+
+// ════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════
+async function loadDashboard() {
+  const [loans, donations, savings, borrowers, repayments, depositors, expenses] = await Promise.all([
+    _db.from('loans').select('id',{count:'exact',head:true}).eq('status','active'),
+    _db.from('donations').select('amount').eq('status','confirmed'),
+    _db.from('savings_transactions').select('amount').eq('status','approved').eq('type','deposit'),
+    _db.from('borrowers').select('id',{count:'exact',head:true}),
+    _db.from('repayments').select('amount_paid').eq('is_paid',true),
+    _db.from('depositors').select('id',{count:'exact',head:true}),
+    _db.from('fund_ledger').select('amount').eq('type','expense'),
+  ]);
+
+  const sumDon = (donations.data||[]).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  const sumSav = (savings.data||[]).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  const sumRep = (repayments.data||[]).reduce((s,r)=>s+parseFloat(r.amount_paid||0),0);
+  const sumExp = (expenses.data||[]).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+
+  const pending = (await _db.from('loan_applications').select('id',{count:'exact',head:true}).in('status',['pending','review'])).count +
+                  (await _db.from('donations').select('id',{count:'exact',head:true}).eq('status','pending')).count +
+                  (await _db.from('savings_transactions').select('id',{count:'exact',head:true}).eq('status','pending')).count;
+
+  setText('ds-loans', loans.count || 0);
+  setText('ds-donations', fmt(sumDon));
+  setText('ds-savings', fmt(sumSav));
+  setText('ds-pending', pending || 0);
+  setText('ds-borrowers', borrowers.count || 0);
+  setText('ds-repaid', fmt(sumRep));
+  setText('ds-depositors', depositors.count || 0);
+  setText('ds-expense', fmt(sumExp));
+
+  // Recent loan apps
+  const {data: recentL} = await _db.from('loan_applications')
+    .select('app_no,applicant_name,amount_requested,status,created_at')
+    .order('created_at',{ascending:false}).limit(5);
+  renderRecentLoans(recentL||[]);
+
+  // Recent savings transactions
+  const {data: recentT} = await _db.from('savings_transactions')
+    .select('id,type,amount,status,created_at,depositor_id,depositors(full_name)')
+    .order('created_at',{ascending:false}).limit(5);
+  renderRecentTrx(recentT||[]);
+}
+
+function renderRecentLoans(rows) {
+  const c = document.getElementById('recentLoans');
+  if (!rows.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো আবেদন নেই</p></div>'; return; }
+  c.innerHTML = rows.map(r => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+    <div><div style="font-size:12px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif">${r.applicant_name||'—'}</div>
+    <div style="font-size:10px;color:var(--muted)">${r.app_no}</div></div>
+    <div style="text-align:right"><div style="font-size:12px;font-weight:700;color:var(--gold)">৳${fmt(r.amount_requested)}</div>
+    <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span></div>
+  </div>`).join('');
+}
+
+function renderRecentTrx(rows) {
+  const c = document.getElementById('recentTrx');
+  if (!rows.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো লেনদেন নেই</p></div>'; return; }
+  c.innerHTML = rows.map(r => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+    <div><div style="font-size:12px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif">${r.depositors?.full_name||'অজ্ঞাত'}</div>
+    <div style="font-size:10px;color:var(--muted)">${r.type==='deposit'?'জমা':'উত্তোলন'} · ${fmtDate(r.created_at)}</div></div>
+    <div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${r.type==='deposit'?'var(--success)':'#f87171'}">৳${fmt(r.amount)}</div>
+    <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span></div>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  CASH DONATION
+// ════════════════════════════════════════
+async function submitCashDonation() {
+  const name = document.getElementById('dn-name').value.trim();
+  const amount = parseFloat(document.getElementById('dn-amount').value);
+  const mobile = document.getElementById('dn-mobile').value.trim();
+  const purpose = document.getElementById('dn-purpose').value;
+  const anon = document.getElementById('dn-anon').value === 'true';
+  const date = document.getElementById('dn-date').value;
+  const notes = document.getElementById('dn-notes').value.trim();
+
+  if (!name || !amount || amount <= 0) { showMsg('dn-msg','নাম ও পরিমাণ আবশ্যক','err'); return; }
+
+  const donNo = 'DON-' + Date.now().toString().slice(-8);
+  const {error} = await _db.from('donations').insert({
+    donation_no: donNo, donor_name: name, donor_mobile: mobile||null,
+    amount, payment_method: 'cash', purpose, is_anonymous: anon,
+    status: 'confirmed', confirmed_at: new Date(date).toISOString(),
+    auth_confirmed_by: _currentUser.id,
+    notes: notes||null, created_at: new Date(date).toISOString()
+  });
+
+  if (error) { showMsg('dn-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
+  showMsg('dn-msg','✅ দান সফলভাবে নথিভুক্ত হয়েছে ('+donNo+')','ok');
+  resetDonationForm();
+  loadTodayDonations();
+  loadPendingBadges();
+}
+
+function resetDonationForm() {
+  ['dn-name','dn-mobile','dn-notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('dn-amount').value='';
+  document.getElementById('dn-purpose').value='general';
+  document.getElementById('dn-anon').value='false';
+}
+
+async function loadTodayDonations() {
+  const today = new Date().toISOString().split('T')[0];
+  const {data} = await _db.from('donations')
+    .select('donation_no,donor_name,amount,purpose,created_at')
+    .eq('payment_method','cash')
+    .gte('created_at', today+'T00:00:00').order('created_at',{ascending:false});
+  const c = document.getElementById('todayDonations');
+  if (!data||!data.length) { c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>আজ কোনো নগদ দান নেই</p></div>'; return; }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>দান নং</th><th>দাতার নাম</th><th>পরিমাণ</th><th>উদ্দেশ্য</th><th>সময়</th></tr></thead><tbody>
+  ${data.map(r=>`<tr><td style="color:var(--muted);font-size:11px">${r.donation_no}</td><td class="td-name">${r.donor_name||'বেনামী'}</td><td class="td-amount">৳${fmt(r.amount)}</td><td>${purposeBn(r.purpose)}</td><td style="font-size:11px;color:var(--muted)">${fmtDate(r.created_at)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+// ════════════════════════════════════════
+//  SAVINGS ENTRY
+// ════════════════════════════════════════
+async function searchDepositor() {
+  const q = document.getElementById('se-search').value.trim();
+  if (!q) return;
+  const {data} = await _db.from('depositors')
+    .select('id,full_name,phone,scheme_type,status')
+    .or(`full_name.ilike.%${q}%,phone.ilike.%${q}%,nid.ilike.%${q}%`)
+    .eq('status','active').limit(5);
+  const c = document.getElementById('se-results');
+  if (!data||!data.length) { c.innerHTML='<div class="empty-state" style="padding:16px"><i class="ti ti-user-off"></i><p>কোনো সক্রিয় সঞ্চয়কারী পাওয়া যায়নি</p></div>'; return; }
+  c.innerHTML = data.map(d=>`<div class="apv-card" style="cursor:pointer;margin-top:8px" onclick="selectDepositor('${d.id}','${escQ(d.full_name)}','${d.phone||''}','${schemeBn(d.scheme_type)}')">
+    <div style="font-size:13px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif">${d.full_name}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">${d.phone||''} · ${schemeBn(d.scheme_type)}</div>
+  </div>`).join('');
+}
+
+function selectDepositor(id, name, phone, scheme) {
+  document.getElementById('se-depositorId').value = id;
+  document.getElementById('se-selectedName').textContent = name;
+  document.getElementById('se-selectedInfo').textContent = phone + ' · ' + scheme;
+  document.getElementById('se-formCard').style.display = '';
+  document.getElementById('se-results').innerHTML = '';
+  document.getElementById('se-search').value = '';
+}
+
+async function submitSavingsEntry() {
+  const depId = document.getElementById('se-depositorId').value;
+  const amount = parseFloat(document.getElementById('se-amount').value);
+  const date = document.getElementById('se-date').value;
+  const ref = document.getElementById('se-ref').value.trim();
+  if (!depId || !amount || amount<=0) { showMsg('se-msg','সঞ্চয়কারী ও পরিমাণ আবশ্যক','err'); return; }
+
+  const desig = _adminInfo.designation_bn || _adminInfo.name_bn || _adminInfo.email;
+  const {error} = await _db.from('savings_transactions').insert({
+    depositor_id: depId, type: 'deposit', amount,
+    status: 'approved', reference: ref||null,
+    notes: `এডমিন এন্ট্রি`,
+    processed_by: desig,
+    processed_at: new Date(date).toISOString(),
+    approved_by: _currentUser.id,
+    approved_at: new Date(date).toISOString(),
+    created_at: new Date(date).toISOString()
+  });
+  if (error) { showMsg('se-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
+  showMsg('se-msg','✅ সঞ্চয় জমা নথিভুক্ত হয়েছে','ok');
+  document.getElementById('se-amount').value='';
+  document.getElementById('se-ref').value='';
+  document.getElementById('se-formCard').style.display='none';
+}
+
+function cancelSavingsEntry() {
+  document.getElementById('se-formCard').style.display='none';
+  document.getElementById('se-depositorId').value='';
+}
+
+// ════════════════════════════════════════
+//  INSTALLMENT
+// ════════════════════════════════════════
+async function searchLoan() {
+  const q = document.getElementById('inst-search').value.trim();
+  if (!q) return;
+  const {data} = await _db.from('loans')
+    .select('id,loan_no,principal,tenure_months,monthly_emi,paid_installments,status,borrower_id,borrowers(name_bn,mobile)')
+    .or(`loan_no.ilike.%${q}%,borrowers.name_bn.ilike.%${q}%,borrowers.mobile.ilike.%${q}%`)
+    .eq('status','active').limit(5);
+  const c = document.getElementById('inst-results');
+  if (!data||!data.length) { c.innerHTML='<div class="empty-state" style="padding:16px"><i class="ti ti-file-unknown"></i><p>কোনো সক্রিয় ঋণ পাওয়া যায়নি</p></div>'; return; }
+  c.innerHTML = data.map(d=>`<div class="apv-card" style="cursor:pointer;margin-top:8px" onclick="selectLoan('${d.id}','${d.borrower_id}','${d.loan_no}','${escQ(d.borrowers?.name_bn||d.loan_no)}','${d.monthly_emi||0}',${d.paid_installments||0})">
+    <div style="font-size:13px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif">${d.borrowers?.name_bn||d.loan_no}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">ঋণ নং: ${d.loan_no} · মাসিক কিস্তি: ৳${fmt(d.monthly_emi)} · পরিশোধিত: ${d.paid_installments||0}/${d.tenure_months}</div>
+  </div>`).join('');
+}
+
+function selectLoan(id, borrowerId, loanNo, name, emi, paidCount) {
+  document.getElementById('inst-loanId').value = id;
+  document.getElementById('inst-borrowerId').value = borrowerId;
+  document.getElementById('inst-loanInfo').textContent = name + ' — ঋণ নং: ' + loanNo;
+  document.getElementById('inst-loanMeta').textContent = 'মাসিক কিস্তি: ৳' + fmt(emi);
+  document.getElementById('inst-no').value = parseInt(paidCount)+1;
+  document.getElementById('inst-amount').value = emi;
+  document.getElementById('inst-formCard').style.display='';
+  document.getElementById('inst-results').innerHTML='';
+  document.getElementById('inst-search').value='';
+}
+
+async function submitInstallment() {
+  const loanId = document.getElementById('inst-loanId').value;
+  const borrowerId = document.getElementById('inst-borrowerId').value;
+  const no = parseInt(document.getElementById('inst-no').value);
+  const date = document.getElementById('inst-date').value;
+  const amount = parseFloat(document.getElementById('inst-amount').value);
+  const method = document.getElementById('inst-method').value;
+  const ref = document.getElementById('inst-ref').value.trim();
+  const late = document.getElementById('inst-late').value === 'true';
+  const notes = document.getElementById('inst-notes').value.trim();
+  if (!loanId||!amount||!no||!date) { showMsg('inst-msg','সকল আবশ্যক তথ্য পূরণ করুন','err'); return; }
+
+  const {error} = await _db.from('repayments').insert({
+    loan_id: loanId, borrower_id: borrowerId, installment_no: no,
+    due_date: date, amount_due: amount, amount_paid: amount,
+    payment_date: date, payment_method: method,
+    transaction_ref: ref||null, is_paid: true, is_late: late,
+    notes: notes||null
+  });
+  if (error) { showMsg('inst-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
+
+  // Update loan paid_installments
+  await _db.from('loans').update({
+    paid_installments: no, last_payment_date: date
+  }).eq('id', loanId);
+
+  showMsg('inst-msg','✅ কিস্তি সফলভাবে নথিভুক্ত হয়েছে','ok');
+  cancelInstallment();
+  loadDashboard();
+}
+
+function cancelInstallment() {
+  document.getElementById('inst-formCard').style.display='none';
+  document.getElementById('inst-loanId').value='';
+  ['inst-no','inst-amount','inst-ref','inst-notes'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ════════════════════════════════════════
+//  EXPENSE
+// ════════════════════════════════════════
+async function submitExpense() {
+  const date = document.getElementById('exp-date').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const desc = document.getElementById('exp-desc').value.trim();
+  const cat = document.getElementById('exp-cat').value;
+  const ref = document.getElementById('exp-ref').value.trim();
+  const notes = document.getElementById('exp-notes').value.trim();
+  if (!date||!amount||!desc) { showMsg('exp-msg','তারিখ, পরিমাণ ও বিবরণ আবশ্যক','err'); return; }
+
+  const {error} = await _db.from('fund_ledger').insert({
+    date, type:'expense', description: desc, amount,
+    category: cat, reference_no: ref||null, notes: notes||null,
+    auth_user_id: _currentUser.id, created_at: new Date().toISOString()
+  });
+  if (error) { showMsg('exp-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
+  showMsg('exp-msg','✅ খরচ নথিভুক্ত হয়েছে','ok');
+  resetExpenseForm();
+  loadRecentExpenses();
+}
+
+function resetExpenseForm() {
+  ['exp-amount','exp-desc','exp-ref','exp-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('exp-cat').value='operations';
+}
+
+async function loadRecentExpenses() {
+  const {data} = await _db.from('fund_ledger')
+    .select('id,date,description,amount,category,created_at')
+    .eq('type','expense').order('created_at',{ascending:false}).limit(10);
+  const c = document.getElementById('recentExpenses');
+  if (!data||!data.length){c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো খরচ নেই</p></div>';return;}
+  c.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th>বিভাগ</th><th>পরিমাণ</th></tr></thead><tbody>
+  ${data.map(r=>`<tr><td style="font-size:11px;color:var(--muted)">${r.date}</td><td class="td-name">${r.description}</td><td style="font-size:11px">${catBn(r.category)}</td><td class="td-amount">৳${fmt(r.amount)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+// ════════════════════════════════════════
+//  LOAN APPROVAL
+// ════════════════════════════════════════
+let _loanFilter = 'pending';
+async function loadLoanApps(status) {
+  _loanFilter = status;
+  const c = document.getElementById('loanAppsContainer');
+  c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+  const {data} = await _db.from('loan_applications')
+    .select('id,app_no,applicant_name,applicant_mobile,purpose,amount_requested,tenure_months,status,created_at,review_notes')
+    .eq('status',status).order('created_at',{ascending:false}).limit(20);
+  _allLoanApps = data||[];
+  renderLoanApps(_allLoanApps);
+}
+
+function filterLoanApps(status, el) {
+  document.querySelectorAll('#panel-loan-approve .fpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  loadLoanApps(status);
+}
+
+function renderLoanApps(rows) {
+  const c = document.getElementById('loanAppsContainer');
+  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো আবেদন নেই</p></div>';return;}
+  c.innerHTML = rows.map(r=>`<div class="apv-card">
+    <div class="apv-top">
+      <div>
+        <div class="apv-name">${r.applicant_name}</div>
+        <div class="apv-info">আবেদন নং: ${r.app_no} · মোবাইল: ${r.applicant_mobile||'—'}<br>উদ্দেশ্য: ${r.purpose} · মেয়াদ: ${r.tenure_months} মাস<br>তারিখ: ${fmtDate(r.created_at)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>
+        <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span>
+      </div>
+    </div>
+    ${r.status==='pending'||r.status==='review' ? `
+    <div class="apv-note"><textarea id="ln-note-${r.id}" placeholder="পর্যালোচনা নোট..."></textarea></div>
+    <div class="apv-btns">
+      <button class="btn btn-success" onclick="approveLoan('${r.id}','approved')"><i class="ti ti-check"></i> অনুমোদন</button>
+      <button class="btn btn-danger" onclick="approveLoan('${r.id}','rejected')"><i class="ti ti-x"></i> বাতিল</button>
+      <button class="btn btn-sm" style="background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.3)" onclick="approveLoan('${r.id}','review')"><i class="ti ti-eye"></i> পর্যালোচনায় পাঠান</button>
+    </div>` : `<div style="font-size:11px;color:var(--muted);font-family:'Hind Siliguri',sans-serif">${r.review_notes||''}</div>`}
+  </div>`).join('');
+}
+
+async function approveLoan(id, status) {
+  const noteEl = document.getElementById('ln-note-'+id);
+  const note = noteEl ? noteEl.value.trim() : '';
+  const now = new Date().toISOString();
+  const upd = {status, review_notes: note, reviewed_at: now, updated_at: now};
+  if (status==='approved') upd.approved_at = now;
+  if (status==='rejected') upd.rejected_at = now;
+
+  const desig = _adminInfo.designation_bn||_adminInfo.name_bn||_adminInfo.email;
+  upd.review_notes = (note ? note+' ' : '') + `[${statusBn(status)}: ${desig}]`;
+
+  const {error} = await _db.from('loan_applications').update(upd).eq('id',id);
+  if (error){alert('ত্রুটি: '+error.message);return;}
+  loadLoanApps(_loanFilter);
+  loadPendingBadges();
+}
+
+// ════════════════════════════════════════
+//  DONATION APPROVAL
+// ════════════════════════════════════════
+let _donFilter = 'pending';
+async function loadDonationApprovals(status) {
+  _donFilter = status;
+  const c = document.getElementById('donationApproveContainer');
+  c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+  let q = _db.from('donations').select('id,donation_no,donor_name,donor_mobile,amount,payment_method,purpose,transaction_ref,status,created_at').neq('payment_method','cash').order('created_at',{ascending:false}).limit(30);
+  if (status!=='all') q = q.eq('status',status);
+  const {data} = await q;
+  _allDonations = data||[];
+  renderDonationApprovals(_allDonations);
+}
+
+function filterDonations(status, el) {
+  document.querySelectorAll('#panel-donation-online .fpill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  loadDonationApprovals(status);
+}
+
+function renderDonationApprovals(rows) {
+  const c = document.getElementById('donationApproveContainer');
+  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো অনলাইন ডোনেশন নেই</p></div>';return;}
+  c.innerHTML = rows.map(r=>`<div class="apv-card">
+    <div class="apv-top">
+      <div>
+        <div class="apv-name">${r.donor_name||'বেনামী'}</div>
+        <div class="apv-info">দান নং: ${r.donation_no} · মোবাইল: ${r.donor_mobile||'—'}<br>পদ্ধতি: ${r.payment_method} · রেফ: ${r.transaction_ref||'—'}<br>উদ্দেশ্য: ${purposeBn(r.purpose)} · ${fmtDate(r.created_at)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="apv-amount-big">৳${fmt(r.amount)}</div>
+        <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span>
+      </div>
+    </div>
+    ${r.status==='pending' ? `<div class="apv-btns">
+      <button class="btn btn-success" onclick="confirmDonation('${r.id}','confirmed')"><i class="ti ti-check"></i> নিশ্চিত করুন</button>
+      <button class="btn btn-danger" onclick="confirmDonation('${r.id}','failed')"><i class="ti ti-x"></i> বাতিল</button>
+    </div>` : ''}
+  </div>`).join('');
+}
+
+async function confirmDonation(id, status) {
+  const now = new Date().toISOString();
+  const {error} = await _db.from('donations').update({
+    status, confirmed_at: now, auth_confirmed_by: _currentUser.id
+  }).eq('id',id);
+  if (error){alert('ত্রুটি: '+error.message);return;}
+  loadDonationApprovals(_donFilter);
+  loadPendingBadges();
+}
+
+// ════════════════════════════════════════
+//  SAVINGS APPROVAL
+// ════════════════════════════════════════
+async function loadSavingsApprovals() {
+  const c = document.getElementById('savingsApproveContainer');
+  c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+  const {data} = await _db.from('savings_transactions')
+    .select('id,type,amount,status,notes,reference,created_at,depositor_id,depositors(full_name,phone)')
+    .eq('type','withdrawal').eq('status','pending').order('created_at',{ascending:false});
+  _allSavingsTrx = data||[];
+  renderSavingsApprovals(_allSavingsTrx);
+}
+
+function renderSavingsApprovals(rows) {
+  const c = document.getElementById('savingsApproveContainer');
+  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-check-circle" style="color:var(--success);opacity:.5"></i><p>কোনো অপেক্ষমাণ উত্তোলন নেই</p></div>';return;}
+  c.innerHTML = rows.map(r=>`<div class="apv-card">
+    <div class="apv-top">
+      <div>
+        <div class="apv-name">${r.depositors?.full_name||'অজ্ঞাত'}</div>
+        <div class="apv-info">মোবাইল: ${r.depositors?.phone||'—'}<br>নোট: ${r.notes||r.reference||'—'}<br>তারিখ: ${fmtDate(r.created_at)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="apv-amount-big" style="color:#f87171">-৳${fmt(r.amount)}</div>
+        <span class="badge b-pending">উত্তোলন আবেদন</span>
+      </div>
+    </div>
+    <div class="apv-note"><textarea id="sw-note-${r.id}" placeholder="অনুমোদন নোট..."></textarea></div>
+    <div class="apv-btns">
+      <button class="btn btn-success" onclick="approveSavings('${r.id}','approved')"><i class="ti ti-check"></i> অনুমোদন</button>
+      <button class="btn btn-danger" onclick="approveSavings('${r.id}','rejected')"><i class="ti ti-x"></i> বাতিল</button>
+    </div>
+  </div>`).join('');
+}
+
+async function approveSavings(id, status) {
+  const noteEl = document.getElementById('sw-note-'+id);
+  const note = noteEl ? noteEl.value.trim() : '';
+  const desig = _adminInfo.designation_bn||_adminInfo.name_bn||_adminInfo.email;
+  const now = new Date().toISOString();
+  const {error} = await _db.from('savings_transactions').update({
+    status, approved_by: _currentUser.id, approved_at: now,
+    admin_note: (note?note+' ':'') + `[${statusBn(status)}: ${desig}]`,
+    processed_by: desig, processed_at: now
+  }).eq('id',id);
+  if (error){alert('ত্রুটি: '+error.message);return;}
+  loadSavingsApprovals();
+  loadPendingBadges();
+}
+
+// ════════════════════════════════════════
+//  APPROVAL LOG
+// ════════════════════════════════════════
+let _logFilter = 'all';
+async function loadLog(filter) {
+  _logFilter = filter;
+  const c = document.getElementById('logContainer');
+  c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+
+  const [savRes, donRes, loanRes, expRes] = await Promise.all([
+    _db.from('savings_transactions')
+      .select('id,type,amount,status,created_at,approved_at,admin_note,approved_by,depositors(full_name),processed_by')
+      .not('status','eq','pending').order('created_at',{ascending:false}).limit(30),
+    _db.from('donations')
+      .select('id,donation_no,donor_name,amount,payment_method,status,confirmed_at,created_at')
+      .not('status','eq','pending').order('created_at',{ascending:false}).limit(20),
+    _db.from('loan_applications')
+      .select('id,app_no,applicant_name,amount_requested,status,reviewed_at,approved_at,review_notes,created_at')
+      .not('status','eq','pending').order('created_at',{ascending:false}).limit(20),
+    _db.from('fund_ledger')
+      .select('id,date,description,amount,type,auth_user_id,created_at')
+      .eq('type','expense').order('created_at',{ascending:false}).limit(20),
+  ]);
+
+  // Build admin info map from admin_roles
+  let adminMap = {};
+  const {data: admins} = await _db.rpc('get_all_admin_roles');
+  if (admins) admins.forEach(a => adminMap[a.user_id] = {name:a.name_bn||a.email, desig:a.designation_bn||'অ্যাডমিন'});
+
+  let items = [];
+
+  (savRes.data||[]).forEach(r => items.push({
+    cat:'savings', catBn:r.type==='deposit'?'সঞ্চয় জমা':'সঞ্চয় উত্তোলন',
+    subject:r.depositors?.full_name||'অজ্ঞাত', amount:r.amount, status:r.status,
+    time:r.approved_at||r.created_at,
+    actionBy: r.processed_by || (r.approved_by && adminMap[r.approved_by] ? adminMap[r.approved_by].name : '—'),
+    actionDesig: r.approved_by && adminMap[r.approved_by] ? adminMap[r.approved_by].desig : '—',
+    note: r.admin_note
+  }));
+
+  (donRes.data||[]).forEach(r => items.push({
+    cat:'donation', catBn:r.payment_method==='cash'?'নগদ ডোনেশন':'অনলাইন ডোনেশন',
+    subject:r.donor_name||'বেনামী', amount:r.amount, status:r.status,
+    time:r.confirmed_at||r.created_at,
+    actionBy:'—', actionDesig:'—', note:r.donation_no
+  }));
+
+  (loanRes.data||[]).forEach(r => items.push({
+    cat:'loan', catBn:'ঋণ আবেদন',
+    subject:r.applicant_name, amount:r.amount_requested, status:r.status,
+    time:r.approved_at||r.reviewed_at||r.created_at,
+    actionBy:'—', actionDesig:'—', note:r.review_notes
+  }));
+
+  (expRes.data||[]).forEach(r => items.push({
+    cat:'expense', catBn:'খরচ এন্ট্রি',
+    subject:r.description, amount:r.amount, status:'confirmed',
+    time:r.created_at,
+    actionBy: r.auth_user_id && adminMap[r.auth_user_id] ? adminMap[r.auth_user_id].name : '—',
+    actionDesig: r.auth_user_id && adminMap[r.auth_user_id] ? adminMap[r.auth_user_id].desig : '—',
+    note:r.date
+  }));
+
+  _allLogItems = items.sort((a,b)=>new Date(b.time)-new Date(a.time));
+  filterLog(filter);
+}
+
+function filterLog(cat, el) {
+  if (el) {
+    document.querySelectorAll('#panel-log .fpill').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+  }
+  _logFilter = cat;
+  const filtered = cat==='all' ? _allLogItems : _allLogItems.filter(i=>i.cat===cat);
+  renderLog(filtered);
+}
+
+function renderLog(items) {
+  const c = document.getElementById('logContainer');
+  if (!items.length){c.innerHTML='<div class="empty-state"><i class="ti ti-clipboard-off"></i><p>কোনো তথ্য নেই</p></div>';return;}
+  c.innerHTML = items.map(r=>`<div class="log-entry">
+    <div class="log-row">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="log-type">${r.catBn}</span>
+        <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span>
+      </div>
+      <div class="log-amount">৳${fmt(r.amount)}</div>
+    </div>
+    <div class="log-meta">
+      <span class="log-subject">${r.subject}</span>
+      ${r.actionBy!=='—'?` · <span>অ্যাকশন নিয়েছেন: <span class="log-desig">${r.actionDesig}</span> (${r.actionBy})</span>`:''}
+      ${r.note?` · <span style="color:rgba(255,255,255,.4)">${r.note}</span>`:''}
+      <br><span style="font-size:10px">${fmtDate(r.time)}</span>
+    </div>
+  </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  ADMIN MANAGEMENT
+// ════════════════════════════════════════
+async function loadAdminUsers() {
+  const c = document.getElementById('adminListContainer');
+  const {data} = await _db.rpc('get_all_admin_roles');
+  if (!data||!data.length){c.innerHTML='<div class="empty-state"><i class="ti ti-user-off"></i><p>কোনো অ্যাডমিন নেই</p></div>';return;}
+  c.innerHTML = data.map(a=>`<div class="admin-row">
+    <div class="ar-avatar">${(a.name_bn||a.email||'A').charAt(0)}</div>
+    <div class="ar-info">
+      <div class="ar-name">${a.name_bn||a.email}</div>
+      <div class="ar-email">${a.email} · <span class="badge ${a.role==='super_admin'?'rb-super':'rb-admin'}">${a.role==='super_admin'?'সুপার এডমিন':'এডমিন'}</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <input class="ar-desig-input" id="desig-${a.user_id}" value="${a.designation_bn||''}" placeholder="পদবী লিখুন...">
+      <input class="ar-desig-input" id="name-${a.user_id}" value="${a.name_bn||''}" placeholder="নাম (বাংলা)">
+    </div>
+    <button class="btn btn-gold btn-sm" onclick="saveAdminDesig('${a.user_id}')"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
+  </div>`).join('');
+}
+
+async function saveAdminDesig(userId) {
+  const desig = document.getElementById('desig-'+userId).value.trim();
+  const name = document.getElementById('name-'+userId).value.trim();
+  const {error} = await _db.rpc('update_admin_designation',{target_user_id:userId,new_designation:desig,new_name:name});
+  if (error){alert('ত্রুটি: '+error.message);return;}
+  alert('✅ সফলভাবে সংরক্ষণ হয়েছে');
+  loadAdminUsers();
+}
+
+// ════════════════════════════════════════
+//  LOGOUT
+// ════════════════════════════════════════
+async function doLogout() {
+  if (!confirm('লগআউট করবেন?')) return;
   await _db.auth.signOut();
-  sessionStorage.removeItem('kh_admin_role');
-  sessionStorage.removeItem('kh_admin_email');
+  sessionStorage.clear();
   window.location.href = 'admin-login.html';
 }
 
-// ── Super Admin: load admin user list ──
-async function loadAdminUsers() {
-  const { data, error } = await _db.rpc('get_all_admin_roles');
-  if(error || !data) return;
-  const container = document.getElementById('adminUserListContainer');
-  if(!container) return;
-  container.innerHTML = data.map(u => `
-    <tr>
-      <td>${u.email}</td>
-      <td><span class="admin-role-badge ${u.role==='super_admin'?'badge-super':'badge-admin'}" style="font-size:11px">
-        ${u.role==='super_admin'?'⭐ Super Admin':'🛡 Admin'}
-      </span></td>
-    </tr>`).join('') || '<tr><td colspan="2" style="text-align:center;color:#9CA3AF">কোনো অ্যাডমিন নেই</td></tr>';
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function fmt(n) { return parseFloat(n||0).toLocaleString('bn-BD',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('bn-BD',{year:'numeric',month:'short',day:'numeric'}); }
+function setText(id, v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+function escQ(s){return(s||'').replace(/'/g,"\\'")}
+function showMsg(id, txt, type) {
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=txt;el.className='msg '+type+' show';
+  setTimeout(()=>el.classList.remove('show'),4000);
 }
+function statusBn(s){return{pending:'অপেক্ষমাণ',approved:'অনুমোদিত',rejected:'বাতিল',confirmed:'নিশ্চিত',failed:'বাতিল',review:'পর্যালোচনাধীন',disbursed:'বিতরণ',active:'সক্রিয'}[s]||s}
+function statusBadge(s){return{pending:'b-pending',approved:'b-approved',rejected:'b-rejected',confirmed:'b-confirmed',failed:'b-rejected',review:'b-review',disbursed:'b-disbursed',active:'b-approved'}[s]||'b-pending'}
+function purposeBn(p){return{general:'সাধারণ',loan_fund:'ঋণ তহবিল',zakat:'যাকাত',sadaqah:'সাদাকাহ',emergency:'জরুরি'}[p]||p}
+function schemeBn(s){return{daily:'দৈনিক',fortnightly:'পাক্ষিক',monthly:'মাসিক',flexible:'যখন খুশি'}[s]||s}
+function catBn(s){return{operations:'পরিচালনা',general:'সাধারণ',reserve:'রিজার্ভ',loan_fund:'ঋণ তহবিল'}[s]||s}
 
-// Init on page load
-initAdminDashboard();
+// ════════════════════════════════════════
+//  START
+// ════════════════════════════════════════
+initAdmin();
 </script>
-
 </body>
 </html>
