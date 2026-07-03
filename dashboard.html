@@ -344,6 +344,50 @@
     </div>
   </div>
 
+
+  <!-- ══ SAVINGS STATS SECTION ══ -->
+  <div class="savings-stats-section">
+    <div class="savings-section-head">
+      <div class="savings-section-title">
+        <i class="ti ti-piggy-bank"></i> আমানতকারী পরিসংখ্যান — Savings Overview
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="savings-time-filters">
+          <button class="sav-filter active" onclick="loadSavingsStats('today',this)">আজ</button>
+          <button class="sav-filter" onclick="loadSavingsStats('week',this)">এ সপ্তাহ</button>
+          <button class="sav-filter" onclick="loadSavingsStats('month',this)">এ মাস</button>
+          <button class="sav-filter" onclick="loadSavingsStats('year',this)">এ বছর</button>
+          <button class="sav-filter" onclick="loadSavingsStats('all',this)">এ পর্যন্ত</button>
+        </div>
+        <a href="savings-portal.html" class="sav-link-btn" target="_blank">
+          <i class="ti ti-external-link"></i> আমানত পোর্টাল
+        </a>
+      </div>
+    </div>
+    <div class="savings-kpi-grid">
+      <div class="sav-kpi">
+        <div class="sav-kpi-icon"><i class="ti ti-users"></i></div>
+        <div class="sav-kpi-val" id="savDepositors">—</div>
+        <div class="sav-kpi-label">মোট আমানতকারী</div>
+      </div>
+      <div class="sav-kpi">
+        <div class="sav-kpi-icon"><i class="ti ti-arrow-down-circle"></i></div>
+        <div class="sav-kpi-val" id="savDeposited">—</div>
+        <div class="sav-kpi-label">মোট আমানত জমা</div>
+      </div>
+      <div class="sav-kpi">
+        <div class="sav-kpi-icon"><i class="ti ti-arrow-up-circle"></i></div>
+        <div class="sav-kpi-val" id="savWithdrawn">—</div>
+        <div class="sav-kpi-label">মোট উত্তোলন</div>
+      </div>
+      <div class="sav-kpi">
+        <div class="sav-kpi-icon"><i class="ti ti-wallet"></i></div>
+        <div class="sav-kpi-val" id="savBalance">—</div>
+        <div class="sav-kpi-label">বর্তমান স্থিতি</div>
+      </div>
+    </div>
+  </div>
+
   <!-- CHARTS ROW 1 -->
   <div class="chart-row">
 
@@ -598,6 +642,60 @@
   table { font-size:12px !important; }
   td, th { padding:6px 8px !important; }
 }
+
+    /* ═══ SAVINGS STATS ═══ */
+    .savings-stats-section { margin-bottom: 20px; }
+    .savings-section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+    }
+    .savings-section-title {
+      font-size: 15px; font-weight: 700; color: #fff;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .savings-section-title::before {
+      content:''; display:block; width:4px; height:20px;
+      border-radius:2px; background:linear-gradient(180deg,#60A5FA,#3B82F6);
+    }
+    .savings-time-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sav-filter {
+      padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      cursor: pointer; border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.55); background: rgba(255,255,255,.06);
+      transition: all .2s; font-family: inherit;
+    }
+    .sav-filter.active { background: #3B82F6; color: #fff; border-color: #3B82F6; }
+
+    .savings-kpi-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px;
+    }
+    .sav-kpi {
+      background: linear-gradient(135deg, rgba(59,130,246,.15) 0%, rgba(37,99,235,.08) 100%);
+      border: 1px solid rgba(59,130,246,.2);
+      border-radius: 14px; padding: 18px 16px;
+      position: relative; overflow: hidden;
+    }
+    .sav-kpi::before {
+      content:''; position:absolute; top:-10px; right:-10px;
+      width:60px; height:60px; border-radius:50%;
+      background: rgba(59,130,246,.08);
+    }
+    .sav-kpi-icon { font-size: 22px; color: #60A5FA; margin-bottom: 8px; }
+    .sav-kpi-val { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .sav-kpi-label { font-size: 11px; color: rgba(255,255,255,.55); font-weight: 500; }
+
+    .sav-link-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3);
+      color: #60A5FA; font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px; text-decoration: none;
+      transition: all .2s; cursor: pointer;
+    }
+    .sav-link-btn:hover { background: #3B82F6; color: #fff; border-color: #3B82F6; }
+
+    @media (max-width: 768px) {
+      .savings-kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
 </style>
 
 <script>
@@ -1030,6 +1128,59 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
     if (btn) btn.classList.remove('active');
   });
 });
+
+  // ─── SAVINGS STATS ───────────────────────────────────────────────────
+  async function loadSavingsStats(period, btn) {
+    if(btn) {
+      document.querySelectorAll('.sav-filter').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    try {
+      let query = _db
+        .from('savings_transactions')
+        .select('type, amount, status, depositor_id, created_at')
+        .eq('status','approved');
+
+      const now = new Date();
+      if(period === 'today') {
+        const today = now.toISOString().slice(0,10);
+        query = query.gte('created_at', today + 'T00:00:00').lte('created_at', today + 'T23:59:59');
+      } else if(period === 'week') {
+        const d = new Date(now); d.setDate(d.getDate()-7);
+        query = query.gte('created_at', d.toISOString());
+      } else if(period === 'month') {
+        const d = new Date(now.getFullYear(), now.getMonth(), 1);
+        query = query.gte('created_at', d.toISOString());
+      } else if(period === 'year') {
+        const d = new Date(now.getFullYear(), 0, 1);
+        query = query.gte('created_at', d.toISOString());
+      }
+
+      const { data: trx } = await query;
+      const { data: deps } = await _db.from('depositors').select('id', {count:'exact'});
+
+      let deposited = 0, withdrawn = 0;
+      (trx||[]).forEach(t => {
+        if(t.type==='deposit')    deposited  += parseFloat(t.amount||0);
+        if(t.type==='withdrawal') withdrawn  += parseFloat(t.amount||0);
+      });
+      const balance = deposited - withdrawn;
+      const depCount = deps?.length || 0;
+
+      const fmtTk = v => '৳' + parseFloat(v||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:0});
+      document.getElementById('savDepositors').textContent = depCount + ' জন';
+      document.getElementById('savDeposited').textContent  = fmtTk(deposited);
+      document.getElementById('savWithdrawn').textContent  = fmtTk(withdrawn);
+      document.getElementById('savBalance').textContent    = fmtTk(balance);
+    } catch(e) {
+      console.log('Savings stats error:', e);
+      ['savDepositors','savDeposited','savWithdrawn','savBalance'].forEach(id=>{
+        document.getElementById(id).textContent = '—';
+      });
+    }
+  }
+  loadSavingsStats('today');
+
 </script>
 </body>
 </html>
