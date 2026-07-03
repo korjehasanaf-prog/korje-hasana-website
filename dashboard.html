@@ -226,7 +226,63 @@
       .main { padding: 16px; }
       .navbar { padding: 0 16px; }
     }
-  </style>
+  
+    /* ═══ SAVINGS APPROVAL SECTION ═══ */
+    .approval-section {
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07); margin: 28px 0;
+      overflow: hidden;
+    }
+    .approval-header {
+      background: linear-gradient(135deg, #0D3D22, #145230);
+      padding: 18px 24px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    }
+    .approval-header h3 { color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .approval-header h3 i { font-size: 20px; color: #F0A500; }
+    .approval-tabs { display: flex; gap: 6px; }
+    .apv-tab {
+      padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1.5px solid rgba(255,255,255,.3); color: rgba(255,255,255,.7);
+      background: transparent; font-family: inherit; transition: all .2s;
+    }
+    .apv-tab.active { background: #F0A500; color: #0D3D22; border-color: #F0A500; }
+    .approval-body { padding: 20px 24px; }
+    /* Admin login */
+    .admin-login-wrap { max-width: 380px; margin: 16px auto 8px; }
+    .admin-login-wrap .al-title { font-size: 15px; font-weight: 700; color: #0D3D22; margin-bottom: 4px; }
+    .admin-login-wrap .al-sub { font-size: 12px; color: #6B7280; margin-bottom: 18px; }
+    .al-input { width: 100%; padding: 10px 14px; border: 1.5px solid #E5E7EB; border-radius: 10px; font-size: 13px; font-family: inherit; margin-bottom: 10px; outline: none; }
+    .al-input:focus { border-color: #145230; }
+    .al-btn { width: 100%; padding: 12px; background: #145230; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .al-btn:hover { background: #1E7D42; }
+    .al-msg { font-size: 12px; text-align: center; margin-top: 8px; min-height: 18px; }
+    .al-msg.error { color: #dc2626; }
+    .al-msg.ok { color: #16a34a; }
+    /* Approval table */
+    .apv-table-wrap { overflow-x: auto; }
+    .apv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .apv-table th { background: #f4f7f5; color: #6B7280; font-weight: 600; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; }
+    .apv-table td { padding: 11px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .apv-table tr:last-child td { border-bottom: none; }
+    .apv-badge-deposit   { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .apv-badge-withdraw  { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .apv-badge-pending   { background: #fef3c7; color: #92400e; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .apv-badge-approved  { background: #d1fae5; color: #065f46; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .apv-badge-rejected  { background: #fee2e2; color: #991b1b; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .apv-action-btns { display: flex; gap: 6px; }
+    .btn-approve { background: #145230; color: #fff; border: none; padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-approve:hover { background: #1E7D42; }
+    .btn-reject  { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .15s; }
+    .btn-reject:hover { background: #dc2626; color: #fff; }
+    .apv-empty { text-align: center; padding: 32px 20px; color: #9CA3AF; font-size: 14px; }
+    .apv-empty i { font-size: 40px; display: block; margin-bottom: 8px; opacity: .4; }
+    .apv-admin-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+    .apv-admin-info { font-size: 12px; color: #6B7280; }
+    .apv-admin-info strong { color: #145230; }
+    .btn-admin-logout { background: none; border: 1px solid #E5E7EB; color: #6B7280; padding: 5px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
+    .btn-admin-logout:hover { border-color: #dc2626; color: #dc2626; }
+</style>
 </head>
 <body>
 
@@ -1182,5 +1238,199 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   loadSavingsStats('today');
 
 </script>
+
+  <!-- ═══ SAVINGS APPROVAL SECTION ═══ -->
+  <div class="approval-section" id="savingsApprovalSection">
+    <div class="approval-header">
+      <h3><i class="ti ti-shield-check"></i> আমানত অনুমোদন — Admin Panel</h3>
+      <div class="approval-tabs">
+        <button class="apv-tab active" onclick="apvTab('pending',this)">অপেক্ষামান</button>
+        <button class="apv-tab" onclick="apvTab('all',this)">সব লেনদেন</button>
+      </div>
+    </div>
+    <div class="approval-body">
+
+      <!-- Admin Login Form (shown when not logged in) -->
+      <div id="adminLoginForm">
+        <div class="admin-login-wrap">
+          <div class="al-title"><i class="ti ti-lock" style="color:#145230"></i> অ্যাডমিন লগইন</div>
+          <div class="al-sub">সঞ্চয় অনুমোদন করতে অ্যাডমিন ইমেইল ও পাসওয়ার্ড দিন</div>
+          <input class="al-input" id="adminEmail" type="email" placeholder="admin@example.com">
+          <input class="al-input" id="adminPass" type="password" placeholder="পাসওয়ার্ড">
+          <button class="al-btn" onclick="adminLogin()"><i class="ti ti-login"></i> লগইন করুন</button>
+          <div class="al-msg" id="adminLoginMsg"></div>
+        </div>
+      </div>
+
+      <!-- Approval Panel (shown when admin logged in) -->
+      <div id="adminApprovalPanel" style="display:none">
+        <div class="apv-admin-bar">
+          <div class="apv-admin-info">লগইন: <strong id="adminEmailDisplay">—</strong></div>
+          <button class="btn-admin-logout" onclick="adminLogout()"><i class="ti ti-logout"></i> লগআউট</button>
+        </div>
+        <div class="apv-table-wrap">
+          <div id="apvTableContainer">
+            <div class="apv-empty"><i class="ti ti-clock"></i>লোড হচ্ছে...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+<script>
+// ═══ SAVINGS APPROVAL — Admin Panel ════════════════════════════
+// Uses _db from _supabase.js
+
+let apvFilter = 'pending';
+let adminUser = null;
+let apvAllTrx = [];
+
+// ── Admin login ──
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value.trim();
+  const pass  = document.getElementById('adminPass').value;
+  const msgEl = document.getElementById('adminLoginMsg');
+  msgEl.textContent = ''; msgEl.className = 'al-msg';
+  if(!email || !pass) { msgEl.textContent = 'ইমেইল ও পাসওয়ার্ড প্রয়োজন'; msgEl.className='al-msg error'; return; }
+
+  const { data, error } = await _db.auth.signInWithPassword({ email, password: pass });
+  if(error) { msgEl.textContent = 'ভুল ইমেইল বা পাসওয়ার্ড'; msgEl.className='al-msg error'; return; }
+
+  adminUser = data.user;
+  document.getElementById('adminLoginForm').style.display = 'none';
+  document.getElementById('adminApprovalPanel').style.display = '';
+  document.getElementById('adminEmailDisplay').textContent = email;
+  await loadApvTrx();
+}
+
+// ── Admin logout ──
+async function adminLogout() {
+  await _db.auth.signOut();
+  adminUser = null;
+  document.getElementById('adminApprovalPanel').style.display = 'none';
+  document.getElementById('adminLoginForm').style.display = '';
+  document.getElementById('adminEmail').value = '';
+  document.getElementById('adminPass').value = '';
+}
+
+// ── Tab switch ──
+function apvTab(filter, btn) {
+  apvFilter = filter;
+  document.querySelectorAll('.apv-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderApvTable();
+}
+
+// ── Load all savings transactions with depositor name ──
+async function loadApvTrx() {
+  const { data, error } = await _db
+    .from('savings_transactions')
+    .select('*, depositors(full_name, phone)')
+    .order('created_at', { ascending: false });
+  if(error) {
+    document.getElementById('apvTableContainer').innerHTML =
+      '<div class="apv-empty"><i class="ti ti-alert-circle"></i>ডেটা লোড করতে ব্যর্থ: ' + error.message + '</div>';
+    return;
+  }
+  apvAllTrx = data || [];
+  renderApvTable();
+}
+
+// ── Render table ──
+function renderApvTable() {
+  const container = document.getElementById('apvTableContainer');
+  let list = apvAllTrx;
+  if(apvFilter === 'pending') list = apvAllTrx.filter(t => t.status === 'pending');
+
+  if(!list.length) {
+    container.innerHTML = '<div class="apv-empty"><i class="ti ti-circle-check"></i>' +
+      (apvFilter==='pending' ? 'কোনো অপেক্ষামান লেনদেন নেই' : 'কোনো লেনদেন নেই') + '</div>';
+    return;
+  }
+
+  const rows = list.map(t => {
+    const name  = t.depositors?.full_name || '—';
+    const phone = t.depositors?.phone || '—';
+    const date  = new Date(t.created_at).toLocaleDateString('bn-BD', {day:'numeric',month:'short',year:'numeric'});
+    const typeLabel = t.type==='deposit' ? 'জমা' : 'উত্তোলন';
+    const typeBadge = t.type==='deposit'
+      ? '<span class="apv-badge-deposit">জমা</span>'
+      : '<span class="apv-badge-withdraw">উত্তোলন</span>';
+    const statusBadge = {
+      pending:  '<span class="apv-badge-pending">অপেক্ষামান</span>',
+      approved: '<span class="apv-badge-approved">অনুমোদিত</span>',
+      rejected: '<span class="apv-badge-rejected">বাতিল</span>',
+    }[t.status] || t.status;
+
+    const actions = t.status === 'pending'
+      ? `<div class="apv-action-btns">
+           <button class="btn-approve" onclick="approveTrx('${t.id}','approved')">
+             <i class="ti ti-check"></i> অনুমোদন
+           </button>
+           <button class="btn-reject" onclick="approveTrx('${t.id}','rejected')">
+             <i class="ti ti-x"></i> বাতিল
+           </button>
+         </div>`
+      : '<span style="color:#9CA3AF;font-size:12px">সম্পন্ন</span>';
+
+    return `<tr>
+      <td>${date}</td>
+      <td><strong>${name}</strong><br><span style="color:#9CA3AF;font-size:11px">${phone}</span></td>
+      <td>${typeBadge}</td>
+      <td style="font-weight:700;color:${t.type==='deposit'?'#16a34a':'#dc2626'}">
+        ${t.type==='deposit'?'+':'-'}৳${parseFloat(t.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}
+      </td>
+      <td style="font-size:12px;color:#6B7280">${t.reference||'—'}</td>
+      <td>${statusBadge}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<table class="apv-table">
+    <thead><tr>
+      <th>তারিখ</th><th>আমানতকারী</th><th>ধরন</th>
+      <th>পরিমাণ</th><th>রেফারেন্স</th><th>অবস্থা</th><th>পদক্ষেপ</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+// ── Approve / Reject ──
+async function approveTrx(id, status) {
+  const btn = event.target.closest('button');
+  const origText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i>';
+
+  const { error } = await _db
+    .from('savings_transactions')
+    .update({ status, approved_by: adminUser?.id, approved_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if(error) {
+    alert('ত্রুটি: ' + error.message);
+    btn.disabled = false;
+    btn.innerHTML = origText;
+    return;
+  }
+  // Refresh table
+  await loadApvTrx();
+}
+
+// ── Check if already logged in on page load ──
+(async () => {
+  const { data: { session } } = await _db.auth.getSession();
+  if(session?.user) {
+    adminUser = session.user;
+    document.getElementById('adminLoginForm').style.display = 'none';
+    document.getElementById('adminApprovalPanel').style.display = '';
+    document.getElementById('adminEmailDisplay').textContent = session.user.email;
+    await loadApvTrx();
+  }
+})();
+</script>
+
 </body>
 </html>
