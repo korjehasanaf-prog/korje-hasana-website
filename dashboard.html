@@ -282,10 +282,67 @@
     .apv-admin-info strong { color: #145230; }
     .btn-admin-logout { background: none; border: 1px solid #E5E7EB; color: #6B7280; padding: 5px 14px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; }
     .btn-admin-logout:hover { border-color: #dc2626; color: #dc2626; }
+
+    /* ═══ ROLE-BASED ACCESS ═══ */
+    .super-only { display: none !important; }
+    .admin-only  { display: none !important; }
+    body.role-super_admin .super-only { display: block !important; }
+    body.role-super_admin .admin-only  { display: block !important; }
+    body.role-admin       .admin-only  { display: block !important; }
+    .admin-topbar {
+      background: linear-gradient(90deg, #0D3D22, #145230);
+      padding: 10px 28px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .admin-topbar-left { display: flex; align-items: center; gap: 12px; }
+    .admin-topbar-logo { color: #F0A500; font-size: 14px; font-weight: 800; }
+    .admin-role-badge { padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .badge-super { background: rgba(240,165,0,.2); color: #F0A500; border: 1px solid rgba(240,165,0,.4); }
+    .badge-admin { background: rgba(158,216,176,.15); color: #9ED8B0; border: 1px solid rgba(158,216,176,.3); }
+    .admin-topbar-right { display: flex; align-items: center; gap: 10px; }
+    .admin-email-display { color: rgba(255,255,255,.65); font-size: 12px; }
+    .btn-admin-topbar-logout {
+      background: rgba(220,38,38,.15); color: #f87171; border: 1px solid rgba(220,38,38,.3);
+      padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn-admin-topbar-logout:hover { background: #dc2626; color: #fff; }
+    .access-denied {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      background: #f4f7f5; padding: 40px;
+    }
+    .access-denied i { font-size: 64px; color: #dc2626; opacity: .4; display: block; margin-bottom: 20px; }
+    .access-denied h2 { font-size: 22px; color: #1a1a1a; margin-bottom: 8px; }
+    .access-denied p  { color: #6B7280; margin-bottom: 24px; }
+    .btn-goto-login { background: #145230; color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; display: inline-block; }
 </style>
 </head>
 <body>
 
+<!-- Admin Access Denied Screen (shown if not logged in) -->
+<div id="accessDeniedScreen" class="access-denied" style="display:none">
+  <i class="ti ti-shield-lock"></i>
+  <h2>অ্যাক্সেস অনুমতি নেই</h2>
+  <p>এই ড্যাশবোর্ড শুধুমাত্র অ্যাডমিনদের জন্য। অনুগ্রহ করে লগইন করুন।</p>
+  <a href="admin-login.html" class="btn-goto-login"><i class="ti ti-login"></i> অ্যাডমিন লগইন</a>
+</div>
+
+<!-- Admin Top Bar -->
+<div class="admin-topbar" id="adminTopBar" style="display:none">
+  <div class="admin-topbar-left">
+    <span class="admin-topbar-logo">KH Admin</span>
+    <span class="admin-role-badge badge-super" id="adminRoleBadge">Super Admin</span>
+  </div>
+  <div class="admin-topbar-right">
+    <span class="admin-email-display" id="adminEmailBar">—</span>
+    <button class="btn-admin-topbar-logout" onclick="adminTopbarLogout()">
+      <i class="ti ti-logout"></i> লগআউট
+    </button>
+  </div>
+</div>
+
+<div id="dashboardMain" style="display:none">
 <!-- NAVBAR -->
 <nav class="navbar">
   <a href="index.html" class="logo-wrap">
@@ -1239,8 +1296,28 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 
 </script>
 
+
+  <!-- ═══ ADMIN USER MANAGEMENT (Super Admin only) ═══ -->
+  <div class="approval-section super-only" id="adminUserSection" style="margin-top:28px">
+    <div class="approval-header" style="background:linear-gradient(135deg,#1a3a5c,#1e4d8c)">
+      <h3><i class="ti ti-users-group" style="color:#60a5fa"></i> অ্যাডমিন ব্যবহারকারী ব্যবস্থাপনা</h3>
+      <span style="font-size:12px;color:rgba(255,255,255,.6)">Super Admin only</span>
+    </div>
+    <div class="approval-body">
+      <div class="apv-table-wrap">
+        <table class="apv-table">
+          <thead><tr><th>ইমেইল</th><th>ভূমিকা</th></tr></thead>
+          <tbody id="adminUserListContainer">
+            <tr><td colspan="2" style="text-align:center;color:#9CA3AF;padding:20px">লোড হচ্ছে...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ SAVINGS APPROVAL SECTION ═══ -->
-  <div class="approval-section" id="savingsApprovalSection">
+  <div class="approval-section admin-only" id="savingsApprovalSection" style="scroll-margin-top:80px">
+  <a id="adminLogin" style="display:block;height:0;visibility:hidden"></a>
     <div class="approval-header">
       <h3><i class="ti ti-shield-check"></i> আমানত অনুমোদন — Admin Panel</h3>
       <div class="approval-tabs">
@@ -1430,6 +1507,118 @@ async function approveTrx(id, status) {
     await loadApvTrx();
   }
 })();
+</script>
+
+
+</div><!-- /dashboardMain -->
+
+<script>
+// ═══ ROLE-BASED DASHBOARD ACCESS ════════════════════════════════
+
+async function initAdminDashboard() {
+  // Check URL param or sessionStorage
+  const urlRole = new URLSearchParams(window.location.search).get('role');
+  const storedRole  = sessionStorage.getItem('kh_admin_role');
+  const storedEmail = sessionStorage.getItem('kh_admin_email');
+
+  // Verify Supabase session
+  const { data: { session } } = await _db.auth.getSession();
+
+  if(!session?.user) {
+    // Not logged in
+    showAccessDenied();
+    return;
+  }
+
+  // Get role from DB (authoritative check)
+  const { data: dbRole } = await _db.rpc('get_my_admin_role');
+  if(!dbRole) {
+    await _db.auth.signOut();
+    showAccessDenied();
+    return;
+  }
+
+  const role  = dbRole;
+  const email = session.user.email;
+
+  // Apply role class to body
+  document.body.classList.add('role-' + role);
+
+  // Show admin topbar
+  document.getElementById('adminTopBar').style.display = '';
+  document.getElementById('adminEmailBar').textContent = email;
+  const badge = document.getElementById('adminRoleBadge');
+  if(role === 'super_admin') {
+    badge.textContent = '⭐ Super Admin';
+    badge.className   = 'admin-role-badge badge-super';
+  } else {
+    badge.textContent = '🛡 Admin';
+    badge.className   = 'admin-role-badge badge-admin';
+  }
+
+  // Show main dashboard content
+  document.getElementById('dashboardMain').style.display = '';
+
+  // If admin (not super), hide loan/donation charts & stats, show only savings
+  if(role === 'admin') {
+    // Hide all sections except savings
+    document.querySelectorAll('.super-only').forEach(el => el.style.display = 'none');
+    // Scroll to savings approval
+    setTimeout(() => {
+      const el = document.getElementById('savingsApprovalSection');
+      if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+
+  // Pre-fill admin login panel & auto-load approval table
+  const loginForm = document.getElementById('adminLoginForm');
+  const apvPanel  = document.getElementById('adminApprovalPanel');
+  if(loginForm && apvPanel) {
+    loginForm.style.display = 'none';
+    apvPanel.style.display  = '';
+    const emailDisp = document.getElementById('adminEmailDisplay');
+    if(emailDisp) emailDisp.textContent = email;
+    adminUser = session.user;
+    await loadApvTrx();
+  }
+
+  // Super admin: load admin user list
+  if(role === 'super_admin') {
+    loadAdminUsers();
+  }
+}
+
+function showAccessDenied() {
+  document.getElementById('accessDeniedScreen').style.display = 'flex';
+  const main = document.getElementById('dashboardMain');
+  if(main) main.style.display = 'none';
+  document.getElementById('adminTopBar').style.display = 'none';
+}
+
+async function adminTopbarLogout() {
+  await _db.auth.signOut();
+  sessionStorage.removeItem('kh_admin_role');
+  sessionStorage.removeItem('kh_admin_email');
+  window.location.href = 'admin-login.html';
+}
+
+// ── Super Admin: load admin user list ──
+async function loadAdminUsers() {
+  const { data, error } = await _db.rpc('get_all_admin_roles');
+  if(error || !data) return;
+  const container = document.getElementById('adminUserListContainer');
+  if(!container) return;
+  container.innerHTML = data.map(u => `
+    <tr>
+      <td>${u.email}</td>
+      <td><span class="admin-role-badge ${u.role==='super_admin'?'badge-super':'badge-admin'}" style="font-size:11px">
+        ${u.role==='super_admin'?'⭐ Super Admin':'🛡 Admin'}
+      </span></td>
+    </tr>`).join('') || '<tr><td colspan="2" style="text-align:center;color:#9CA3AF">কোনো অ্যাডমিন নেই</td></tr>';
+}
+
+// Init on page load
+initAdminDashboard();
 </script>
 
 </body>

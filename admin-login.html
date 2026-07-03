@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>অ্যাডমিন লগইন | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root {
+      --green:   #145230;
+      --dkgreen: #0D3D22;
+      --mdgreen: #1E7D42;
+      --ltgreen: #9ED8B0;
+      --gold:    #F0A500;
+      --white:   #ffffff;
+      --border:  #E5E7EB;
+      --text:    #1a1a1a;
+      --muted:   #6B7280;
+      --red:     #DC2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hind Siliguri','Inter',sans-serif;
+      background: linear-gradient(135deg, #0D3D22 0%, #145230 50%, #1a6b3a 100%);
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+
+    /* ── Background pattern ── */
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 20% 20%, rgba(240,165,0,.06) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255,255,255,.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Logo ── */
+    .logo-area { text-align: center; margin-bottom: 28px; }
+    .logo-circle {
+      width: 64px; height: 64px; background: var(--gold); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: var(--dkgreen);
+      margin: 0 auto 14px;
+      box-shadow: 0 0 0 8px rgba(240,165,0,.15), 0 0 0 16px rgba(240,165,0,.07);
+    }
+    .logo-title { color: #fff; font-size: 18px; font-weight: 700; line-height: 1.3; }
+    .logo-sub   { color: rgba(255,255,255,.5); font-size: 12px; margin-top: 3px; }
+
+    /* ── Card ── */
+    .login-card {
+      background: #fff; border-radius: 20px; width: 100%; max-width: 420px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.35); overflow: hidden;
+    }
+
+    /* ── Role selector ── */
+    .role-tabs { display: flex; background: #f4f7f5; }
+    .role-tab {
+      flex: 1; padding: 14px 10px; text-align: center; cursor: pointer;
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      border-bottom: 3px solid transparent; transition: all .2s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .role-tab i { font-size: 20px; }
+    .role-tab.active { color: var(--green); border-bottom-color: var(--green); background: #fff; }
+    .role-tab .role-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+
+    /* ── Form ── */
+    .card-body { padding: 28px 32px 32px; }
+    .card-title { font-size: 20px; font-weight: 700; color: var(--dkgreen); margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+    .input-wrap { position: relative; }
+    .input-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--muted); }
+    .form-group input {
+      width: 100%; padding: 11px 14px 11px 38px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 13px; font-family: inherit; color: var(--text);
+      outline: none; background: #fafafa; transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: var(--mdgreen); background: #fff; }
+
+    .btn-login {
+      width: 100%; padding: 13px; background: var(--green); color: #fff;
+      border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-login:hover { background: var(--mdgreen); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(20,82,48,.3); }
+    .btn-login:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+    .msg-box { border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .msg-box.error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: block; }
+    .msg-box.success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: block; }
+    .msg-box.info    { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; display: block; }
+
+    /* ── Role badge ── */
+    .role-badge-wrap { text-align: center; margin-bottom: 18px; }
+    .role-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    }
+    .role-badge.super { background: rgba(240,165,0,.12); color: #b45309; border: 1px solid rgba(240,165,0,.4); }
+    .role-badge.admin { background: rgba(20,82,48,.1); color: var(--green); border: 1px solid rgba(20,82,48,.3); }
+
+    /* ── Permissions list ── */
+    .perm-list { background: #f9fafb; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+    .perm-list-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .perm-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); padding: 3px 0; }
+    .perm-item i { font-size: 14px; }
+    .perm-item.yes i { color: #16a34a; }
+    .perm-item.no  i { color: #9CA3AF; }
+    .perm-item.no  span { color: var(--muted); }
+
+    /* ── Back link ── */
+    .back-link { text-align: center; margin-top: 20px; }
+    .back-link a { color: rgba(255,255,255,.55); font-size: 12px; text-decoration: none; transition: color .2s; }
+    .back-link a:hover { color: rgba(255,255,255,.9); }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ti-spin { animation: spin .7s linear infinite; }
+  </style>
+</head>
+<body>
+
+<!-- Logo -->
+<div class="logo-area">
+  <div class="logo-circle">KH</div>
+  <div class="logo-title">কর্জে হাসানা ফাউন্ডেশন</div>
+  <div class="logo-sub">Admin Portal</div>
+</div>
+
+<!-- Login Card -->
+<div class="login-card">
+
+  <!-- Role Tabs -->
+  <div class="role-tabs">
+    <div class="role-tab active" id="tab-super" onclick="selectRole('super_admin')">
+      <i class="ti ti-shield-star"></i>
+      <span class="role-label">Super Admin</span>
+      <span style="font-size:11px;color:var(--muted)">সুপার অ্যাডমিন</span>
+    </div>
+    <div class="role-tab" id="tab-admin" onclick="selectRole('admin')">
+      <i class="ti ti-user-shield"></i>
+      <span class="role-label">Admin</span>
+      <span style="font-size:11px;color:var(--muted)">অ্যাডমিন</span>
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <!-- Role badge -->
+    <div class="role-badge-wrap">
+      <span class="role-badge super" id="roleBadge">
+        <i class="ti ti-shield-star"></i> Super Admin লগইন
+      </span>
+    </div>
+
+    <!-- Permissions preview -->
+    <div class="perm-list" id="permList">
+      <div class="perm-list-title">অ্যাক্সেস সুবিধাসমূহ</div>
+      <div id="permItems"></div>
+    </div>
+
+    <!-- Message -->
+    <div class="msg-box" id="loginMsg"></div>
+
+    <!-- Form -->
+    <div class="form-group">
+      <label>ইমেইল ঠিকানা</label>
+      <div class="input-wrap">
+        <i class="ti ti-mail"></i>
+        <input type="email" id="loginEmail" placeholder="admin@korjehasana.org">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>পাসওয়ার্ড</label>
+      <div class="input-wrap">
+        <i class="ti ti-lock"></i>
+        <input type="password" id="loginPass" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') doAdminLogin()">
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="doAdminLogin()">
+      <i class="ti ti-login"></i> লগইন করুন
+    </button>
+  </div>
+</div>
+
+<div class="back-link">
+  <a href="index.html"><i class="ti ti-arrow-left"></i> হোমপেজে ফিরুন</a>
+</div>
+
+<script>
+// ── Role config ──
+const ROLES = {
+  super_admin: {
+    label: 'Super Admin লগইন',
+    badge: 'super',
+    icon: 'ti-shield-star',
+    perms: [
+      { yes: true,  text: 'সম্পূর্ণ ড্যাশবোর্ড ও পরিসংখ্যান' },
+      { yes: true,  text: 'ঋণ আবেদন ব্যবস্থাপনা' },
+      { yes: true,  text: 'সঞ্চয় অনুমোদন ও প্রত্যাখ্যান' },
+      { yes: true,  text: 'দান তহবিল ব্যবস্থাপনা' },
+      { yes: true,  text: 'অ্যাডমিন ব্যবহারকারী ব্যবস্থাপনা' },
+      { yes: true,  text: 'সকল রিপোর্ট ও এক্সপোর্ট' },
+    ]
+  },
+  admin: {
+    label: 'Admin লগইন',
+    badge: 'admin',
+    icon: 'ti-user-shield',
+    perms: [
+      { yes: true,  text: 'সঞ্চয় পরিসংখ্যান দেখা' },
+      { yes: true,  text: 'সঞ্চয় অনুমোদন ও প্রত্যাখ্যান' },
+      { yes: false, text: 'ঋণ ব্যবস্থাপনা (নেই)' },
+      { yes: false, text: 'দান তহবিল ব্যবস্থাপনা (নেই)' },
+      { yes: false, text: 'অ্যাডমিন ব্যবস্থাপনা (নেই)' },
+    ]
+  }
+};
+
+let selectedRole = 'super_admin';
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('tab-super').classList.toggle('active', role === 'super_admin');
+  document.getElementById('tab-admin').classList.toggle('active', role === 'admin');
+  const cfg = ROLES[role];
+  // Update badge
+  const badge = document.getElementById('roleBadge');
+  badge.className = 'role-badge ' + cfg.badge;
+  badge.innerHTML = `<i class="ti ${cfg.icon}"></i> ${cfg.label}`;
+  // Update perms
+  document.getElementById('permItems').innerHTML = cfg.perms.map(p =>
+    `<div class="perm-item ${p.yes ? 'yes' : 'no'}">
+       <i class="ti ${p.yes ? 'ti-circle-check' : 'ti-circle-minus'}"></i>
+       <span>${p.text}</span>
+     </div>`
+  ).join('');
+  // Clear msg
+  document.getElementById('loginMsg').className = 'msg-box';
+}
+
+function showMsg(txt, type) {
+  const el = document.getElementById('loginMsg');
+  el.textContent = txt;
+  el.className = 'msg-box ' + type;
+}
+
+async function doAdminLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const btn   = document.getElementById('loginBtn');
+
+  if(!email || !pass) { showMsg('ইমেইল ও পাসওয়ার্ড প্রয়োজন', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2 ti-spin"></i> লগইন হচ্ছে...';
+  showMsg('', '');
+
+  // Sign in with Supabase
+  const { data, error } = await _db.auth.signInWithPassword({ email, password: pass });
+  if(error) {
+    showMsg('ভুল ইমেইল বা পাসওয়ার্ড', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+    return;
+  }
+
+  // Check role from admin_roles table
+  const { data: roleData, error: roleErr } = await _db.rpc('get_my_admin_role');
+  if(roleErr || !roleData) {
+    await _db.auth.signOut();
+    showMsg('আপনার কোনো অ্যাডমিন ভূমিকা নেই। যোগাযোগ করুন: touhid@grameenbank.org.bd', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+    return;
+  }
+
+  const actualRole = roleData; // 'super_admin' or 'admin'
+
+  // Verify selected role matches actual role
+  if(selectedRole !== actualRole) {
+    await _db.auth.signOut();
+    showMsg(
+      `আপনি "${ROLES[selectedRole]?.label}" হিসেবে লগইন করতে পারবেন না। আপনার ভূমিকা: ${ROLES[actualRole]?.label || actualRole}`,
+      'error'
+    );
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+    return;
+  }
+
+  // Store role for dashboard to read
+  sessionStorage.setItem('kh_admin_role', actualRole);
+  sessionStorage.setItem('kh_admin_email', email);
+
+  showMsg('লগইন সফল! ড্যাশবোর্ডে যাচ্ছেন...', 'success');
+  setTimeout(() => {
+    window.location.href = 'dashboard.html?role=' + actualRole;
+  }, 900);
+}
+
+// Init permissions list
+selectRole('super_admin');
+
+// If already logged in, redirect
+(async () => {
+  const { data: { session } } = await _db.auth.getSession();
+  if(session?.user) {
+    const { data: roleData } = await _db.rpc('get_my_admin_role');
+    if(roleData) {
+      sessionStorage.setItem('kh_admin_role', roleData);
+      sessionStorage.setItem('kh_admin_email', session.user.email);
+      window.location.href = 'dashboard.html?role=' + roleData;
+    }
+  }
+})();
+</script>
+</body>
+</html>
