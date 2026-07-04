@@ -221,6 +221,14 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
 .ar-desig-input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px;font-family:'Hind Siliguri','Inter',sans-serif;width:200px;outline:none}
 .ar-desig-input:focus{border-color:var(--gold)}
 
+/* ── PERMISSION CHECKBOXES ── */
+.perm-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif;font-size:12px;color:var(--muted)}
+.perm-item:hover{background:rgba(255,255,255,.07);color:#e2ece6;border-color:rgba(255,255,255,.14)}
+.perm-item input[type=checkbox]{accent-color:var(--mdgreen);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.perm-item:has(input:checked){background:rgba(30,125,66,.15);border-color:rgba(30,125,66,.4);color:#fff}
+.perm-item span{display:flex;align-items:center;gap:5px}
+.perm-item i{font-size:14px;color:var(--ltgreen);opacity:.7}
+.perm-item:has(input:checked) i{opacity:1}
 /* ── SPINNER ── */
 .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -336,6 +344,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
         <div class="tb-date" id="tbDate"></div>
       </div>
       <div class="tb-right">
+        <a href="index.html" class="tb-home" title="প্রধান ওয়েবসাইট"><i class="ti ti-home"></i> হোম</a>
         <div class="tb-live"><span class="tb-live-dot"></span> লাইভ</div>
       </div>
     </header>
@@ -594,10 +603,52 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
       <!-- ══════════════ PANEL: ADMIN MANAGEMENT ══════════════ -->
       <div class="panel" id="panel-admin-mgmt">
         <div class="panel-title">👤 এডমিন ব্যবস্থাপনা</div>
-        <div class="panel-sub">অ্যাডমিন ব্যবহারকারীদের পদবী ও তথ্য নির্ধারণ</div>
+        <div class="panel-sub">নতুন অ্যাডমিন যোগ এবং বিদ্যমান অ্যাডমিনদের পারমিশন নির্ধারণ</div>
 
+        <!-- ADD NEW ADMIN CARD -->
+        <div class="card" style="border-color:rgba(240,165,0,.2)">
+          <div class="card-title"><i class="ti ti-user-plus"></i> নতুন অ্যাডমিন যোগ করুন</div>
+          <div class="form-grid">
+            <div class="fld"><label>ইমেইল (Supabase Auth তে নিবন্ধিত) *</label><input id="na-email" type="email" placeholder="admin@example.com"></div>
+            <div class="fld"><label>নাম (বাংলা) *</label><input id="na-name" type="text" placeholder="পূর্ণ নাম বাংলায়"></div>
+            <div class="fld"><label>পদবী *</label><input id="na-desig" type="text" placeholder="যেমন: কোষাধ্যক্ষ, ভাইস-চেয়ারম্যান"></div>
+            <div class="fld"><label>রোল</label>
+              <select id="na-role" onchange="toggleSuperAdminPerms()">
+                <option value="admin">সাধারণ এডমিন</option>
+                <option value="super_admin">সুপার এডমিন</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- PERMISSIONS -->
+          <div style="margin-top:16px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">অ্যাক্সেস পারমিশন</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="permGrid">
+              <label class="perm-item"><input type="checkbox" name="perm" value="cash_donation"><span><i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="savings_entry"><span><i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="installment"><span><i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> খরচ এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="loan_approve"><span><i class="ti ti-file-check"></i> ঋণ আবেদন অনুমোদন</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="donation_approve"><span><i class="ti ti-credit-card-refund"></i> অনলাইন ডোনেশন অনুমোদন</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="savings_approve"><span><i class="ti ti-arrows-exchange"></i> সঞ্চয় উত্তোলন অনুমোদন</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="view_log"><span><i class="ti ti-list-check"></i> অনুমোদন লগ দেখা</span></label>
+              <label class="perm-item" id="perm-admin-mgmt-wrap"><input type="checkbox" name="perm" value="admin_mgmt"><span><i class="ti ti-users-group"></i> এডমিন ব্যবস্থাপনা</span></label>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="fpill" onclick="selectAllPerms(true)" style="font-size:11px">সব নির্বাচন</button>
+              <button class="fpill" onclick="selectAllPerms(false)" style="font-size:11px">সব বাতিল</button>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;display:flex;gap:10px;align-items:center">
+            <button class="btn btn-gold" onclick="addNewAdmin()"><i class="ti ti-user-plus"></i> অ্যাডমিন যোগ করুন</button>
+          </div>
+          <div id="na-msg" class="msg"></div>
+        </div>
+
+        <!-- EXISTING ADMINS -->
         <div class="card">
-          <div class="card-title"><i class="ti ti-users"></i> সকল অ্যাডমিন</div>
+          <div class="card-title"><i class="ti ti-users"></i> বিদ্যমান অ্যাডমিন তালিকা</div>
           <div id="adminListContainer">
             <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
           </div>
@@ -1267,31 +1318,117 @@ function renderLog(items) {
 // ════════════════════════════════════════
 //  ADMIN MANAGEMENT
 // ════════════════════════════════════════
+const ALL_PERMS = ['cash_donation','savings_entry','installment','expense','loan_approve','donation_approve','savings_approve','view_log','admin_mgmt'];
+
+function toggleSuperAdminPerms() {
+  const isSuperAdmin = document.getElementById('na-role').value === 'super_admin';
+  if (isSuperAdmin) selectAllPerms(true);
+}
+
+function selectAllPerms(select) {
+  document.querySelectorAll('#permGrid input[type=checkbox]').forEach(cb => cb.checked = select);
+}
+
+function getCheckedPerms() {
+  return Array.from(document.querySelectorAll('#permGrid input[type=checkbox]:checked')).map(cb => cb.value);
+}
+
+async function addNewAdmin() {
+  const email = document.getElementById('na-email').value.trim().toLowerCase();
+  const name = document.getElementById('na-name').value.trim();
+  const desig = document.getElementById('na-desig').value.trim();
+  const role = document.getElementById('na-role').value;
+  const perms = getCheckedPerms();
+
+  if (!email || !name || !desig) { showMsg('na-msg','ইমেইল, নাম ও পদবী আবশ্যক','err'); return; }
+  if (!perms.length) { showMsg('na-msg','কমপক্ষে একটি পারমিশন নির্বাচন করুন','err'); return; }
+
+  const {data: result, error} = await _db.rpc('add_admin_user',{
+    p_email: email, p_role: role, p_name_bn: name,
+    p_designation_bn: desig, p_permissions: perms
+  });
+
+  if (error) { showMsg('na-msg','ত্রুটি: '+error.message,'err'); return; }
+  if (result && result.startsWith('error:user_not_found')) {
+    showMsg('na-msg','❌ এই ইমেইলে কোনো Supabase Auth ইউজার নেই। আগে সেখানে ইউজার তৈরি করুন।','err'); return;
+  }
+  if (result && result.startsWith('error:')) {
+    showMsg('na-msg','❌ '+result,'err'); return;
+  }
+
+  showMsg('na-msg','✅ অ্যাডমিন সফলভাবে যোগ হয়েছে!','ok');
+  document.getElementById('na-email').value='';
+  document.getElementById('na-name').value='';
+  document.getElementById('na-desig').value='';
+  document.getElementById('na-role').value='admin';
+  selectAllPerms(false);
+  loadAdminUsers();
+}
+
 async function loadAdminUsers() {
   const c = document.getElementById('adminListContainer');
   const {data} = await _db.rpc('get_all_admin_roles');
   if (!data||!data.length){c.innerHTML='<div class="empty-state"><i class="ti ti-user-off"></i><p>কোনো অ্যাডমিন নেই</p></div>';return;}
-  c.innerHTML = data.map(a=>`<div class="admin-row">
-    <div class="ar-avatar">${(a.name_bn||a.email||'A').charAt(0)}</div>
-    <div class="ar-info">
-      <div class="ar-name">${a.name_bn||a.email}</div>
-      <div class="ar-email">${a.email} · <span class="badge ${a.role==='super_admin'?'rb-super':'rb-admin'}">${a.role==='super_admin'?'সুপার এডমিন':'এডমিন'}</span></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:6px">
-      <input class="ar-desig-input" id="desig-${a.user_id}" value="${a.designation_bn||''}" placeholder="পদবী লিখুন...">
-      <input class="ar-desig-input" id="name-${a.user_id}" value="${a.name_bn||''}" placeholder="নাম (বাংলা)">
-    </div>
-    <button class="btn btn-gold btn-sm" onclick="saveAdminDesig('${a.user_id}')"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
-  </div>`).join('');
+
+  c.innerHTML = data.map(a => {
+    const perms = Array.isArray(a.permissions) ? a.permissions : [];
+    const isSelf = a.user_id === _currentUser?.id;
+    const permLabels = {
+      cash_donation:'নগদ ডোনেশন', savings_entry:'সঞ্চয় জমা', installment:'কিস্তি',
+      expense:'খরচ', loan_approve:'ঋণ অনুমোদন', donation_approve:'ডোনেশন অনুমোদন',
+      savings_approve:'সঞ্চয় উত্তোলন', view_log:'লগ', admin_mgmt:'এডমিন মগমট'
+    };
+    return `<div class="admin-row" id="ar-${a.user_id}">
+      <div class="ar-avatar" style="background:${a.role==='super_admin'?'linear-gradient(135deg,#78350f,#92400e)':'linear-gradient(135deg,var(--green),var(--mdgreen))'}">${(a.name_bn||a.email||'A').charAt(0)}</div>
+      <div class="ar-info" style="flex:1">
+        <div class="ar-name">${a.name_bn||'(নাম নেই)'} ${isSelf?'<span style="font-size:10px;color:var(--gold)">(আপনি)</span>':''}</div>
+        <div class="ar-email">${a.email}</div>
+        <div style="margin-top:4px"><span class="badge ${a.role==='super_admin'?'rb-super':'rb-admin'}">${a.role==='super_admin'?'সুপার এডমিন':'এডমিন'}</span>${a.designation_bn?` · <span style="font-size:11px;color:var(--ltgreen)">${a.designation_bn}</span>`:''}</div>
+        <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+          ${perms.map(p=>`<span style="font-size:9px;padding:2px 7px;border-radius:10px;background:rgba(30,125,66,.2);color:var(--ltgreen);border:1px solid rgba(30,125,66,.3)">${permLabels[p]||p}</span>`).join('')}
+          ${!perms.length?'<span style="font-size:10px;color:var(--muted)">কোনো পারমিশন নেই</span>':''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;min-width:180px">
+        <input class="ar-desig-input" id="edit-name-${a.user_id}" value="${a.name_bn||''}" placeholder="নাম (বাংলা)">
+        <input class="ar-desig-input" id="edit-desig-${a.user_id}" value="${a.designation_bn||''}" placeholder="পদবী">
+        <select class="ar-desig-input" id="edit-role-${a.user_id}">
+          <option value="admin" ${a.role==='admin'?'selected':''}>সাধারণ এডমিন</option>
+          <option value="super_admin" ${a.role==='super_admin'?'selected':''}>সুপার এডমিন</option>
+        </select>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-gold btn-sm" onclick="saveAdminFull('${a.user_id}')"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
+        ${!isSelf?`<button class="btn btn-danger btn-sm" onclick="removeAdmin('${a.user_id}','${escQ(a.name_bn||a.email)}')"><i class="ti ti-trash"></i> সরিয়ে দিন</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
-async function saveAdminDesig(userId) {
-  const desig = document.getElementById('desig-'+userId).value.trim();
-  const name = document.getElementById('name-'+userId).value.trim();
-  const {error} = await _db.rpc('update_admin_designation',{target_user_id:userId,new_designation:desig,new_name:name});
+async function saveAdminFull(userId) {
+  const name = document.getElementById('edit-name-'+userId).value.trim();
+  const desig = document.getElementById('edit-desig-'+userId).value.trim();
+  const role = document.getElementById('edit-role-'+userId).value;
+  // Preserve existing permissions when saving basic info
+  const {data: existing} = await _db.rpc('get_all_admin_roles');
+  const ex = (existing||[]).find(a=>a.user_id===userId);
+  const perms = ex?.permissions || [];
+
+  const {error} = await _db.rpc('update_admin_full',{
+    target_user_id:userId, new_name:name, new_designation:desig,
+    new_role:role, new_permissions:perms
+  });
   if (error){alert('ত্রুটি: '+error.message);return;}
   alert('✅ সফলভাবে সংরক্ষণ হয়েছে');
   loadAdminUsers();
+}
+
+async function removeAdmin(userId, name) {
+  if (!confirm(`"${name}" কে অ্যাডমিন তালিকা থেকে সরিয়ে দিতে চান?`)) return;
+  const {data: result, error} = await _db.rpc('remove_admin_user',{target_user_id:userId});
+  if (error||result?.startsWith('error:')) { alert('ত্রুটি: '+(error?.message||result)); return; }
+  loadAdminUsers();
+  loadPendingBadges();
 }
 
 // ════════════════════════════════════════
