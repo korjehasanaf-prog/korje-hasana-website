@@ -318,7 +318,7 @@
         </div>
         <button onclick="showOCRSettings()" title="OCR Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0">
           <i class="ti ti-settings" style="font-size:15px"></i>
-          <span id="ocrEngineLabel">OCR</span>
+          <span id="ocrEngineLabel">⚡ Groq AI</span>
         </button>
       </div>
       <div class="card-body">
@@ -985,9 +985,9 @@ function updateOcrEngineLabel() {
   const geminiKey = localStorage.getItem('kh_gemini_key') || '';
   const lbl = document.getElementById('ocrEngineLabel');
   if (!lbl) return;
-  if (groqKey.startsWith('gsk_'))    lbl.textContent = '⚡ Groq AI';
+  if (groqKey.startsWith('gsk_'))         lbl.textContent = '⚡ Groq AI';
   else if (geminiKey.startsWith('AIzaSy')) lbl.textContent = '⚡ Gemini AI';
-  else                                lbl.textContent = '🔍 Tesseract';
+  else                                     lbl.textContent = '⚡ Groq AI'; // default label
 }
 updateOcrEngineLabel();
 

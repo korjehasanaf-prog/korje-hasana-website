@@ -230,6 +230,19 @@
     @keyframes toastOut { to{opacity:0;transform:translateX(20px)} }
     @keyframes spin { to{transform:rotate(360deg)} }
 
+    /* ═══ LOGIN FIELDS ═══ */
+    .login-fields { display: flex; flex-direction: column; gap: 14px; }
+    .lf-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .lf-label { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 5px; }
+    .lf-label i { color: var(--green); font-size: 14px; }
+
+    /* ═══ LOGOUT BUTTON ═══ */
+    .btn-logout { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.85); border-radius: 10px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s; font-family: inherit; margin-left: auto; }
+    .btn-logout:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ═══ PORTAL VIEW ═══ */
+    #portalView { display: none; }
+
     @media (max-width: 768px) {
       .topbar, .navbar { padding-left: 16px; padding-right: 16px; }
       .page-hero { padding: 44px 16px 90px; }
@@ -325,32 +338,41 @@
   <div class="hero-glow"></div>
   <div class="hero-badge"><i class="ti ti-user-check"></i>ঋণগ্রহীতা পোর্টাল · Borrower Portal</div>
   <h1>আপনার <span>লোনের তথ্য</span> দেখুন</h1>
-  <p>NID নম্বর বা রেফারেন্স নম্বর দিয়ে আপনার লোনের অবস্থা, কিস্তির সময়সূচি এবং পরিশোধের ইতিহাস জানুন।</p>
+  <p>NID নম্বর ও মোবাইল নম্বর দিয়ে লগইন করুন। আপনার ঋণের বিস্তারিত তথ্য, কিস্তির সময়সূচি এবং পরিশোধের ইতিহাস দেখুন।</p>
 </section>
 
-<!-- SEARCH CARD -->
-<div class="search-wrap">
+<!-- LOGIN CARD -->
+<div class="search-wrap" id="loginCard">
   <div class="search-card">
-    <div class="search-tabs">
-      <div class="stab active" onclick="setSearchMode(this,'nid')"><i class="ti ti-id"></i>NID Number</div>
-      <div class="stab" onclick="setSearchMode(this,'ref')"><i class="ti ti-hash"></i>Reference No.</div>
-      <div class="stab" onclick="setSearchMode(this,'mobile')"><i class="ti ti-phone"></i>Mobile No.</div>
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--mdgreen));display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <i class="ti ti-shield-lock" style="font-size:24px;color:#fff"></i>
+      </div>
+      <div style="font-size:17px;font-weight:800;color:var(--text)">পোর্টালে প্রবেশ করুন</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">আপনার NID ও নিবন্ধিত মোবাইল নম্বর দিন</div>
     </div>
-    <div class="search-field">
-      <input type="text" class="s-input" id="searchInput"
-        placeholder="Enter your NID number (e.g. 1234567890123)"
-        onkeydown="if(event.key==='Enter') doSearch()">
-      <button class="s-btn" id="searchBtn" onclick="doSearch()">
-        <i class="ti ti-search"></i> Search
+    <div class="login-fields">
+      <div class="lf-wrap">
+        <label class="lf-label"><i class="ti ti-id"></i> NID নম্বর</label>
+        <input type="text" class="s-input" id="loginNid" placeholder="১৩ বা ১৭ সংখ্যার NID নম্বর" inputmode="numeric"
+          onkeydown="if(event.key==='Enter') document.getElementById('loginMobile').focus()">
+      </div>
+      <div class="lf-wrap">
+        <label class="lf-label"><i class="ti ti-phone"></i> মোবাইল নম্বর</label>
+        <input type="tel" class="s-input" id="loginMobile" placeholder="01XXXXXXXXX (নিবন্ধিত)" inputmode="numeric"
+          onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+      <button class="s-btn" id="loginBtn" onclick="doLogin()" style="width:100%;justify-content:center;padding:14px">
+        <i class="ti ti-login"></i> লগইন করুন
       </button>
     </div>
-    <div class="search-hint">
+    <div class="search-hint" style="margin-top:14px;justify-content:center">
       <i class="ti ti-lock" style="color:var(--green)"></i>
-      Your information is private and secure. Only you can view your loan details.
+      আপনার তথ্য সম্পূর্ণ নিরাপদ। শুধুমাত্র আপনিই আপনার লোনের তথ্য দেখতে পারবেন।
     </div>
-    <div class="search-error" id="searchError" style="display:none">
+    <div class="search-error" id="loginError" style="display:none">
       <i class="ti ti-alert-circle"></i>
-      <span id="searchErrorMsg">No loan record found. Please check your input and try again.</span>
+      <span id="loginErrorMsg">NID বা মোবাইল নম্বর মেলেনি। আবার চেষ্টা করুন।</span>
     </div>
   </div>
 </div>
@@ -358,25 +380,8 @@
 <!-- MAIN CONTENT -->
 <div class="content-wrap">
 
-  <!-- IDLE STATE -->
-  <div id="idleState">
-    <div class="idle-icon"><i class="ti ti-search"></i></div>
-    <div class="idle-title">Search for your loan record</div>
-    <div class="idle-sub">Enter your NID, reference number, or mobile number above to view your complete loan information.</div>
-    <div class="idle-tips">
-      <div class="idle-tip"><i class="ti ti-id"></i><strong>NID Number</strong>Your 13-digit national ID number</div>
-      <div class="idle-tip"><i class="ti ti-hash"></i><strong>Reference No.</strong>e.g. KH-APP-0127 from your application</div>
-      <div class="idle-tip"><i class="ti ti-phone"></i><strong>Mobile No.</strong>The mobile you registered with</div>
-    </div>
-  </div>
-
-  <!-- NOT FOUND STATE -->
-  <div id="notFoundState">
-    <div class="nf-icon"><i class="ti ti-user-x"></i></div>
-    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">No record found</div>
-    <div style="font-size:14px;color:var(--muted);max-width:380px;margin:0 auto 20px;line-height:1.6">We couldn't find a loan record matching that input. Please double-check and try again, or contact us for help.</div>
-    <a href="contact.html" style="background:var(--green);color:#fff;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .2s"><i class="ti ti-headset"></i>Contact Support</a>
-  </div>
+  <!-- PORTAL VIEW (shown after login) -->
+  <div id="portalView">
 
   <!-- RESULT SECTION -->
   <div id="resultSection">
@@ -393,6 +398,7 @@
         </div>
       </div>
       <div class="profile-badge" id="resBadge"></div>
+      <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout"></i> লগআউট</button>
     </div>
 
     <!-- KPI row -->
@@ -519,6 +525,7 @@
     </div>
 
   </div><!-- /resultSection -->
+  </div><!-- /portalView -->
 </div><!-- /content-wrap -->
 
 <!-- FOOTER -->
@@ -543,333 +550,309 @@
 <div id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════
-   DEMO DATA — 3 searchable borrowers
-═══════════════════════════════════ */
-const BORROWERS = {
-  // Keys: NID, ref, mobile — all map to same record
-  '1234567890123': 0, 'KH-APP-0127': 0, 'KH-D-0127': 0, '01711000001': 0,
-  '9876543210987': 1, 'KH-APP-0126': 1, 'KH-D-0126': 1, '01812000002': 1,
-  '5566778899001': 2, 'KH-APP-0122': 2, 'KH-D-0112': 2, '01611000003': 2,
-};
+/* ══════════════════════════════════════════════════════
+   ঋণগ্রহীতা পোর্টাল — Borrower Portal
+   NID + Mobile login → Supabase verification → show all data
+══════════════════════════════════════════════════════ */
 
-const RECORDS = [
-  {
-    name: 'মোঃ রফিকুল ইসলাম', nid: '1234567890123', mobile: '01711XXXXXX', district: 'Gazipur', status: 'Active',
-    ref: 'KH-D-0127', appRef: 'KH-APP-0127', type: 'Agriculture', purpose: 'Seeds & fertiliser for Boro paddy season',
-    goods: 'BRRI Dhan-28 seeds + fertiliser', vendor: 'Agro BD, Kapasia', amount: 25000,
-    duration: 12, startDate: 'Jun 2026', endDate: 'May 2027', disbDate: '26 Jun 2026',
-    repaid: 2083, instalment: 2083, paidCount: 1,
-    instalments: [
-      { no:1, due:'15 Jul 2026', amount:2083, paidOn:'18 Jul 2026', balance:22917, status:'paid' },
-      { no:2, due:'15 Aug 2026', amount:2083, paidOn:null,           balance:20834, status:'due' },
-      { no:3, due:'15 Sep 2026', amount:2083, paidOn:null,           balance:18751, status:'upcoming' },
-      { no:4, due:'15 Oct 2026', amount:2083, paidOn:null,           balance:16668, status:'upcoming' },
-      { no:5, due:'15 Nov 2026', amount:2083, paidOn:null,           balance:14585, status:'upcoming' },
-      { no:6, due:'15 Dec 2026', amount:2083, paidOn:null,           balance:12502, status:'upcoming' },
-      { no:7, due:'15 Jan 2027', amount:2083, paidOn:null,           balance:10419, status:'upcoming' },
-      { no:8, due:'15 Feb 2027', amount:2083, paidOn:null,           balance:8336,  status:'upcoming' },
-      { no:9, due:'15 Mar 2027', amount:2083, paidOn:null,           balance:6253,  status:'upcoming' },
-      { no:10,due:'15 Apr 2027', amount:2083, paidOn:null,           balance:4170,  status:'upcoming' },
-      { no:11,due:'15 May 2027', amount:2083, paidOn:null,           balance:2087,  status:'upcoming' },
-      { no:12,due:'15 Jun 2027', amount:2087, paidOn:null,           balance:0,     status:'upcoming' },
-    ],
-    txns: [
-      { type:'d', date:'26 Jun 2026', title:'Loan disbursed — seeds & fertiliser', sub:'Vendor: Agro BD, Kapasia', amount:25000 },
-      { type:'r', date:'18 Jul 2026', title:'Instalment #1 paid via bKash', sub:'TXN: BK2026071800123', amount:2083 },
-    ]
-  },
-  {
-    name: 'Selina Begum', nid: '9876543210987', mobile: '01812XXXXXX', district: 'Dhaka', status: 'Active',
-    ref: 'KH-D-0126', appRef: 'KH-APP-0126', type: 'Business', purpose: 'Grocery shop stock replenishment',
-    goods: 'Grocery items — 200 SKUs', vendor: 'Dhaka Bazar, Mirpur', amount: 50000,
-    duration: 12, startDate: 'Jun 2026', endDate: 'May 2027', disbDate: '24 Jun 2026',
-    repaid: 8334, instalment: 4167, paidCount: 2,
-    instalments: [
-      { no:1, due:'15 Jul 2026', amount:4167, paidOn:'12 Jul 2026', balance:45833, status:'paid' },
-      { no:2, due:'15 Aug 2026', amount:4167, paidOn:'14 Aug 2026', balance:41666, status:'paid' },
-      { no:3, due:'15 Sep 2026', amount:4167, paidOn:null,           balance:37499, status:'due' },
-      { no:4, due:'15 Oct 2026', amount:4167, paidOn:null,           balance:33332, status:'upcoming' },
-      { no:5, due:'15 Nov 2026', amount:4167, paidOn:null,           balance:29165, status:'upcoming' },
-      { no:6, due:'15 Dec 2026', amount:4167, paidOn:null,           balance:24998, status:'upcoming' },
-      { no:7, due:'15 Jan 2027', amount:4167, paidOn:null,           balance:20831, status:'upcoming' },
-      { no:8, due:'15 Feb 2027', amount:4167, paidOn:null,           balance:16664, status:'upcoming' },
-      { no:9, due:'15 Mar 2027', amount:4167, paidOn:null,           balance:12497, status:'upcoming' },
-      { no:10,due:'15 Apr 2027', amount:4167, paidOn:null,           balance:8330,  status:'upcoming' },
-      { no:11,due:'15 May 2027', amount:4167, paidOn:null,           balance:4163,  status:'upcoming' },
-      { no:12,due:'15 Jun 2027', amount:4163, paidOn:null,           balance:0,     status:'upcoming' },
-    ],
-    txns: [
-      { type:'d', date:'24 Jun 2026', title:'Loan disbursed — grocery stock', sub:'Vendor: Dhaka Bazar, Mirpur', amount:50000 },
-      { type:'r', date:'12 Jul 2026', title:'Instalment #1 paid via Nagad', sub:'TXN: NG2026071200456', amount:4167 },
-      { type:'r', date:'14 Aug 2026', title:'Instalment #2 paid via Nagad', sub:'TXN: NG2026081400789', amount:4167 },
-    ]
-  },
-  {
-    name: 'Rahima Khatun', nid: '5566778899001', mobile: '01611XXXXXX', district: 'Manikganj', status: 'Completed',
-    ref: 'KH-D-0112', appRef: 'KH-APP-0122', type: 'Family Need', purpose: 'House repair after flood damage',
-    goods: 'Tin sheets, cement, sand', vendor: 'Manikganj Building Materials', amount: 20000,
-    duration: 12, startDate: 'Jan 2026', endDate: 'Dec 2026', disbDate: '10 Jan 2026',
-    repaid: 20000, instalment: 1667, paidCount: 12,
-    instalments: Array.from({length:12}, (_,i) => ({
-      no: i+1, due: `15 ${['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'][i]} 2026`,
-      amount: i===11?1660:1667, paidOn: `${[12,14,11,13,15,12,14,16,13,15,12,14][i]} ${['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'][i]} 2026`,
-      balance: Math.max(0, 20000 - (i+1)*1667), status:'paid'
-    })),
-    txns: [
-      { type:'d', date:'10 Jan 2026', title:'Loan disbursed — flood repair materials', sub:'Vendor: Manikganj Building Materials', amount:20000 },
-      { type:'r', date:'12 Feb 2026', title:'Instalment #1 paid via bKash', sub:'TXN: BK2026021200321', amount:1667 },
-      { type:'r', date:'14 Mar 2026', title:'Instalment #2 paid via bKash', sub:'TXN: BK2026031400654', amount:1667 },
-      { type:'r', date:'25 Dec 2026', title:'Final instalment paid — LOAN COMPLETE ✓', sub:'bKash TXN: BK2026122500987', amount:1660 },
-    ]
-  }
-];
+const SESSION_KEY = 'kh_borrower_session';
 
-/* ═══ State ═══ */
-let searchMode = 'nid';
-function setSearchMode(el, mode) {
-  searchMode = mode;
-  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  const placeholders = {
-    nid:    'Enter your NID number (e.g. 1234567890123)',
-    ref:    'Enter your reference number (e.g. KH-APP-0127)',
-    mobile: 'Enter your mobile number (e.g. 01XXXXXXXXX)',
-  };
-  document.getElementById('searchInput').placeholder = placeholders[mode];
-  document.getElementById('searchInput').value = '';
-  hideError();
+/* ── Helpers ─────────────────────────────────────── */
+function fmtTk(n) { return '৳' + (parseFloat(n)||0).toLocaleString('en-IN'); }
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('bn-BD', { day:'2-digit', month:'short', year:'numeric' }); }
+  catch { return d; }
+}
+function hideLoginError() { document.getElementById('loginError').style.display = 'none'; }
+function showLoginError(msg) {
+  document.getElementById('loginErrorMsg').textContent = msg;
+  document.getElementById('loginError').style.display = 'flex';
 }
 
-function hideError() { document.getElementById('searchError').style.display = 'none'; }
-
-/* ═══ Search ═══ */
-function doSearch() {
-  const val = document.getElementById('searchInput').value.trim().toUpperCase().replace(/\s+/g,'');
-  const valOrig = document.getElementById('searchInput').value.trim();
-  hideError();
-
-  if (!valOrig) { showError('Please enter a value to search.'); return; }
-
-  const btn = document.getElementById('searchBtn');
-  btn.classList.add('loading');
-  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Searching…';
-
-  setTimeout(() => {
-    btn.classList.remove('loading');
-    btn.innerHTML = '<i class="ti ti-search"></i> Search';
-
-    // Try lookup — case-insensitive
-    const key = valOrig.toUpperCase();
-    let idx = BORROWERS[valOrig] ?? BORROWERS[key] ?? BORROWERS[valOrig.replace(/-/g,'').toUpperCase()];
-
-    // Also try as-is and upper
-    if (idx === undefined) {
-      for (const k in BORROWERS) {
-        if (k.toUpperCase() === key || k.replace(/-/g,'').toUpperCase() === key.replace(/-/g,'')) {
-          idx = BORROWERS[k]; break;
-        }
-      }
-    }
-
-    if (idx === undefined) {
-      document.getElementById('idleState').style.display = 'none';
-      document.getElementById('notFoundState').style.display = 'block';
-      document.getElementById('resultSection').style.display = 'none';
-    } else {
-      showResult(RECORDS[idx]);
-    }
-  }, 1000);
+/* ── Toast ───────────────────────────────────────── */
+function toast(msg, type='ok') {
+  const icons  = { ok:'ti-circle-check', error:'ti-alert-circle', info:'ti-info-circle' };
+  const colors = { ok:'#145230', error:'#ef4444', info:'#3b82f6' };
+  const el = document.createElement('div');
+  el.className = 'toast-item';
+  el.innerHTML = `<i class="ti ${icons[type]||'ti-info-circle'}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => { el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 4500);
 }
 
-/* ═══ Render result ═══ */
-function showResult(r) {
-  document.getElementById('idleState').style.display = 'none';
-  document.getElementById('notFoundState').style.display = 'none';
+/* ── Session management ──────────────────────────── */
+function saveSession(borrower, loan, schedule) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ borrower, loan, schedule, ts: Date.now() }));
+}
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    // Expire after 2 hours
+    if (Date.now() - s.ts > 7200000) { sessionStorage.removeItem(SESSION_KEY); return null; }
+    return s;
+  } catch { return null; }
+}
+
+/* ── View switching ──────────────────────────────── */
+function showLoginView() {
+  document.getElementById('loginCard').style.display = 'block';
+  document.getElementById('portalView').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('loginNid').value = '';
+  document.getElementById('loginMobile').value = '';
+  hideLoginError();
+}
+function showPortalView() {
+  document.getElementById('loginCard').style.display = 'none';
+  document.getElementById('portalView').style.display = 'block';
   document.getElementById('resultSection').style.display = 'block';
+}
 
-  // Profile
-  document.getElementById('resAvatar').textContent = r.name.charAt(0);
-  document.getElementById('resName').textContent = r.name;
-  document.getElementById('resNID').textContent = r.nid;
-  document.getElementById('resMobile').textContent = r.mobile;
-  document.getElementById('resDistrict').textContent = r.district;
+/* ── Login ───────────────────────────────────────── */
+async function doLogin() {
+  const nid    = document.getElementById('loginNid').value.trim();
+  const mobile = document.getElementById('loginMobile').value.trim();
+  hideLoginError();
+
+  if (!nid)    { showLoginError('NID নম্বর প্রদান করুন।'); document.getElementById('loginNid').focus(); return; }
+  if (!mobile) { showLoginError('মোবাইল নম্বর প্রদান করুন।'); document.getElementById('loginMobile').focus(); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> যাচাই করা হচ্ছে…';
+
+  try {
+    // Verify identity: NID + mobile must both match
+    const { data: borrower, error: be } = await _db
+      .from('borrowers')
+      .select('*')
+      .eq('nid', nid)
+      .eq('mobile', mobile)
+      .limit(1)
+      .single();
+
+    if (be || !borrower) {
+      showLoginError('NID বা মোবাইল নম্বর মেলেনি। সঠিক তথ্য দিন অথবা আমাদের সাথে যোগাযোগ করুন।');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+      return;
+    }
+
+    // Fetch all loans for this borrower
+    const { data: loans, error: le } = await _db
+      .from('loans')
+      .select('*')
+      .eq('borrower_id', borrower.id)
+      .order('created_at', { ascending: false });
+
+    const loan = loans?.[0] || null;
+    let schedule = [];
+
+    if (loan) {
+      const { data: sched } = await _db
+        .from('repayments')
+        .select('*')
+        .eq('loan_id', loan.id)
+        .order('installment_no', { ascending: true });
+      schedule = sched || [];
+    }
+
+    // Save to session and render
+    saveSession(borrower, loan, schedule);
+    renderPortal(borrower, loan, schedule, loans || []);
+    showPortalView();
+    toast('স্বাগতম, ' + (borrower.name_bn || borrower.name) + '!', 'ok');
+
+  } catch(err) {
+    showLoginError('সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+}
+
+/* ── Logout ──────────────────────────────────────── */
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  showLoginView();
+  toast('লগআউট সফল হয়েছে।', 'info');
+}
+
+/* ── Render portal ───────────────────────────────── */
+function renderPortal(borrower, loan, schedule, allLoans) {
+  /* Profile */
+  const displayName = borrower.name_bn || borrower.name;
+  document.getElementById('resAvatar').textContent = displayName.charAt(0);
+  document.getElementById('resName').textContent = displayName;
+  document.getElementById('resNID').textContent = borrower.nid;
+  document.getElementById('resMobile').textContent = borrower.mobile;
+  document.getElementById('resDistrict').textContent = borrower.district || borrower.upazila || '—';
   const badge = document.getElementById('resBadge');
-  badge.textContent = r.status;
-  badge.className = 'profile-badge ' + (r.status === 'Active' ? 'pb-active' : 'pb-completed');
 
-  // KPIs
-  const outstanding = r.amount - r.repaid;
-  const monthsLeft = r.instalments.filter(i => i.status !== 'paid').length;
-  document.getElementById('kpi_disbursed').textContent = '৳' + r.amount.toLocaleString();
-  document.getElementById('kpi_repaid').textContent = '৳' + r.repaid.toLocaleString();
-  document.getElementById('kpi_outstanding').textContent = '৳' + outstanding.toLocaleString();
-  document.getElementById('kpi_months').textContent = monthsLeft;
+  if (!loan) {
+    badge.textContent = 'কোনো সক্রিয় ঋণ নেই';
+    badge.className = 'profile-badge pb-completed';
+    document.getElementById('kpi_disbursed').textContent = '৳০';
+    document.getElementById('kpi_repaid').textContent = '৳০';
+    document.getElementById('kpi_outstanding').textContent = '৳০';
+    document.getElementById('kpi_months').textContent = '০';
+    document.getElementById('progPct').textContent = '—';
+    document.getElementById('nextPaymentBox').style.display = 'none';
+    document.getElementById('scheduleBody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">কোনো কিস্তির তথ্য নেই</td></tr>';
+    document.getElementById('txnList').innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">কোনো লেনদেনের তথ্য নেই</div>';
+    // Fill loan detail fields with defaults
+    ['d_ref','d_type','d_purpose','d_amount','d_duration','d_start','d_end',
+     'd_goods','d_vendor','d_disbDate','d_inst','d_paid','d_left'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '—';
+    });
+    return;
+  }
 
-  // Progress
-  const pct = Math.round((r.repaid / r.amount) * 100);
-  document.getElementById('progPct').textContent = pct + '%';
-  document.getElementById('progRepaidLbl').textContent = '৳' + r.repaid.toLocaleString() + ' repaid';
-  document.getElementById('progTotalLbl').textContent = '৳' + r.amount.toLocaleString() + ' total';
+  const statusBn = loan.status === 'active' ? 'সক্রিয়' : loan.status === 'completed' ? 'সম্পন্ন' : loan.status;
+  badge.textContent = statusBn;
+  badge.className = 'profile-badge ' + (loan.status === 'active' ? 'pb-active' : 'pb-completed');
+
+  const principal   = parseFloat(loan.principal) || 0;
+  const paidRows    = schedule.filter(e => e.is_paid);
+  const paidAmt     = paidRows.reduce((s,e) => s + parseFloat(e.amount_paid || e.amount_due || 0), 0);
+  const outstanding = Math.max(0, principal - paidAmt);
+  const monthsLeft  = schedule.filter(e => !e.is_paid).length;
+
+  /* KPIs */
+  document.getElementById('kpi_disbursed').textContent   = fmtTk(principal);
+  document.getElementById('kpi_repaid').textContent      = fmtTk(paidAmt);
+  document.getElementById('kpi_outstanding').textContent = fmtTk(outstanding);
+  document.getElementById('kpi_months').textContent      = monthsLeft;
+
+  /* Progress */
+  const pct = principal > 0 ? Math.round((paidAmt / principal) * 100) : 0;
+  document.getElementById('progPct').textContent      = pct + '%';
+  document.getElementById('progRepaidLbl').textContent = fmtTk(paidAmt) + ' পরিশোধ';
+  document.getElementById('progTotalLbl').textContent  = fmtTk(principal) + ' মোট';
   setTimeout(() => { document.getElementById('progFill').style.width = pct + '%'; }, 200);
 
-  // Next payment
-  const nextInst = r.instalments.find(i => i.status === 'due' || i.status === 'upcoming');
-  if (nextInst && r.status === 'Active') {
+  /* Next payment */
+  const today = new Date(); today.setHours(0,0,0,0);
+  const nextInst = schedule.find(e => !e.is_paid);
+  if (nextInst && loan.status === 'active') {
     document.getElementById('nextPaymentBox').style.display = 'flex';
-    document.getElementById('npAmount').textContent = '৳' + nextInst.amount.toLocaleString();
-    document.getElementById('npDue').textContent = 'Due: ' + nextInst.due;
+    document.getElementById('npAmount').textContent = fmtTk(nextInst.amount_due);
+    document.getElementById('npDue').textContent = 'দেয়: ' + fmtDate(nextInst.due_date);
   } else {
     document.getElementById('nextPaymentBox').style.display = 'none';
   }
 
-  // Loan details
-  document.getElementById('d_ref').textContent = r.ref;
-  document.getElementById('d_type').textContent = r.type;
-  document.getElementById('d_purpose').textContent = r.purpose;
-  document.getElementById('d_amount').textContent = '৳' + r.amount.toLocaleString();
-  document.getElementById('d_duration').textContent = r.duration + ' months';
-  document.getElementById('d_start').textContent = r.startDate;
-  document.getElementById('d_end').textContent = r.endDate;
-  document.getElementById('d_goods').textContent = r.goods;
-  document.getElementById('d_vendor').textContent = r.vendor;
-  document.getElementById('d_disbDate').textContent = r.disbDate;
-  document.getElementById('d_inst').textContent = '৳' + r.instalment.toLocaleString() + '/month';
-  document.getElementById('d_paid').textContent = r.paidCount + ' of ' + r.duration;
-  document.getElementById('d_left').textContent = (r.duration - r.paidCount) + ' remaining';
+  /* Loan details */
+  const emi       = loan.monthly_emi || Math.ceil(principal / (loan.tenure_months||1));
+  const paidCount = paidRows.length;
+  const tenure    = loan.tenure_months || 0;
 
-  // Schedule
-  const stMap = { paid:'is-paid', due:'is-due', upcoming:'is-upcoming', late:'is-late' };
-  const stLabel = { paid:'Paid ✓', due:'Due Now', upcoming:'Upcoming', late:'Overdue !' };
-  document.getElementById('scheduleBody').innerHTML = r.instalments.map(i => `
-    <tr class="${i.status==='due'?'curr-row':''}">
-      <td style="color:var(--muted)">${i.no}</td>
-      <td style="font-weight:600">${i.due}</td>
-      <td style="font-weight:700;color:var(--gold)">৳${i.amount.toLocaleString()}</td>
-      <td style="color:var(--muted);font-size:11px">${i.paidOn || '—'}</td>
-      <td style="font-weight:600">৳${i.balance.toLocaleString()}</td>
-      <td><span class="inst-status ${stMap[i.status]}">${stLabel[i.status]}</span></td>
-    </tr>`).join('');
+  document.getElementById('d_ref').textContent      = loan.loan_no || '—';
+  document.getElementById('d_type').textContent     = loan.disbursement_mode === 'goods' ? 'পণ্য/সেবা' : 'নগদ';
+  document.getElementById('d_purpose').textContent  = loan.item_description || '—';
+  document.getElementById('d_amount').textContent   = fmtTk(principal);
+  document.getElementById('d_duration').textContent = tenure + ' মাস';
+  document.getElementById('d_start').textContent    = fmtDate(loan.first_emi_date);
+  document.getElementById('d_end').textContent      = fmtDate(loan.last_emi_date);
+  document.getElementById('d_goods').textContent    = loan.item_description || '—';
+  document.getElementById('d_vendor').textContent   = loan.vendor_name || '—';
+  document.getElementById('d_disbDate').textContent = fmtDate(loan.disbursement_date);
+  document.getElementById('d_inst').textContent     = fmtTk(emi) + '/মাস';
+  document.getElementById('d_paid').textContent     = paidCount + ' / ' + tenure;
+  document.getElementById('d_left').textContent     = (tenure - paidCount) + ' বাকি';
 
-  // Transactions
-  document.getElementById('txnList').innerHTML = r.txns.map(t => `
+  /* Repayment schedule */
+  const stMap   = { paid:'is-paid', due:'is-due', upcoming:'is-upcoming', late:'is-late' };
+  const stLabel = { paid:'পরিশোধিত ✓', due:'বর্তমান দেয়', upcoming:'আসছে', late:'বিলম্বিত !' };
+
+  let runningBalance = principal;
+  document.getElementById('scheduleBody').innerHTML = schedule.map((e, idx) => {
+    const amtDue = parseFloat(e.amount_due) || 0;
+    const amtPaid = parseFloat(e.amount_paid || 0);
+    const dueDate = new Date(e.due_date); dueDate.setHours(0,0,0,0);
+    let st;
+    if (e.is_paid)               st = 'paid';
+    else if (dueDate < today)    st = 'late';
+    else if (idx === paidCount)  st = 'due';
+    else                         st = 'upcoming';
+
+    if (e.is_paid) runningBalance = Math.max(0, runningBalance - amtPaid);
+    const balAfter = e.is_paid ? runningBalance : (principal - paidAmt - (st==='upcoming'? amtDue*(idx-paidCount+1) : 0));
+
+    return `<tr class="${st==='due'||st==='late'?'curr-row':''}">
+      <td style="color:var(--muted)">${e.installment_no}</td>
+      <td style="font-weight:600">${fmtDate(e.due_date)}</td>
+      <td style="font-weight:700;color:var(--gold)">${fmtTk(amtDue)}</td>
+      <td style="color:var(--muted);font-size:11px">${e.is_paid ? fmtDate(e.payment_date) : '—'}</td>
+      <td style="font-weight:600">${e.is_paid ? fmtTk(runningBalance) : '—'}</td>
+      <td><span class="inst-status ${stMap[st]}">${stLabel[st]}</span></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">কোনো কিস্তির তথ্য নেই</td></tr>';
+
+  /* Transaction history */
+  const txnRows = [];
+  // Disbursement entry
+  if (loan.disbursement_date) {
+    txnRows.push({ type:'d', date: loan.disbursement_date,
+      title: 'ঋণ বিতরণ — ' + (loan.item_description || loan.vendor_name || 'পণ্য/সেবা'),
+      sub: loan.vendor_name ? 'বিক্রেতা: ' + loan.vendor_name : (loan.bill_no || ''),
+      amount: principal });
+  }
+  // Paid instalments
+  paidRows.forEach((e, i) => {
+    txnRows.push({ type:'r', date: e.payment_date,
+      title: `কিস্তি #${e.installment_no} পরিশোধ` + (e.payment_method ? ' — ' + e.payment_method : ''),
+      sub: e.transaction_ref || e.notes || '',
+      amount: parseFloat(e.amount_paid || e.amount_due) });
+  });
+  // Sort newest first for display
+  txnRows.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById('txnList').innerHTML = txnRows.map(t => `
     <div class="txn-item">
       <div class="txn-dot td-${t.type}"><i class="ti ti-${t.type==='d'?'package':'check'}" style="font-size:17px"></i></div>
       <div class="txn-info">
         <div class="txn-title">${t.title}</div>
-        <div class="txn-sub">${t.date} · ${t.sub}</div>
+        <div class="txn-sub">${fmtDate(t.date)}${t.sub?' · '+t.sub:''}</div>
       </div>
-      <div class="txn-amount ${t.type==='d'?'txn-out':'txn-in'}">${t.type==='d'?'-':'+'} ৳${t.amount.toLocaleString()}</div>
-    </div>`).join('');
-
-  // Scroll to result
-  setTimeout(() => { document.getElementById('resultSection').scrollIntoView({ behavior:'smooth', block:'start' }); }, 100);
-  toast('Loan record found for ' + r.name, 'ok');
+      <div class="txn-amount ${t.type==='d'?'txn-out':'txn-in'}">${t.type==='d'?'–':'+'} ${fmtTk(t.amount)}</div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">কোনো লেনদেনের তথ্য নেই</div>';
 }
 
-function showError(msg) {
-  const el = document.getElementById('searchError');
-  document.getElementById('searchErrorMsg').textContent = msg;
-  el.style.display = 'flex';
-}
-
-/* ═══ Pay modal (simple) ═══ */
+/* ── Pay/Reminder stubs ──────────────────────────── */
 function showPayModal() {
-  toast('Online payment coming soon. Please pay via bKash/Nagad and send screenshot to WhatsApp.', 'info');
+  toast('অনলাইন পেমেন্ট শীঘ্রই আসছে। bKash/Nagad এ পাঠিয়ে WhatsApp এ স্ক্রিনশট পাঠান।', 'info');
 }
-
-/* ═══ Reminder ═══ */
 function setReminder() {
-  toast('Reminder set! We\'ll WhatsApp you 2 days before your due date.', 'ok');
+  toast('রিমাইন্ডার সেট হয়েছে! কিস্তির ২ দিন আগে WhatsApp করা হবে।', 'ok');
 }
 
-/* ═══ Nav hover bar ═══ */
+/* ── Nav hover bar ───────────────────────────────── */
 const hoverBar = document.getElementById('hoverBar');
 document.querySelectorAll('.nav-link').forEach(link => {
   link.addEventListener('mouseenter', () => {
     const r = link.getBoundingClientRect(), pr = document.getElementById('navLinks').getBoundingClientRect();
-    hoverBar.style.left = (r.left - pr.left) + 'px'; hoverBar.style.width = r.width + 'px'; hoverBar.style.opacity = '1';
+    hoverBar.style.left = (r.left - pr.left) + 'px';
+    hoverBar.style.width = r.width + 'px';
+    hoverBar.style.opacity = '1';
   });
   link.addEventListener('mouseleave', () => { hoverBar.style.opacity = '0'; });
 });
 
-/* ═══ Toast ═══ */
-function toast(msg, type='ok') {
-  const icons = { ok:'ti-circle-check', error:'ti-alert-circle', info:'ti-info-circle' };
-  const colors = { ok:'#145230', error:'#ef4444', info:'#3b82f6' };
-  const el = document.createElement('div');
-  el.className = 'toast-item';
-  el.innerHTML = `<i class="ti ${icons[type]||'ti-info-circle'}" style="color:${colors[type]||'#6b7280'};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;
-  document.getElementById('toast').appendChild(el);
-  setTimeout(() => { el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, 4000);
-}
-
-/* ══════════════════════════════════
-   SUPABASE INTEGRATION
-══════════════════════════════════ */
-// Override doSearch to use real Supabase data when configured
-const _origDoSearch = doSearch;
-window.doSearch = async function() {
-  if (typeof KH === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT')) {
-    return _origDoSearch();
+/* ── Init on load ────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  const sess = loadSession();
+  if (sess && sess.borrower) {
+    renderPortal(sess.borrower, sess.loan, sess.schedule || [], []);
+    showPortalView();
+  } else {
+    showLoginView();
   }
-
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) { showError('Please enter a value to search.'); return; }
-
-  const btn = document.getElementById('searchBtn');
-  btn.classList.add('loading');
-  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Searching…';
-
-  hideError();
-  const { data: borrower, error: be } = await KH.findBorrower(query);
-
-  btn.classList.remove('loading');
-  btn.innerHTML = '<i class="ti ti-search"></i> Search';
-
-  if (be || !borrower) {
-    document.getElementById('idleState').style.display = 'none';
-    document.getElementById('notFoundState').style.display = 'block';
-    document.getElementById('resultSection').style.display = 'none';
-    return;
-  }
-
-  // Get loan + schedule
-  const { loan, schedule } = await KH.getLoanByBorrower(borrower.id);
-
-  if (!loan) {
-    document.getElementById('idleState').style.display = 'none';
-    document.getElementById('notFoundState').style.display = 'block';
-    document.getElementById('resultSection').style.display = 'none';
-    return;
-  }
-
-  // Map Supabase data to showResult format
-  const paidCount = schedule.filter(e => e.is_paid).length;
-  const paidAmt   = schedule.filter(e => e.is_paid).reduce((s,e) => s + parseFloat(e.amount_paid || 0), 0);
-
-  const record = {
-    name:     borrower.name,
-    name_bn:  borrower.name_bn || borrower.name,
-    nid:      borrower.nid,
-    mobile:   borrower.mobile,
-    district: borrower.district || '—',
-    ref:      loan.loan_no,
-    status:   loan.status === 'active' ? 'Active' : loan.status === 'completed' ? 'Completed' : loan.status,
-    amount:   parseFloat(loan.principal),
-    repaid:   paidAmt,
-    tenure:   loan.tenure_months,
-    disbDate: loan.disbursement_date,
-    instalments: schedule.map((e, i) => ({
-      no:     e.installment_no,
-      date:   e.due_date,
-      amount: parseFloat(e.amount_due),
-      status: e.is_paid ? 'paid' : (new Date(e.due_date) < new Date() ? 'late' : (i === paidCount ? 'due' : 'upcoming'))
-    }))
-  };
-
-  showResult(record);
-};
+});
 </script>
 <script>
 /* Mobile menu */

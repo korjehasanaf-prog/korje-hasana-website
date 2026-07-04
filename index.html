@@ -1087,7 +1087,67 @@
     </div>
 
     <a class="nav-link" href="loan-application.html" data-i18n="nav-apply">Apply</a>
-    <a class="nav-link" href="dashboard.html" data-i18n="nav-dashboard">Dashboard</a>
+
+    <!-- PORTAL mega-menu -->
+    <div class="nav-item" id="mi-portal">
+      <a class="nav-link" href="#" data-i18n="nav-portal">
+        Portal <i class="ti ti-chevron-down nav-chevron"></i>
+      </a>
+      <div class="mega-menu">
+        <div class="mega-inner" style="min-height:140px">
+          <div class="mega-l">
+            <div class="mega-l1 active" data-panel="p-member-portal">
+              <i class="ti ti-piggy-bank l1-ico"></i>
+              <span class="l1-txt">সদস্য পোর্টাল<span class="l1-sub">Savings & account</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-borrower-portal">
+              <i class="ti ti-hand-holding l1-ico"></i>
+              <span class="l1-txt">ঋণগ্রহীতা পোর্টাল<span class="l1-sub">Loan status & history</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+          </div>
+          <div class="mega-r">
+            <div class="mega-panel active" id="p-member-portal">
+              <div class="mega-r-header">সদস্য পোর্টাল</div>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-piggy-bank"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">সুদবিহীন সঞ্চয়</span>
+                  <span class="mega-rl-desc">ব্যালেন্স দেখুন, জমা ও উত্তোলন করুন</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="savings-portal.html#register">
+                <i class="ti ti-user-plus"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">নতুন নিবন্ধন</span>
+                  <span class="mega-rl-desc">সঞ্চয় অ্যাকাউন্ট খুলুন</span>
+                </div>
+              </a>
+            </div>
+            <div class="mega-panel" id="p-borrower-portal">
+              <div class="mega-r-header">ঋণগ্রহীতা পোর্টাল</div>
+              <a class="mega-rl" href="borrower-portal.html">
+                <i class="ti ti-search"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">ঋণের তথ্য দেখুন</span>
+                  <span class="mega-rl-desc">NID দিয়ে লগইন করুন</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-file-plus"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">নতুন ঋণ আবেদন</span>
+                  <span class="mega-rl-desc">কর্জে হাসানার জন্য আবেদন</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <a class="nav-link" href="#news" data-i18n="nav-news">News</a>
 
     <!-- CONTACT mega-menu -->
@@ -1097,34 +1157,27 @@
       </a>
       <div class="mega-menu">
         <div class="mega-inner">
-          <div class="mega-l">
-            <div class="mega-l1 active" data-panel="p-contact-us">
+          <div class="mega-l" style="width:100%;border-right:none">
+            <div class="mega-l1 active" style="cursor:default;pointer-events:none">
               <i class="ti ti-phone l1-ico"></i>
-              <span class="l1-txt">Get in Touch<span class="l1-sub">Phone, email, address</span></span>
-              <i class="ti ti-chevron-right l1-arr"></i>
-            </div>
-            <div class="mega-sep"></div>
-            <div class="mega-l1" data-panel="p-portal">
-              <i class="ti ti-user l1-ico"></i>
-              <span class="l1-txt">Borrower Portal<span class="l1-sub">Check loan status</span></span>
-              <i class="ti ti-chevron-right l1-arr"></i>
+              <span class="l1-txt">যোগাযোগ করুন<span class="l1-sub">Phone, email, address</span></span>
             </div>
           </div>
-          <div class="mega-r">
+          <div class="mega-r" style="flex:2">
             <div class="mega-panel active" id="p-contact-us">
-              <div class="mega-r-header">Contact</div>
+              <div class="mega-r-header">যোগাযোগ</div>
               <a class="mega-rl" href="contact.html">
                 <i class="ti ti-mail"></i>
                 <div class="mega-rl-body">
-                  <span class="mega-rl-title">Send a Message</span>
-                  <span class="mega-rl-desc">korjehasanaf@gmail.com</span>
+                  <span class="mega-rl-title">ইমেইল করুন</span>
+                  <span class="mega-rl-desc">info@korjehasana.org</span>
                 </div>
               </a>
               <a class="mega-rl" href="contact.html#map">
                 <i class="ti ti-map-pin"></i>
                 <div class="mega-rl-body">
-                  <span class="mega-rl-title">Find Us</span>
-                  <span class="mega-rl-desc">Khalilpur, Barisal</span>
+                  <span class="mega-rl-title">আমাদের খুঁজুন</span>
+                  <span class="mega-rl-desc">খলিলপুর, ফরিদপুর</span>
                 </div>
               </a>
               <a class="mega-rl" href="https://wa.me/8801711515952" target="_blank">
@@ -1132,23 +1185,6 @@
                 <div class="mega-rl-body">
                   <span class="mega-rl-title">WhatsApp</span>
                   <span class="mega-rl-desc">01711-515952</span>
-                </div>
-              </a>
-            </div>
-            <div class="mega-panel" id="p-portal">
-              <div class="mega-r-header">Self-Service</div>
-              <a class="mega-rl" href="borrower-portal.html">
-                <i class="ti ti-search"></i>
-                <div class="mega-rl-body">
-                  <span class="mega-rl-title">Loan Status Lookup</span>
-                  <span class="mega-rl-desc">Track your loan by NID / Ref no.</span>
-                </div>
-              </a>
-              <a class="mega-rl" href="verify.html">
-                <i class="ti ti-shield-check"></i>
-                <div class="mega-rl-body">
-                  <span class="mega-rl-title">Verify Certificate</span>
-                  <span class="mega-rl-desc">Authenticate loan documents</span>
                 </div>
               </a>
             </div>
@@ -1655,7 +1691,7 @@
 const TRANS = {
   en: {
     'nav-home':'Home','nav-about':'About','nav-programs':'Programs',
-    'nav-apply':'Apply','nav-dashboard':'Dashboard','nav-news':'News',
+    'nav-apply':'Apply','nav-portal':'Portal','nav-news':'News',
     'nav-contact':'Contact','nav-donate':'Donate now',
     'hero-badge':'Mosque-based · 0% interest · Sharia-compliant',
     'hero-h1':'Interest-free loans<br>for those who <span>need it most</span>',
@@ -1691,7 +1727,7 @@ const TRANS = {
   },
   bn: {
     'nav-home':'হোম','nav-about':'সম্পর্কে','nav-programs':'কার্যক্রম',
-    'nav-apply':'আবেদন','nav-dashboard':'ড্যাশবোর্ড','nav-news':'সংবাদ',
+    'nav-apply':'আবেদন','nav-portal':'পোর্টাল','nav-news':'সংবাদ',
     'nav-contact':'যোগাযোগ','nav-donate':'দান করুন',
     'hero-badge':'মসজিদ-ভিত্তিক · ০% সুদ · শরিয়াহ-সম্মত',
     'hero-h1':'সুদমুক্ত ঋণ<br>যাদের সবচেয়ে বেশি <span>প্রয়োজন</span>',
