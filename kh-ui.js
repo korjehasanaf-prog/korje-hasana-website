@@ -88,17 +88,17 @@
     setTimeout(place, 90);
     window.addEventListener('resize', place);
 
-    // reveal after a short scroll, hide near the very top
-    var show = opts.alwaysOn === true;
-    function tick() {
-      var y = window.scrollY || document.documentElement.scrollTop;
-      var want = show || y > 220;
-      nav.classList.toggle('kh-hidden', !want);
+    // visible immediately; opts.scrollReveal hides it until the page is scrolled
+    if (opts.scrollReveal) {
+      function tick() {
+        var y = window.scrollY || document.documentElement.scrollTop;
+        nav.classList.toggle('kh-hidden', y <= 220);
+      }
+      window.addEventListener('scroll', tick, { passive: true });
+      tick();
+    } else {
+      requestAnimationFrame(function () { nav.classList.remove('kh-hidden'); });
     }
-    window.addEventListener('scroll', tick, { passive: true });
-    setTimeout(function () { show = opts.alwaysOn === true; tick(); }, 400);
-    if (opts.alwaysOn) { nav.classList.remove('kh-hidden'); }
-    tick();
 
     KHUI._nav = nav;
   };
@@ -417,7 +417,7 @@
 
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
-      KHUI.mountNav({ alwaysOn: document.body.dataset.khNav === 'always' });
+      KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
     }
     KHUI.enhancePasswords(document);
   }

@@ -300,28 +300,35 @@ async function doAdminLogin() {
     return;
   }
 
-  // ── Second factor: OTP verification before entering the dashboard ──
+  // ── Success path (shared by both branches below) ──
+  const enterDashboard = () => {
+    sessionStorage.setItem('kh_admin_role', actualRole);
+    sessionStorage.setItem('kh_admin_email', email);
+    showMsg('লগইন সফল! ড্যাশবোর্ডে যাচ্ছেন...', 'success');
+    setTimeout(() => {
+      window.location.href = 'dashboard.html?role=' + actualRole;
+    }, 700);
+  };
+
   btn.disabled = false;
   btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
-  showMsg('পরিচয় নিশ্চিত হয়েছে। এখন OTP যাচাই করুন।', 'success');
 
-  KHUI.otp({
-    length: 4,
-    demo: true,
-    title: 'অ্যাডমিন পরিচয় যাচাই',
-    onSuccess: async () => {
-      sessionStorage.setItem('kh_admin_role', actualRole);
-      sessionStorage.setItem('kh_admin_email', email);
-      showMsg('লগইন সফল! ড্যাশবোর্ডে যাচ্ছেন...', 'success');
-      setTimeout(() => {
-        window.location.href = 'dashboard.html?role=' + actualRole;
-      }, 700);
-    },
-    onCancel: async () => {
-      await _db.auth.signOut();
-      showMsg('OTP যাচাই বাতিল হয়েছে। আবার লগইন করুন।', 'error');
-    }
-  });
+  // ── Second factor: OTP (skipped safely if kh-ui.js failed to load) ──
+  if (window.KHUI && KHUI.otp) {
+    showMsg('পরিচয় নিশ্চিত হয়েছে। এখন OTP যাচাই করুন।', 'success');
+    KHUI.otp({
+      length: 4,
+      demo: true,
+      title: 'অ্যাডমিন পরিচয় যাচাই',
+      onSuccess: enterDashboard,
+      onCancel: async () => {
+        await _db.auth.signOut();
+        showMsg('OTP যাচাই বাতিল হয়েছে। আবার লগইন করুন।', 'error');
+      }
+    });
+  } else {
+    enterDashboard();
+  }
 }
 
 // Init permissions list

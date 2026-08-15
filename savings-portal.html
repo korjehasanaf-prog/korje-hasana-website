@@ -868,7 +868,11 @@ function selectScheme(el, scheme) {
 
 // ─── Tab switcher ─────────────────────────────────────────────────
 function switchTab(tab) {
-  KHUI.slide('khAuth', tab === 'register');
+  var el = document.getElementById('khAuth');
+  if (el) {
+    el.classList.toggle('kh-reg', tab === 'register');
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+  }
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────
@@ -897,9 +901,10 @@ async function doRegister() {
   if(!name||!phone||!email||!pass||!account) return showMsg('regMsg','সব প্রয়োজনীয় তথ্য পূরণ করুন','error');
   if(pass !== pass2) return showMsg('regMsg','পাসওয়ার্ড দুটি মিলছে না','error');
   if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
-  if(KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
+  if(window.KHUI && KHUI.score && KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
 
   // Step 0: Verify the mobile number by OTP before creating the account
+  if (!(window.KHUI && KHUI.otp)) { finishRegister(); return; }
   showMsg('regMsg','মোবাইল নম্বর যাচাই করা হচ্ছে…','info');
   KHUI.otp({
     phone: phone,

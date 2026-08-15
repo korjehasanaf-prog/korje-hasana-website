@@ -372,7 +372,7 @@
         <i class="ti ti-login" aria-hidden="true"></i> লগইন করুন
       </button>
 
-      <p class="kh-swap">ঋণের হিসাব নেই? <a onclick="KHUI.slide('khAuth',true)">নতুন আবেদন করুন</a></p>
+      <p class="kh-swap">ঋণের হিসাব নেই? <a onclick="khSwap(true)">নতুন আবেদন করুন</a></p>
     </div>
 
     <!-- APPLY pane (right) -->
@@ -404,7 +404,7 @@
         <i class="ti ti-file-text" aria-hidden="true"></i> আবেদন ফর্মে যান
       </a>
 
-      <p class="kh-swap">ইতিমধ্যে ঋণ আছে? <a onclick="KHUI.slide('khAuth',false)">লগইন করুন</a></p>
+      <p class="kh-swap">ইতিমধ্যে ঋণ আছে? <a onclick="khSwap(false)">লগইন করুন</a></p>
     </div>
 
     <!-- BRAND panel (slides) -->
@@ -605,6 +605,10 @@ function fmtDate(d) {
   try { return new Date(d).toLocaleDateString('bn-BD', { day:'2-digit', month:'short', year:'numeric' }); }
   catch { return d; }
 }
+function khSwap(reg) {
+  var el = document.getElementById('khAuth');
+  if (el) el.classList.toggle('kh-reg', !!reg);
+}
 function hideLoginError() { document.getElementById('loginError').className = 'kh-msg'; }
 function showLoginError(msg) {
   document.getElementById('loginErrorMsg').textContent = msg;
@@ -701,25 +705,30 @@ async function doLogin() {
       schedule = sched || [];
     }
 
-    // ── OTP step: verify the registered mobile before opening the portal ──
+    // ── Success path ──
+    const enterPortal = function () {
+      saveSession(borrower, loan, schedule);
+      renderPortal(borrower, loan, schedule, loans || []);
+      showPortalView();
+      toast('স্বাগতম, ' + (borrower.name_bn || borrower.name) + '!', 'ok');
+    };
+
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
 
-    KHUI.otp({
-      phone: borrower.mobile,
-      length: 4,
-      demo: true,
-      title: 'মোবাইল নম্বর যাচাই করুন',
-      onSuccess: function () {
-        saveSession(borrower, loan, schedule);
-        renderPortal(borrower, loan, schedule, loans || []);
-        showPortalView();
-        toast('স্বাগতম, ' + (borrower.name_bn || borrower.name) + '!', 'ok');
-      },
-      onCancel: function () {
-        toast('যাচাই বাতিল করা হয়েছে।', 'info');
-      }
-    });
+    // ── OTP step (skipped safely if kh-ui.js failed to load) ──
+    if (window.KHUI && KHUI.otp) {
+      KHUI.otp({
+        phone: borrower.mobile,
+        length: 4,
+        demo: true,
+        title: 'মোবাইল নম্বর যাচাই করুন',
+        onSuccess: enterPortal,
+        onCancel: function () { toast('যাচাই বাতিল করা হয়েছে।', 'info'); }
+      });
+    } else {
+      enterPortal();
+    }
     return;
 
   } catch(err) {
