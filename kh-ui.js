@@ -77,7 +77,7 @@
         pill.style.left = a.offsetLeft + 'px';
         pill.style.width = a.offsetWidth + 'px';
         nav.querySelectorAll('a').forEach(function (x) { x.style.color = ''; });
-        a.style.color = 'var(--kh-green)';
+        a.style.color = '#a62a55';
       });
     });
     nav.addEventListener('mouseleave', function () {
