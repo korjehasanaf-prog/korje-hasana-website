@@ -292,8 +292,9 @@
   .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
 }
 </style>
+  <link rel="stylesheet" href="kh-ui.css">
 </head>
-<body>
+<body data-kh-nav="on">
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -341,39 +342,79 @@
   <p>NID নম্বর ও মোবাইল নম্বর দিয়ে লগইন করুন। আপনার ঋণের বিস্তারিত তথ্য, কিস্তির সময়সূচি এবং পরিশোধের ইতিহাস দেখুন।</p>
 </section>
 
-<!-- LOGIN CARD -->
-<div class="search-wrap" id="loginCard">
-  <div class="search-card">
-    <div style="text-align:center;margin-bottom:22px">
-      <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--mdgreen));display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <i class="ti ti-shield-lock" style="font-size:24px;color:#fff"></i>
-      </div>
-      <div style="font-size:17px;font-weight:800;color:var(--text)">পোর্টালে প্রবেশ করুন</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">আপনার NID ও নিবন্ধিত মোবাইল নম্বর দিন</div>
-    </div>
-    <div class="login-fields">
-      <div class="lf-wrap">
-        <label class="lf-label"><i class="ti ti-id"></i> NID নম্বর</label>
-        <input type="text" class="s-input" id="loginNid" placeholder="১৩ বা ১৭ সংখ্যার NID নম্বর" inputmode="numeric"
+<!-- LOGIN CARD — sliding auth panel -->
+<div class="search-wrap" id="loginCard" style="max-width:920px">
+  <div class="kh-slider" id="khAuth">
+
+    <!-- LOGIN pane (left) -->
+    <div class="kh-pane kh-pane-a">
+      <h3 class="kh-head">পোর্টালে প্রবেশ</h3>
+      <div class="kh-rule"></div>
+      <p class="kh-sub">আপনার NID ও নিবন্ধিত মোবাইল নম্বর দিন</p>
+
+      <div class="kh-msg" id="loginError"><span id="loginErrorMsg"></span></div>
+
+      <div class="kh-field">
+        <input type="text" id="loginNid" placeholder=" " inputmode="numeric" autocomplete="off"
           onkeydown="if(event.key==='Enter') document.getElementById('loginMobile').focus()">
+        <label>NID নম্বর</label>
+        <i class="ti ti-id kh-fi" aria-hidden="true"></i>
       </div>
-      <div class="lf-wrap">
-        <label class="lf-label"><i class="ti ti-phone"></i> মোবাইল নম্বর</label>
-        <input type="tel" class="s-input" id="loginMobile" placeholder="01XXXXXXXXX (নিবন্ধিত)" inputmode="numeric"
+
+      <div class="kh-field">
+        <input type="tel" id="loginMobile" placeholder=" " inputmode="numeric" autocomplete="tel"
           onkeydown="if(event.key==='Enter') doLogin()">
+        <label>মোবাইল নম্বর</label>
+        <i class="ti ti-phone kh-fi" aria-hidden="true"></i>
       </div>
-      <button class="s-btn" id="loginBtn" onclick="doLogin()" style="width:100%;justify-content:center;padding:14px">
-        <i class="ti ti-login"></i> লগইন করুন
+
+      <button class="kh-btn" id="loginBtn" onclick="doLogin()">
+        <i class="ti ti-login" aria-hidden="true"></i> লগইন করুন
       </button>
+
+      <p class="kh-swap">ঋণের হিসাব নেই? <a onclick="KHUI.slide('khAuth',true)">নতুন আবেদন করুন</a></p>
     </div>
-    <div class="search-hint" style="margin-top:14px;justify-content:center">
-      <i class="ti ti-lock" style="color:var(--green)"></i>
-      আপনার তথ্য সম্পূর্ণ নিরাপদ। শুধুমাত্র আপনিই আপনার লোনের তথ্য দেখতে পারবেন।
+
+    <!-- APPLY pane (right) -->
+    <div class="kh-pane kh-pane-b">
+      <h3 class="kh-head">নতুন ঋণের আবেদন</h3>
+      <div class="kh-rule"></div>
+      <p class="kh-sub">সুদমুক্ত কর্জে হাসানা ঋণের জন্য আবেদন করুন</p>
+
+      <div style="display:flex;flex-direction:column;gap:13px;margin-bottom:26px">
+        <div style="display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--kh-ink);line-height:1.6">
+          <i class="ti ti-circle-check" style="color:var(--kh-gold);font-size:17px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <span>সম্পূর্ণ সুদবিহীন — কোনো অতিরিক্ত চার্জ নেই</span>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--kh-ink);line-height:1.6">
+          <i class="ti ti-circle-check" style="color:var(--kh-gold);font-size:17px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <span>NID ছবি আপলোড করলেই তথ্য স্বয়ংক্রিয়ভাবে পূরণ হবে</span>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--kh-ink);line-height:1.6">
+          <i class="ti ti-circle-check" style="color:var(--kh-gold);font-size:17px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <span>অনুমোদনের পর এই পোর্টালেই সব তথ্য দেখতে পাবেন</span>
+        </div>
+        <div style="display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--kh-ink);line-height:1.6">
+          <i class="ti ti-circle-check" style="color:var(--kh-gold);font-size:17px;flex-shrink:0;margin-top:1px" aria-hidden="true"></i>
+          <span>নমনীয় কিস্তি — আপনার সামর্থ্য অনুযায়ী</span>
+        </div>
+      </div>
+
+      <a href="loan-application.html" class="kh-btn" style="text-decoration:none">
+        <i class="ti ti-file-text" aria-hidden="true"></i> আবেদন ফর্মে যান
+      </a>
+
+      <p class="kh-swap">ইতিমধ্যে ঋণ আছে? <a onclick="KHUI.slide('khAuth',false)">লগইন করুন</a></p>
     </div>
-    <div class="search-error" id="loginError" style="display:none">
-      <i class="ti ti-alert-circle"></i>
-      <span id="loginErrorMsg">NID বা মোবাইল নম্বর মেলেনি। আবার চেষ্টা করুন।</span>
+
+    <!-- BRAND panel (slides) -->
+    <div class="kh-brand">
+      <h3>স্বাগতম!</h3>
+      <p>কর্জে হাসানা ফাউন্ডেশনের ঋণগ্রহীতা পোর্টালে আপনাকে স্বাগতম। এখানে আপনার ঋণের বিস্তারিত, কিস্তির সময়সূচি ও পরিশোধের ইতিহাস দেখতে পারবেন।</p>
+      <div class="kh-brand-note"><i class="ti ti-shield-check" aria-hidden="true"></i>সম্পূর্ণ সুরক্ষিত ও গোপনীয়</div>
+      <div class="kh-brand-note" style="margin-top:10px"><i class="ti ti-message-2-check" aria-hidden="true"></i>OTP যাচাইয়ের মাধ্যমে নিরাপদ প্রবেশ</div>
     </div>
+
   </div>
 </div>
 
@@ -564,10 +605,10 @@ function fmtDate(d) {
   try { return new Date(d).toLocaleDateString('bn-BD', { day:'2-digit', month:'short', year:'numeric' }); }
   catch { return d; }
 }
-function hideLoginError() { document.getElementById('loginError').style.display = 'none'; }
+function hideLoginError() { document.getElementById('loginError').className = 'kh-msg'; }
 function showLoginError(msg) {
   document.getElementById('loginErrorMsg').textContent = msg;
-  document.getElementById('loginError').style.display = 'flex';
+  document.getElementById('loginError').className = 'kh-msg kh-err';
 }
 
 /* ── Toast ───────────────────────────────────────── */
@@ -660,11 +701,26 @@ async function doLogin() {
       schedule = sched || [];
     }
 
-    // Save to session and render
-    saveSession(borrower, loan, schedule);
-    renderPortal(borrower, loan, schedule, loans || []);
-    showPortalView();
-    toast('স্বাগতম, ' + (borrower.name_bn || borrower.name) + '!', 'ok');
+    // ── OTP step: verify the registered mobile before opening the portal ──
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-login"></i> লগইন করুন';
+
+    KHUI.otp({
+      phone: borrower.mobile,
+      length: 4,
+      demo: true,
+      title: 'মোবাইল নম্বর যাচাই করুন',
+      onSuccess: function () {
+        saveSession(borrower, loan, schedule);
+        renderPortal(borrower, loan, schedule, loans || []);
+        showPortalView();
+        toast('স্বাগতম, ' + (borrower.name_bn || borrower.name) + '!', 'ok');
+      },
+      onCancel: function () {
+        toast('যাচাই বাতিল করা হয়েছে।', 'info');
+      }
+    });
+    return;
 
   } catch(err) {
     showLoginError('সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
@@ -872,5 +928,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
+<script src="kh-ui.js"></script>
 </body>
 </html>

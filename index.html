@@ -823,8 +823,9 @@
       100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
     }
 </style>
+  <link rel="stylesheet" href="kh-ui.css">
 </head>
-<body>
+<body data-kh-nav="on">
 
 <!-- ═══════════════════════════════════════════════════════
      TOP BAR
@@ -1272,6 +1273,309 @@
     <div class="qdot"></div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PRODUCT CARDS — সঞ্চয় ও ঋণ
+════════════════════════════════════════════════════════ -->
+<section class="pc-section" id="products">
+<style>
+/* ── Product Cards ── */
+.pc-section { background: #f0f7f3; padding: 56px 40px; }
+.pc-section-head { text-align:center; margin-bottom:44px; }
+.pc-section-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(20,82,48,.08); color:var(--green); font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
+.pc-section-title { font-size:30px; font-weight:800; color:var(--green); line-height:1.25; }
+.pc-section-title span { color:var(--gold); }
+.pc-cards-wrap { max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:32px; }
+
+/* Card base */
+.pc-card { display:grid; grid-template-columns:1fr 1fr; border-radius:28px; overflow:hidden; box-shadow:0 16px 56px rgba(0,0,0,.14); min-height:400px; }
+
+/* Image sides */
+.pc-img { position:relative; display:flex; align-items:flex-end; justify-content:center; overflow:hidden; padding:0; }
+.pc-img-savings { background:linear-gradient(145deg, #073b1e 0%, #145230 45%, #1e7d42 100%); }
+.pc-img-loan    { background:linear-gradient(145deg, #7a4f00 0%, #c07800 50%, #f0a500 100%); }
+
+/* Decorative rings */
+.pc-img::before, .pc-img::after {
+  content:''; position:absolute; border-radius:50%; border:2px solid rgba(255,255,255,.1);
+}
+.pc-img::before { width:320px; height:320px; bottom:-80px; left:50%; transform:translateX(-50%); }
+.pc-img::after  { width:200px; height:200px; bottom:-30px; left:50%; transform:translateX(-50%); }
+
+/* SVG fills the image column */
+.pc-figure { width:100%; height:100%; min-height:400px; }
+
+/* Text sides */
+.pc-text { background:#fff; padding:50px 52px; display:flex; flex-direction:column; justify-content:center; gap:16px; }
+.pc-tag { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:5px 14px; border-radius:20px; width:fit-content; }
+.pc-tag-green { background:rgba(20,82,48,.09); color:var(--green); }
+.pc-tag-gold  { background:rgba(240,165,0,.12); color:#a06800; }
+.pc-title { font-size:28px; font-weight:800; color:#111; line-height:1.25; }
+.pc-title em { font-style:normal; color:var(--green); }
+.pc-title-gold em { color:#c07800; }
+.pc-desc { font-size:14px; color:#555; line-height:1.8; }
+.pc-feats { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
+.pc-feats li { display:flex; align-items:center; gap:10px; font-size:13px; color:#333; font-weight:500; }
+.pc-feats li i { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.pc-fi-green { background:rgba(20,82,48,.1); color:var(--green); }
+.pc-fi-gold  { background:rgba(240,165,0,.15); color:#a06800; }
+.pc-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:12px; font-size:14px; font-weight:700; text-decoration:none; transition:all .25s; width:fit-content; margin-top:6px; }
+.pc-btn-green { background:linear-gradient(135deg,var(--green),#1e7d42); color:#fff; box-shadow:0 6px 20px rgba(20,82,48,.28); }
+.pc-btn-green:hover { box-shadow:0 10px 32px rgba(20,82,48,.42); transform:translateY(-2px); }
+.pc-btn-gold  { background:linear-gradient(135deg,#c07800,#f0a500); color:#fff; box-shadow:0 6px 20px rgba(192,120,0,.3); }
+.pc-btn-gold:hover  { box-shadow:0 10px 32px rgba(192,120,0,.45); transform:translateY(-2px); }
+
+/* Bubble group */
+.pc-bubble { position:absolute; border-radius:50%; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
+
+@media(max-width:768px) {
+  .pc-section { padding:36px 16px; }
+  .pc-card { grid-template-columns:1fr; min-height:auto; }
+  .pc-img { min-height:300px; order:0 !important; }
+  .pc-text { padding:32px 24px; order:1 !important; }
+  .pc-title { font-size:22px; }
+  .pc-cards-wrap { gap:24px; }
+  .pc-section-title { font-size:22px; }
+}
+</style>
+
+  <div class="pc-section-head">
+    <div class="pc-section-tag"><i class="ti ti-sparkles"></i>আমাদের সেবাসমূহ</div>
+    <div class="pc-section-title">আপনার প্রয়োজনে <span>কর্জে হাসানা</span></div>
+  </div>
+
+  <div class="pc-cards-wrap">
+
+    <!-- ── CARD 1: সুদবিহীন সঞ্চয় — woman left, text right ── -->
+    <div class="pc-card">
+      <div class="pc-img pc-img-savings" style="order:0">
+        <svg class="pc-figure" viewBox="0 0 440 420" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background deco rings -->
+          <circle cx="220" cy="450" r="280" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="80"/>
+          <circle cx="220" cy="420" r="180" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="50"/>
+
+          <!-- Thought bubbles (top-left) -->
+          <circle cx="90"  cy="95"  r="46" fill="rgba(255,255,255,.13)" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+          <circle cx="140" cy="148" r="14" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+          <circle cx="160" cy="168" r="8"  fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
+          <!-- Piggy bank icon inside bubble -->
+          <ellipse cx="90" cy="92" rx="26" ry="20" fill="rgba(240,165,0,.25)"/>
+          <ellipse cx="90" cy="90" rx="22" ry="16" fill="#f0a500" opacity=".9"/>
+          <ellipse cx="86" cy="84" rx="7"  ry="6"  fill="#f0a500"/>
+          <path d="M106 87 Q110 91 108 96" stroke="#f0a500" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <circle cx="83" cy="88" r="2.5" fill="#073b1e"/>
+          <path d="M83 96 Q90 102 97 96" stroke="#073b1e" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <rect x="82" y="100" width="4" height="7" rx="2" fill="#c07800"/>
+          <rect x="91" y="100" width="4" height="7" rx="2" fill="#c07800"/>
+
+          <!-- Second bubble: house -->
+          <circle cx="350" cy="75" r="38" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>
+          <circle cx="308" cy="110" r="11" fill="rgba(255,255,255,.09)" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+          <circle cx="295" cy="125" r="6"  fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+          <!-- House icon -->
+          <polygon points="350,52 374,75 326,75" fill="rgba(255,255,255,.7)"/>
+          <rect x="334" y="75" width="32" height="24" fill="rgba(255,255,255,.85)"/>
+          <rect x="344" y="83" width="12" height="16" rx="2" fill="#145230"/>
+
+          <!-- WOMAN FIGURE -->
+          <!-- Feet -->
+          <ellipse cx="188" cy="413" rx="22" ry="10" fill="#0a2918"/>
+          <ellipse cx="252" cy="413" rx="22" ry="10" fill="#0a2918"/>
+
+          <!-- Abaya body -->
+          <path d="M140 248 Q132 340 135 420 L305 420 Q308 340 300 248 Q265 225 220 224 Q175 225 140 248Z" fill="#0a2918"/>
+
+          <!-- Left arm -->
+          <path d="M148 260 Q110 310 118 365" stroke="#0a2918" stroke-width="36" stroke-linecap="round" fill="none"/>
+          <!-- Right arm -->
+          <path d="M292 260 Q330 310 322 365" stroke="#0a2918" stroke-width="36" stroke-linecap="round" fill="none"/>
+
+          <!-- Left hand -->
+          <ellipse cx="120" cy="370" rx="22" ry="16" fill="#d4956a"/>
+          <!-- Right hand holding gold coin -->
+          <ellipse cx="320" cy="370" rx="22" ry="16" fill="#d4956a"/>
+          <circle cx="320" cy="348" r="24" fill="#f0a500" opacity=".95"/>
+          <circle cx="320" cy="348" r="17" fill="#ffc107" opacity=".8"/>
+          <text x="320" y="354" text-anchor="middle" font-size="15" fill="#073b1e" font-weight="800" font-family="Arial">৳</text>
+
+          <!-- Neck -->
+          <rect x="207" y="205" width="26" height="24" rx="10" fill="#d4956a"/>
+
+          <!-- HEAD -->
+          <ellipse cx="220" cy="168" rx="56" ry="60" fill="#d4956a"/>
+
+          <!-- HIJAB (covers head & falls to shoulders) -->
+          <path d="M160 162 Q160 92 220 86 Q280 92 280 162 L284 240 Q220 260 156 240 Z" fill="#0e6b38"/>
+          <!-- Hijab highlight / fold -->
+          <path d="M160 162 Q160 92 220 86 Q280 92 280 162 Q270 148 220 145 Q170 148 160 162Z" fill="#12914d" opacity=".7"/>
+          <!-- Hijab pin -->
+          <circle cx="220" cy="228" r="6" fill="#f0a500"/>
+          <circle cx="220" cy="228" r="3" fill="#c07800"/>
+
+          <!-- Eyes -->
+          <ellipse cx="199" cy="162" rx="10" ry="11" fill="#fff"/>
+          <ellipse cx="241" cy="162" rx="10" ry="11" fill="#fff"/>
+          <circle cx="201" cy="163" r="7"  fill="#2a1206"/>
+          <circle cx="243" cy="163" r="7"  fill="#2a1206"/>
+          <circle cx="203" cy="160" r="2.5" fill="#fff"/>
+          <circle cx="245" cy="160" r="2.5" fill="#fff"/>
+
+          <!-- Eyebrows -->
+          <path d="M186 147 Q199 141 212 147" stroke="#4a2a0a" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M228 147 Q241 141 254 147" stroke="#4a2a0a" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+          <!-- Nose -->
+          <path d="M216 175 Q220 182 224 175" stroke="#bf7850" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+          <!-- Smile -->
+          <path d="M205 190 Q220 204 235 190" stroke="#bf7050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+          <!-- Cheek blush -->
+          <ellipse cx="192" cy="185" rx="14" ry="8" fill="rgba(220,100,60,.12)"/>
+          <ellipse cx="248" cy="185" rx="14" ry="8" fill="rgba(220,100,60,.12)"/>
+
+          <!-- Ground shadow -->
+          <ellipse cx="220" cy="418" rx="100" ry="10" fill="rgba(0,0,0,.15)"/>
+        </svg>
+      </div>
+
+      <div class="pc-text" style="order:1">
+        <div class="pc-tag pc-tag-green"><i class="ti ti-piggy-bank"></i> সুদবিহীন সঞ্চয়</div>
+        <div class="pc-title">সঞ্চয়ে গড়ুন<br><em>নিরাপদ ভবিষ্যৎ</em></div>
+        <p class="pc-desc">ইসলামী শরীয়া সম্মত সুদমুক্ত সঞ্চয় স্কিমে যোগ দিন। আপনার অর্থ হালাল পথে সুরক্ষিত থাকবে — কোনো সুদ নেই, কোনো ঝুঁকি নেই।</p>
+        <ul class="pc-feats">
+          <li><i class="ti ti-circle-check pc-fi-green"></i>০% সুদ — শতভাগ হালাল ও শরীয়াসম্মত</li>
+          <li><i class="ti ti-calendar pc-fi-green"></i>মাসিক DPS ও এককালীন জমার সুবিধা</li>
+          <li><i class="ti ti-lock pc-fi-green"></i>যেকোনো সময় তোলার সুবিধা</li>
+          <li><i class="ti ti-shield-check pc-fi-green"></i>ফাউন্ডেশন কর্তৃক সম্পূর্ণ সুরক্ষিত</li>
+        </ul>
+        <a href="savings-portal.html" class="pc-btn pc-btn-green"><i class="ti ti-arrow-right"></i>সঞ্চয় শুরু করুন</a>
+      </div>
+    </div>
+
+    <!-- ── CARD 2: সুদবিহীন ঋণ — text left, man right ── -->
+    <div class="pc-card">
+      <div class="pc-text" style="order:0">
+        <div class="pc-tag pc-tag-gold"><i class="ti ti-hand-holding"></i> সুদবিহীন ঋণ</div>
+        <div class="pc-title pc-title-gold">স্বপ্ন পূরণ করুন<br><em>কর্জে হাসানায়</em></div>
+        <p class="pc-desc">সুদের বোঝামুক্ত হোন। আমাদের কর্জে হাসানা স্কিমে বিনা সুদে ঋণ নিন এবং সহজ মাসিক কিস্তিতে পরিশোধ করুন।</p>
+        <ul class="pc-feats">
+          <li><i class="ti ti-circle-check pc-fi-gold"></i>০% সুদ — রিবামুক্ত ইসলামী ঋণ</li>
+          <li><i class="ti ti-cash pc-fi-gold"></i>সহজ মাসিক কিস্তিতে পরিশোধ</li>
+          <li><i class="ti ti-file-check pc-fi-gold"></i>দ্রুত অনুমোদন ও স্বচ্ছ প্রক্রিয়া</li>
+          <li><i class="ti ti-users pc-fi-gold"></i>কৃষি, ব্যবসা, পারিবারিক সব প্রয়োজনে</li>
+        </ul>
+        <a href="loan-application.html" class="pc-btn pc-btn-gold"><i class="ti ti-arrow-right"></i>ঋণের আবেদন করুন</a>
+      </div>
+
+      <div class="pc-img pc-img-loan" style="order:1">
+        <svg class="pc-figure" viewBox="0 0 440 420" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background deco rings -->
+          <circle cx="220" cy="450" r="280" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="80"/>
+          <circle cx="220" cy="420" r="180" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="50"/>
+
+          <!-- Thought bubble: House (top-right) -->
+          <circle cx="350" cy="90" r="46" fill="rgba(255,255,255,.13)" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
+          <circle cx="300" cy="135" r="14" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+          <circle cx="283" cy="152" r="8"  fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
+          <!-- House -->
+          <polygon points="350,64 378,90 322,90" fill="rgba(255,255,255,.75)"/>
+          <rect x="328" y="90" width="44" height="30" fill="rgba(255,255,255,.85)"/>
+          <rect x="341" y="99" width="14" height="21" rx="2" fill="#7a5200"/>
+
+          <!-- Thought bubble: Shop (top-left) -->
+          <circle cx="90" cy="75" r="38" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.20)" stroke-width="1.5"/>
+          <circle cx="135" cy="112" r="11" fill="rgba(255,255,255,.09)" stroke="rgba(255,255,255,.16)" stroke-width="1"/>
+          <circle cx="149" cy="126" r="6"  fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+          <!-- Shop icon -->
+          <rect x="68" y="70" width="44" height="30" rx="3" fill="rgba(255,255,255,.8)"/>
+          <rect x="68" y="56" width="44" height="16" rx="3" fill="rgba(255,255,255,.6)"/>
+          <rect x="80" y="78" width="8"  height="22" rx="1" fill="#7a5200"/>
+          <rect x="92" y="78" width="8"  height="22" rx="1" fill="#7a5200"/>
+          <rect x="104" y="78" width="6" height="22" rx="1" fill="#7a5200"/>
+          <path d="M63 70 Q90 60 117 70" stroke="rgba(255,255,255,.7)" stroke-width="2" fill="none"/>
+
+          <!-- MAN FIGURE -->
+          <!-- Feet / shoes -->
+          <ellipse cx="193" cy="413" rx="22" ry="10" fill="#3d2800"/>
+          <ellipse cx="247" cy="413" rx="22" ry="10" fill="#3d2800"/>
+
+          <!-- Legs (trousers — cream/white) -->
+          <path d="M178 320 Q173 370 190 415 L218 415 Q215 370 220 320Z" fill="#f5f0e8"/>
+          <path d="M262 320 Q267 370 250 415 L222 415 Q225 370 220 320Z" fill="#f5f0e8"/>
+
+          <!-- Body (panjabi — deep maroon/off-white with gold border) -->
+          <path d="M152 228 Q145 310 148 360 L292 360 Q295 310 288 228 Q255 207 220 206 Q185 207 152 228Z" fill="#f5f0e8"/>
+          <!-- Panjabi collar & placket -->
+          <rect x="213" y="205" width="14" height="80" rx="4" fill="rgba(192,120,0,.15)"/>
+          <!-- Gold border bottom -->
+          <rect x="148" y="354" width="144" height="6" rx="2" fill="rgba(192,120,0,.5)"/>
+          <!-- Gold border cuffs -->
+          <rect x="110" y="322" width="32" height="6" rx="2" fill="rgba(192,120,0,.4)"/>
+          <rect x="298" y="322" width="32" height="6" rx="2" fill="rgba(192,120,0,.4)"/>
+
+          <!-- Arms (panjabi sleeves) -->
+          <path d="M155 238 Q115 288 115 330" stroke="#f5f0e8" stroke-width="38" stroke-linecap="round" fill="none"/>
+          <path d="M285 238 Q325 288 325 330" stroke="#f5f0e8" stroke-width="38" stroke-linecap="round" fill="none"/>
+
+          <!-- Hands -->
+          <ellipse cx="115" cy="336" rx="22" ry="16" fill="#c8845a"/>
+          <ellipse cx="325" cy="336" rx="22" ry="16" fill="#c8845a"/>
+
+          <!-- Left hand holding document -->
+          <rect x="92" y="310" width="36" height="46" rx="4" fill="#fff" opacity=".9"/>
+          <rect x="97" y="316" width="26" height="3" rx="1" fill="#c07800"/>
+          <rect x="97" y="323" width="20" height="2" rx="1" fill="#ccc"/>
+          <rect x="97" y="329" width="22" height="2" rx="1" fill="#ccc"/>
+          <rect x="97" y="335" width="18" height="2" rx="1" fill="#ccc"/>
+          <!-- Stamp: APPROVED -->
+          <circle cx="118" cy="349" r="10" fill="rgba(20,82,48,.15)" stroke="#145230" stroke-width="1.5"/>
+          <text x="118" y="353" text-anchor="middle" font-size="6" fill="#145230" font-weight="800">✓</text>
+
+          <!-- Neck -->
+          <rect x="210" y="196" width="20" height="18" rx="8" fill="#c8845a"/>
+
+          <!-- HEAD -->
+          <ellipse cx="220" cy="162" rx="54" ry="58" fill="#c8845a"/>
+
+          <!-- Taqiyah/cap -->
+          <ellipse cx="220" cy="110" rx="44" ry="14" fill="#7a5200"/>
+          <rect x="176" y="104" width="88" height="14" rx="7" fill="#a06800"/>
+
+          <!-- Beard (short) -->
+          <path d="M174 190 Q175 215 220 220 Q265 215 266 190" fill="#3d2000" opacity=".75"/>
+          <path d="M174 190 Q175 215 220 218 Q265 215 266 190 Q250 202 220 204 Q190 202 174 190Z" fill="#3d2000" opacity=".55"/>
+
+          <!-- Eyes -->
+          <ellipse cx="198" cy="159" rx="10" ry="11" fill="#fff"/>
+          <ellipse cx="242" cy="159" rx="10" ry="11" fill="#fff"/>
+          <circle cx="200" cy="160" r="7" fill="#1a0e00"/>
+          <circle cx="244" cy="160" r="7" fill="#1a0e00"/>
+          <circle cx="202" cy="157" r="2.5" fill="#fff"/>
+          <circle cx="246" cy="157" r="2.5" fill="#fff"/>
+
+          <!-- Eyebrows (thick) -->
+          <path d="M184 143 Q198 136 212 143" stroke="#3d2000" stroke-width="4" fill="none" stroke-linecap="round"/>
+          <path d="M228 143 Q242 136 256 143" stroke="#3d2000" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+          <!-- Nose -->
+          <path d="M215 172 Q220 180 225 172" stroke="#a06040" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+          <!-- Smile / confident expression -->
+          <path d="M204 188 Q220 200 236 188" stroke="#a06040" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+          <!-- Cheek blush -->
+          <ellipse cx="186" cy="180" rx="14" ry="8" fill="rgba(200,80,30,.10)"/>
+          <ellipse cx="254" cy="180" rx="14" ry="8" fill="rgba(200,80,30,.10)"/>
+
+          <!-- Ground shadow -->
+          <ellipse cx="220" cy="418" rx="100" ry="10" fill="rgba(0,0,0,.15)"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <!-- ═══════════════════════════════════════════════════════
      IMPACT DASHBOARD
@@ -2047,5 +2351,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   })();
 
 </script>
+<script src="kh-ui.js"></script>
 </body>
 </html>

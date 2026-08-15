@@ -312,8 +312,9 @@
       .portal-layout { display: block; } .guest-layout { display: block; }
     }
   </style>
+  <link rel="stylesheet" href="kh-ui.css">
 </head>
-<body>
+<body data-kh-nav="on">
 
 <!-- ═══ NAVBAR ═══ -->
 <nav class="navbar">
@@ -400,109 +401,126 @@
     </div>
   </section>
 
-  <!-- Auth Section -->
+  <!-- Auth Section — sliding panel -->
   <section class="auth-section">
-    <div class="auth-box">
-      <div class="auth-tabs">
-        <div class="auth-tab active" onclick="switchTab('login')">লগইন করুন</div>
-        <div class="auth-tab" onclick="switchTab('register')">নতুন হিসাব খুলুন</div>
+    <div class="kh-slider kh-wide" id="khAuth">
+
+      <!-- LOGIN pane (left) -->
+      <div class="kh-pane kh-pane-a">
+        <h3 class="kh-head">পোর্টালে প্রবেশ</h3>
+        <div class="kh-rule"></div>
+        <p class="kh-sub">আপনার নিবন্ধিত ইমেইল ও পাসওয়ার্ড দিন</p>
+
+        <div class="kh-msg" id="loginMsg"></div>
+
+        <div class="kh-field">
+          <input type="email" id="loginEmail" placeholder=" " autocomplete="email">
+          <label>ইমেইল ঠিকানা</label>
+          <i class="ti ti-mail kh-fi" aria-hidden="true"></i>
+        </div>
+
+        <div class="kh-field">
+          <input type="password" id="loginPass" placeholder=" " autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter') doLogin()">
+          <label>পাসওয়ার্ড</label>
+        </div>
+
+        <button class="kh-btn" onclick="doLogin()"><i class="ti ti-login" aria-hidden="true"></i> পোর্টালে প্রবেশ করুন</button>
+
+        <p class="kh-swap">হিসাব নেই? <a onclick="switchTab('register')">নতুন হিসাব খুলুন</a></p>
       </div>
 
-      <!-- Login -->
-      <div class="auth-body" id="tabLogin">
-        <div class="auth-title">আমানত পোর্টালে প্রবেশ করুন</div>
-        <div class="auth-sub">আপনার নিবন্ধিত ইমেইল ও পাসওয়ার্ড দিন</div>
-        <div class="msg-box" id="loginMsg"></div>
-        <div class="form-group">
-          <label>ইমেইল ঠিকানা <span>*</span></label>
-          <input type="email" id="loginEmail" placeholder="example@email.com">
-        </div>
-        <div class="form-group">
-          <label>পাসওয়ার্ড <span>*</span></label>
-          <input type="password" id="loginPass" placeholder="••••••••">
-        </div>
-        <button class="btn-primary" onclick="doLogin()"><i class="ti ti-login"></i> পোর্টালে প্রবেশ করুন</button>
-        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">
-          হিসাব নেই? <a href="#" onclick="switchTab('register')" style="color:var(--green);font-weight:600;">নতুন হিসাব খুলুন</a>
-        </p>
-      </div>
+      <!-- REGISTER pane (right) -->
+      <div class="kh-pane kh-pane-b">
+        <h3 class="kh-head">নতুন আমানত হিসাব</h3>
+        <div class="kh-rule"></div>
+        <p class="kh-sub">একবার নিবন্ধন করুন, চিরকাল ব্যবহার করুন</p>
 
-      <!-- Register -->
-      <div class="auth-body" id="tabRegister" style="display:none">
-        <div class="auth-title">নতুন আমানত হিসাব খুলুন</div>
-        <div class="auth-sub">একবার নিবন্ধন করুন, চিরকাল ব্যবহার করুন</div>
-        <div class="msg-box" id="regMsg"></div>
+        <div class="kh-msg" id="regMsg"></div>
 
-        <div class="form-section-label">ব্যক্তিগত তথ্য</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>পূর্ণ নাম <span>*</span></label>
-            <input type="text" id="regName" placeholder="মোঃ রহিম উদ্দিন">
+        <div class="kh-sect">ব্যক্তিগত তথ্য</div>
+        <div class="kh-row2">
+          <div class="kh-field">
+            <input type="text" id="regName" placeholder=" ">
+            <label>পূর্ণ নাম</label>
+            <i class="ti ti-user kh-fi" aria-hidden="true"></i>
           </div>
-          <div class="form-group">
-            <label>মোবাইল নম্বর <span>*</span></label>
-            <input type="tel" id="regPhone" placeholder="01XXXXXXXXX">
+          <div class="kh-field">
+            <input type="tel" id="regPhone" placeholder=" " inputmode="numeric">
+            <label>মোবাইল নম্বর</label>
+            <i class="ti ti-phone kh-fi" aria-hidden="true"></i>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>এনআইডি নম্বর</label>
-            <input type="text" id="regNid" placeholder="NID / জন্ম নিবন্ধন">
+        <div class="kh-row2">
+          <div class="kh-field">
+            <input type="text" id="regNid" placeholder=" ">
+            <label>এনআইডি / জন্ম নিবন্ধন</label>
+            <i class="ti ti-id kh-fi" aria-hidden="true"></i>
           </div>
-          <div class="form-group">
-            <label>আমানত স্কীম <span>*</span></label>
-            <select id="regScheme">
+          <div class="kh-field">
+            <select id="regScheme" class="kh-filled">
               <option value="daily">দৈনিক আমানত</option>
               <option value="fortnightly">পাক্ষিক আমানত</option>
               <option value="monthly">মাসিক আমানত</option>
               <option value="flexible" selected>যখন খুশি আমানত</option>
             </select>
+            <label>আমানত স্কীম</label>
           </div>
         </div>
 
-        <div class="form-section-label">উত্তোলন হিসাব (শুধুমাত্র এই হিসাবেই টাকা যাবে)</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>মোবাইল ব্যাংকিং <span>*</span></label>
-            <select id="regMethod">
+        <div class="kh-sect">উত্তোলন হিসাব</div>
+        <div class="kh-row2">
+          <div class="kh-field">
+            <select id="regMethod" class="kh-filled">
               <option value="bkash">বিকাশ (bKash)</option>
               <option value="nagad">নগদ (Nagad)</option>
               <option value="rocket">রকেট (Rocket)</option>
               <option value="bank">ব্যাংক অ্যাকাউন্ট</option>
             </select>
+            <label>মোবাইল ব্যাংকিং</label>
           </div>
-          <div class="form-group">
-            <label>হিসাব নম্বর <span>*</span></label>
-            <input type="text" id="regAccount" placeholder="01XXXXXXXXX">
-            <div class="hint">⚠️ এই নম্বরটি পরিবর্তন করা যাবে না</div>
+          <div class="kh-field">
+            <input type="text" id="regAccount" placeholder=" " inputmode="numeric">
+            <label>হিসাব নম্বর</label>
+            <i class="ti ti-wallet kh-fi" aria-hidden="true"></i>
           </div>
         </div>
-        <div class="form-group" id="bankNameGroup" style="display:none">
+        <p class="kh-hint"><i class="ti ti-alert-triangle" style="color:#f59e0b" aria-hidden="true"></i> উত্তোলনের টাকা শুধুমাত্র এই হিসাবেই যাবে — পরে পরিবর্তন করা যাবে না।</p>
+
+        <div class="kh-field" id="bankNameGroup" style="display:none">
+          <input type="text" id="regBankName" placeholder=" ">
           <label>ব্যাংকের নাম</label>
-          <input type="text" id="regBankName" placeholder="ব্যাংকের নাম লিখুন">
+          <i class="ti ti-building-bank kh-fi" aria-hidden="true"></i>
         </div>
 
-        <div class="form-section-label">লগইন তথ্য</div>
-        <div class="form-group">
-          <label>ইমেইল ঠিকানা <span>*</span></label>
-          <input type="email" id="regEmail" placeholder="example@email.com">
+        <div class="kh-sect">লগইন তথ্য</div>
+        <div class="kh-field">
+          <input type="email" id="regEmail" placeholder=" " autocomplete="email">
+          <label>ইমেইল ঠিকানা</label>
+          <i class="ti ti-mail kh-fi" aria-hidden="true"></i>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>পাসওয়ার্ড <span>*</span></label>
-            <input type="password" id="regPass" placeholder="কমপক্ষে ৬ অক্ষর">
-          </div>
-          <div class="form-group">
-            <label>পাসওয়ার্ড নিশ্চিত করুন <span>*</span></label>
-            <input type="password" id="regPass2" placeholder="একই পাসওয়ার্ড দিন">
-          </div>
+        <div class="kh-field">
+          <input type="password" id="regPass" placeholder=" " data-kh-strength="1" autocomplete="new-password">
+          <label>পাসওয়ার্ড</label>
+        </div>
+        <div class="kh-field" style="margin-top:22px">
+          <input type="password" id="regPass2" placeholder=" " autocomplete="new-password">
+          <label>পাসওয়ার্ড নিশ্চিত করুন</label>
         </div>
 
-        <button class="btn-primary" onclick="doRegister()"><i class="ti ti-user-plus"></i> হিসাব খুলুন</button>
-        <p style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">
-          হিসাব আছে? <a href="#" onclick="switchTab('login')" style="color:var(--green);font-weight:600;">লগইন করুন</a>
-        </p>
+        <button class="kh-btn" onclick="doRegister()"><i class="ti ti-user-plus" aria-hidden="true"></i> হিসাব খুলুন</button>
+
+        <p class="kh-swap">হিসাব আছে? <a onclick="switchTab('login')">লগইন করুন</a></p>
       </div>
+
+      <!-- BRAND panel -->
+      <div class="kh-brand">
+        <h3>সুদমুক্ত সঞ্চয়</h3>
+        <p>কর্জে হাসানা ফাউন্ডেশনের আমানত পোর্টালে স্বাগতম। সম্পূর্ণ শরীয়াহ-সম্মত পদ্ধতিতে আপনার সঞ্চয় নিরাপদে জমা রাখুন।</p>
+        <div class="kh-brand-note"><i class="ti ti-shield-check" aria-hidden="true"></i>সম্পূর্ণ সুদবিহীন ও হালাল</div>
+        <div class="kh-brand-note" style="margin-top:10px"><i class="ti ti-lock" aria-hidden="true"></i>আপনার তথ্য সুরক্ষিত</div>
+      </div>
+
     </div>
   </section>
 
@@ -850,11 +868,7 @@ function selectScheme(el, scheme) {
 
 // ─── Tab switcher ─────────────────────────────────────────────────
 function switchTab(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i) => {
-    t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register'));
-  });
-  document.getElementById('tabLogin').style.display   = tab==='login'    ? '' : 'none';
-  document.getElementById('tabRegister').style.display = tab==='register' ? '' : 'none';
+  KHUI.slide('khAuth', tab === 'register');
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────
@@ -883,8 +897,22 @@ async function doRegister() {
   if(!name||!phone||!email||!pass||!account) return showMsg('regMsg','সব প্রয়োজনীয় তথ্য পূরণ করুন','error');
   if(pass !== pass2) return showMsg('regMsg','পাসওয়ার্ড দুটি মিলছে না','error');
   if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
+  if(KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
 
-  showMsg('regMsg','হিসাব তৈরি হচ্ছে…','');
+  // Step 0: Verify the mobile number by OTP before creating the account
+  showMsg('regMsg','মোবাইল নম্বর যাচাই করা হচ্ছে…','info');
+  KHUI.otp({
+    phone: phone,
+    length: 4,
+    demo: true,
+    title: 'মোবাইল নম্বর যাচাই করুন',
+    onSuccess: function () { finishRegister(); },
+    onCancel:  function () { showMsg('regMsg','মোবাইল যাচাই না করলে হিসাব খোলা যাবে না।','error'); }
+  });
+  return;
+
+  async function finishRegister() {
+  showMsg('regMsg','হিসাব তৈরি হচ্ছে…','info');
 
   // Step 1: Sign up
   const { data: suData, error: suErr } = await _db.auth.signUp({ email, password: pass });
@@ -914,6 +942,7 @@ async function doRegister() {
 
   // Step 4: Load portal directly
   await loadPortal(siData.user);
+  }
 }
 
 async function doLogout() {
@@ -1075,8 +1104,11 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 function fmt(n) { return parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function showMsg(id, txt, type) {
   const el = document.getElementById(id);
+  if (!el) return;
   el.textContent = txt;
-  el.className = 'msg-box' + (type?' '+type+' show':'');
+  if (!txt) { el.className = 'kh-msg'; return; }
+  const map = { error: 'kh-err', success: 'kh-ok', info: 'kh-info', ok: 'kh-ok' };
+  el.className = 'kh-msg ' + (map[type] || 'kh-err');
 }
 
 // Show/hide bank name field
@@ -1193,5 +1225,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
+<script src="kh-ui.js"></script>
 </body>
 </html>

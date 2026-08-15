@@ -270,8 +270,9 @@
   section, .contact-section { padding:30px 16px !important; }
 }
 </style>
+  <link rel="stylesheet" href="kh-ui.css">
 </head>
-<body>
+<body data-kh-nav="on">
 
 <!-- TOP BAR -->
 <div class="topbar">
@@ -675,7 +676,17 @@ function toast(msg, type = 'ok') {
   const colors = { ok:'#145230', error:'#ef4444' };
   const el = document.createElement('div');
   el.className = 'toast-item ' + type;
-  el.innerHTML = `<i class="ti ${icons[type]}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><spa
+  el.innerHTML = `<i class="ti ${icons[type] || 'ti-info-circle'}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;
+  const host = document.getElementById('toast');
+  if (!host) return;
+  host.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+  }, 4500);
+}
+</script>
+
 <script>
 /* Mobile menu */
 function toggleMenu() {
@@ -693,4 +704,5 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
     if (btn) btn.classList.remove('active');
   });
 });
-</script>
+</script><script src="kh-ui.js"></script>
+

@@ -342,8 +342,9 @@
   .admin-kpi-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; }
 }
 </style>
+  <link rel="stylesheet" href="kh-ui.css">
 </head>
-<body>
+<body data-kh-nav="off">
 
 <!-- ══════════════════════════════════════════════════════════
      LOGIN SCREEN
@@ -691,7 +692,7 @@
           <div class="settings-card">
             <h3><i class="ti ti-shield-lock"></i>Security (Super Admin)</h3>
             <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">Current password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
-            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">New password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
+            <div class="mf-group" style="margin-bottom:10px"><label class="mf-label">New password</label><input class="mf-input" type="password" data-kh-strength="1" placeholder="••••••••"></div>
             <div class="mf-group" style="margin-bottom:14px"><label class="mf-label">Confirm new password</label><input class="mf-input" type="password" placeholder="••••••••"></div>
             <button class="btn-add" style="width:100%;justify-content:center" onclick="toast('Password updated','success')"><i class="ti ti-key"></i>Update Password</button>
           </div>
@@ -1348,7 +1349,7 @@ const MODAL_FORMS = {
     <div class="mf-group"><label class="mf-label">Full Name</label><input class="mf-input" id="mf_name" placeholder="Admin name"></div>
     <div class="mf-group"><label class="mf-label">Email</label><input class="mf-input" id="mf_email" placeholder="email@korjehasana.org"></div>
     <div class="mf-group"><label class="mf-label">Role</label><select class="mf-select" id="mf_role"><option>Viewer</option><option>Admin</option><option>Super Admin</option></select></div>
-    <div class="mf-group"><label class="mf-label">Password</label><input class="mf-input" type="password" id="mf_pass" placeholder="••••••••"></div>
+    <div class="mf-group"><label class="mf-label">Password</label><input class="mf-input" type="password" id="mf_pass" data-kh-strength="1" placeholder="••••••••"></div>
     <div class="mf-group"><label class="mf-label">Status</label><select class="mf-select" id="mf_ustatus"><option>Active</option><option>Inactive</option></select></div>
     <div class="mf-group"><label class="mf-label">Mobile</label><input class="mf-input" id="mf_mobile" placeholder="01XXXXXXXXX"></div>
   </div>`,
@@ -1954,5 +1955,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
+<script src="kh-ui.js"></script>
 </body>
 </html>
