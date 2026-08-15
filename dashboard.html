@@ -11,9 +11,9 @@
 <style>
 :root{
   --sb-bg:#0b1f14;--sb-hover:#152e1e;--sb-active:#1a3d28;--sb-border:rgba(255,255,255,.07);
-  --sb-text:#b0c4b8;--sb-active-text:#fff;--sb-gold:#F0A500;
+  --sb-text:#b0c4b8;--sb-active-text:#fff;--sb-gold:#f08c28;
   --bg:#0a0f1a;--bg2:#111827;--bg3:#1a2535;--border:rgba(255,255,255,.08);
-  --green:#145230;--mdgreen:#1E7D42;--ltgreen:#9ED8B0;--gold:#F0A500;
+  --green:#241539;--mdgreen:#7048e8;--ltgreen:#cbb6f5;--gold:#f08c28;
   --text:#f1f5f9;--muted:#94a3b8;--success:#22c55e;--blue:#3b82f6;
   --orange:#f97316;--purple:#a855f7;--red:#ef4444;--warn:#eab308;
   --sb-w:260px;
@@ -38,20 +38,20 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 #sidebar{
   width:var(--sb-w);min-width:var(--sb-w);min-height:100vh;
   background:linear-gradient(180deg,#0b1f14 0%,#0d2318 100%);
-  border-right:1px solid rgba(240,165,0,.12);
+  border-right:1px solid rgba(240,140,40,.12);
   display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;
   scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent;
 }
 .sb-head{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
 .sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.sb-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0b1f14;box-shadow:0 0 16px rgba(240,165,0,.4);flex-shrink:0}
+.sb-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#0b1f14;box-shadow:0 0 16px rgba(240,140,40,.4);flex-shrink:0}
 .sb-logo-text .t1{font-size:12px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;line-height:1.2}
 .sb-logo-text .t2{font-size:9px;color:rgba(255,255,255,.4)}
 .sb-user{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px}
 .sb-user-name{font-size:12px;font-weight:600;color:#fff;font-family:'Hind Siliguri',sans-serif}
 .sb-user-desig{font-size:10px;color:var(--gold);margin-top:2px}
 .sb-role-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:4px}
-.rb-super{background:rgba(240,165,0,.2);color:var(--gold);border:1px solid rgba(240,165,0,.3)}
+.rb-super{background:rgba(240,140,40,.2);color:var(--gold);border:1px solid rgba(240,140,40,.3)}
 .rb-admin{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
 
 .sb-nav{flex:1;padding:10px 0;overflow-y:auto}
@@ -64,7 +64,7 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
   transition:all .15s;border:1px solid transparent;text-decoration:none;position:relative;
 }
 .sb-item:hover{background:var(--sb-hover);color:#e2ece6}
-.sb-item.active{background:rgba(30,125,66,.25);color:#fff;border-color:rgba(30,125,66,.4)}
+.sb-item.active{background:rgba(112,72,232,.25);color:#fff;border-color:rgba(112,72,232,.4)}
 .sb-item.active::before{content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--gold);border-radius:2px}
 .sb-item i{font-size:16px;flex-shrink:0;opacity:.8}
 .sb-item.active i{opacity:1;color:var(--ltgreen)}
@@ -115,7 +115,7 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .sc-orange{background:linear-gradient(135deg,#7c2d12,#9a3412);box-shadow:0 4px 20px rgba(154,52,18,.3)}
 .sc-purple{background:linear-gradient(135deg,#4a1d96,#6d28d9);box-shadow:0 4px 20px rgba(109,40,217,.3)}
 .sc-teal{background:linear-gradient(135deg,#134e4a,#0f766e);box-shadow:0 4px 20px rgba(15,118,110,.3)}
-.sc-gold{background:linear-gradient(135deg,#78350f,#92400e);box-shadow:0 4px 20px rgba(146,64,14,.3)}
+.sc-gold{background:linear-gradient(135deg,#78350f,#9a3412);box-shadow:0 4px 20px rgba(146,64,14,.3)}
 .stat-card::after{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.05);pointer-events:none}
 .stat-ico{font-size:22px;margin-bottom:8px;display:block}
 .stat-num{font-size:26px;font-weight:800;color:#fff;line-height:1;margin-bottom:3px}
@@ -144,10 +144,10 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 
 /* ── BUTTONS ── */
 .btn{border:none;cursor:pointer;border-radius:8px;font-weight:600;font-family:'Hind Siliguri','Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:linear-gradient(135deg,#1E7D42,#145230);color:#fff;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(30,125,66,.35)}
-.btn-primary:hover{box-shadow:0 6px 20px rgba(30,125,66,.55);transform:translateY(-1px)}
-.btn-gold{background:linear-gradient(135deg,#F0A500,#d4900a);color:#000;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(240,165,0,.3)}
-.btn-gold:hover{box-shadow:0 6px 20px rgba(240,165,0,.5);transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#7048e8,#241539);color:#fff;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(112,72,232,.35)}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(112,72,232,.55);transform:translateY(-1px)}
+.btn-gold{background:linear-gradient(135deg,#f08c28,#d4900a);color:#000;padding:10px 22px;font-size:13px;box-shadow:0 4px 14px rgba(240,140,40,.3)}
+.btn-gold:hover{box-shadow:0 6px 20px rgba(240,140,40,.5);transform:translateY(-1px)}
 .btn-danger{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);padding:7px 16px;font-size:12px}
 .btn-danger:hover{background:rgba(239,68,68,.25)}
 .btn-success{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3);padding:7px 16px;font-size:12px}
@@ -202,7 +202,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
 .empty-state p{font-size:13px;font-family:'Hind Siliguri',sans-serif}
 
 /* ── APPROVAL DETAIL ── */
-.apv-card{background:var(--bg3);border:1px solid rgba(240,165,0,.15);border-radius:12px;padding:16px;margin-bottom:12px}
+.apv-card{background:var(--bg3);border:1px solid rgba(240,140,40,.15);border-radius:12px;padding:16px;margin-bottom:12px}
 .apv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
 .apv-name{font-size:14px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif}
 .apv-info{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.6;font-family:'Hind Siliguri',sans-serif}
@@ -225,7 +225,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
 .perm-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif;font-size:12px;color:var(--muted)}
 .perm-item:hover{background:rgba(255,255,255,.07);color:#e2ece6;border-color:rgba(255,255,255,.14)}
 .perm-item input[type=checkbox]{accent-color:var(--mdgreen);width:15px;height:15px;cursor:pointer;flex-shrink:0}
-.perm-item:has(input:checked){background:rgba(30,125,66,.15);border-color:rgba(30,125,66,.4);color:#fff}
+.perm-item:has(input:checked){background:rgba(112,72,232,.15);border-color:rgba(112,72,232,.4);color:#fff}
 .perm-item span{display:flex;align-items:center;gap:5px}
 .perm-item i{font-size:14px;color:var(--ltgreen);opacity:.7}
 .perm-item:has(input:checked) i{opacity:1}
@@ -237,7 +237,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
 .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .fpill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif}
 .fpill:hover{border-color:rgba(255,255,255,.2);color:#fff}
-.fpill.active{background:rgba(240,165,0,.15);border-color:rgba(240,165,0,.4);color:var(--gold)}
+.fpill.active{background:rgba(240,140,40,.15);border-color:rgba(240,140,40,.4);color:var(--gold)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -436,7 +436,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
 
         <div class="card" id="se-formCard" style="display:none">
           <div class="card-title"><i class="ti ti-cash-register"></i> জমা তথ্য</div>
-          <div style="background:rgba(30,125,66,.1);border:1px solid rgba(30,125,66,.25);border-radius:8px;padding:12px;margin-bottom:14px">
+          <div style="background:rgba(112,72,232,.1);border:1px solid rgba(112,72,232,.25);border-radius:8px;padding:12px;margin-bottom:14px">
             <div style="font-size:12px;color:var(--ltgreen);font-family:'Hind Siliguri',sans-serif">নির্বাচিত সঞ্চয়কারী</div>
             <div id="se-selectedName" style="font-size:15px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif;margin-top:3px"></div>
             <div id="se-selectedInfo" style="font-size:11px;color:var(--muted);margin-top:2px"></div>
@@ -607,7 +607,7 @@ tbody td{padding:11px 14px;font-size:12.5px;color:var(--text);font-family:'Hind 
         <div class="panel-sub">নতুন অ্যাডমিন যোগ এবং বিদ্যমান অ্যাডমিনদের পারমিশন নির্ধারণ</div>
 
         <!-- ADD NEW ADMIN CARD -->
-        <div class="card" style="border-color:rgba(240,165,0,.2)">
+        <div class="card" style="border-color:rgba(240,140,40,.2)">
           <div class="card-title"><i class="ti ti-user-plus"></i> নতুন অ্যাডমিন যোগ করুন</div>
           <div class="form-grid">
             <div class="fld"><label>ইমেইল (Supabase Auth তে নিবন্ধিত) *</label><input id="na-email" type="email" placeholder="admin@example.com"></div>
@@ -1380,13 +1380,13 @@ async function loadAdminUsers() {
       savings_approve:'সঞ্চয় উত্তোলন', view_log:'লগ', admin_mgmt:'এডমিন মগমট'
     };
     return `<div class="admin-row" id="ar-${a.user_id}">
-      <div class="ar-avatar" style="background:${a.role==='super_admin'?'linear-gradient(135deg,#78350f,#92400e)':'linear-gradient(135deg,var(--green),var(--mdgreen))'}">${(a.name_bn||a.email||'A').charAt(0)}</div>
+      <div class="ar-avatar" style="background:${a.role==='super_admin'?'linear-gradient(135deg,#78350f,#9a3412)':'linear-gradient(135deg,var(--green),var(--mdgreen))'}">${(a.name_bn||a.email||'A').charAt(0)}</div>
       <div class="ar-info" style="flex:1">
         <div class="ar-name">${a.name_bn||'(নাম নেই)'} ${isSelf?'<span style="font-size:10px;color:var(--gold)">(আপনি)</span>':''}</div>
         <div class="ar-email">${a.email}</div>
         <div style="margin-top:4px"><span class="badge ${a.role==='super_admin'?'rb-super':'rb-admin'}">${a.role==='super_admin'?'সুপার এডমিন':'এডমিন'}</span>${a.designation_bn?` · <span style="font-size:11px;color:var(--ltgreen)">${a.designation_bn}</span>`:''}</div>
         <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
-          ${perms.map(p=>`<span style="font-size:9px;padding:2px 7px;border-radius:10px;background:rgba(30,125,66,.2);color:var(--ltgreen);border:1px solid rgba(30,125,66,.3)">${permLabels[p]||p}</span>`).join('')}
+          ${perms.map(p=>`<span style="font-size:9px;padding:2px 7px;border-radius:10px;background:rgba(112,72,232,.2);color:var(--ltgreen);border:1px solid rgba(112,72,232,.3)">${permLabels[p]||p}</span>`).join('')}
           ${!perms.length?'<span style="font-size:10px;color:var(--muted)">কোনো পারমিশন নেই</span>':''}
         </div>
       </div>

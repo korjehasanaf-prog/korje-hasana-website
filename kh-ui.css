@@ -7,16 +7,19 @@
    ══════════════════════════════════════════════════════════ */
 
 :root {
-  --kh-green:      #0d4a24;
-  --kh-green-lt:   #1a6b36;
-  --kh-green-pale: #bbf7d0;
-  --kh-green-mint: #86efac;
-  --kh-gold:       #7a4f00;
-  --kh-gold-lt:    #b8860b;
-  --kh-gold-pale:  #fcd34d;
-  --kh-ink:        #12211a;
-  --kh-mute:       #7c8a83;
-  --kh-line:       #d6ddd8;
+  /* aurora palette — pink → orange → amber → violet */
+  --kh-green:      #241539;   /* primary deep plum   */
+  --kh-green-lt:   #3a2259;   /* hover               */
+  --kh-green-pale: #ded3f7;
+  --kh-green-mint: #cbb6f5;
+  --kh-gold:       #d6336c;   /* secondary pink      */
+  --kh-gold-lt:    #e95420;   /* hover orange        */
+  --kh-gold-pale:  #ffc46b;
+  --kh-violet:     #7048e8;
+  --kh-amber:      #f08c28;
+  --kh-ink:        #1c1226;
+  --kh-mute:       #7b7288;
+  --kh-line:       #ded8e6;
   --kh-weak:       #ef4444;
   --kh-mid:        #f59e0b;
   --kh-strong:     #16a34a;
@@ -134,7 +137,7 @@
   background: #fff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 44px rgba(13, 74, 36, .14);
+  box-shadow: 0 14px 50px rgba(36, 21, 57, .18);
   font-family: 'Hind Siliguri', system-ui, sans-serif;
 }
 
@@ -165,7 +168,7 @@
   flex-direction: column;
   justify-content: center;
   color: #fff;
-  background: linear-gradient(140deg, var(--kh-green) 0%, #072e15 100%);
+  background: linear-gradient(140deg, #d6336c 0%, #e95420 38%, #f08c28 62%, #7048e8 100%);
   clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
   transition: left .72s cubic-bezier(.65, 0, .35, 1),
               clip-path .72s cubic-bezier(.65, 0, .35, 1),
@@ -176,7 +179,7 @@
 .kh-slider.kh-reg .kh-brand {
   left: 0;
   padding: 42px 62px 42px 38px;
-  background: linear-gradient(140deg, var(--kh-gold-lt) 0%, #5a3a00 100%);
+  background: linear-gradient(140deg, #7048e8 0%, #d6336c 46%, #e95420 100%);
   clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
 }
 
@@ -227,7 +230,7 @@
   left: 0;
   top: 9px;
   font-size: 14.5px;
-  color: #93a29a;
+  color: #9a90a8;
   pointer-events: none;
   transition: all .26s;
 }
@@ -250,7 +253,7 @@
   right: 2px;
   top: 10px;
   font-size: 16px;
-  color: #93a29a;
+  color: #9a90a8;
   pointer-events: none;
 }
 
@@ -312,7 +315,7 @@
   color: var(--kh-gold);
   margin: 4px 0 20px;
   padding-bottom: 7px;
-  border-bottom: 1px solid #eee6d8;
+  border-bottom: 1px solid #ece4f2;
 }
 .kh-hint { font-size: 11.5px; color: var(--kh-mute); margin: -18px 0 22px; line-height: 1.5; }
 
@@ -343,7 +346,7 @@
   position: fixed;
   inset: 0;
   z-index: 9500;
-  background: rgba(6, 22, 13, .74);
+  background: rgba(14, 7, 24, .78);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   display: flex;
@@ -359,8 +362,8 @@
 .kh-otp-card {
   width: 100%;
   max-width: 380px;
-  background: #0a1710;
-  border: 1px solid #1e3a28;
+  background: #170e26;
+  border: 1px solid #34234f;
   border-radius: 20px;
   padding: 34px 28px 28px;
   text-align: center;
@@ -373,7 +376,7 @@
   width: 58px;
   height: 58px;
   border-radius: 17px;
-  background: #1a2f22;
+  background: #2a1a42;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -381,14 +384,14 @@
   transition: background .4s;
 }
 .kh-otp-icon i { font-size: 27px; color: var(--kh-gold-pale); transition: color .4s; }
-.kh-otp-card.kh-ok  .kh-otp-icon   { background: #14331f; }
+.kh-otp-card.kh-ok  .kh-otp-icon   { background: #1d3a27; }
 .kh-otp-card.kh-ok  .kh-otp-icon i { color: #4ade80; }
 .kh-otp-card.kh-bad .kh-otp-icon i { color: #f87171; }
 
 .kh-otp-title { font-size: 17.5px; font-weight: 500; color: #fff; margin: 0 0 6px; transition: color .35s; }
 .kh-otp-card.kh-ok  .kh-otp-title { color: #4ade80; }
 .kh-otp-card.kh-bad .kh-otp-title { color: #f87171; }
-.kh-otp-sub { font-size: 12.5px; color: #7d9187; line-height: 1.65; margin: 0 0 22px; }
+.kh-otp-sub { font-size: 12.5px; color: #9186a3; line-height: 1.65; margin: 0 0 22px; }
 
 .kh-otp-row { display: flex; gap: 11px; justify-content: center; margin-bottom: 20px; }
 
@@ -396,8 +399,8 @@
   width: 54px;
   height: 62px;
   border-radius: 13px;
-  border: 1.5px solid #2a4a38;
-  background: #0e1f16;
+  border: 1.5px solid #3d2a5c;
+  background: #1e1233;
   color: #fff;
   text-align: center;
   font-size: 25px;
@@ -410,9 +413,9 @@
 .kh-otp-in.kh-filled { border-color: #22c55e; color: #4ade80; }
 .kh-otp-card.kh-bad .kh-otp-in { border-color: #7f1d1d; color: #f87171; }
 
-.kh-otp-foot { font-size: 12px; color: #5d7267; margin: 0; }
+.kh-otp-foot { font-size: 12px; color: #6f6382; margin: 0; }
 .kh-otp-foot a { color: #4ade80; font-weight: 500; text-decoration: none; cursor: pointer; }
-.kh-otp-foot a.kh-off { color: #4b5f54; pointer-events: none; }
+.kh-otp-foot a.kh-off { color: #574a6b; pointer-events: none; }
 
 .kh-otp-demo {
   margin: 0 0 16px;
@@ -431,7 +434,7 @@
   right: 18px;
   background: none;
   border: none;
-  color: #5d7267;
+  color: #6f6382;
   font-size: 20px;
   cursor: pointer;
   padding: 4px;
@@ -459,11 +462,11 @@
   border: none;
   padding: 6px;
   cursor: pointer;
-  color: #93a29a;
+  color: #9a90a8;
   line-height: 1;
   z-index: 2;
 }
-.kh-pw-eye:hover { color: var(--kh-green); }
+.kh-pw-eye:hover { color: var(--kh-gold); }
 .kh-pw-eye i { font-size: 18px; }
 
 .kh-pw-meter { margin-top: 10px; font-family: 'Hind Siliguri', system-ui, sans-serif; }
@@ -476,7 +479,7 @@
   color: var(--kh-mute);
   margin-bottom: 7px;
 }
-.kh-pw-lvl { font-weight: 600; color: #9aa8a1; transition: color .3s; }
+.kh-pw-lvl { font-weight: 600; color: #9a90a8; transition: color .3s; }
 .kh-pw-lvl.kh-l1 { color: var(--kh-weak); }
 .kh-pw-lvl.kh-l2 { color: var(--kh-mid); }
 .kh-pw-lvl.kh-l3 { color: var(--kh-strong); }
@@ -484,7 +487,7 @@
 .kh-pw-bar {
   height: 6px;
   border-radius: 999px;
-  background: #e8ebe9;
+  background: #ebe6f0;
   overflow: hidden;
   margin-bottom: 12px;
 }
@@ -502,14 +505,77 @@
   align-items: center;
   gap: 5px;
   font-size: 12px;
-  color: #9aa8a1;
+  color: #9a90a8;
   transition: color .3s;
 }
 .kh-pw-chip i { font-size: 8px; }
 .kh-pw-chip.kh-hit { color: var(--kh-green); font-weight: 500; }
 
 /* ══════════════════════════════════════════════════════════
-   5 ── COMPATIBILITY — keep existing floating elements clear
+   5 ── SITE HEADER — dark backdrop behind the floating menubar
+        (removes the white gap around it)
+   ══════════════════════════════════════════════════════════ */
+
+/* fills the gap on all four sides of the floating menubar and
+   fades out below it — travels with the sticky bar, so it never
+   covers the topbar */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: -14px;
+  right: -14px;
+  bottom: -18px;
+  background: linear-gradient(180deg,
+    #160d26 0%,
+    #160d26 72%,
+    rgba(22, 13, 38, .55) 88%,
+    rgba(22, 13, 38, 0) 100%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* the strip above the menubar blends into the same dark base */
+.topbar {
+  background: linear-gradient(180deg, #12081f 0%, #160d26 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+/* pages whose menubar is a plain full-width bar get the gradient too */
+body:not([data-kh-nav="off"]) .navbar {
+  background:
+    linear-gradient(112deg,
+      rgba(214, 51, 108, .88) 0%,
+      rgba(233, 84, 32, .82) 34%,
+      rgba(240, 140, 40, .78) 58%,
+      rgba(112, 72, 232, .82) 100%) !important;
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 18px;
+  margin: 10px 14px 0;
+  top: 10px;
+  box-shadow: 0 10px 34px rgba(120, 40, 120, .35), inset 0 1px 0 rgba(255, 255, 255, .22);
+}
+
+@media (max-width: 640px) {
+  body:not([data-kh-nav="off"]) .navbar { margin: 8px 8px 0; border-radius: 14px; }
+  .navbar::before { top: -10px; left: -8px; right: -8px; bottom: -14px; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   6 ── MODERN POLISH — softer corners, deeper shadows
+   ══════════════════════════════════════════════════════════ */
+
+body:not([data-kh-nav="off"]) .mega-menu {
+  border-radius: 16px !important;
+  border: 1px solid rgba(112, 72, 232, .16);
+  box-shadow: 0 24px 60px rgba(22, 13, 38, .28) !important;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════
+   7 ── COMPATIBILITY — keep existing floating elements clear
         of the glass navbar
    ══════════════════════════════════════════════════════════ */
 

@@ -8,15 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --green:   #145230;
-      --dkgreen: #0D3D22;
-      --mdgreen: #1E7D42;
-      --ltgreen: #9ED8B0;
-      --gold:    #F0A500;
-      --dkgold:  #C07800;
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
       --white:   #ffffff;
-      --offwhite:#FAFAFA;
-      --border:  #E5E7EB;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
       --text:    #1a1a1a;
       --muted:   #6B7280;
     }
@@ -37,22 +37,22 @@
     /* ═══ NAVBAR ═══ */
     .navbar { background: var(--green); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 12px rgba(0,0,0,.2); }
     .nav-logo { display: flex; align-items: center; gap: 12px; padding: 12px 0; text-decoration: none; }
-    .nav-logo-icon { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: var(--green); box-shadow: 0 0 16px rgba(240,165,0,.4); }
+    .nav-logo-icon { width: 44px; height: 44px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: var(--green); box-shadow: 0 0 16px rgba(240,140,40,.4); }
     .nav-logo-text h1 { font-size: 17px; color: #fff; font-weight: 800; line-height: 1.2; }
     .nav-logo-text p { font-size: 10px; color: var(--ltgreen); }
     .nav-links { display: flex; align-items: center; position: relative; }
     .nav-link { color: rgba(255,255,255,.8); text-decoration: none; font-size: 13px; font-weight: 500; padding: 18px 16px; transition: color .2s; white-space: nowrap; }
     .nav-link:hover, .nav-link.active { color: var(--gold); }
-    .nav-hover-bar { position: absolute; bottom: 0; height: 3px; background: var(--gold); border-radius: 2px 2px 0 0; transition: all .3s ease; pointer-events: none; box-shadow: 0 0 8px rgba(240,165,0,.6); }
+    .nav-hover-bar { position: absolute; bottom: 0; height: 3px; background: var(--gold); border-radius: 2px 2px 0 0; transition: all .3s ease; pointer-events: none; box-shadow: 0 0 8px rgba(240,140,40,.6); }
     .nav-cta { margin-left: 14px; }
-    .btn-donate { background: var(--gold); color: var(--green); padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; transition: all .25s; box-shadow: 0 0 12px rgba(240,165,0,.3); }
-    .btn-donate:hover { background: var(--dkgold); box-shadow: 0 0 24px rgba(240,165,0,.5); transform: translateY(-1px); }
+    .btn-donate { background: var(--gold); color: var(--green); padding: 9px 18px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; transition: all .25s; box-shadow: 0 0 12px rgba(240,140,40,.3); }
+    .btn-donate:hover { background: var(--dkgold); box-shadow: 0 0 24px rgba(240,140,40,.5); transform: translateY(-1px); }
 
     /* ═══ HERO ═══ */
-    .page-hero { background: linear-gradient(135deg, var(--dkgreen) 0%, var(--green) 55%, #1a6b3a 100%); padding: 64px 40px 80px; text-align: center; position: relative; overflow: hidden; }
+    .page-hero { background: linear-gradient(135deg, var(--dkgreen) 0%, var(--green) 55%, #7048e8 100%); padding: 64px 40px 80px; text-align: center; position: relative; overflow: hidden; }
     .page-hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
-    .hero-glow { position:absolute; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(240,165,0,.07) 0%,transparent 70%); top:-120px; left:-80px; pointer-events:none; }
-    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(240,165,0,.15); border:1px solid rgba(240,165,0,.3); color:var(--gold); font-size:12px; font-weight:600; padding:6px 14px; border-radius:20px; margin-bottom:14px; }
+    .hero-glow { position:absolute; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle,rgba(240,140,40,.07) 0%,transparent 70%); top:-120px; left:-80px; pointer-events:none; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(240,140,40,.15); border:1px solid rgba(240,140,40,.3); color:var(--gold); font-size:12px; font-weight:600; padding:6px 14px; border-radius:20px; margin-bottom:14px; }
     .page-hero h1 { font-size:40px; font-weight:800; color:#fff; margin-bottom:12px; line-height:1.2; }
     .page-hero h1 span { color:var(--gold); }
     .page-hero p { font-size:15px; color:rgba(255,255,255,.75); max-width:520px; margin:0 auto 20px; line-height:1.7; }
@@ -65,11 +65,11 @@
     .quick-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
     .qc-item { display: flex; align-items: center; gap: 12px; padding: 18px 32px; border-right: 1px solid var(--border); cursor: pointer; transition: background .2s; text-decoration: none; }
     .qc-item:last-child { border-right: none; }
-    .qc-item:hover { background: rgba(20,82,48,.05); }
+    .qc-item:hover { background: rgba(36,21,57,.05); }
     .qc-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .qci-g { background: rgba(20,82,48,.1); }
+    .qci-g { background: rgba(36,21,57,.1); }
     .qci-b { background: rgba(37,211,102,.1); }
-    .qci-o { background: rgba(240,165,0,.1); }
+    .qci-o { background: rgba(240,140,40,.1); }
     .qci-p { background: rgba(59,130,246,.1); }
     .qc-icon i { font-size: 20px; }
     .qci-g i { color: var(--green); }
@@ -104,7 +104,7 @@
       border-radius: 10px; padding: 11px 14px; font-size: 13px;
       color: var(--text); font-family: inherit; transition: all .2s;
     }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(20,82,48,.06); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(36,21,57,.06); }
     .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
     .form-textarea { resize: vertical; min-height: 120px; }
     .char-count { font-size: 11px; color: var(--muted); text-align: right; margin-top: 3px; }
@@ -120,7 +120,7 @@
 
     /* Attachment zone */
     .attach-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 14px; }
-    .attach-zone:hover { border-color: var(--green); background: rgba(20,82,48,.02); }
+    .attach-zone:hover { border-color: var(--green); background: rgba(36,21,57,.02); }
     .attach-zone i { font-size: 28px; color: var(--muted); display: block; margin-bottom: 6px; }
     .attach-zone p { font-size: 12px; color: var(--muted); }
     .attach-zone span { color: var(--green); font-weight: 600; cursor: pointer; }
@@ -129,13 +129,13 @@
 
     /* Submit */
     .submit-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .btn-submit { background: linear-gradient(135deg, var(--green), var(--mdgreen)); color: #fff; border: none; border-radius: 12px; padding: 13px 30px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all .25s; box-shadow: 0 4px 16px rgba(20,82,48,.25); font-family: inherit; }
-    .btn-submit:hover { box-shadow: 0 6px 24px rgba(20,82,48,.4); transform: translateY(-2px); }
+    .btn-submit { background: linear-gradient(135deg, var(--green), var(--mdgreen)); color: #fff; border: none; border-radius: 12px; padding: 13px 30px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all .25s; box-shadow: 0 4px 16px rgba(36,21,57,.25); font-family: inherit; }
+    .btn-submit:hover { box-shadow: 0 6px 24px rgba(36,21,57,.4); transform: translateY(-2px); }
     .btn-submit.loading { opacity: .7; pointer-events: none; }
     .privacy-note { font-size: 11px; color: var(--muted); line-height: 1.6; }
 
     /* Success message */
-    .success-msg { display: none; background: rgba(20,82,48,.06); border: 1.5px solid rgba(20,82,48,.2); border-radius: 14px; padding: 24px; text-align: center; }
+    .success-msg { display: none; background: rgba(36,21,57,.06); border: 1.5px solid rgba(36,21,57,.2); border-radius: 14px; padding: 24px; text-align: center; }
     .success-msg i { font-size: 40px; color: var(--green); display: block; margin-bottom: 10px; }
     .success-msg h3 { font-size: 17px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
     .success-msg p { font-size: 13px; color: var(--muted); }
@@ -151,7 +151,7 @@
     /* Office item */
     .office-item { display: flex; gap: 12px; margin-bottom: 14px; }
     .office-item:last-child { margin-bottom: 0; }
-    .oi-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(20,82,48,.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .oi-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(36,21,57,.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .oi-icon i { font-size: 16px; color: var(--green); }
     .oi-text { font-size: 12px; }
     .oi-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 3px; }
@@ -187,14 +187,14 @@
     .soc-fb:hover { background: rgba(24,119,242,.18); }
     .soc-yt { background: rgba(255,0,0,.08); color: #ff0000; border: 1px solid rgba(255,0,0,.15); }
     .soc-yt:hover { background: rgba(255,0,0,.15); }
-    .soc-em { background: rgba(20,82,48,.08); color: var(--green); border: 1px solid rgba(20,82,48,.15); }
-    .soc-em:hover { background: rgba(20,82,48,.15); }
+    .soc-em { background: rgba(36,21,57,.08); color: var(--green); border: 1px solid rgba(36,21,57,.15); }
+    .soc-em:hover { background: rgba(36,21,57,.15); }
 
     /* ═══ MAP SECTION ═══ */
     .map-section { background: var(--offwhite); padding: 56px 40px; }
     .map-inner { max-width: 1100px; margin: 0 auto; }
     .map-box { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,.08); margin-top: 24px; position: relative; }
-    .map-placeholder { height: 360px; background: linear-gradient(135deg, #e8f5e9, #f0fdf4); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+    .map-placeholder { height: 360px; background: linear-gradient(135deg, #e8f5e9, #f9f4fd); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
     .map-placeholder i { font-size: 48px; color: var(--green); opacity: .4; }
     .map-placeholder p { font-size: 14px; color: var(--muted); }
     .map-overlay { position: absolute; top: 16px; left: 16px; background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: flex; align-items: center; gap: 10px; }
@@ -229,7 +229,7 @@
     /* ═══ TOAST ═══ */
     #toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:8px; }
     .toast-item { background:#fff; border:1px solid var(--border); border-radius:12px; padding:12px 20px; font-size:13px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 24px rgba(0,0,0,.12); animation:toastIn .3s ease; white-space:nowrap; }
-    .toast-item.ok { border-color:rgba(20,82,48,.3); }
+    .toast-item.ok { border-color:rgba(36,21,57,.3); }
     @keyframes toastIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
     @keyframes toastOut { to{opacity:0;transform:translateY(16px)} }
 
@@ -470,7 +470,7 @@
       <div class="hours-row"><div class="hr-day">Friday</div><div class="hr-time">9:00am – 12:00pm</div></div>
       <div class="hours-row"><div class="hr-day">Saturday</div><div class="hr-closed">Closed</div></div>
       <div class="hours-row"><div class="hr-day">Government holidays</div><div class="hr-closed">Closed</div></div>
-      <div style="margin-top:12px;background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.2);border-radius:8px;padding:10px;font-size:11px;color:var(--muted)">
+      <div style="margin-top:12px;background:rgba(240,140,40,.1);border:1px solid rgba(240,140,40,.2);border-radius:8px;padding:10px;font-size:11px;color:var(--muted)">
         <i class="ti ti-info-circle" style="color:var(--gold);margin-right:4px"></i>
         WhatsApp support available 7 days, 8am–8pm.
       </div>
@@ -543,13 +543,13 @@
     <!-- Service districts -->
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
       <div style="font-size:12px;font-weight:600;color:var(--muted)">Service districts:</div>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Dhaka</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Gazipur</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Narayanganj</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Narsingdi</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Manikganj</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Munshiganj</span>
-      <span style="background:rgba(20,82,48,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(20,82,48,.15)">📍 Rajbari</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Dhaka</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Gazipur</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Narayanganj</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Narsingdi</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Manikganj</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Munshiganj</span>
+      <span style="background:rgba(36,21,57,.08);color:var(--green);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid rgba(36,21,57,.15)">📍 Rajbari</span>
     </div>
   </div>
 </div>
@@ -673,7 +673,7 @@ function resetForm() {
 /* ═══ Toast ═══ */
 function toast(msg, type = 'ok') {
   const icons = { ok:'ti-circle-check', error:'ti-alert-circle' };
-  const colors = { ok:'#145230', error:'#ef4444' };
+  const colors = { ok:'#241539', error:'#ef4444' };
   const el = document.createElement('div');
   el.className = 'toast-item ' + type;
   el.innerHTML = `<i class="ti ${icons[type] || 'ti-info-circle'}" style="color:${colors[type]};font-size:18px;flex-shrink:0"></i><span>${msg}</span>`;

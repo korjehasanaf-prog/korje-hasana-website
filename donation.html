@@ -16,15 +16,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --green:   #145230;
-      --dkgreen: #0D3D22;
-      --mdgreen: #1E7D42;
-      --ltgreen: #9ED8B0;
-      --gold:    #F0A500;
-      --dkgold:  #C07800;
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
       --white:   #ffffff;
-      --offwhite:#FAFAFA;
-      --border:  #E5E7EB;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
       --text:    #1a1a1a;
       --muted:   #6B7280;
       --error:   #DC2626;
@@ -42,7 +42,7 @@
       box-shadow: 0 2px 20px rgba(0,0,0,.3);
     }
     .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--green); box-shadow: 0 0 14px rgba(240,165,0,.4); }
+    .logo-icon { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--green); box-shadow: 0 0 14px rgba(240,140,40,.4); }
     .logo-bn { color: #fff; font-size: 14px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
     .logo-en { color: var(--ltgreen); font-size: 10px; }
     .nav-back { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color .2s; }
@@ -56,7 +56,7 @@
     .hero-band::before {
       content:''; position:absolute; top:-60px; right:-60px;
       width:240px; height:240px; border-radius:50%;
-      background:rgba(240,165,0,.07); pointer-events:none;
+      background:rgba(240,140,40,.07); pointer-events:none;
     }
     .hero-band::after {
       content:''; position:absolute; bottom:-40px; left:-40px;
@@ -65,9 +65,9 @@
     }
     .hero-badge {
       display:inline-flex; align-items:center; gap:6px;
-      background:rgba(240,165,0,.15); color:var(--gold);
+      background:rgba(240,140,40,.15); color:var(--gold);
       font-size:11px; padding:5px 14px; border-radius:20px;
-      border:1px solid rgba(240,165,0,.35); margin-bottom:14px;
+      border:1px solid rgba(240,140,40,.35); margin-bottom:14px;
     }
     .hero-band h1 { color:#fff; font-size:26px; font-weight:700; margin-bottom:8px; }
     .hero-band h1 span { color:var(--gold); }
@@ -96,7 +96,7 @@
       transition:all .2s; background:#fff;
     }
     .amt-btn:hover { border-color:var(--gold); }
-    .amt-btn.active { border-color:var(--gold); background:#fffbeb; }
+    .amt-btn.active { border-color:var(--gold); background:#fff6ef; }
     .amt-btn .amt-val { font-size:14px; font-weight:700; color:var(--green); display:block; }
     .amt-btn.active .amt-val { color:var(--dkgold); }
     .amt-btn .amt-impact { font-size:10px; color:var(--muted); display:block; margin-top:2px; }
@@ -109,7 +109,7 @@
       padding:12px 14px 12px 34px; font-size:18px; font-weight:700;
       color:var(--green); font-family:inherit; transition:border-color .2s;
     }
-    .custom-amount-input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(240,165,0,.12); }
+    .custom-amount-input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(240,140,40,.12); }
 
     /* ── FREQUENCY ── */
     .freq-tabs { display:flex; background:#f3f4f6; border-radius:10px; padding:3px; margin-bottom:18px; }
@@ -127,7 +127,7 @@
       transition:all .2s; background:#fff;
     }
     .pay-btn:hover { border-color:var(--green); }
-    .pay-btn.active { border-color:var(--green); background:#f0f7f3; }
+    .pay-btn.active { border-color:var(--green); background:#f7f2fb; }
     .pay-logo { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:11px; flex-shrink:0; }
     .pay-name { font-size:12px; font-weight:700; color:var(--text); }
     .pay-sub { font-size:10px; color:var(--muted); }
@@ -135,8 +135,8 @@
     .pay-logo.nagad { background:#F05829; color:#fff; }
     .pay-logo.rocket { background:#8C3494; color:#fff; }
     .pay-logo.card { background:#1565C0; color:#fff; }
-    .pay-logo.bank { background:#0D3D22; color:var(--ltgreen); }
-    .pay-logo.intl  { background:#F0A500; color:var(--green); }
+    .pay-logo.bank { background:#160d26; color:var(--ltgreen); }
+    .pay-logo.intl  { background:#f08c28; color:var(--green); }
 
     /* ── FORM FIELDS ── */
     .form-group { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
@@ -147,7 +147,7 @@
       padding:10px 14px; font-size:13px; font-family:inherit;
       transition:border-color .2s; background:#fff;
     }
-    .form-input:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(20,82,48,.08); }
+    .form-input:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(36,21,57,.08); }
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .form-hint { font-size:11px; color:var(--muted); }
 
@@ -157,19 +157,19 @@
 
     /* ── DONATE BUTTON ── */
     .donate-btn-main {
-      width:100%; background:linear-gradient(135deg,var(--gold),#E8A000);
+      width:100%; background:linear-gradient(135deg,var(--gold),#e95420);
       color:var(--green); border:none; border-radius:14px;
       font-size:16px; font-weight:800; padding:16px;
       cursor:pointer; transition:all .25s;
-      box-shadow:0 6px 24px rgba(240,165,0,.45);
+      box-shadow:0 6px 24px rgba(240,140,40,.45);
       display:flex; align-items:center; justify-content:center; gap:10px;
     }
-    .donate-btn-main:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(240,165,0,.65); }
+    .donate-btn-main:hover { transform:translateY(-2px); box-shadow:0 10px 32px rgba(240,140,40,.65); }
     .donate-btn-main i { font-size:20px; }
     .secure-note { text-align:center; font-size:11px; color:var(--muted); margin-top:8px; display:flex; align-items:center; justify-content:center; gap:4px; }
 
     /* ── IMPACT CALCULATOR ── */
-    .impact-calc { background:linear-gradient(135deg,#0D3D22,#1a5c35); border-radius:14px; padding:18px; margin-bottom:16px; }
+    .impact-calc { background:linear-gradient(135deg,#160d26,#1a5c35); border-radius:14px; padding:18px; margin-bottom:16px; }
     .impact-calc-title { color:var(--gold); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
     .impact-calc-title i { font-size:15px; }
     .impact-rows { display:flex; flex-direction:column; gap:8px; }
@@ -181,7 +181,7 @@
 
     /* ── TRUST BADGES ── */
     .trust-badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .trust-badge { background:#f0f7f3; border:1px solid #c8e6d4; border-radius:20px; padding:5px 12px; font-size:11px; color:var(--green); font-weight:600; display:flex; align-items:center; gap:4px; }
+    .trust-badge { background:#f7f2fb; border:1px solid #c8e6d4; border-radius:20px; padding:5px 12px; font-size:11px; color:var(--green); font-weight:600; display:flex; align-items:center; gap:4px; }
     .trust-badge i { font-size:13px; color:var(--mdgreen); }
 
     /* ── SIDEBAR ── */
@@ -194,7 +194,7 @@
     .donor-rank.r1 { background:var(--gold); color:var(--green); }
     .donor-rank.r2 { background:#C0C0C0; color:#333; }
     .donor-rank.r3 { background:#CD7F32; color:#fff; }
-    .donor-rank.rn { background:#f0f7f3; color:var(--green); }
+    .donor-rank.rn { background:#f7f2fb; color:var(--green); }
     .donor-avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--green),var(--mdgreen)); display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; font-weight:700; flex-shrink:0; }
     .donor-name { font-size:13px; font-weight:600; color:var(--text); }
     .donor-amt { font-size:12px; color:var(--gold); font-weight:700; margin-left:auto; }
@@ -210,7 +210,7 @@
     .activity-time { font-size:10px; color:var(--muted); white-space:nowrap; }
 
     /* ── LIVE TICKER ── */
-    .live-ticker { background:#f0fdf4; border:1px solid #c8e6d4; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--success); }
+    .live-ticker { background:#f9f4fd; border:1px solid #c8e6d4; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; font-size:12px; color:var(--success); }
     .live-dot { width:8px; height:8px; border-radius:50%; background:var(--success); animation:blink 1.4s infinite; flex-shrink:0; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
@@ -222,7 +222,7 @@
     .success-icon i { font-size:36px; color:var(--success); }
     .success-modal h2 { font-size:20px; font-weight:700; color:var(--success); margin-bottom:8px; }
     .success-modal p { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:20px; }
-    .ref-box { background:#f0fdf4; border:1.5px solid var(--success); border-radius:12px; padding:14px; margin-bottom:20px; }
+    .ref-box { background:#f9f4fd; border:1.5px solid var(--success); border-radius:12px; padding:14px; margin-bottom:20px; }
     .ref-box small { font-size:11px; color:var(--muted); }
     .ref-box strong { font-size:22px; color:var(--success); font-weight:700; display:block; letter-spacing:2px; }
 
@@ -235,7 +235,7 @@
     /* ── PROGRESS RING ── */
     .progress-ring-wrap { position:relative; width:90px; height:90px; margin:0 auto 12px; }
     .ring-bg, .ring-fg { fill:none; stroke-width:8; }
-    .ring-bg { stroke:#e5e7eb; }
+    .ring-bg { stroke:#ece7f0; }
     .ring-fg { stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1.2s ease; transform:rotate(-90deg); transform-origin:center; }
     .ring-text { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
     .ring-pct { font-size:16px; font-weight:700; color:var(--green); }
@@ -346,7 +346,7 @@
             <div style="font-size:20px;font-weight:700;color:var(--green)">৳1,80,000 <span style="font-size:13px;color:var(--muted);font-weight:400">goal</span></div>
             <div style="font-size:14px;color:var(--gold);font-weight:700;margin-bottom:4px">৳84,500 raised this month</div>
             <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden">
-              <div id="fundBar" style="height:100%;background:linear-gradient(90deg,var(--gold),#E8A000);border-radius:4px;width:0;transition:width 1.4s ease"></div>
+              <div id="fundBar" style="height:100%;background:linear-gradient(90deg,var(--gold),#e95420);border-radius:4px;width:0;transition:width 1.4s ease"></div>
             </div>
             <div style="font-size:11px;color:var(--muted);margin-top:4px">38 donors this month · <span style="color:var(--success)">৳95,500 still needed</span></div>
           </div>
@@ -356,7 +356,7 @@
 
     <!-- DONATION FORM -->
     <div class="card">
-      <div class="card-head" style="background:linear-gradient(135deg,#f0f7f3,#e6f3ec)">
+      <div class="card-head" style="background:linear-gradient(135deg,#f7f2fb,#e6f3ec)">
         <i class="ti ti-heart"></i>
         <div>
           <h2>Make a donation</h2>
@@ -486,7 +486,7 @@
 
         <!-- BANK TRANSFER INFO -->
         <div class="pay-input-section" id="bankSection">
-          <div style="background:#f0f7f3;border:1px solid #c8e6d4;border-radius:10px;padding:14px;font-size:12px">
+          <div style="background:#f7f2fb;border:1px solid #c8e6d4;border-radius:10px;padding:14px;font-size:12px">
             <div style="font-weight:700;color:var(--green);margin-bottom:8px"><i class="ti ti-building-bank"></i> Bank transfer details</div>
             <div style="display:grid;gap:4px">
               <div>Account name: <strong>Korje Hasana Foundation</strong></div>
@@ -618,7 +618,7 @@
         </div>
         <div class="donor-item">
           <div class="donor-rank rn">5</div>
-          <div class="donor-avatar" style="background:linear-gradient(135deg,#0D3D22,#1E7D42)">N</div>
+          <div class="donor-avatar" style="background:linear-gradient(135deg,#160d26,#7048e8)">N</div>
           <div><div class="donor-name">Nazia Begum</div><div class="donor-anon">Narsingdi</div></div>
           <div class="donor-amt">৳5,000</div>
         </div>
@@ -652,7 +652,7 @@
             <div style="background:var(--border);border-radius:4px;height:8px;overflow:hidden"><div style="height:100%;background:linear-gradient(90deg,#E65100,#F57C00);width:5%;border-radius:4px"></div></div>
           </div>
         </div>
-        <div style="margin-top:12px;padding:10px;background:#f0f7f3;border-radius:8px;font-size:11px;color:var(--muted)">
+        <div style="margin-top:12px;padding:10px;background:#f7f2fb;border-radius:8px;font-size:11px;color:var(--muted)">
           <i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--mdgreen)"></i>
           No administrative salaries are paid from donations. All operational costs are covered by committee members voluntarily.
         </div>
@@ -661,10 +661,10 @@
 
     <!-- TAX CERTIFICATE CARD -->
     <div style="background:linear-gradient(135deg,#1a237e,#1565C0);border-radius:14px;padding:18px;text-align:center">
-      <i class="ti ti-certificate" style="font-size:32px;color:#FFD54F;display:block;margin-bottom:8px"></i>
+      <i class="ti ti-certificate" style="font-size:32px;color:#ffc46b;display:block;margin-bottom:8px"></i>
       <div style="color:#fff;font-size:13px;font-weight:700;margin-bottom:4px">Tax Rebate Certificate</div>
       <div style="color:rgba(255,255,255,.65);font-size:11px;margin-bottom:12px;line-height:1.6">আয়কর রেয়াতের জন্য আপনার বার্ষিক ডোনেশনের সনদপত্র নামিয়ে নিন</div>
-      <button onclick="document.getElementById('taxOverlay').classList.add('show')" style="display:inline-flex;align-items:center;gap:6px;background:#FFD54F;color:#1a237e;border:none;border-radius:20px;padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer">
+      <button onclick="document.getElementById('taxOverlay').classList.add('show')" style="display:inline-flex;align-items:center;gap:6px;background:#ffc46b;color:#1a237e;border:none;border-radius:20px;padding:9px 20px;font-size:12px;font-weight:700;cursor:pointer">
         <i class="ti ti-download"></i>Get Certificate
       </button>
     </div>
@@ -707,26 +707,26 @@
   <div id="voucherDoc" style="background:#fff;border-radius:16px;width:100%;max-width:580px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35);font-family:'Inter','Hind Siliguri',sans-serif">
 
     <!-- ═══ HEADER ═══ -->
-    <div style="background:linear-gradient(135deg,#0D3D22 0%,#145230 55%,#1E7D42 100%);padding:24px 28px;position:relative;overflow:hidden">
+    <div style="background:linear-gradient(135deg,#160d26 0%,#241539 55%,#7048e8 100%);padding:24px 28px;position:relative;overflow:hidden">
       <!-- Decorative circles -->
       <div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;border:2px solid rgba(255,255,255,.06);pointer-events:none"></div>
       <div style="position:absolute;top:10px;right:10px;width:80px;height:80px;border-radius:50%;border:2px solid rgba(255,255,255,.06);pointer-events:none"></div>
-      <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(240,165,0,.06);pointer-events:none"></div>
+      <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(240,140,40,.06);pointer-events:none"></div>
       <!-- Gold bottom stripe -->
-      <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#C07800,#F0A500,#FFD54F,#F0A500,#C07800)"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#d6336c,#f08c28,#ffc46b,#f08c28,#d6336c)"></div>
 
       <!-- Logo row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:52px;height:52px;background:linear-gradient(135deg,#F0A500,#FFD54F);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#145230;box-shadow:0 4px 18px rgba(240,165,0,.45);flex-shrink:0">KH</div>
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#f08c28,#ffc46b);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#241539;box-shadow:0 4px 18px rgba(240,140,40,.45);flex-shrink:0">KH</div>
           <div>
             <div style="color:#fff;font-size:15px;font-weight:800;font-family:'Hind Siliguri',sans-serif;line-height:1.2">কর্জে হাসানা ফাউন্ডেশন</div>
-            <div style="color:rgba(158,216,176,.8);font-size:11px">Korje Hasana Foundation · korjehasana.org</div>
+            <div style="color:rgba(203,182,245,.8);font-size:11px">Korje Hasana Foundation · korjehasana.org</div>
           </div>
         </div>
-        <div style="background:rgba(240,165,0,.15);border:1.5px solid rgba(240,165,0,.45);border-radius:10px;padding:8px 14px;text-align:center;flex-shrink:0">
+        <div style="background:rgba(240,140,40,.15);border:1.5px solid rgba(240,140,40,.45);border-radius:10px;padding:8px 14px;text-align:center;flex-shrink:0">
           <div style="color:rgba(255,213,79,.8);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Payment Voucher</div>
-          <div style="color:#FFD54F;font-size:12px;font-weight:800" id="v_ref">KH-DON-0000</div>
+          <div style="color:#ffc46b;font-size:12px;font-weight:800" id="v_ref">KH-DON-0000</div>
         </div>
       </div>
 
@@ -734,7 +734,7 @@
       <div style="display:flex;align-items:flex-end;justify-content:space-between">
         <div>
           <div style="color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Amount Received</div>
-          <div style="color:#F0A500;font-size:38px;font-weight:900;line-height:1;text-shadow:0 2px 12px rgba(240,165,0,.3)" id="v_amount">৳0</div>
+          <div style="color:#f08c28;font-size:38px;font-weight:900;line-height:1;text-shadow:0 2px 12px rgba(240,140,40,.3)" id="v_amount">৳0</div>
         </div>
         <div style="text-align:right">
           <div style="color:rgba(255,255,255,.45);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Date & Time</div>
@@ -749,11 +749,11 @@
     <!-- ═══ DONOR INFO GRID ═══ -->
     <div style="padding:20px 24px 0">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
-        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #145230">
+        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #241539">
           <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Donor Name / দাতার নাম</div>
           <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_name">—</div>
         </div>
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:10px;padding:11px 14px;border-left:3px solid #F0A500">
+        <div style="background:linear-gradient(135deg,#fff6ef,#fef3c7);border-radius:10px;padding:11px 14px;border-left:3px solid #f08c28">
           <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Mobile / মোবাইল</div>
           <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_mobile">—</div>
         </div>
@@ -765,56 +765,56 @@
           <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Payment Method</div>
           <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_method">—</div>
         </div>
-        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #1E7D42">
+        <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #7048e8">
           <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Frequency / ধরন</div>
           <div style="font-size:13px;font-weight:700;color:#1a1a1a" id="v_freq">—</div>
         </div>
-        <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-radius:10px;padding:11px 14px;border-left:3px solid #F0A500">
+        <div style="background:linear-gradient(135deg,#fff6ef,#fef9c3);border-radius:10px;padding:11px 14px;border-left:3px solid #f08c28">
           <div style="font-size:9px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Purpose / উদ্দেশ্য</div>
           <div style="font-size:11px;font-weight:700;color:#1a1a1a;line-height:1.4">কর্জে হাসানা <span style="font-size:10px;color:#6B7280;font-weight:400">(Interest-free loans)</span></div>
         </div>
       </div>
 
       <!-- ═══ FUND USAGE ═══ -->
-      <div style="background:linear-gradient(135deg,#0D3D22,#145230);border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <div style="background:linear-gradient(135deg,#160d26,#241539);border-radius:12px;padding:14px 18px;margin-bottom:14px">
         <div style="color:rgba(255,255,255,.6);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">আপনার দানের ব্যবহার / How Your Donation Is Used</div>
         <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:8px;gap:2px">
-          <div style="flex:90;background:linear-gradient(90deg,#9ED8B0,#4ade80);border-radius:7px 0 0 7px"></div>
+          <div style="flex:90;background:linear-gradient(90deg,#cbb6f5,#4ade80);border-radius:7px 0 0 7px"></div>
           <div style="flex:5;background:#60a5fa"></div>
-          <div style="flex:5;background:#F0A500;border-radius:0 7px 7px 0"></div>
+          <div style="flex:5;background:#f08c28;border-radius:0 7px 7px 0"></div>
         </div>
         <div style="display:flex;gap:18px;font-size:11px">
-          <span style="color:#9ED8B0">● <strong style="color:#fff">90%</strong> সরাসরি ঋণ</span>
+          <span style="color:#cbb6f5">● <strong style="color:#fff">90%</strong> সরাসরি ঋণ</span>
           <span style="color:#93c5fd">● <strong style="color:#fff">5%</strong> পরিচালনা</span>
-          <span style="color:#F0A500">● <strong style="color:#fff">5%</strong> রিজার্ভ</span>
+          <span style="color:#f08c28">● <strong style="color:#fff">5%</strong> রিজার্ভ</span>
         </div>
       </div>
 
       <!-- ═══ AMOUNT BREAKDOWN ═══ -->
-      <div style="border:1.5px solid #E5E7EB;border-radius:10px;overflow:hidden;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #E5E7EB;background:#fafafa">
+      <div style="border:1.5px solid #ece7f0;border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #ece7f0;background:#faf8fc">
           <span style="font-size:12px;color:#6B7280">Donation Amount</span>
           <span style="font-size:12px;font-weight:700" id="v_sub1">৳0</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #E5E7EB;background:#fafafa">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #ece7f0;background:#faf8fc">
           <span style="font-size:12px;color:#6B7280">Processing Fee</span>
           <span style="font-size:12px;font-weight:700;color:#22c55e">৳0 (waived)</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:linear-gradient(135deg,#f0f9f4,#e6f4ec)">
-          <span style="font-size:13px;font-weight:800;color:#145230">Net to Fund / ফান্ডে যাবে</span>
-          <span style="font-size:18px;font-weight:900;color:#145230" id="v_net">৳0</span>
+          <span style="font-size:13px;font-weight:800;color:#241539">Net to Fund / ফান্ডে যাবে</span>
+          <span style="font-size:18px;font-weight:900;color:#241539" id="v_net">৳0</span>
         </div>
       </div>
     </div>
 
     <!-- ═══ QR CODE + VERIFY ═══ -->
-    <div style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-top:2px dashed #F0A500;border-bottom:2px dashed #F0A500;padding:16px 24px;display:flex;align-items:center;gap:18px">
+    <div style="background:linear-gradient(135deg,#fff6ef,#fef9c3);border-top:2px dashed #f08c28;border-bottom:2px dashed #f08c28;padding:16px 24px;display:flex;align-items:center;gap:18px">
       <div id="v_qrcode" style="flex-shrink:0;padding:6px;background:#fff;border-radius:8px;box-shadow:0 3px 12px rgba(0,0,0,.12)"></div>
       <div>
-        <div style="font-size:11px;font-weight:800;color:#C07800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📲 Scan to Verify</div>
+        <div style="font-size:11px;font-weight:800;color:#d6336c;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📲 Scan to Verify</div>
         <div style="font-size:11px;color:#6B7280;line-height:1.8">
-          Visit <strong style="color:#145230">korje-hasana-website.vercel.app/verify.html</strong><br>
-          Reference: <strong style="color:#145230;font-size:13px" id="v_ref2">KH-DON-0000</strong>
+          Visit <strong style="color:#241539">korje-hasana-website.vercel.app/verify.html</strong><br>
+          Reference: <strong style="color:#241539;font-size:13px" id="v_ref2">KH-DON-0000</strong>
         </div>
         <div style="margin-top:6px;font-size:10px;color:#9CA3AF;font-style:italic">Computer-generated · Valid without signature</div>
       </div>
@@ -824,7 +824,7 @@
     <div style="background:#f8f9fa;padding:12px 24px;display:flex;justify-content:space-between;align-items:flex-end">
       <div style="font-size:10px;color:#9CA3AF;line-height:1.6">
         Korje Hasana Foundation · Registration pending<br>
-        <span style="color:#D1FAE5;background:#145230;padding:1px 7px;border-radius:10px;font-weight:700;font-size:9px">QARD AL-HASAN · সুদমুক্ত ঋণ</span>
+        <span style="color:#D1FAE5;background:#241539;padding:1px 7px;border-radius:10px;font-weight:700;font-size:9px">QARD AL-HASAN · সুদমুক্ত ঋণ</span>
       </div>
       <div style="text-align:right">
         <div style="width:80px;height:1px;background:#9CA3AF;margin-bottom:3px;margin-left:auto"></div>
@@ -833,10 +833,10 @@
     </div>
 
     <!-- ═══ ACTION BUTTONS (hidden when printing) ═══ -->
-    <div class="v-actions" style="background:#fff;border-top:1px solid #E5E7EB;padding:12px 16px;display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;justify-content:center;align-items:center">
-      <button onclick="printVoucher()" style="background:linear-gradient(135deg,#145230,#1E7D42);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(20,82,48,.3);white-space:nowrap"><i class="ti ti-printer"></i> Print</button>
-      <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(240,165,0,.3);white-space:nowrap"><i class="ti ti-download"></i> Download PDF</button>
-      <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #E5E7EB;border-radius:20px;padding:9px 14px;font-size:12px;cursor:pointer;white-space:nowrap">Close</button>
+    <div class="v-actions" style="background:#fff;border-top:1px solid #ece7f0;padding:12px 16px;display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;justify-content:center;align-items:center">
+      <button onclick="printVoucher()" style="background:linear-gradient(135deg,#241539,#7048e8);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(36,21,57,.3);white-space:nowrap"><i class="ti ti-printer"></i> Print</button>
+      <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:20px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(240,140,40,.3);white-space:nowrap"><i class="ti ti-download"></i> Download PDF</button>
+      <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #ece7f0;border-radius:20px;padding:9px 14px;font-size:12px;cursor:pointer;white-space:nowrap">Close</button>
     </div>
   </div>
 </div>
@@ -845,7 +845,7 @@
 <div class="success-overlay" id="taxOverlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
   <div style="background:#fff;border-radius:16px;width:100%;max-width:600px;margin:auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.35)">
     <div style="background:linear-gradient(135deg,#1a237e,#1565C0);padding:22px 28px;display:flex;align-items:center;gap:12px">
-      <i class="ti ti-certificate" style="font-size:32px;color:#FFD54F"></i>
+      <i class="ti ti-certificate" style="font-size:32px;color:#ffc46b"></i>
       <div>
         <div style="color:#fff;font-size:16px;font-weight:700">Tax Rebate Donation Certificate</div>
         <div style="color:rgba(255,255,255,.6);font-size:12px">কর রেয়াত সনদপত্র · কর্জে হাসানা ফাউন্ডেশন</div>
@@ -876,7 +876,7 @@
         <!-- Cert header -->
         <div style="background:linear-gradient(135deg,#1a237e,#1565C0);padding:20px 28px;text-align:center">
           <div style="color:rgba(255,255,255,.5);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Government of the People's Republic of Bangladesh</div>
-          <div style="color:#FFD54F;font-size:14px;font-weight:700;margin-bottom:2px">Donation Certificate for Income Tax Rebate</div>
+          <div style="color:#ffc46b;font-size:14px;font-weight:700;margin-bottom:2px">Donation Certificate for Income Tax Rebate</div>
           <div style="color:rgba(255,255,255,.7);font-size:12px;font-family:'Hind Siliguri',sans-serif">আয়কর রেয়াতের জন্য দান সনদপত্র</div>
           <div style="color:rgba(255,255,255,.4);font-size:11px;margin-top:4px">Under Section 44(2)(b) of Income Tax Ordinance 1984</div>
         </div>
@@ -897,7 +897,7 @@
           <!-- Donation breakdown table -->
           <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px">
             <thead>
-              <tr style="background:#f0f7f3">
+              <tr style="background:#f7f2fb">
                 <th style="padding:8px 10px;text-align:left;color:var(--green);font-weight:700;border-bottom:1px solid var(--border)">#</th>
                 <th style="padding:8px 10px;text-align:left;color:var(--green);font-weight:700;border-bottom:1px solid var(--border)">Date</th>
                 <th style="padding:8px 10px;text-align:left;color:var(--green);font-weight:700;border-bottom:1px solid var(--border)">Reference</th>
@@ -907,7 +907,7 @@
             </thead>
             <tbody id="cert_table"></tbody>
             <tfoot>
-              <tr style="background:#f0f7f3">
+              <tr style="background:#f7f2fb">
                 <td colspan="4" style="padding:10px;font-weight:700;color:var(--green)">Total Donation</td>
                 <td style="padding:10px;text-align:right;font-weight:800;color:var(--green);font-size:14px" id="cert_foot">৳0</td>
               </tr>
@@ -915,8 +915,8 @@
           </table>
 
           <!-- Tax rebate info -->
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px">
-            <div style="font-weight:700;color:#92400e;margin-bottom:6px"><i class="ti ti-calculator" style="font-size:14px;vertical-align:-2px"></i> Estimated Tax Rebate (Bangladesh Income Tax)</div>
+          <div style="background:#fff6ef;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:12px">
+            <div style="font-weight:700;color:#9a3412;margin-bottom:6px"><i class="ti ti-calculator" style="font-size:14px;vertical-align:-2px"></i> Estimated Tax Rebate (Bangladesh Income Tax)</div>
             <div style="display:flex;justify-content:space-between;margin-bottom:4px">
               <span style="color:var(--muted)">Total donation this year</span>
               <span id="rebate_donation" style="font-weight:600">৳0</span>
@@ -926,7 +926,7 @@
               <span style="font-weight:600">15%</span>
             </div>
             <div style="display:flex;justify-content:space-between;border-top:1px solid #fde68a;padding-top:6px;margin-top:4px">
-              <span style="font-weight:700;color:#92400e">Estimated tax rebate</span>
+              <span style="font-weight:700;color:#9a3412">Estimated tax rebate</span>
               <span id="rebate_amt" style="font-weight:800;color:#D97706;font-size:14px">৳0</span>
             </div>
             <div style="font-size:10px;color:var(--muted);margin-top:6px">* Consult your tax advisor. Rebate eligibility depends on your total income and applicable deductions.</div>
@@ -1130,10 +1130,10 @@ function openVoucher() {
     new QRCode(qrEl, {
       text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay) + '&name=' + encodeURIComponent(shortName),
       width: 110, height: 110,
-      colorDark: '#145230', colorLight: '#ffffff',
+      colorDark: '#241539', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.L
     });
-  } catch(e) { qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:52px;color:#145230"></i>'; }
+  } catch(e) { qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:52px;color:#241539"></i>'; }
   document.getElementById('successOverlay').classList.remove('show');
   document.getElementById('voucherOverlay').classList.add('show');
 }

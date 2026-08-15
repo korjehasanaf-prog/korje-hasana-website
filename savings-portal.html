@@ -10,15 +10,15 @@
   <script src="_supabase.js"></script>
   <style>
     :root {
-      --green:   #145230;
-      --dkgreen: #0D3D22;
-      --mdgreen: #1E7D42;
-      --ltgreen: #9ED8B0;
-      --gold:    #F0A500;
-      --dkgold:  #C07800;
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
       --white:   #ffffff;
-      --offwhite:#FAFAFA;
-      --border:  #E5E7EB;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
       --text:    #1a1a1a;
       --muted:   #6B7280;
       --red:     #DC2626;
@@ -36,7 +36,7 @@
       box-shadow: 0 2px 20px rgba(0,0,0,.3);
     }
     .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-    .logo-icon { width: 46px; height: 46px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--green); flex-shrink: 0; box-shadow: 0 0 16px rgba(240,165,0,.4); }
+    .logo-icon { width: 46px; height: 46px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--green); flex-shrink: 0; box-shadow: 0 0 16px rgba(240,140,40,.4); }
     .logo-texts { display: flex; flex-direction: column; }
     .logo-bn { color: #fff; font-size: 15px; font-weight: 600; line-height: 1.2; }
     .logo-en { color: var(--ltgreen); font-size: 10px; }
@@ -48,12 +48,12 @@
 
     /* ═══ HERO ═══ */
     .savings-hero {
-      background: linear-gradient(135deg, var(--dkgreen) 0%, var(--green) 60%, #1a6b3a 100%);
+      background: linear-gradient(135deg, var(--dkgreen) 0%, var(--green) 60%, #7048e8 100%);
       padding: 52px 40px 44px; text-align: center; position: relative; overflow: hidden;
     }
     .savings-hero::before {
       content:''; position:absolute; top:-60px; right:-60px; width:280px; height:280px;
-      border-radius:50%; background:rgba(240,165,0,.06); pointer-events:none;
+      border-radius:50%; background:rgba(240,140,40,.06); pointer-events:none;
     }
     .savings-hero::after {
       content:''; position:absolute; bottom:-80px; left:-80px; width:320px; height:320px;
@@ -61,7 +61,7 @@
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(240,165,0,.15); border: 1px solid rgba(240,165,0,.3);
+      background: rgba(240,140,40,.15); border: 1px solid rgba(240,140,40,.3);
       color: var(--gold); font-size: 12px; font-weight: 600;
       padding: 5px 14px; border-radius: 20px; margin-bottom: 18px;
     }
@@ -83,7 +83,7 @@
       cursor: pointer; transition: all .25s; position: relative; overflow: hidden; background: #fff;
     }
     .scheme-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg,var(--green),var(--mdgreen)); border-radius:16px 16px 0 0; opacity:0; transition:opacity .25s; }
-    .scheme-card:hover, .scheme-card.selected { border-color: var(--green); box-shadow: 0 8px 32px rgba(20,82,48,.15); transform: translateY(-3px); }
+    .scheme-card:hover, .scheme-card.selected { border-color: var(--green); box-shadow: 0 8px 32px rgba(36,21,57,.15); transform: translateY(-3px); }
     .scheme-card:hover::before, .scheme-card.selected::before { opacity: 1; }
     .scheme-icon { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,#e8f5ee,#c8ebd5); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
     .scheme-icon i { font-size: 26px; color: var(--green); }
@@ -117,7 +117,7 @@
       width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
       border-radius: 10px; font-size: 13px; font-family: inherit;
       color: var(--text); transition: border-color .2s; outline: none;
-      background: #fafafa;
+      background: #faf8fc;
     }
     .form-group input:focus, .form-group select:focus { border-color: var(--mdgreen); background: #fff; }
     .form-group .hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
@@ -128,7 +128,7 @@
       border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
       cursor: pointer; transition: all .2s; font-family: inherit;
     }
-    .btn-primary:hover { background: var(--mdgreen); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(20,82,48,.3); }
+    .btn-primary:hover { background: var(--mdgreen); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(36,21,57,.3); }
     .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
     .msg-box { border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; display: none; }
@@ -146,7 +146,7 @@
     .portal-welcome .greeting { font-size: 13px; color: rgba(255,255,255,.65); }
     .portal-welcome .username { font-size: 17px; font-weight: 700; color: #fff; }
     .portal-topbar-actions { display: flex; gap: 10px; align-items: center; }
-    .scheme-pill { background: rgba(240,165,0,.15); border: 1px solid rgba(240,165,0,.3); color: var(--gold); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; }
+    .scheme-pill { background: rgba(240,140,40,.15); border: 1px solid rgba(240,140,40,.3); color: var(--gold); font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; }
     .btn-logout { background: rgba(255,255,255,.1); color: rgba(255,255,255,.75); border: 1px solid rgba(255,255,255,.2); padding: 7px 16px; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all .2s; }
     .btn-logout:hover { background: rgba(220,38,38,.2); color: #fff; border-color: #f87171; }
 
@@ -174,16 +174,16 @@
       background: linear-gradient(135deg, var(--gold) 0%, #ff8c00 100%);
       color: var(--dkgreen); border: none; border-radius: 50px; cursor: pointer;
       font-family: inherit; display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 0 0 0 rgba(240,165,0,.6);
+      box-shadow: 0 0 0 0 rgba(240,140,40,.6);
       animation: glowPulse 2.2s ease-in-out infinite;
       transition: transform .2s;
       flex-shrink: 0;
     }
     .btn-deposit-glow:hover { transform: scale(1.04); animation-duration: .8s; }
     @keyframes glowPulse {
-      0%   { box-shadow: 0 0 0 0 rgba(240,165,0,.7); }
-      60%  { box-shadow: 0 0 0 18px rgba(240,165,0,0); }
-      100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(240,140,40,.7); }
+      60%  { box-shadow: 0 0 0 18px rgba(240,140,40,0); }
+      100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
     .btn-deposit-glow i { font-size: 20px; }
     .btn-withdraw {
@@ -214,7 +214,7 @@
     .trx-amount.deposit { color: #16a34a; }
     .trx-amount.withdrawal { color: #dc2626; }
     .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .status-badge.pending  { background: #fef3c7; color: #92400e; }
+    .status-badge.pending  { background: #fef3c7; color: #9a3412; }
     .status-badge.approved { background: #d1fae5; color: #065f46; }
     .status-badge.rejected { background: #fee2e2; color: #991b1b; }
     .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
@@ -286,7 +286,7 @@
     }
     .sidebar-item i { font-size: 18px; flex-shrink: 0; }
     .sidebar-item:hover { color: #fff; background: rgba(255,255,255,.07); border-left-color: rgba(255,255,255,.2); }
-    .sidebar-item.active { color: var(--gold); background: rgba(240,165,0,.1); border-left-color: var(--gold); font-weight: 600; }
+    .sidebar-item.active { color: var(--gold); background: rgba(240,140,40,.1); border-left-color: var(--gold); font-weight: 600; }
     .sidebar-divider { border: none; border-top: 1px solid rgba(255,255,255,.08); margin: 8px 0; }
     .sidebar-logout {
       display: flex; align-items: center; gap: 10px; padding: 11px 18px;
@@ -612,7 +612,7 @@
         </div>
         <div class="account-detail">
           <div class="lbl">হিসাবের অবস্থা</div>
-          <div class="val"><span style="background:rgba(240,165,0,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:12px;" id="portalStatus">সক্রিয়</span></div>
+          <div class="val"><span style="background:rgba(240,140,40,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:12px;" id="portalStatus">সক্রিয়</span></div>
         </div>
       </div>
     </div>
@@ -1024,7 +1024,7 @@ async function loadPortal(user) {
   const as2 = document.getElementById('accScheme2');        if(as2) as2.textContent = SCHEME_LABELS[dep?.scheme_type]||'—';
   const aw2 = document.getElementById('accWithdrawal');     if(aw2) aw2.textContent = wInfo;
   const aj  = document.getElementById('accJoin');           if(aj)  aj.textContent  = dep?.created_at ? new Date(dep.created_at).toLocaleDateString('bn-BD') : '—';
-  const ast = document.getElementById('accStatus');         if(ast) ast.innerHTML   = '<span style="background:rgba(240,165,0,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:12px;">সক্রিয়</span>';
+  const ast = document.getElementById('accStatus');         if(ast) ast.innerHTML   = '<span style="background:rgba(240,140,40,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:12px;">সক্রিয়</span>';
 
   renderTrx(allTrx);
 }

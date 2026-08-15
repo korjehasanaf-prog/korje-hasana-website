@@ -8,15 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --green:   #145230;
-      --dkgreen: #0D3D22;
-      --mdgreen: #1E7D42;
-      --ltgreen: #9ED8B0;
-      --gold:    #F0A500;
-      --dkgold:  #C07800;
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
       --white:   #ffffff;
-      --offwhite:#FAFAFA;
-      --border:  #E5E7EB;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
       --text:    #1a1a1a;
       --muted:   #6B7280;
     }
@@ -51,12 +51,12 @@
     .topbar-admin-btn {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 11px; font-weight: 700; padding: 3px 12px;
-      background: rgba(240,165,0,.15); color: var(--gold);
-      border: 1px solid rgba(240,165,0,.35); border-radius: 20px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1px solid rgba(240,140,40,.35); border-radius: 20px;
       cursor: pointer; text-decoration: none; transition: all .2s;
       font-family: inherit;
     }
-    .topbar-admin-btn:hover { background: var(--gold); color: #0D3D22; }
+    .topbar-admin-btn:hover { background: var(--gold); color: #160d26; }
     .topbar-admin-btn i { font-size: 12px; }
     .lang-toggle { display: flex; background: rgba(255,255,255,.1); border-radius: 20px; border: 1px solid rgba(255,255,255,.2); overflow: hidden; }
     .lang-btn { font-size: 11px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
@@ -187,7 +187,7 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 16px; font-weight: 700; color: var(--green);
       flex-shrink: 0;
-      box-shadow: 0 0 16px rgba(240,165,0,.4);
+      box-shadow: 0 0 16px rgba(240,140,40,.4);
     }
     .logo-texts { display: flex; flex-direction: column; }
     .logo-bn { color: #fff; font-size: 15px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
@@ -217,8 +217,8 @@
     /* ═══ NAV SAVINGS BUTTON ═══ */
     .nav-savings-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(240,165,0,.15); color: var(--gold);
-      border: 1.5px solid rgba(240,165,0,.5);
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1.5px solid rgba(240,140,40,.5);
       font-size: 12px; font-weight: 700;
       padding: 8px 18px; border-radius: 24px; cursor: pointer;
       transition: all .2s; text-decoration: none;
@@ -231,17 +231,17 @@
       transform: translateY(-1px);
     }
     @keyframes navSavGlow {
-      0%,100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
-      50%      { box-shadow: 0 0 12px 3px rgba(240,165,0,.25); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
+      50%      { box-shadow: 0 0 12px 3px rgba(240,140,40,.25); }
     }
     .donate-btn {
       background: var(--gold); color: var(--green);
       border: none; font-size: 13px; font-weight: 700;
       padding: 10px 22px; border-radius: 24px; cursor: pointer;
       transition: all .2s; text-decoration: none; display: inline-block;
-      box-shadow: 0 0 20px rgba(240,165,0,.35);
+      box-shadow: 0 0 20px rgba(240,140,40,.35);
     }
-    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(240,165,0,.55); }
+    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(240,140,40,.55); }
 
     /* ═══════════════════════════════════════
        HERO
@@ -255,7 +255,7 @@
     .hero::before {
       content: ''; position: absolute; top: -80px; right: -80px;
       width: 300px; height: 300px; border-radius: 50%;
-      background: rgba(240,165,0,.06); pointer-events: none;
+      background: rgba(240,140,40,.06); pointer-events: none;
     }
     .hero::after {
       content: ''; position: absolute; bottom: -60px; left: -60px;
@@ -264,9 +264,9 @@
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(240,165,0,.15); color: var(--gold);
+      background: rgba(240,140,40,.15); color: var(--gold);
       font-size: 11px; padding: 5px 14px; border-radius: 20px;
-      border: 1px solid rgba(240,165,0,.35); margin-bottom: 14px;
+      border: 1px solid rgba(240,140,40,.35); margin-bottom: 14px;
     }
     .hero-h1 { color: #fff; font-size: 28px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
     .hero-h1 span { color: var(--gold); }
@@ -276,9 +276,9 @@
       background: var(--gold); color: var(--green); border: none;
       font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
-      box-shadow: 0 0 20px rgba(240,165,0,.4);
+      box-shadow: 0 0 20px rgba(240,140,40,.4);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(240,165,0,.6); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(240,140,40,.6); }
     .btn-outline {
       background: transparent; color: #fff;
       border: 1.5px solid rgba(255,255,255,.4);
@@ -288,11 +288,11 @@
     .btn-outline:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
     .btn-gold-outline {
       background: transparent; color: var(--gold);
-      border: 1.5px solid rgba(240,165,0,.5);
+      border: 1.5px solid rgba(240,140,40,.5);
       font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
     }
-    .btn-gold-outline:hover { background: rgba(240,165,0,.1); }
+    .btn-gold-outline:hover { background: rgba(240,140,40,.1); }
 
     /* KH PHOTO CAROUSEL */
     .khc-section { position: relative; width: 100%; padding: 8px 0; }
@@ -316,7 +316,7 @@
       font-family: 'Hind Siliguri', sans-serif;
       text-align: center; letter-spacing: .3px;
     }
-    .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #F0A500; }
+    .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #f08c28; }
     .khc-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 36px; height: 36px; border-radius: 50%;
@@ -343,9 +343,9 @@
     }
     .quran-text-en { color: var(--ltgreen); font-size: 12px; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
     .quran-ref {
-      display: inline-block; background: rgba(240,165,0,.15);
+      display: inline-block; background: rgba(240,140,40,.15);
       color: var(--gold); font-size: 11px; padding: 3px 12px; border-radius: 20px;
-      border: 1px solid rgba(240,165,0,.3);
+      border: 1px solid rgba(240,140,40,.3);
     }
     .quran-nav-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
@@ -423,7 +423,7 @@
       background: #fff; border: 1px solid var(--border); border-radius: 16px;
       padding: 24px 20px; transition: all .25s; cursor: pointer;
     }
-    .srv-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(20,82,48,.12); }
+    .srv-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.12); }
     .srv-icon {
       width: 48px; height: 48px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
@@ -440,7 +440,7 @@
     .how-section { background: var(--green); padding: 60px 40px; }
     .how-section .sec-h2 { color: #fff; }
     .how-section .sec-p { color: var(--ltgreen); }
-    .how-section .sec-tag { background: rgba(240,165,0,.15); color: var(--gold); border: 1px solid rgba(240,165,0,.3); }
+    .how-section .sec-tag { background: rgba(240,140,40,.15); color: var(--gold); border: 1px solid rgba(240,140,40,.3); }
     .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; margin-top: 40px; }
     .steps::before {
       content: ''; position: absolute; top: 28px; left: 12%; right: 12%; height: 1px;
@@ -453,7 +453,7 @@
       font-size: 20px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 14px; position: relative; z-index: 1;
-      box-shadow: 0 0 24px rgba(240,165,0,.5);
+      box-shadow: 0 0 24px rgba(240,140,40,.5);
     }
     .step-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
     .step-desc { font-size: 12px; color: var(--ltgreen); line-height: 1.6; }
@@ -462,7 +462,7 @@
        CUSTOMER CARE STRIP
     ═══════════════════════════════════════ */
     .cc-strip {
-      background: #FFFBEB; border-top: 3px solid var(--gold);
+      background: #fff6ef; border-top: 3px solid var(--gold);
       border-bottom: 1px solid #F0D080;
       padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
     }
@@ -529,7 +529,7 @@
       background: #fff; border: 1px solid var(--border); border-radius: 16px;
       overflow: hidden; transition: all .25s; cursor: pointer;
     }
-    .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(20,82,48,.1); }
+    .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(36,21,57,.1); }
     .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
     .news-body { padding: 14px; }
     .news-cat { font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
@@ -540,7 +540,7 @@
        CTA BAND
     ═══════════════════════════════════════ */
     .cta-band {
-      background: linear-gradient(135deg, var(--gold) 0%, #E8A000 100%);
+      background: linear-gradient(135deg, var(--gold) 0%, #e95420 100%);
       padding: 40px; display: flex; align-items: center; justify-content: space-between;
     }
     .cta-band h3 { font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
@@ -656,10 +656,10 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: all .25s;
       opacity: 0; pointer-events: none;
-      box-shadow: 0 4px 16px rgba(20,82,48,.35);
+      box-shadow: 0 4px 16px rgba(36,21,57,.35);
     }
     .btt-btn.visible { opacity: 1; pointer-events: all; }
-    .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(20,82,48,.5); }
+    .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.5); }
     .btt-btn i { font-size: 20px; color: var(--gold); }
 
     /* ═══════════════════════════════════════
@@ -762,18 +762,18 @@
     ═══════════════════════════════════════ */
     .mv-section {
       position: relative; overflow: hidden;
-      background: linear-gradient(135deg, #071e0f 0%, #0d3d22 45%, #0a2e1a 100%);
+      background: linear-gradient(135deg, #071e0f 0%, #160d26 45%, #0a2e1a 100%);
       padding: 72px 40px;
     }
     .mv-orb { position:absolute; border-radius:50%; filter:blur(70px); opacity:.18; pointer-events:none; }
-    .mv-orb1 { width:420px;height:420px; background:#1E7D42; top:-100px; left:-80px; }
-    .mv-orb2 { width:320px;height:320px; background:#F0A500; bottom:-80px; right:-60px; }
-    .mv-orb3 { width:200px;height:200px; background:#9ED8B0; top:40%; left:45%; }
+    .mv-orb1 { width:420px;height:420px; background:#7048e8; top:-100px; left:-80px; }
+    .mv-orb2 { width:320px;height:320px; background:#f08c28; bottom:-80px; right:-60px; }
+    .mv-orb3 { width:200px;height:200px; background:#cbb6f5; top:40%; left:45%; }
     .mv-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
     .mv-hd { text-align:center; margin-bottom:52px; }
     .mv-tag {
-      display:inline-block; background:rgba(240,165,0,.15);
-      border:1px solid rgba(240,165,0,.35); color:#F0A500;
+      display:inline-block; background:rgba(240,140,40,.15);
+      border:1px solid rgba(240,140,40,.35); color:#f08c28;
       font-size:11px; font-weight:700; letter-spacing:1.5px;
       text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:14px;
     }
@@ -785,30 +785,30 @@
       border:1px solid rgba(255,255,255,.08);
     }
     .mv-card-glow { position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; filter:blur(55px); opacity:.45; }
-    .mv-card.mission { background:linear-gradient(135deg,rgba(20,82,48,.6),rgba(13,61,34,.85)); }
-    .mv-card.mission .mv-card-glow { background:#F0A500; }
-    .mv-card.vision  { background:linear-gradient(135deg,rgba(30,125,66,.5),rgba(9,45,25,.85)); }
-    .mv-card.vision  .mv-card-glow { background:#9ED8B0; }
+    .mv-card.mission { background:linear-gradient(135deg,rgba(36,21,57,.6),rgba(22,13,38,.85)); }
+    .mv-card.mission .mv-card-glow { background:#f08c28; }
+    .mv-card.vision  { background:linear-gradient(135deg,rgba(112,72,232,.5),rgba(9,45,25,.85)); }
+    .mv-card.vision  .mv-card-glow { background:#cbb6f5; }
     .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; position:relative; z-index:1; }
-    .mission .mv-card-icon { background:linear-gradient(135deg,#F0A500,#FFD54F); color:#145230; }
-    .vision  .mv-card-icon { background:linear-gradient(135deg,#1E7D42,#9ED8B0); color:#fff; }
+    .mission .mv-card-icon { background:linear-gradient(135deg,#f08c28,#ffc46b); color:#241539; }
+    .vision  .mv-card-icon { background:linear-gradient(135deg,#7048e8,#cbb6f5); color:#fff; }
     .mv-card-tag { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
-    .mission .mv-card-tag { color:#F0A500; }
-    .vision  .mv-card-tag  { color:#9ED8B0; }
+    .mission .mv-card-tag { color:#f08c28; }
+    .vision  .mv-card-tag  { color:#cbb6f5; }
     .mv-card-h { font-size:20px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
     .mv-card-p { font-size:13.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
     .mv-card-en { font-size:12px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
     .mv-values { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px; }
     .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:13px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
     .mv-val i { font-size:16px; }
-    .mv-val-1 { background:rgba(240,165,0,.12);  color:#FFD54F; }
-    .mv-val-2 { background:rgba(30,125,66,.2);   color:#9ED8B0; }
+    .mv-val-1 { background:rgba(240,140,40,.12);  color:#ffc46b; }
+    .mv-val-2 { background:rgba(112,72,232,.2);   color:#cbb6f5; }
     .mv-val-3 { background:rgba(96,165,250,.12); color:#93C5FD; }
     .mv-val-4 { background:rgba(232,121,249,.1); color:#E879F9; }
     .mv-val-5 { background:rgba(52,211,153,.12); color:#6EE7B7; }
     .mv-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
     .mv-tgt { text-align:center; padding:20px 14px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
-    .mv-tgt-num { font-size:28px; font-weight:900; color:#F0A500; }
+    .mv-tgt-num { font-size:28px; font-weight:900; color:#f08c28; }
     .mv-tgt-lbl { font-size:12px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
     @media (max-width:768px) {
       .mv-section { padding:48px 20px; }
@@ -822,8 +822,8 @@
     .btn-savings-glow {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 13px 26px; font-size: 14px; font-weight: 700;
-      background: linear-gradient(135deg, #F0A500 0%, #ff9500 100%);
-      color: #0D3D22; border: none; border-radius: 50px; cursor: pointer;
+      background: linear-gradient(135deg, #f08c28 0%, #ff9500 100%);
+      color: #160d26; border: none; border-radius: 50px; cursor: pointer;
       font-family: inherit; text-decoration: none;
       animation: savGlow 2.4s ease-in-out infinite;
       transition: transform .2s;
@@ -831,9 +831,9 @@
     }
     .btn-savings-glow:hover { transform: translateY(-2px) scale(1.03); animation-duration:.7s; }
     @keyframes savGlow {
-      0%   { box-shadow: 0 0 0 0 rgba(240,165,0,.75); }
-      65%  { box-shadow: 0 0 0 16px rgba(240,165,0,0); }
-      100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+      0%   { box-shadow: 0 0 0 0 rgba(240,140,40,.75); }
+      65%  { box-shadow: 0 0 0 16px rgba(240,140,40,0); }
+      100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
   <link rel="stylesheet" href="kh-ui.css">
@@ -1293,9 +1293,9 @@
 <section class="pc-section" id="products">
 <style>
 /* ── Product Cards ── */
-.pc-section { background: #f0f7f3; padding: 56px 40px; }
+.pc-section { background: #f7f2fb; padding: 56px 40px; }
 .pc-section-head { text-align:center; margin-bottom:44px; }
-.pc-section-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(20,82,48,.08); color:var(--green); font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
+.pc-section-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(36,21,57,.08); color:var(--green); font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
 .pc-section-title { font-size:30px; font-weight:800; color:var(--green); line-height:1.25; }
 .pc-section-title span { color:var(--gold); }
 .pc-cards-wrap { max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:32px; }
@@ -1305,8 +1305,8 @@
 
 /* Image sides */
 .pc-img { position:relative; display:flex; align-items:flex-end; justify-content:center; overflow:hidden; padding:0; }
-.pc-img-savings { background:linear-gradient(145deg, #073b1e 0%, #145230 45%, #1e7d42 100%); }
-.pc-img-loan    { background:linear-gradient(145deg, #7a4f00 0%, #c07800 50%, #f0a500 100%); }
+.pc-img-savings { background:linear-gradient(145deg, #073b1e 0%, #241539 45%, #7048e8 100%); }
+.pc-img-loan    { background:linear-gradient(145deg, #7a4f00 0%, #d6336c 50%, #f08c28 100%); }
 
 /* Decorative rings */
 .pc-img::before, .pc-img::after {
@@ -1321,22 +1321,22 @@
 /* Text sides */
 .pc-text { background:#fff; padding:50px 52px; display:flex; flex-direction:column; justify-content:center; gap:16px; }
 .pc-tag { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:5px 14px; border-radius:20px; width:fit-content; }
-.pc-tag-green { background:rgba(20,82,48,.09); color:var(--green); }
-.pc-tag-gold  { background:rgba(240,165,0,.12); color:#a06800; }
+.pc-tag-green { background:rgba(36,21,57,.09); color:var(--green); }
+.pc-tag-gold  { background:rgba(240,140,40,.12); color:#a06800; }
 .pc-title { font-size:28px; font-weight:800; color:#111; line-height:1.25; }
 .pc-title em { font-style:normal; color:var(--green); }
-.pc-title-gold em { color:#c07800; }
+.pc-title-gold em { color:#d6336c; }
 .pc-desc { font-size:14px; color:#555; line-height:1.8; }
 .pc-feats { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
 .pc-feats li { display:flex; align-items:center; gap:10px; font-size:13px; color:#333; font-weight:500; }
 .pc-feats li i { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
-.pc-fi-green { background:rgba(20,82,48,.1); color:var(--green); }
-.pc-fi-gold  { background:rgba(240,165,0,.15); color:#a06800; }
+.pc-fi-green { background:rgba(36,21,57,.1); color:var(--green); }
+.pc-fi-gold  { background:rgba(240,140,40,.15); color:#a06800; }
 .pc-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:12px; font-size:14px; font-weight:700; text-decoration:none; transition:all .25s; width:fit-content; margin-top:6px; }
-.pc-btn-green { background:linear-gradient(135deg,var(--green),#1e7d42); color:#fff; box-shadow:0 6px 20px rgba(20,82,48,.28); }
-.pc-btn-green:hover { box-shadow:0 10px 32px rgba(20,82,48,.42); transform:translateY(-2px); }
-.pc-btn-gold  { background:linear-gradient(135deg,#c07800,#f0a500); color:#fff; box-shadow:0 6px 20px rgba(192,120,0,.3); }
-.pc-btn-gold:hover  { box-shadow:0 10px 32px rgba(192,120,0,.45); transform:translateY(-2px); }
+.pc-btn-green { background:linear-gradient(135deg,var(--green),#7048e8); color:#fff; box-shadow:0 6px 20px rgba(36,21,57,.28); }
+.pc-btn-green:hover { box-shadow:0 10px 32px rgba(36,21,57,.42); transform:translateY(-2px); }
+.pc-btn-gold  { background:linear-gradient(135deg,#d6336c,#f08c28); color:#fff; box-shadow:0 6px 20px rgba(214,51,108,.3); }
+.pc-btn-gold:hover  { box-shadow:0 10px 32px rgba(214,51,108,.45); transform:translateY(-2px); }
 
 /* Bubble group */
 .pc-bubble { position:absolute; border-radius:50%; background:rgba(255,255,255,.12); border:1.5px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
@@ -1372,14 +1372,14 @@
           <circle cx="140" cy="148" r="14" fill="rgba(255,255,255,.10)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
           <circle cx="160" cy="168" r="8"  fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
           <!-- Piggy bank icon inside bubble -->
-          <ellipse cx="90" cy="92" rx="26" ry="20" fill="rgba(240,165,0,.25)"/>
-          <ellipse cx="90" cy="90" rx="22" ry="16" fill="#f0a500" opacity=".9"/>
-          <ellipse cx="86" cy="84" rx="7"  ry="6"  fill="#f0a500"/>
-          <path d="M106 87 Q110 91 108 96" stroke="#f0a500" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <ellipse cx="90" cy="92" rx="26" ry="20" fill="rgba(240,140,40,.25)"/>
+          <ellipse cx="90" cy="90" rx="22" ry="16" fill="#f08c28" opacity=".9"/>
+          <ellipse cx="86" cy="84" rx="7"  ry="6"  fill="#f08c28"/>
+          <path d="M106 87 Q110 91 108 96" stroke="#f08c28" stroke-width="3" stroke-linecap="round" fill="none"/>
           <circle cx="83" cy="88" r="2.5" fill="#073b1e"/>
           <path d="M83 96 Q90 102 97 96" stroke="#073b1e" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <rect x="82" y="100" width="4" height="7" rx="2" fill="#c07800"/>
-          <rect x="91" y="100" width="4" height="7" rx="2" fill="#c07800"/>
+          <rect x="82" y="100" width="4" height="7" rx="2" fill="#d6336c"/>
+          <rect x="91" y="100" width="4" height="7" rx="2" fill="#d6336c"/>
 
           <!-- Second bubble: house -->
           <circle cx="350" cy="75" r="38" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.2)" stroke-width="1.5"/>
@@ -1388,7 +1388,7 @@
           <!-- House icon -->
           <polygon points="350,52 374,75 326,75" fill="rgba(255,255,255,.7)"/>
           <rect x="334" y="75" width="32" height="24" fill="rgba(255,255,255,.85)"/>
-          <rect x="344" y="83" width="12" height="16" rx="2" fill="#145230"/>
+          <rect x="344" y="83" width="12" height="16" rx="2" fill="#241539"/>
 
           <!-- WOMAN FIGURE -->
           <!-- Feet -->
@@ -1407,7 +1407,7 @@
           <ellipse cx="120" cy="370" rx="22" ry="16" fill="#d4956a"/>
           <!-- Right hand holding gold coin -->
           <ellipse cx="320" cy="370" rx="22" ry="16" fill="#d4956a"/>
-          <circle cx="320" cy="348" r="24" fill="#f0a500" opacity=".95"/>
+          <circle cx="320" cy="348" r="24" fill="#f08c28" opacity=".95"/>
           <circle cx="320" cy="348" r="17" fill="#ffc107" opacity=".8"/>
           <text x="320" y="354" text-anchor="middle" font-size="15" fill="#073b1e" font-weight="800" font-family="Arial">৳</text>
 
@@ -1422,8 +1422,8 @@
           <!-- Hijab highlight / fold -->
           <path d="M160 162 Q160 92 220 86 Q280 92 280 162 Q270 148 220 145 Q170 148 160 162Z" fill="#12914d" opacity=".7"/>
           <!-- Hijab pin -->
-          <circle cx="220" cy="228" r="6" fill="#f0a500"/>
-          <circle cx="220" cy="228" r="3" fill="#c07800"/>
+          <circle cx="220" cy="228" r="6" fill="#f08c28"/>
+          <circle cx="220" cy="228" r="3" fill="#d6336c"/>
 
           <!-- Eyes -->
           <ellipse cx="199" cy="162" rx="10" ry="11" fill="#fff"/>
@@ -1520,12 +1520,12 @@
           <!-- Body (panjabi — deep maroon/off-white with gold border) -->
           <path d="M152 228 Q145 310 148 360 L292 360 Q295 310 288 228 Q255 207 220 206 Q185 207 152 228Z" fill="#f5f0e8"/>
           <!-- Panjabi collar & placket -->
-          <rect x="213" y="205" width="14" height="80" rx="4" fill="rgba(192,120,0,.15)"/>
+          <rect x="213" y="205" width="14" height="80" rx="4" fill="rgba(214,51,108,.15)"/>
           <!-- Gold border bottom -->
-          <rect x="148" y="354" width="144" height="6" rx="2" fill="rgba(192,120,0,.5)"/>
+          <rect x="148" y="354" width="144" height="6" rx="2" fill="rgba(214,51,108,.5)"/>
           <!-- Gold border cuffs -->
-          <rect x="110" y="322" width="32" height="6" rx="2" fill="rgba(192,120,0,.4)"/>
-          <rect x="298" y="322" width="32" height="6" rx="2" fill="rgba(192,120,0,.4)"/>
+          <rect x="110" y="322" width="32" height="6" rx="2" fill="rgba(214,51,108,.4)"/>
+          <rect x="298" y="322" width="32" height="6" rx="2" fill="rgba(214,51,108,.4)"/>
 
           <!-- Arms (panjabi sleeves) -->
           <path d="M155 238 Q115 288 115 330" stroke="#f5f0e8" stroke-width="38" stroke-linecap="round" fill="none"/>
@@ -1537,13 +1537,13 @@
 
           <!-- Left hand holding document -->
           <rect x="92" y="310" width="36" height="46" rx="4" fill="#fff" opacity=".9"/>
-          <rect x="97" y="316" width="26" height="3" rx="1" fill="#c07800"/>
+          <rect x="97" y="316" width="26" height="3" rx="1" fill="#d6336c"/>
           <rect x="97" y="323" width="20" height="2" rx="1" fill="#ccc"/>
           <rect x="97" y="329" width="22" height="2" rx="1" fill="#ccc"/>
           <rect x="97" y="335" width="18" height="2" rx="1" fill="#ccc"/>
           <!-- Stamp: APPROVED -->
-          <circle cx="118" cy="349" r="10" fill="rgba(20,82,48,.15)" stroke="#145230" stroke-width="1.5"/>
-          <text x="118" y="353" text-anchor="middle" font-size="6" fill="#145230" font-weight="800">✓</text>
+          <circle cx="118" cy="349" r="10" fill="rgba(36,21,57,.15)" stroke="#241539" stroke-width="1.5"/>
+          <text x="118" y="353" text-anchor="middle" font-size="6" fill="#241539" font-weight="800">✓</text>
 
           <!-- Neck -->
           <rect x="210" y="196" width="20" height="18" rx="8" fill="#c8845a"/>
@@ -1626,7 +1626,7 @@
     </div>
   </div>
   <div style="text-align:center;margin-top:28px">
-    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#F0A500,#FFD54F);color:#145230;border:none;border-radius:30px;padding:13px 32px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(240,165,0,.4);letter-spacing:.3px">
+    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:30px;padding:13px 32px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(240,140,40,.4);letter-spacing:.3px">
       <i class="ti ti-layout-dashboard" style="font-size:18px"></i> বিস্তারিত দেখুন &nbsp;/&nbsp; Full Dashboard
     </a>
   </div>
@@ -1981,7 +1981,7 @@
   </div>
   <div class="footer-bottom">
     <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
-    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:13px;color:#F0A500"></i> for humanity</div>
+    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:13px;color:#f08c28"></i> for humanity</div>
   </div>
 </footer>
 
