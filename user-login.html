@@ -40,15 +40,19 @@
 
     /* ── flip scene ── */
     .scene{position:relative;z-index:1;width:380px;max-width:100%;perspective:1600px}
-    .flip{position:relative;width:100%;height:600px;transform-style:preserve-3d;
-      transition:transform .95s cubic-bezier(.68,-.05,.3,1.05),height .95s cubic-bezier(.68,-.05,.3,1.05);will-change:transform}
-    .flip.reg{height:822px}
+    /* height is set by JS to match the visible face; these are no-JS fallbacks */
+    .flip{position:relative;width:100%;min-height:600px;transform-style:preserve-3d;
+      transition:transform .95s cubic-bezier(.68,-.05,.3,1.05),height .55s cubic-bezier(.4,0,.2,1);will-change:transform}
+    .flip.reg{min-height:822px}
+    /* top/left/right only — no `bottom`, so each face keeps its own
+       natural height and JS can size the flip container to match */
     .face{
-      position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      position:absolute;top:0;left:0;right:0;
+      backface-visibility:hidden;-webkit-backface-visibility:hidden;
       background:rgba(255,255,255,.075);
       backdrop-filter:blur(24px) saturate(155%);-webkit-backdrop-filter:blur(24px) saturate(155%);
       border:1px solid rgba(255,255,255,.17);border-radius:24px;
-      padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.46);overflow:hidden
+      padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.46)
     }
     .back{transform:rotateY(180deg)}
     .face::before{content:'';position:absolute;inset:0;border-radius:24px;pointer-events:none;opacity:.5;
@@ -158,8 +162,8 @@
            flex-direction:column;justify-content:flex-start;padding:16px 12px 28px}
       .home{position:static;margin-bottom:14px;align-self:flex-start}
       .face{padding:22px 18px}
-      .flip{height:620px}
-      .flip.reg{height:856px}
+      .flip{min-height:620px}
+      .flip.reg{min-height:856px}
       .chip{font-size:13px;padding:8px 12px}
       .fg input{font-size:16px}       /* 16px stops iOS from zooming on focus */
     }
@@ -309,12 +313,47 @@
   });
 })();
 
+/* ── keep the card exactly as tall as whichever face is showing ── */
+function syncFlipHeight() {
+  var flip = document.getElementById('flip');
+  if (!flip) return;
+  var face = flip.querySelector(flip.classList.contains('reg') ? '.back' : '.front');
+  if (!face) return;
+  var h = face.offsetHeight;
+  if (h > 0) flip.style.height = h + 'px';
+}
+
 function flipTo(on) {
   var f = document.getElementById('flip');
   window.__setFlipped(on);
   f.classList.toggle('reg', !!on);
   f.style.transform = 'rotateY(' + (on ? 180 : 0) + 'deg)';
+  syncFlipHeight();
 }
+
+/* re-measure whenever anything changes the content height */
+(function () {
+  var run = function () { syncFlipHeight(); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+  window.addEventListener('load', run);
+  window.addEventListener('resize', run);
+  setTimeout(run, 60);
+  setTimeout(run, 400);      // after webfonts settle
+  setTimeout(run, 1200);
+
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(run);
+    document.querySelectorAll('.face').forEach(function (f) { ro.observe(f); });
+  }
+  var flip = document.getElementById('flip');
+  if (window.MutationObserver && flip) {
+    new MutationObserver(run).observe(flip, {
+      childList: true, subtree: true, characterData: true, attributes: true,
+      attributeFilter: ['class', 'style']
+    });
+  }
+})();
 function tog(b) { b.classList.toggle('on'); }
 function tg(id, btn) {
   var p = document.getElementById(id), i = btn.querySelector('i'), s = p.type === 'password';
