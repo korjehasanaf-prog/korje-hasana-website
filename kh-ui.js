@@ -566,6 +566,66 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     6 ── CURSOR GLOW (site-wide)
+     ══════════════════════════════════════════════════════ */
+
+  KHUI.mountGlow = function () {
+    if (document.querySelector('.kh-cursor-glow')) return;
+    if (window.matchMedia('(max-width: 900px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var glow = document.createElement('div');
+    glow.className = 'kh-cursor-glow';
+    glow.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(glow);
+
+    var x = 0, y = 0, cx = 0, cy = 0, raf = null, lit = false;
+
+    /* is the pointer over a dark surface? then brighten the glow */
+    var darkSel = '.topbar, .navbar, .hero, .page-hero, .footer, footer, ' +
+                  '.pc-img, .impact-section, .mv-section, .quran-strip, ' +
+                  '.profile-strip, .kh-slider .kh-brand, .login-shell';
+    var lastCheck = 0;
+
+    function tick() {
+      cx += (x - cx) * 0.16;
+      cy += (y - cy) * 0.16;
+      glow.style.transform = 'translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px)';
+      if (Math.abs(x - cx) > 0.6 || Math.abs(y - cy) > 0.6) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = null;
+      }
+    }
+
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') return;
+      x = e.clientX; y = e.clientY;
+      if (!lit) { lit = true; glow.classList.add('kh-lit'); }
+      if (!raf) raf = requestAnimationFrame(tick);
+
+      /* throttle the dark-surface test — it costs a hit-test */
+      var t = Date.now();
+      if (t - lastCheck > 120 && document.elementFromPoint) {
+        lastCheck = t;
+        try {
+          var el = document.elementFromPoint(e.clientX, e.clientY);
+          glow.classList.toggle('kh-on-dark', !!(el && el.closest && el.closest(darkSel)));
+        } catch (err) { /* ignore */ }
+      }
+    }, { passive: true });
+
+    document.addEventListener('pointerleave', function () {
+      lit = false; glow.classList.remove('kh-lit');
+    });
+    document.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) { lit = false; glow.classList.remove('kh-lit'); }
+    });
+
+    KHUI._glow = glow;
+  };
+
+  /* ══════════════════════════════════════════════════════
      AUTO-INIT
      ══════════════════════════════════════════════════════ */
 
@@ -574,6 +634,7 @@
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
       if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
     }
+    if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     KHUI.enhancePasswords(document);
   }
 

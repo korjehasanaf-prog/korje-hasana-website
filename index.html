@@ -35,8 +35,8 @@
       align-items: center;
     }
     .topbar-left { display: flex; gap: 20px; }
-    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 12px; }
-    .topbar-item i { font-size: 14px; color: var(--ltgreen); }
+    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 13.5px; }
+    .topbar-item i { font-size: 15.5px; color: var(--ltgreen); }
     .topbar-right { display: flex; align-items: center; gap: 12px; }
     .topbar-soc {
       width: 26px; height: 26px; border-radius: 50%;
@@ -45,21 +45,21 @@
       cursor: pointer; transition: background .2s; text-decoration: none;
     }
     .topbar-soc:hover { background: rgba(255,255,255,.15); }
-    .topbar-soc i { font-size: 14px; color: rgba(255,255,255,.6); }
+    .topbar-soc i { font-size: 15.5px; color: rgba(255,255,255,.6); }
 
     /* ═══ TOPBAR ADMIN BUTTON ═══ */
     .topbar-admin-btn {
       display: inline-flex; align-items: center; gap: 5px;
-      font-size: 11px; font-weight: 700; padding: 3px 12px;
+      font-size: 12.5px; font-weight: 700; padding: 3px 12px;
       background: rgba(240,140,40,.15); color: var(--gold);
       border: 1px solid rgba(240,140,40,.35); border-radius: 20px;
       cursor: pointer; text-decoration: none; transition: all .2s;
       font-family: inherit;
     }
     .topbar-admin-btn:hover { background: var(--gold); color: #160d26; }
-    .topbar-admin-btn i { font-size: 12px; }
+    .topbar-admin-btn i { font-size: 13.5px; }
     .lang-toggle { display: flex; background: rgba(255,255,255,.1); border-radius: 20px; border: 1px solid rgba(255,255,255,.2); overflow: hidden; }
-    .lang-btn { font-size: 11px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
+    .lang-btn { font-size: 12.5px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
     .lang-btn.active { background: var(--gold); color: var(--green); font-weight: 600; }
 
 
@@ -67,7 +67,7 @@
        MEGA MENU
     ═══════════════════════════════════════ */
     .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
-    .nav-chevron { font-size: 11px; margin-left: 3px; transition: transform .2s; vertical-align: middle; }
+    .nav-chevron { font-size: 12.5px; margin-left: 3px; transition: transform .2s; vertical-align: middle; }
     .nav-item.open > .nav-link .nav-chevron { transform: rotate(180deg); }
 
     .mega-menu {
@@ -98,15 +98,15 @@
       display: flex; align-items: center; gap: 10px;
       padding: 11px 16px;
       cursor: pointer;
-      font-size: 13px; font-weight: 500; color: #333;
+      font-size: 14.5px; font-weight: 500; color: #333;
       border-left: 3px solid transparent;
       transition: background .15s, color .15s, border-color .15s;
       user-select: none;
     }
-    .mega-l1 i.l1-ico { font-size: 17px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-l1 i.l1-ico { font-size: 18px; color: var(--mdgreen); flex-shrink: 0; }
     .mega-l1 .l1-txt { flex: 1; line-height: 1.3; }
-    .mega-l1 .l1-sub { font-size: 10px; color: var(--muted); font-weight: 400; display: block; }
-    .mega-l1 i.l1-arr { font-size: 11px; color: #bbb; }
+    .mega-l1 .l1-sub { font-size: 12px; color: var(--muted); font-weight: 400; display: block; }
+    .mega-l1 i.l1-arr { font-size: 12.5px; color: #bbb; }
     .mega-l1:hover, .mega-l1.active {
       background: #e6f2ec; color: var(--green);
       border-left-color: var(--green);
@@ -126,20 +126,20 @@
       margin-bottom: 2px;
     }
     .mega-rl:hover { background: #edf7f1; }
-    .mega-rl i { font-size: 20px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-rl i { font-size: 21px; color: var(--mdgreen); flex-shrink: 0; }
     .mega-rl-body { display: flex; flex-direction: column; flex: 1; }
-    .mega-rl-title { font-size: 13px; font-weight: 600; color: var(--text); }
-    .mega-rl-desc  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .mega-rl-title { font-size: 14.5px; font-weight: 600; color: var(--text); }
+    .mega-rl-desc  { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
     .mega-badge {
       background: var(--green); color: #fff;
-      font-size: 10px; font-weight: 700;
+      font-size: 12px; font-weight: 700;
       padding: 2px 8px; border-radius: 20px;
       white-space: nowrap; flex-shrink: 0;
     }
     .mega-rl:hover .mega-badge { background: var(--mdgreen); }
 
     .mega-r-header {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
       letter-spacing: .08em; color: var(--muted);
       padding: 4px 10px 6px; margin-bottom: 2px;
     }
@@ -185,18 +185,18 @@
       background: var(--gold);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 700; color: var(--green);
+      font-size: 17px; font-weight: 700; color: var(--green);
       flex-shrink: 0;
       box-shadow: 0 0 16px rgba(240,140,40,.4);
     }
     .logo-texts { display: flex; flex-direction: column; }
-    .logo-bn { color: #fff; font-size: 15px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
-    .logo-en { color: rgba(255,255,255,.75); font-size: 10px; line-height: 1.3; }
-    .logo-sl { color: #ffe9a8; font-size: 9px; font-style: italic; opacity: .95; }
+    .logo-bn { color: #fff; font-size: 16px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
+    .logo-en { color: rgba(255,255,255,.75); font-size: 12px; line-height: 1.3; }
+    .logo-sl { color: #ffe9a8; font-size: 11px; font-style: italic; opacity: .95; }
 
     .nav-center { display: flex; position: relative; height: 68px; align-items: center; }
     .nav-link {
-      color: rgba(255,255,255,.8); font-size: 13px; font-weight: 500;
+      color: rgba(255,255,255,.8); font-size: 14.5px; font-weight: 500;
       padding: 0 16px; height: 68px; display: flex; align-items: center;
       cursor: pointer; position: relative; transition: color .2s;
       text-decoration: none; white-space: nowrap;
@@ -219,7 +219,7 @@
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(240,140,40,.15); color: var(--gold);
       border: 1.5px solid rgba(240,140,40,.5);
-      font-size: 12px; font-weight: 700;
+      font-size: 13.5px; font-weight: 700;
       padding: 8px 18px; border-radius: 24px; cursor: pointer;
       transition: all .2s; text-decoration: none;
       animation: navSavGlow 2.5s ease-in-out infinite;
@@ -236,7 +236,7 @@
     }
     .donate-btn {
       background: var(--gold); color: var(--green);
-      border: none; font-size: 13px; font-weight: 700;
+      border: none; font-size: 14.5px; font-weight: 700;
       padding: 10px 22px; border-radius: 24px; cursor: pointer;
       transition: all .2s; text-decoration: none; display: inline-block;
       box-shadow: 0 0 20px rgba(240,140,40,.35);
@@ -265,16 +265,16 @@
     .hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(240,140,40,.15); color: var(--gold);
-      font-size: 11px; padding: 5px 14px; border-radius: 20px;
+      font-size: 12.5px; padding: 5px 14px; border-radius: 20px;
       border: 1px solid rgba(240,140,40,.35); margin-bottom: 14px;
     }
-    .hero-h1 { color: #fff; font-size: 28px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+    .hero-h1 { color: #fff; font-size: 30px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
     .hero-h1 span { color: var(--gold); }
-    .hero-p { color: var(--ltgreen); font-size: 14px; line-height: 1.8; margin-bottom: 24px; max-width: 420px; }
+    .hero-p { color: var(--ltgreen); font-size: 15.5px; line-height: 1.8; margin-bottom: 24px; max-width: 420px; }
     .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
     .btn-primary {
       background: var(--gold); color: var(--green); border: none;
-      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
       box-shadow: 0 0 20px rgba(240,140,40,.4);
     }
@@ -282,14 +282,14 @@
     .btn-outline {
       background: transparent; color: #fff;
       border: 1.5px solid rgba(255,255,255,.4);
-      font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
     }
     .btn-outline:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
     .btn-gold-outline {
       background: transparent; color: var(--gold);
       border: 1.5px solid rgba(240,140,40,.5);
-      font-size: 13px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
     }
     .btn-gold-outline:hover { background: rgba(240,140,40,.1); }
@@ -312,7 +312,7 @@
       position: absolute; bottom: 0; left: 0; right: 0;
       padding: 32px 14px 12px;
       background: linear-gradient(transparent, rgba(0,0,0,.75));
-      color: #fff; font-size: 13px; font-weight: 700;
+      color: #fff; font-size: 14.5px; font-weight: 700;
       font-family: 'Hind Siliguri', sans-serif;
       text-align: center; letter-spacing: .3px;
     }
@@ -322,7 +322,7 @@
       width: 36px; height: 36px; border-radius: 50%;
       background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
       color: #fff; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background .2s; z-index: 20; font-size: 18px;
+      cursor: pointer; transition: background .2s; z-index: 20; font-size: 19px;
     }
     .khc-nav:hover { background: rgba(255,255,255,.3); }
     .khc-prev { left: -4px; } .khc-next { right: -4px; }
@@ -336,15 +336,15 @@
     }
     .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
     .quran-slide { min-width: 100%; text-align: center; padding: 0 60px; }
-    .quran-icon { font-size: 24px; color: var(--gold); margin-bottom: 10px; display: block; }
+    .quran-icon { font-size: 26px; color: var(--gold); margin-bottom: 10px; display: block; }
     .quran-text-ar {
-      color: #fff; font-size: 15px; font-weight: 500; line-height: 1.7; margin-bottom: 6px;
+      color: #fff; font-size: 16px; font-weight: 500; line-height: 1.7; margin-bottom: 6px;
       font-family: 'Hind Siliguri', sans-serif;
     }
-    .quran-text-en { color: var(--ltgreen); font-size: 12px; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .quran-text-en { color: var(--ltgreen); font-size: 13.5px; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
     .quran-ref {
       display: inline-block; background: rgba(240,140,40,.15);
-      color: var(--gold); font-size: 11px; padding: 3px 12px; border-radius: 20px;
+      color: var(--gold); font-size: 12.5px; padding: 3px 12px; border-radius: 20px;
       border: 1px solid rgba(240,140,40,.3);
     }
     .quran-nav-btn {
@@ -354,7 +354,7 @@
       display: flex; align-items: center; justify-content: center; transition: background .2s;
     }
     .quran-nav-btn:hover { background: rgba(255,255,255,.2); }
-    .quran-nav-btn i { font-size: 16px; color: rgba(255,255,255,.6); }
+    .quran-nav-btn i { font-size: 17px; color: rgba(255,255,255,.6); }
     .quran-nav-l { left: 16px; }
     .quran-nav-r { right: 16px; }
     .quran-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
@@ -371,7 +371,7 @@
     .impact-section { background: #0F172A; padding: 40px; }
     .section-title-dark {
       text-align: center; color: rgba(255,255,255,.5);
-      font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      font-size: 12.5px; font-weight: 600; letter-spacing: 2px;
       text-transform: uppercase; margin-bottom: 24px;
     }
     .impact-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
@@ -393,12 +393,12 @@
       width: 90px; height: 90px; border-radius: 50%;
       background: rgba(255,255,255,.08); pointer-events: none;
     }
-    .ic-icon { font-size: 26px; margin-bottom: 10px; display: block; }
-    .ic-num { font-size: 32px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 4px; }
-    .ic-lbl { font-size: 12px; color: rgba(255,255,255,.75); margin-bottom: 10px; line-height: 1.4; }
+    .ic-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .ic-num { font-size: 34px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .ic-lbl { font-size: 13.5px; color: rgba(255,255,255,.75); margin-bottom: 10px; line-height: 1.4; }
     .ic-bar { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
     .ic-bar-inner { height: 100%; background: rgba(255,255,255,.75); border-radius: 2px; width: 0; transition: width 1.5s ease; }
-    .ic-trend { font-size: 10px; color: rgba(255,255,255,.55); margin-top: 6px; }
+    .ic-trend { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 6px; }
     .ic-trend span { color: #4FC3F7; font-weight: 600; }
 
     /* ═══════════════════════════════════════
@@ -409,11 +409,11 @@
     .sec-hd { text-align: center; margin-bottom: 40px; }
     .sec-tag {
       display: inline-block; background: #EAF3DE; color: #3B6D11;
-      font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
+      font-size: 12.5px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
       margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px;
     }
-    .sec-h2 { font-size: 26px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
-    .sec-p { font-size: 14px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+    .sec-h2 { font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+    .sec-p { font-size: 15.5px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
 
     /* ═══════════════════════════════════════
        SERVICES
@@ -427,12 +427,12 @@
     .srv-icon {
       width: 48px; height: 48px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 22px; margin-bottom: 14px;
+      font-size: 23.5px; margin-bottom: 14px;
     }
-    .srv-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
-    .srv-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
-    .srv-amt { font-size: 12px; color: var(--gold); font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
-    .srv-amt i { font-size: 14px; }
+    .srv-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .srv-desc { font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+    .srv-amt { font-size: 13.5px; color: var(--gold); font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+    .srv-amt i { font-size: 15.5px; }
 
     /* ═══════════════════════════════════════
        HOW IT WORKS
@@ -450,13 +450,13 @@
     .step-num {
       width: 56px; height: 56px; border-radius: 50%;
       background: var(--gold); color: var(--green);
-      font-size: 20px; font-weight: 700;
+      font-size: 21px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 14px; position: relative; z-index: 1;
       box-shadow: 0 0 24px rgba(240,140,40,.5);
     }
-    .step-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-    .step-desc { font-size: 12px; color: var(--ltgreen); line-height: 1.6; }
+    .step-title { font-size: 15.5px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step-desc { font-size: 13.5px; color: var(--ltgreen); line-height: 1.6; }
 
     /* ═══════════════════════════════════════
        CUSTOMER CARE STRIP
@@ -473,7 +473,7 @@
       background: #25D366; display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; box-shadow: 0 0 20px rgba(37,211,102,.4);
     }
-    .cc-icon i { font-size: 26px; color: #fff; }
+    .cc-icon i { font-size: 28px; color: #fff; }
     .cc-ring {
       position: absolute; top: -4px; right: -4px;
       width: 18px; height: 18px; border-radius: 50%;
@@ -481,12 +481,12 @@
       animation: ringPulse 1.6s infinite;
     }
     @keyframes ringPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2.5);opacity:0} }
-    .cc-title { font-size: 15px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
-    .cc-sub { font-size: 12px; color: var(--muted); }
+    .cc-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+    .cc-sub { font-size: 13.5px; color: var(--muted); }
     .cc-actions { display: flex; gap: 10px; }
     .wa-btn {
       background: #25D366; color: #fff; border: none;
-      font-size: 13px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
       cursor: pointer; display: flex; align-items: center; gap: 6px;
       transition: all .2s; box-shadow: 0 4px 16px rgba(37,211,102,.4);
       text-decoration: none;
@@ -495,7 +495,7 @@
     .call-btn {
       background: transparent; color: var(--green);
       border: 1.5px solid var(--green);
-      font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 600; padding: 10px 20px; border-radius: 24px;
       cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s;
       text-decoration: none;
     }
@@ -512,14 +512,14 @@
     .story-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
     .story-img {
       height: 100px; display: flex; align-items: center; justify-content: center;
-      font-size: 40px;
+      font-size: 43px;
     }
     .story-body { padding: 16px; }
-    .story-tag { font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
-    .story-quote { font-size: 13px; color: var(--text); line-height: 1.6; margin-bottom: 8px; font-style: italic; }
-    .story-quote::before { content: '"'; font-size: 18px; color: var(--gold); }
-    .story-quote::after { content: '"'; font-size: 18px; color: var(--gold); }
-    .story-meta { font-size: 11px; color: var(--muted); }
+    .story-tag { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .story-quote { font-size: 14.5px; color: var(--text); line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .story-quote::before { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-quote::after { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-meta { font-size: 12.5px; color: var(--muted); }
 
     /* ═══════════════════════════════════════
        NEWS
@@ -530,11 +530,11 @@
       overflow: hidden; transition: all .25s; cursor: pointer;
     }
     .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(36,21,57,.1); }
-    .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
     .news-body { padding: 14px; }
-    .news-cat { font-size: 11px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
-    .news-title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
-    .news-date { font-size: 11px; color: var(--muted); }
+    .news-cat { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
+    .news-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+    .news-date { font-size: 12.5px; color: var(--muted); }
 
     /* ═══════════════════════════════════════
        CTA BAND
@@ -543,19 +543,19 @@
       background: linear-gradient(135deg, var(--gold) 0%, #e95420 100%);
       padding: 40px; display: flex; align-items: center; justify-content: space-between;
     }
-    .cta-band h3 { font-size: 20px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
-    .cta-band p { font-size: 13px; color: rgba(0,0,0,.55); }
+    .cta-band h3 { font-size: 21px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+    .cta-band p { font-size: 14.5px; color: rgba(0,0,0,.55); }
     .cta-btns { display: flex; gap: 12px; }
     .cta-btn1 {
       background: var(--green); color: #fff; border: none;
-      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s; box-shadow: 0 4px 16px rgba(0,0,0,.2);
     }
     .cta-btn1:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
     .cta-btn2 {
       background: transparent; color: var(--green);
       border: 2px solid var(--green);
-      font-size: 13px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
       cursor: pointer; transition: all .2s;
     }
     .cta-btn2:hover { background: rgba(0,0,0,.06); }
@@ -565,32 +565,32 @@
     ═══════════════════════════════════════ */
     .footer { background: var(--dkgreen); padding: 50px 40px 24px; }
     .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 32px; margin-bottom: 36px; }
-    .ft-logo-bn { color: #fff; font-size: 16px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; }
-    .ft-logo-en { color: var(--ltgreen); font-size: 11px; margin-bottom: 3px; }
-    .ft-logo-sl { color: var(--gold); font-size: 10px; font-style: italic; margin-bottom: 14px; }
-    .ft-about { color: rgba(255,255,255,.45); font-size: 12px; line-height: 1.8; margin-bottom: 16px; }
+    .ft-logo-bn { color: #fff; font-size: 17px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; }
+    .ft-logo-en { color: var(--ltgreen); font-size: 12.5px; margin-bottom: 3px; }
+    .ft-logo-sl { color: var(--gold); font-size: 12px; font-style: italic; margin-bottom: 14px; }
+    .ft-about { color: rgba(255,255,255,.45); font-size: 13.5px; line-height: 1.8; margin-bottom: 16px; }
     .ft-nl { display: flex; gap: 8px; }
     .ft-nl input {
       background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
-      border-radius: 24px; padding: 8px 14px; font-size: 12px; color: #fff; flex: 1;
+      border-radius: 24px; padding: 8px 14px; font-size: 13.5px; color: #fff; flex: 1;
     }
     .ft-nl input::placeholder { color: rgba(255,255,255,.35); }
     .ft-nl button {
       background: var(--gold); color: var(--green); border: none;
-      border-radius: 24px; padding: 8px 16px; font-size: 12px; font-weight: 700; cursor: pointer;
+      border-radius: 24px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer;
     }
-    .ft-col h4 { color: var(--ltgreen); font-size: 12px; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.1); text-transform: uppercase; letter-spacing: .5px; }
+    .ft-col h4 { color: var(--ltgreen); font-size: 13.5px; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.1); text-transform: uppercase; letter-spacing: .5px; }
     .ft-links { display: flex; flex-direction: column; gap: 8px; }
     .ft-link {
-      color: rgba(255,255,255,.45); font-size: 12px; text-decoration: none;
+      color: rgba(255,255,255,.45); font-size: 13.5px; text-decoration: none;
       display: flex; align-items: center; gap: 5px; transition: all .2s;
     }
-    .ft-link::before { content: '›'; opacity: .4; font-size: 14px; transition: opacity .2s; }
+    .ft-link::before { content: '›'; opacity: .4; font-size: 15.5px; transition: opacity .2s; }
     .ft-link:hover { color: var(--gold); padding-left: 4px; }
     .ft-link:hover::before { opacity: 1; color: var(--gold); }
     .ft-contact { display: flex; flex-direction: column; gap: 8px; }
-    .ft-contact-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 12px; }
-    .ft-contact-item i { font-size: 14px; color: var(--ltgreen); }
+    .ft-contact-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 13.5px; }
+    .ft-contact-item i { font-size: 15.5px; color: var(--ltgreen); }
     .footer-mid {
       border-top: 1px solid rgba(255,255,255,.1);
       border-bottom: 1px solid rgba(255,255,255,.1);
@@ -604,7 +604,7 @@
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: all .25s; text-decoration: none;
     }
-    .foot-soc i { font-size: 18px; color: rgba(255,255,255,.5); transition: color .25s; }
+    .foot-soc i { font-size: 19px; color: rgba(255,255,255,.5); transition: color .25s; }
     .foot-soc:hover { transform: translateY(-3px); }
     .foot-soc.fb:hover { background: #1877F2; border-color: #1877F2; }
     .foot-soc.fb:hover i { color: #fff; }
@@ -617,10 +617,10 @@
     .ft-badges { display: flex; gap: 8px; }
     .ft-badge {
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.4); font-size: 10px; padding: 4px 10px; border-radius: 12px;
+      color: rgba(255,255,255,.4); font-size: 12px; padding: 4px 10px; border-radius: 12px;
     }
     .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
-    .ft-copy { color: rgba(255,255,255,.3); font-size: 11px; }
+    .ft-copy { color: rgba(255,255,255,.3); font-size: 12.5px; }
 
     /* ═══════════════════════════════════════
        FLOATING BUTTONS
@@ -641,9 +641,9 @@
       0%,100%  { box-shadow: 0 4px 20px rgba(37,211,102,.5); }
       50%      { box-shadow: 0 4px 30px rgba(37,211,102,.8), 0 0 0 10px rgba(37,211,102,.15); }
     }
-    .wa-float-btn i { font-size: 28px; color: #fff; }
+    .wa-float-btn i { font-size: 30px; color: #fff; }
     .wa-float-tooltip {
-      background: #fff; color: var(--green); font-size: 12px; font-weight: 700;
+      background: #fff; color: var(--green); font-size: 13.5px; font-weight: 700;
       padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
       display: none; white-space: nowrap;
     }
@@ -660,7 +660,7 @@
     }
     .btt-btn.visible { opacity: 1; pointer-events: all; }
     .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.5); }
-    .btt-btn i { font-size: 20px; color: var(--gold); }
+    .btt-btn i { font-size: 21px; color: var(--gold); }
 
     /* ═══════════════════════════════════════
        DIVIDER
@@ -712,14 +712,14 @@
   .footer-mid { flex-direction:column !important; align-items:center !important; gap:12px !important; text-align:center !important; }
   .ft-badges { flex-wrap:wrap !important; justify-content:center !important; }
   .page-hero { padding:32px 16px 72px !important; }
-  .page-hero h1 { font-size:24px !important; }
-  .page-hero p { font-size:13px !important; }
+  .page-hero h1 { font-size:26px !important; }
+  .page-hero p { font-size:14.5px !important; }
   /* whatsapp float */
-  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:23.5px !important; }
   /* hero */
   .hero-section { padding:40px 16px 80px !important; }
-  .hero-title { font-size:26px !important; }
-  .hero-sub { font-size:14px !important; }
+  .hero-title { font-size:28px !important; }
+  .hero-sub { font-size:15.5px !important; }
   .hero-btns { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
   .hero-btn, .btn-apply, .btn-learn { text-align:center !important; padding:14px 20px !important; }
   /* stats */
@@ -751,8 +751,8 @@
       .nav-right { display:none; }
       .logo-sl { display:none; }
       .logo-en { display:none; }
-      .logo-bn { font-size:13px; }
-      .logo-icon { width:36px; height:36px; font-size:13px; }
+      .logo-bn { font-size:14.5px; }
+      .logo-icon { width:36px; height:36px; font-size:14.5px; }
       .khc-wrap { height:240px; }
       .hero { padding:24px 16px; }
     }
@@ -774,11 +774,11 @@
     .mv-tag {
       display:inline-block; background:rgba(240,140,40,.15);
       border:1px solid rgba(240,140,40,.35); color:#f08c28;
-      font-size:11px; font-weight:700; letter-spacing:1.5px;
+      font-size:12.5px; font-weight:700; letter-spacing:1.5px;
       text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:14px;
     }
-    .mv-title { color:#fff; font-size:32px; font-weight:900; font-family:'Hind Siliguri',sans-serif; line-height:1.2; margin-bottom:10px; }
-    .mv-sub { color:rgba(255,255,255,.5); font-size:14px; }
+    .mv-title { color:#fff; font-size:34px; font-weight:900; font-family:'Hind Siliguri',sans-serif; line-height:1.2; margin-bottom:10px; }
+    .mv-sub { color:rgba(255,255,255,.5); font-size:15.5px; }
     .mv-cards { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-bottom:36px; }
     .mv-card {
       position:relative; overflow:hidden; border-radius:20px; padding:36px 32px;
@@ -789,18 +789,18 @@
     .mv-card.mission .mv-card-glow { background:#f08c28; }
     .mv-card.vision  { background:linear-gradient(135deg,rgba(112,72,232,.5),rgba(9,45,25,.85)); }
     .mv-card.vision  .mv-card-glow { background:#cbb6f5; }
-    .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:18px; position:relative; z-index:1; }
+    .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; position:relative; z-index:1; }
     .mission .mv-card-icon { background:linear-gradient(135deg,#f08c28,#ffc46b); color:#241539; }
     .vision  .mv-card-icon { background:linear-gradient(135deg,#7048e8,#cbb6f5); color:#fff; }
-    .mv-card-tag { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
+    .mv-card-tag { font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
     .mission .mv-card-tag { color:#f08c28; }
     .vision  .mv-card-tag  { color:#cbb6f5; }
-    .mv-card-h { font-size:20px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
-    .mv-card-p { font-size:13.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
-    .mv-card-en { font-size:12px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
+    .mv-card-h { font-size:21px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
+    .mv-card-p { font-size:15.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
+    .mv-card-en { font-size:13.5px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
     .mv-values { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px; }
-    .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:13px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
-    .mv-val i { font-size:16px; }
+    .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:14.5px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
+    .mv-val i { font-size:17px; }
     .mv-val-1 { background:rgba(240,140,40,.12);  color:#ffc46b; }
     .mv-val-2 { background:rgba(112,72,232,.2);   color:#cbb6f5; }
     .mv-val-3 { background:rgba(96,165,250,.12); color:#93C5FD; }
@@ -808,20 +808,20 @@
     .mv-val-5 { background:rgba(52,211,153,.12); color:#6EE7B7; }
     .mv-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
     .mv-tgt { text-align:center; padding:20px 14px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
-    .mv-tgt-num { font-size:28px; font-weight:900; color:#f08c28; }
-    .mv-tgt-lbl { font-size:12px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
+    .mv-tgt-num { font-size:30px; font-weight:900; color:#f08c28; }
+    .mv-tgt-lbl { font-size:13.5px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
     @media (max-width:768px) {
       .mv-section { padding:48px 20px; }
       .mv-cards { grid-template-columns:1fr; }
       .mv-targets { grid-template-columns:repeat(2,1fr); }
-      .mv-title { font-size:24px; }
+      .mv-title { font-size:26px; }
     }
 
 
     /* ═══ SAVINGS GLOW BUTTON ═══ */
     .btn-savings-glow {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 26px; font-size: 14px; font-weight: 700;
+      padding: 13px 26px; font-size: 15.5px; font-weight: 700;
       background: linear-gradient(135deg, #f08c28 0%, #ff9500 100%);
       color: #160d26; border: none; border-radius: 50px; cursor: pointer;
       font-family: inherit; text-decoration: none;
@@ -1210,7 +1210,7 @@
     <div class="nav-indicator" id="navInd"></div>
   </div>
   <div class="nav-right">
-    <a href="savings-portal.html" class="nav-savings-btn"><i class="ti ti-piggy-bank" style="font-size:15px"></i>সুদ বিহীন সঞ্চয়</a>
+    <a href="savings-portal.html" class="nav-savings-btn"><i class="ti ti-piggy-bank" style="font-size:16px"></i>সুদ বিহীন সঞ্চয়</a>
     <button class="donate-btn" onclick="window.location.href='donation.html'" data-i18n="nav-donate">Donate now</button>
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
@@ -1224,15 +1224,15 @@
 <section class="hero" id="hero">
   <div>
     <div class="hero-badge">
-      <i class="ti ti-mosque" style="font-size:14px"></i>
+      <i class="ti ti-mosque" style="font-size:15.5px"></i>
       <span data-i18n="hero-badge">Mosque-based · 0% interest · Sharia-compliant</span>
     </div>
     <h1 class="hero-h1" data-i18n-html="hero-h1">Interest-free loans<br>for those who <span>need it most</span></h1>
     <p class="hero-p" data-i18n="hero-p">কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.</p>
     <div class="hero-btns">
-      <button class="btn-primary" onclick="window.location.href='loan-application.html'"><i class="ti ti-file-text" style="font-size:15px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></button>
+      <button class="btn-primary" onclick="window.location.href='loan-application.html'"><i class="ti ti-file-text" style="font-size:16px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></button>
       <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
-      <a href="savings-portal.html" class="btn-savings-glow"><i class="ti ti-piggy-bank" style="font-size:17px"></i>সুদ বিহীন সঞ্চয় করুন</a>
+      <a href="savings-portal.html" class="btn-savings-glow"><i class="ti ti-piggy-bank" style="font-size:18px"></i>সুদ বিহীন সঞ্চয় করুন</a>
       <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
     </div>
   </div>
@@ -1295,8 +1295,8 @@
 /* ── Product Cards ── */
 .pc-section { background: #f7f2fb; padding: 56px 40px; }
 .pc-section-head { text-align:center; margin-bottom:44px; }
-.pc-section-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(36,21,57,.08); color:var(--green); font-size:12px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
-.pc-section-title { font-size:30px; font-weight:800; color:var(--green); line-height:1.25; }
+.pc-section-tag { display:inline-flex; align-items:center; gap:7px; background:rgba(36,21,57,.08); color:var(--green); font-size:13.5px; font-weight:700; padding:6px 16px; border-radius:20px; margin-bottom:12px; letter-spacing:.5px; }
+.pc-section-title { font-size:32px; font-weight:800; color:var(--green); line-height:1.25; }
 .pc-section-title span { color:var(--gold); }
 .pc-cards-wrap { max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:32px; }
 
@@ -1323,19 +1323,19 @@
 
 /* Text sides */
 .pc-text { background:#fff; padding:50px 52px; display:flex; flex-direction:column; justify-content:center; gap:16px; }
-.pc-tag { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:5px 14px; border-radius:20px; width:fit-content; }
+.pc-tag { display:inline-flex; align-items:center; gap:6px; font-size:12.5px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; padding:5px 14px; border-radius:20px; width:fit-content; }
 .pc-tag-green { background:rgba(36,21,57,.09); color:var(--green); }
 .pc-tag-gold  { background:rgba(240,140,40,.12); color:#a06800; }
-.pc-title { font-size:28px; font-weight:800; color:#111; line-height:1.25; }
+.pc-title { font-size:30px; font-weight:800; color:#111; line-height:1.25; }
 .pc-title em { font-style:normal; color:var(--green); }
 .pc-title-gold em { color:#d6336c; }
-.pc-desc { font-size:14px; color:#555; line-height:1.8; }
+.pc-desc { font-size:15.5px; color:#555; line-height:1.8; }
 .pc-feats { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
-.pc-feats li { display:flex; align-items:center; gap:10px; font-size:13px; color:#333; font-weight:500; }
-.pc-feats li i { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+.pc-feats li { display:flex; align-items:center; gap:10px; font-size:14.5px; color:#333; font-weight:500; }
+.pc-feats li i { width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14.5px; flex-shrink:0; }
 .pc-fi-green { background:rgba(36,21,57,.1); color:var(--green); }
 .pc-fi-gold  { background:rgba(240,140,40,.15); color:#a06800; }
-.pc-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:12px; font-size:14px; font-weight:700; text-decoration:none; transition:all .25s; width:fit-content; margin-top:6px; }
+.pc-btn { display:inline-flex; align-items:center; gap:8px; padding:14px 28px; border-radius:12px; font-size:15.5px; font-weight:700; text-decoration:none; transition:all .25s; width:fit-content; margin-top:6px; }
 .pc-btn-green { background:linear-gradient(135deg,var(--green),#7048e8); color:#fff; box-shadow:0 6px 20px rgba(36,21,57,.28); }
 .pc-btn-green:hover { box-shadow:0 10px 32px rgba(36,21,57,.42); transform:translateY(-2px); }
 .pc-btn-gold  { background:linear-gradient(135deg,#d6336c,#f08c28); color:#fff; box-shadow:0 6px 20px rgba(214,51,108,.3); }
@@ -1349,9 +1349,9 @@
   .pc-card { grid-template-columns:1fr; min-height:auto; }
   .pc-img { min-height:300px; order:0 !important; }
   .pc-text { padding:32px 24px; order:1 !important; }
-  .pc-title { font-size:22px; }
+  .pc-title { font-size:23.5px; }
   .pc-cards-wrap { gap:24px; }
-  .pc-section-title { font-size:22px; }
+  .pc-section-title { font-size:23.5px; }
 }
 </style>
 
@@ -1444,8 +1444,8 @@
     </div>
   </div>
   <div style="text-align:center;margin-top:28px">
-    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:30px;padding:13px 32px;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(240,140,40,.4);letter-spacing:.3px">
-      <i class="ti ti-layout-dashboard" style="font-size:18px"></i> বিস্তারিত দেখুন &nbsp;/&nbsp; Full Dashboard
+    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:30px;padding:13px 32px;font-size:16px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(240,140,40,.4);letter-spacing:.3px">
+      <i class="ti ti-layout-dashboard" style="font-size:19px"></i> বিস্তারিত দেখুন &nbsp;/&nbsp; Full Dashboard
     </a>
   </div>
 </section>
@@ -1461,37 +1461,37 @@
   </div>
   <div class="services-grid">
     <div class="srv-card">
-      <div class="srv-icon" style="background:#EAF3DE"><i class="ti ti-plant-2" style="font-size:22px;color:#3B6D11"></i></div>
+      <div class="srv-icon" style="background:#EAF3DE"><i class="ti ti-plant-2" style="font-size:23.5px;color:#3B6D11"></i></div>
       <div class="srv-title" data-i18n="srv1-title">Agriculture loan</div>
       <div class="srv-desc" data-i18n="srv1-desc">Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · Repay at harvest</div>
     </div>
     <div class="srv-card">
-      <div class="srv-icon" style="background:#E6F1FB"><i class="ti ti-building-store" style="font-size:22px;color:#185FA5"></i></div>
+      <div class="srv-icon" style="background:#E6F1FB"><i class="ti ti-building-store" style="font-size:23.5px;color:#185FA5"></i></div>
       <div class="srv-title" data-i18n="srv2-title">Small business loan</div>
       <div class="srv-desc" data-i18n="srv2-desc">Goods and stock procured directly from wholesalers. No cash changes hands.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳75,000 · 12–24 months</div>
     </div>
     <div class="srv-card">
-      <div class="srv-icon" style="background:#FAEEDA"><i class="ti ti-school" style="font-size:22px;color:#854F0B"></i></div>
+      <div class="srv-icon" style="background:#FAEEDA"><i class="ti ti-school" style="font-size:23.5px;color:#854F0B"></i></div>
       <div class="srv-title" data-i18n="srv3-title">Education loan</div>
       <div class="srv-desc" data-i18n="srv3-desc">Tuition and admission fees paid directly to the educational institution.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳50,000 · Flexible terms</div>
     </div>
     <div class="srv-card">
-      <div class="srv-icon" style="background:#FCEBEB"><i class="ti ti-stethoscope" style="font-size:22px;color:#A32D2D"></i></div>
+      <div class="srv-icon" style="background:#FCEBEB"><i class="ti ti-stethoscope" style="font-size:23.5px;color:#A32D2D"></i></div>
       <div class="srv-title" data-i18n="srv4-title">Medical loan</div>
       <div class="srv-desc" data-i18n="srv4-desc">Hospital bills, medicines, and medical expenses paid directly to the provider.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳1,00,000 · Fast-track 48h</div>
     </div>
     <div class="srv-card">
-      <div class="srv-icon" style="background:#FBEAF0"><i class="ti ti-home-heart" style="font-size:22px;color:#993556"></i></div>
+      <div class="srv-icon" style="background:#FBEAF0"><i class="ti ti-home-heart" style="font-size:23.5px;color:#993556"></i></div>
       <div class="srv-title" data-i18n="srv5-title">Family need loan</div>
       <div class="srv-desc" data-i18n="srv5-desc">Marriage expenses, home repair materials, utility bills — paid to the vendor.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳35,000 · 12–18 months</div>
     </div>
     <div class="srv-card">
-      <div class="srv-icon" style="background:#E1F5EE"><i class="ti ti-alert-triangle" style="font-size:22px;color:#0F6E56"></i></div>
+      <div class="srv-icon" style="background:#E1F5EE"><i class="ti ti-alert-triangle" style="font-size:23.5px;color:#0F6E56"></i></div>
       <div class="srv-title" data-i18n="srv6-title">Emergency loan</div>
       <div class="srv-desc" data-i18n="srv6-desc">Disaster relief and urgent needs — disbursed within 48 hours of approval.</div>
       <div class="srv-amt"><i class="ti ti-info-circle"></i>Up to ৳15,000 · Disbursed in 48h</div>
@@ -1531,7 +1531,7 @@
     </div>
   </div>
   <div style="text-align:center;margin-top:36px">
-    <button class="btn-primary" onclick="window.location.href='loan-application.html'" style="font-size:14px;padding:14px 32px;border:none;cursor:pointer"><i class="ti ti-file-text" style="font-size:16px;vertical-align:-3px;margin-right:6px"></i>Start your loan application</button>
+    <button class="btn-primary" onclick="window.location.href='loan-application.html'" style="font-size:15.5px;padding:14px 32px;border:none;cursor:pointer"><i class="ti ti-file-text" style="font-size:17px;vertical-align:-3px;margin-right:6px"></i>Start your loan application</button>
   </div>
 </section>
 
@@ -1551,10 +1551,10 @@
   </div>
   <div class="cc-actions">
     <a href="https://wa.me/880XXXXXXXXXX" class="wa-btn" target="_blank">
-      <i class="ti ti-brand-whatsapp" style="font-size:17px"></i>WhatsApp us now
+      <i class="ti ti-brand-whatsapp" style="font-size:18px"></i>WhatsApp us now
     </a>
     <a href="tel:+880XXXXXXXXXX" class="call-btn">
-      <i class="ti ti-phone" style="font-size:17px"></i>Call us
+      <i class="ti ti-phone" style="font-size:18px"></i>Call us
     </a>
   </div>
 </div>
@@ -1570,8 +1570,8 @@
 
     <!-- Heading -->
     <div class="mv-hd">
-      <div class="mv-tag"><i class="ti ti-star" style="font-size:10px;vertical-align:-1px"></i> আমাদের পরিচয়</div>
-      <div class="mv-title">মিশন ও ভিশন<br><span style="font-size:22px;font-weight:600;color:rgba(255,255,255,.6)">Mission &amp; Vision</span></div>
+      <div class="mv-tag"><i class="ti ti-star" style="font-size:12px;vertical-align:-1px"></i> আমাদের পরিচয়</div>
+      <div class="mv-title">মিশন ও ভিশন<br><span style="font-size:23.5px;font-weight:600;color:rgba(255,255,255,.6)">Mission &amp; Vision</span></div>
       <p class="mv-sub">সুদমুক্ত ঋণের মাধ্যমে মানুষের জীবন বদলে দেওয়ার স্বপ্ন</p>
     </div>
 
@@ -1692,7 +1692,7 @@
       <div class="news-body">
         <div class="news-cat">Agriculture</div>
         <div class="news-title">15 farmers receive seeds and fertiliser for Boro season 2026</div>
-        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> June 2026</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:13.5px;vertical-align:-1px"></i> June 2026</div>
       </div>
     </div>
     <div class="news-card">
@@ -1700,7 +1700,7 @@
       <div class="news-body">
         <div class="news-cat">Education</div>
         <div class="news-title">Tuition fees paid for 8 university students this semester</div>
-        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> June 2026</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:13.5px;vertical-align:-1px"></i> June 2026</div>
       </div>
     </div>
     <div class="news-card">
@@ -1708,7 +1708,7 @@
       <div class="news-body">
         <div class="news-cat">Foundation</div>
         <div class="news-title">Korje Hasana Foundation officially registered with the Department of Social Services</div>
-        <div class="news-date"><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> May 2026</div>
+        <div class="news-date"><i class="ti ti-calendar" style="font-size:13.5px;vertical-align:-1px"></i> May 2026</div>
       </div>
     </div>
   </div>
@@ -1738,7 +1738,7 @@
       <div class="ft-logo-en">Korje Hasana Foundation</div>
       <div class="ft-logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
       <div class="ft-about">Mosque-based 0% interest microfinance. Helping families across Faridpur District break free from the cycle of debt — since 2026. All disbursements are in-kind; no cash is given.</div>
-      <div style="color:rgba(255,255,255,.4);font-size:11px;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Stay updated</div>
+      <div style="color:rgba(255,255,255,.4);font-size:12.5px;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Stay updated</div>
       <div class="ft-nl">
         <input type="email" placeholder="your@email.com">
         <button>Subscribe</button>
@@ -1790,7 +1790,7 @@
       <a href="https://wa.me/880XXXXXXXXXX" class="foot-soc wa" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
       <a href="#" class="foot-soc li"><i class="ti ti-brand-linkedin"></i></a>
     </div>
-    <div style="color:rgba(255,255,255,.35);font-size:11px">Registered · সমাজসেবা অধিদফতর · NGOAB (pending)</div>
+    <div style="color:rgba(255,255,255,.35);font-size:12.5px">Registered · সমাজসেবা অধিদফতর · NGOAB (pending)</div>
     <div class="ft-badges">
       <span class="ft-badge">🔒 SSL Secured</span>
       <span class="ft-badge">Non-profit</span>
@@ -1799,7 +1799,7 @@
   </div>
   <div class="footer-bottom">
     <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
-    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:13px;color:#f08c28"></i> for humanity</div>
+    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:14.5px;color:#f08c28"></i> for humanity</div>
   </div>
 </footer>
 
@@ -1984,7 +1984,7 @@ function setLang(lang, btn) {
     img.src = item.img; img.alt = item.label; img.loading = 'lazy';
     const lbl = document.createElement('div');
     lbl.className = 'khc-label';
-    lbl.innerHTML = item.label + '<br><span style="font-size:10px;font-weight:400;opacity:.8">' + item.sub + '<\/span>';
+    lbl.innerHTML = item.label + '<br><span style="font-size:12px;font-weight:400;opacity:.8">' + item.sub + '<\/span>';
     card.appendChild(img); card.appendChild(lbl);
     card.addEventListener('click', () => goTo(i));
     wrap.appendChild(card);

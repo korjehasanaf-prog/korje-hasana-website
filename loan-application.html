@@ -34,10 +34,10 @@
       box-shadow: 0 2px 20px rgba(0,0,0,.3);
     }
     .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .logo-icon { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--green); box-shadow: 0 0 14px rgba(240,140,40,.4); }
-    .logo-bn { color: #fff; font-size: 14px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
-    .logo-en { color: var(--ltgreen); font-size: 10px; }
-    .nav-back { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color .2s; }
+    .logo-icon { width: 40px; height: 40px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15.5px; font-weight: 700; color: var(--green); box-shadow: 0 0 14px rgba(240,140,40,.4); }
+    .logo-bn { color: #fff; font-size: 15.5px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; }
+    .logo-en { color: var(--ltgreen); font-size: 12px; }
+    .nav-back { color: rgba(255,255,255,.7); font-size: 14.5px; text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color .2s; }
     .nav-back:hover { color: #fff; }
 
     /* ── PAGE HEADER ── */
@@ -45,8 +45,8 @@
       background: linear-gradient(135deg, var(--green), var(--dkgreen));
       padding: 32px 40px; text-align: center;
     }
-    .page-header h1 { color: #fff; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
-    .page-header p { color: var(--ltgreen); font-size: 13px; }
+    .page-header h1 { color: #fff; font-size: 23.5px; font-weight: 700; margin-bottom: 6px; }
+    .page-header p { color: var(--ltgreen); font-size: 14.5px; }
 
     /* ── STEPPER ── */
     .stepper-wrap { background: #fff; border-bottom: 1px solid var(--border); padding: 20px 40px; }
@@ -56,14 +56,14 @@
     .step-circle {
       width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700; color: var(--muted);
+      font-size: 14.5px; font-weight: 700; color: var(--muted);
       background: #fff; flex-shrink: 0; transition: all .3s; position: relative; z-index: 1;
     }
     .step-circle.active { border-color: var(--green); background: var(--green); color: #fff; box-shadow: 0 0 16px rgba(36,21,57,.35); }
     .step-circle.done { border-color: var(--success); background: var(--success); color: #fff; }
     .step-line { flex: 1; height: 2px; background: var(--border); transition: background .3s; }
     .step-line.done { background: var(--success); }
-    .step-label { font-size: 11px; color: var(--muted); margin-top: 5px; white-space: nowrap; }
+    .step-label { font-size: 12.5px; color: var(--muted); margin-top: 5px; white-space: nowrap; }
     .step-label.active { color: var(--green); font-weight: 600; }
     .step-wrap { display: flex; flex-direction: column; align-items: center; }
 
@@ -73,9 +73,9 @@
     /* ── CARD ── */
     .card { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
     .card-head { background: linear-gradient(135deg, #f7f2fb, #e6f3ec); padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-    .card-head i { font-size: 22px; color: var(--green); }
-    .card-head h2 { font-size: 15px; font-weight: 700; color: var(--green); }
-    .card-head p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .card-head i { font-size: 23.5px; color: var(--green); }
+    .card-head h2 { font-size: 16px; font-weight: 700; color: var(--green); }
+    .card-head p { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
     .card-body { padding: 24px; }
 
     /* ── NID CAPTURE ── */
@@ -87,9 +87,9 @@
       transition: all .2s; background: #fff;
     }
     .nid-method-btn.active { border-color: var(--green); background: #f7f2fb; }
-    .nid-method-btn i { font-size: 22px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .nid-method-btn i { font-size: 23.5px; color: var(--muted); display: block; margin-bottom: 5px; }
     .nid-method-btn.active i { color: var(--green); }
-    .nid-method-btn span { font-size: 11px; font-weight: 600; color: var(--muted); }
+    .nid-method-btn span { font-size: 12.5px; font-weight: 600; color: var(--muted); }
     .nid-method-btn.active span { color: var(--green); }
 
     .nid-capture-area { display: none; }
@@ -104,49 +104,49 @@
     }
     .nid-card-box:hover { border-color: var(--green); background: #f7f2fb; }
     .nid-card-box.captured { border-color: var(--success); border-style: solid; background: #f9f4fd; }
-    .nid-card-box i { font-size: 28px; color: var(--muted); }
+    .nid-card-box i { font-size: 30px; color: var(--muted); }
     .nid-card-box.captured i { color: var(--success); }
-    .nid-card-box span { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .nid-card-box span { font-size: 13.5px; color: var(--muted); font-weight: 500; }
     .nid-card-box.captured span { color: var(--success); }
-    .nid-label { font-size: 12px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
+    .nid-label { font-size: 13.5px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
 
     .ocr-btn {
       width: 100%; background: var(--green); color: #fff;
       border: none; border-radius: 10px; padding: 12px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
+      font-size: 14.5px; font-weight: 700; cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       transition: all .2s;
     }
     .ocr-btn:hover { background: var(--mdgreen); }
     .ocr-btn:disabled { background: var(--muted); cursor: not-allowed; }
-    .ocr-status { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; display: none; }
+    .ocr-status { font-size: 13.5px; color: var(--muted); text-align: center; margin-top: 8px; display: none; }
     .ocr-status.show { display: block; }
 
     /* ── FORM FIELDS ── */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group.full { grid-column: 1 / -1; }
-    .form-label { font-size: 12px; font-weight: 600; color: var(--text); }
+    .form-label { font-size: 13.5px; font-weight: 600; color: var(--text); }
     .form-label .req { color: var(--error); }
     .form-input {
       border: 1.5px solid var(--border); border-radius: 10px;
-      padding: 10px 14px; font-size: 13px; font-family: inherit;
+      padding: 10px 14px; font-size: 14.5px; font-family: inherit;
       transition: border-color .2s; background: #fff; color: var(--text);
     }
     .form-input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(36,21,57,.08); }
     .form-input.autofilled { border-color: var(--success); background: #f9f4fd; }
     .form-select {
       border: 1.5px solid var(--border); border-radius: 10px;
-      padding: 10px 14px; font-size: 13px; font-family: inherit;
+      padding: 10px 14px; font-size: 14.5px; font-family: inherit;
       background: #fff; cursor: pointer; transition: border-color .2s;
     }
     .form-select:focus { outline: none; border-color: var(--green); }
-    .form-hint { font-size: 11px; color: var(--muted); }
+    .form-hint { font-size: 12.5px; color: var(--muted); }
     .form-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; grid-column: 1 / -1; }
 
     /* ── SECTION TITLE WITHIN FORM ── */
-    .field-section { font-size: 12px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; grid-column: 1 / -1; margin-top: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
-    .field-section i { font-size: 15px; }
+    .field-section { font-size: 13.5px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .5px; grid-column: 1 / -1; margin-top: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+    .field-section i { font-size: 16px; }
 
     /* ── PHOTO UPLOAD ── */
     .photo-area {
@@ -156,11 +156,11 @@
     }
     .photo-area:hover { border-color: var(--green); background: #f7f2fb; }
     .photo-area.uploaded { border-color: var(--success); border-style: solid; background: #f9f4fd; }
-    .photo-area i { font-size: 28px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .photo-area i { font-size: 30px; color: var(--muted); display: block; margin-bottom: 5px; }
     .photo-area.uploaded i { color: var(--success); }
-    .photo-area p { font-size: 12px; color: var(--muted); }
+    .photo-area p { font-size: 13.5px; color: var(--muted); }
     .photo-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; justify-content: center; }
-    .photo-thumb { width: 60px; height: 60px; border-radius: 8px; background: #ece7f0; display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border); }
+    .photo-thumb { width: 60px; height: 60px; border-radius: 8px; background: #ece7f0; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 1px solid var(--border); }
 
     /* ── LOAN TYPE SELECTOR ── */
     .loan-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
@@ -170,11 +170,11 @@
       transition: all .2s; background: #fff;
     }
     .loan-type-btn.active { border-color: var(--green); background: #f7f2fb; }
-    .loan-type-btn i { font-size: 20px; color: var(--muted); display: block; margin-bottom: 5px; }
+    .loan-type-btn i { font-size: 21px; color: var(--muted); display: block; margin-bottom: 5px; }
     .loan-type-btn.active i { color: var(--green); }
-    .loan-type-btn span { font-size: 11px; font-weight: 600; color: var(--muted); display: block; }
+    .loan-type-btn span { font-size: 12.5px; font-weight: 600; color: var(--muted); display: block; }
     .loan-type-btn.active span { color: var(--green); }
-    .loan-type-btn small { font-size: 10px; color: var(--muted); }
+    .loan-type-btn small { font-size: 12px; color: var(--muted); }
 
     /* ── TABS (STEP PANELS) ── */
     .step-panel { display: none; }
@@ -184,42 +184,42 @@
     .nav-btns { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
     .btn-back {
       background: transparent; border: 1.5px solid var(--border);
-      color: var(--muted); font-size: 13px; font-weight: 600;
+      color: var(--muted); font-size: 14.5px; font-weight: 600;
       padding: 10px 22px; border-radius: 24px; cursor: pointer;
       display: flex; align-items: center; gap: 6px; transition: all .2s;
     }
     .btn-back:hover { border-color: var(--green); color: var(--green); }
     .btn-next {
       background: var(--green); color: #fff; border: none;
-      font-size: 13px; font-weight: 700; padding: 12px 28px;
+      font-size: 14.5px; font-weight: 700; padding: 12px 28px;
       border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 6px;
       transition: all .2s; box-shadow: 0 4px 16px rgba(36,21,57,.35);
     }
     .btn-next:hover { background: var(--mdgreen); box-shadow: 0 6px 24px rgba(36,21,57,.5); transform: translateY(-1px); }
     .btn-submit {
       background: var(--gold); color: var(--green); border: none;
-      font-size: 14px; font-weight: 700; padding: 12px 32px;
+      font-size: 15.5px; font-weight: 700; padding: 12px 32px;
       border-radius: 24px; cursor: pointer; display: flex; align-items: center; gap: 8px;
       transition: all .2s; box-shadow: 0 4px 16px rgba(240,140,40,.4);
     }
     .btn-submit:hover { box-shadow: 0 6px 24px rgba(240,140,40,.6); transform: translateY(-1px); }
 
     /* ── REVIEW TABLE ── */
-    .review-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .review-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid var(--border); }
+    .review-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+    .review-table th { text-align: left; font-size: 12.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid var(--border); }
     .review-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
-    .review-table td:first-child { color: var(--muted); font-size: 12px; width: 40%; }
+    .review-table td:first-child { color: var(--muted); font-size: 13.5px; width: 40%; }
     .review-table td strong { color: var(--green); }
 
     /* ── SUCCESS STATE ── */
     .success-panel { text-align: center; padding: 40px 24px; }
     .success-icon { width: 72px; height: 72px; border-radius: 50%; background: #d1fae5; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
-    .success-icon i { font-size: 36px; color: var(--success); }
-    .success-panel h2 { font-size: 20px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
-    .success-panel p { font-size: 13px; color: var(--muted); line-height: 1.7; max-width: 400px; margin: 0 auto 24px; }
+    .success-icon i { font-size: 38px; color: var(--success); }
+    .success-panel h2 { font-size: 21px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+    .success-panel p { font-size: 14.5px; color: var(--muted); line-height: 1.7; max-width: 400px; margin: 0 auto 24px; }
     .ref-box { background: #f9f4fd; border: 1.5px solid var(--success); border-radius: 12px; padding: 16px; display: inline-block; margin-bottom: 24px; }
-    .ref-box p { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-    .ref-box strong { font-size: 20px; color: var(--success); font-weight: 700; letter-spacing: 2px; }
+    .ref-box p { font-size: 13.5px; color: var(--muted); margin-bottom: 4px; }
+    .ref-box strong { font-size: 21px; color: var(--success); font-weight: 700; letter-spacing: 2px; }
 
     /* ── PROGRESS BAR ── */
     .progress-wrap { background: var(--border); border-radius: 4px; height: 4px; margin-top: 4px; overflow: hidden; }
@@ -233,15 +233,15 @@
       position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
       background: rgba(255,255,255,.9); border: none; border-radius: 50%;
       width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; font-size: 18px;
+      cursor: pointer; font-size: 19px;
     }
 
     /* ── REFERENCES ── */
     .ref-item { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px; background: #f8f9fa; border-radius: 10px; margin-bottom: 8px; border: 1px solid var(--border); }
 
     /* ── INFO BOX ── */
-    .info-box { background: #fff6ef; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 16px; font-size: 12px; color: #9a3412; display: flex; gap: 8px; margin-bottom: 16px; }
-    .info-box i { font-size: 16px; color: #f59e0b; flex-shrink: 0; margin-top: 1px; }
+    .info-box { background: #fff6ef; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 16px; font-size: 13.5px; color: #9a3412; display: flex; gap: 8px; margin-bottom: 16px; }
+    .info-box i { font-size: 17px; color: #f59e0b; flex-shrink: 0; margin-top: 1px; }
 
     .hidden { display: none !important; }
 
@@ -317,8 +317,8 @@
           <h2>NID Card Verification</h2>
           <p>Upload or capture your NID card to auto-fill your information</p>
         </div>
-        <button onclick="showOCRSettings()" title="OCR Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0">
-          <i class="ti ti-settings" style="font-size:15px"></i>
+        <button onclick="showOCRSettings()" title="OCR Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0">
+          <i class="ti ti-settings" style="font-size:16px"></i>
           <span id="ocrEngineLabel">⚡ Groq AI</span>
         </button>
       </div>
@@ -330,7 +330,7 @@
         </div>
 
         <!-- METHOD SELECTOR -->
-        <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:10px">Choose input method</div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--green);margin-bottom:10px">Choose input method</div>
         <div class="nid-methods">
           <div class="nid-method-btn active" onclick="setNidMethod('upload')">
             <i class="ti ti-upload"></i><span>Upload photo</span>
@@ -351,7 +351,7 @@
               <label for="nidFrontFile" class="nid-card-box" id="nidFront" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
                 <span>ছবি আপলোড করুন</span>
-                <small style="font-size:10px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+                <small style="font-size:12px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
               </label>
               <input type="file" id="nidFrontFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('front', this)">
             </div>
@@ -360,7 +360,7 @@
               <label for="nidBackFile" class="nid-card-box" id="nidBack" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
                 <span>ছবি আপলোড করুন</span>
-                <small style="font-size:10px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+                <small style="font-size:12px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
               </label>
               <input type="file" id="nidBackFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('back', this)">
             </div>
@@ -375,8 +375,8 @@
 
         <!-- CAMERA METHOD -->
         <div class="nid-capture-area" id="method-camera">
-          <div id="cameraError" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:14px;margin-bottom:12px;font-size:13px;color:#856404">
-            <i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px"></i>
+          <div id="cameraError" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:14px;margin-bottom:12px;font-size:14.5px;color:#856404">
+            <i class="ti ti-alert-triangle" style="font-size:17px;vertical-align:-2px"></i>
             <strong>ক্যামেরা চালু হয়নি।</strong> অনুগ্রহ করে ব্রাউজারে ক্যামেরা অনুমতি দিন অথবা <strong>Upload</strong> পদ্ধতি ব্যবহার করুন।
           </div>
           <div class="camera-wrap" id="cameraWrap">
@@ -401,8 +401,8 @@
 
         <!-- MANUAL METHOD -->
         <div class="nid-capture-area" id="method-manual">
-          <div style="background:#fff6ef;border:1px solid #fcd34d;border-radius:10px;padding:12px;margin-bottom:14px;font-size:12px;color:#9a3412;display:flex;gap:8px;align-items:flex-start">
-            <i class="ti ti-alert-triangle" style="font-size:16px;margin-top:1px;flex-shrink:0;color:#d97706"></i>
+          <div style="background:#fff6ef;border:1px solid #fcd34d;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13.5px;color:#9a3412;display:flex;gap:8px;align-items:flex-start">
+            <i class="ti ti-alert-triangle" style="font-size:17px;margin-top:1px;flex-shrink:0;color:#d97706"></i>
             <span>ম্যানুয়ালি তথ্য প্রদান করলে পরবর্তী ধাপে প্রয়োজনীয় ডকুমেন্ট আপলোড করার সময় <strong>অবশ্যই NID কার্ডের সামনের ও পিছনের ছবি যুক্ত করতে হবে।</strong></span>
           </div>
           <div class="form-grid">
@@ -422,8 +422,8 @@
 
         <!-- EXTRACTED PREVIEW -->
         <div id="extractedPreview" class="hidden" style="margin-top:16px">
-          <div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:10px;display:flex;align-items:center;gap:5px">
-            <i class="ti ti-circle-check" style="font-size:16px"></i>Information extracted — please verify
+          <div style="font-size:13.5px;font-weight:700;color:var(--success);margin-bottom:10px;display:flex;align-items:center;gap:5px">
+            <i class="ti ti-circle-check" style="font-size:17px"></i>Information extracted — please verify
           </div>
           <div class="form-grid">
             <div class="form-group">
@@ -618,7 +618,7 @@
       </div>
       <div class="card-body">
 
-        <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:10px">Select loan type <span class="req" style="color:var(--error)">*</span></div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--green);margin-bottom:10px">Select loan type <span class="req" style="color:var(--error)">*</span></div>
         <div class="loan-types" id="loanTypes">
           <div class="loan-type-btn active" onclick="selectLoanType(this,'Agriculture')">
             <i class="ti ti-plant-2"></i><span>Agriculture</span><small>Up to ৳35,000</small>
@@ -681,29 +681,29 @@
             <input type="date" class="form-input" id="l_firstEmi">
           </div>
           <div id="emiPanel" style="display:none;grid-column:1/-1;background:linear-gradient(135deg,#f0f9f4,#e8f5e9);border:1.5px solid var(--ltgreen);border-radius:14px;padding:18px;margin-top:4px">
-            <div style="font-size:13px;font-weight:800;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px">
-              <i class="ti ti-calculator" style="font-size:18px"></i> কিস্তির বিবরণ (০% সুদে)
+            <div style="font-size:14.5px;font-weight:800;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px">
+              <i class="ti ti-calculator" style="font-size:19px"></i> কিস্তির বিবরণ (০% সুদে)
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
               <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">প্রতি কিস্তি</div>
-                <div style="font-size:22px;font-weight:800;color:var(--green)" id="emiAmt">৳০</div>
+                <div style="font-size:12.5px;color:var(--muted);margin-bottom:4px">প্রতি কিস্তি</div>
+                <div style="font-size:23.5px;font-weight:800;color:var(--green)" id="emiAmt">৳০</div>
               </div>
               <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">মোট কিস্তি সংখ্যা</div>
-                <div style="font-size:22px;font-weight:800;color:var(--green)" id="emiCount">০</div>
+                <div style="font-size:12.5px;color:var(--muted);margin-bottom:4px">মোট কিস্তি সংখ্যা</div>
+                <div style="font-size:23.5px;font-weight:800;color:var(--green)" id="emiCount">০</div>
               </div>
               <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">মোট পরিশোধ</div>
-                <div style="font-size:22px;font-weight:800;color:var(--gold)" id="emiTotal">৳০</div>
+                <div style="font-size:12.5px;color:var(--muted);margin-bottom:4px">মোট পরিশোধ</div>
+                <div style="font-size:23.5px;font-weight:800;color:var(--gold)" id="emiTotal">৳০</div>
               </div>
               <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07)">
-                <div style="font-size:11px;color:var(--muted);margin-bottom:4px">সুদ</div>
-                <div style="font-size:22px;font-weight:800;color:var(--success)">০%</div>
+                <div style="font-size:12.5px;color:var(--muted);margin-bottom:4px">সুদ</div>
+                <div style="font-size:23.5px;font-weight:800;color:var(--success)">০%</div>
               </div>
             </div>
-            <div id="emiScheduleHead" style="font-size:12px;color:var(--muted);margin:14px 0 8px;font-weight:600">প্রথম ৫টি কিস্তির সময়সূচি:</div>
-            <div id="emiSchedule" style="font-size:12px;color:var(--text)"></div>
+            <div id="emiScheduleHead" style="font-size:13.5px;color:var(--muted);margin:14px 0 8px;font-weight:600">প্রথম ৫টি কিস্তির সময়সূচি:</div>
+            <div id="emiSchedule" style="font-size:13.5px;color:var(--text)"></div>
           </div>
           <div class="form-group">
             <label class="form-label">bKash / Nagad number (for repayment)</label>
@@ -714,14 +714,14 @@
         </div>
 
         <!-- REF 1 -->
-        <div style="font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 1 <span class="req" style="color:var(--error)">*</span></div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 1 <span class="req" style="color:var(--error)">*</span></div>
         <div class="ref-item">
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r1_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r1_rel" placeholder="e.g. Neighbour"></div>
           <div class="form-group"><label class="form-label">Mobile</label><input type="tel" class="form-input" id="r1_phone" placeholder="01XXXXXXXXX"></div>
         </div>
         <!-- REF 2 -->
-        <div style="font-size:12px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 2 <span class="req" style="color:var(--error)">*</span></div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 2 <span class="req" style="color:var(--error)">*</span></div>
         <div class="ref-item">
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r2_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r2_rel" placeholder="e.g. Mosque imam"></div>
@@ -748,18 +748,18 @@
       </div>
       <div class="card-body">
 
-        <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:10px">Personal Information</div>
+        <div style="font-size:14.5px;font-weight:700;color:var(--green);margin-bottom:10px">Personal Information</div>
         <table class="review-table" id="reviewTable">
           <tbody id="reviewBody"></tbody>
         </table>
 
-        <div style="font-size:13px;font-weight:700;color:var(--green);margin:16px 0 10px">Loan Details</div>
+        <div style="font-size:14.5px;font-weight:700;color:var(--green);margin:16px 0 10px">Loan Details</div>
         <table class="review-table">
           <tbody id="reviewLoan"></tbody>
         </table>
 
         <div style="margin-top:20px">
-          <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--text);cursor:pointer">
+          <label style="display:flex;align-items:flex-start;gap:8px;font-size:13.5px;color:var(--text);cursor:pointer">
             <input type="checkbox" id="declareCheck" style="margin-top:2px;width:15px;height:15px;cursor:pointer">
             <span>I declare that all information provided is correct and complete. I understand that the loan will be disbursed as goods or direct payment — not as cash. I agree to repay the principal amount as per the agreed schedule, and I understand there is no interest or hidden charge.</span>
           </label>
@@ -790,7 +790,7 @@
           <a href="index.html" class="btn-next" style="text-decoration:none"><i class="ti ti-home"></i> Return to home</a>
           <button class="btn-back" onclick="window.print()"><i class="ti ti-printer"></i> Print / Save</button>
         </div>
-        <div style="margin-top:24px;padding:16px;background:#f7f2fb;border-radius:12px;font-size:12px;color:var(--muted)">
+        <div style="margin-top:24px;padding:16px;background:#f7f2fb;border-radius:12px;font-size:13.5px;color:var(--muted)">
           <strong style="color:var(--green)">What happens next?</strong><br>
           1. Our team will call you within 3 working days to confirm your application.<br>
           2. A home/workplace visit will be arranged for verification.<br>
@@ -804,7 +804,7 @@
 
 <!-- FLOATING WHATSAPP -->
 <a href="https://wa.me/880XXXXXXXXXX" style="position:fixed;bottom:28px;right:28px;z-index:9999;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.5);animation:waPulse 2.5s infinite;text-decoration:none" target="_blank" title="WhatsApp support">
-  <i class="ti ti-brand-whatsapp" style="font-size:26px;color:#fff"></i>
+  <i class="ti ti-brand-whatsapp" style="font-size:28px;color:#fff"></i>
 </a>
 <style>@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)}50%{box-shadow:0 4px 30px rgba(37,211,102,.8),0 0 0 10px rgba(37,211,102,.15)}}
 
@@ -826,10 +826,10 @@
   .nav-cta { display:none !important; }
   .nav-hamburger { display:flex !important; }
   .page-hero { padding:32px 16px 72px !important; }
-  .page-hero h1 { font-size:24px !important; }
-  .page-hero p { font-size:13px !important; }
+  .page-hero h1 { font-size:26px !important; }
+  .page-hero p { font-size:14.5px !important; }
   /* whatsapp float */
-  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:22px !important; }
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:23.5px !important; }
   .app-layout, .app-grid { flex-direction:column !important; grid-template-columns:1fr !important; }
   .form-row, .input-row { grid-template-columns:1fr !important; gap:12px !important; }
   .app-sidebar { display:none !important; }
@@ -932,7 +932,7 @@ function capturePhoto() {
   const camBox = document.getElementById(camSide === 'front' ? 'camFront' : 'camBack');
   if (camBox) {
     camBox.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
       + '<i class="ti ti-circle-check"></i> ' + (camSide === 'front' ? 'সামনে ক্যাপচার ✓' : 'পিছনে ক্যাপচার ✓') + '</div>';
     camBox.style.position = 'relative';
     camBox.classList.add('captured');
@@ -942,7 +942,7 @@ function capturePhoto() {
   const nidBox = document.getElementById(camSide === 'front' ? 'nidFront' : 'nidBack');
   if (nidBox) {
     nidBox.innerHTML = '<img src="' + dataUrl + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
       + '<i class="ti ti-circle-check"></i> ' + (camSide === 'front' ? 'সামনে ✓' : 'পিছনে ✓') + '</div>';
     nidBox.style.position = 'relative';
     nidBox.classList.add('captured');
@@ -960,7 +960,7 @@ function handleNidUpload(side, input) {
   reader.onload = function(e) {
     nidImageData[side] = e.target.result;            // store for OCR
     box.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
-      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:11px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
+      + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
       + '<i class="ti ti-circle-check"></i> ' + (side === 'front' ? 'সামনে আপলোড ✓' : 'পিছনে আপলোড ✓') + '</div>';
     box.style.position = 'relative';
     box.classList.add('captured');
@@ -1005,15 +1005,15 @@ function showOCRSettings() {
   modal.innerHTML =
     '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);margin:auto">' +
       '<div style="background:linear-gradient(135deg,var(--green),var(--mdgreen));color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center">' +
-        '<div><div style="font-size:16px;font-weight:700">⚡ OCR সেটিংস</div><div style="font-size:12px;opacity:.75">NID স্ক্যানের জন্য AI Engine বেছে নিন</div></div>' +
-        '<button onclick="document.getElementById(\'khOCRModal\').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">×</button>' +
+        '<div><div style="font-size:17px;font-weight:700">⚡ OCR সেটিংস</div><div style="font-size:13.5px;opacity:.75">NID স্ক্যানের জন্য AI Engine বেছে নিন</div></div>' +
+        '<button onclick="document.getElementById(\'khOCRModal\').remove()" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:19px;display:flex;align-items:center;justify-content:center">×</button>' +
       '</div>' +
       '<div style="padding:20px">' +
 
         /* ── Groq (recommended) ── */
         '<div style="background:#f9f4fd;border:2px solid #16a34a;border-radius:12px;padding:14px;margin-bottom:16px">' +
-          '<div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:6px">🏆 সেরা বিকল্প: Groq AI (বিনামূল্যে)</div>' +
-          '<div style="font-size:12px;color:#166534;line-height:1.75">' +
+          '<div style="font-size:14.5px;font-weight:700;color:#15803d;margin-bottom:6px">🏆 সেরা বিকল্প: Groq AI (বিনামূল্যে)</div>' +
+          '<div style="font-size:13.5px;color:#166534;line-height:1.75">' +
             '✔ Google account ছাড়াই কাজ করে<br>' +
             '✔ বাংলা NID-এ ৯০%+ নির্ভুলতা<br>' +
             '✔ প্রতি মিনিটে ৩০ বার ফ্রি<br><br>' +
@@ -1023,30 +1023,30 @@ function showOCRSettings() {
             '3. "Create API Key" → Copy করুন<br>' +
             '4. Key দেখতে হবে: <code style="background:#d1fae5;padding:1px 5px;border-radius:3px">gsk_...</code>' +
           '</div>' +
-          '<label style="font-size:12px;font-weight:600;color:#166534;display:block;margin-top:10px;margin-bottom:4px">Groq API Key</label>' +
+          '<label style="font-size:13.5px;font-weight:600;color:#166534;display:block;margin-top:10px;margin-bottom:4px">Groq API Key</label>' +
           '<input id="groqKeyInput" type="password" placeholder="gsk_..." value="' + groqKey + '" ' +
-            'style="width:100%;border:1px solid #86efac;border-radius:8px;padding:9px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;background:#fff">' +
-          '<div id="groqKeyStatus" style="font-size:11px;margin-top:4px;color:' + (groqKey.startsWith('gsk_') ? '#15803d' : '#6b7280') + '">' +
+            'style="width:100%;border:1px solid #86efac;border-radius:8px;padding:9px 12px;font-size:14.5px;font-family:monospace;outline:none;box-sizing:border-box;background:#fff">' +
+          '<div id="groqKeyStatus" style="font-size:12.5px;margin-top:4px;color:' + (groqKey.startsWith('gsk_') ? '#15803d' : '#6b7280') + '">' +
             (groqKey.startsWith('gsk_') ? '✓ Groq AI সক্রিয় — সর্বোচ্চ নির্ভুলতা' : 'Key দিন — সবচেয়ে ভালো OCR') +
           '</div>' +
-          '<button onclick="saveGroqKey()" style="margin-top:10px;width:100%;background:#15803d;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">Groq Key সংরক্ষণ করুন</button>' +
+          '<button onclick="saveGroqKey()" style="margin-top:10px;width:100%;background:#15803d;color:#fff;border:none;border-radius:8px;padding:10px;font-size:14.5px;font-weight:700;cursor:pointer">Groq Key সংরক্ষণ করুন</button>' +
         '</div>' +
 
         /* ── Gemini (alternative) ── */
         '<details style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px">' +
-          '<summary style="font-size:12px;font-weight:600;color:var(--muted);cursor:pointer">Google Gemini AI (বিকল্প — personal Gmail লাগবে)</summary>' +
-          '<div style="margin-top:10px;font-size:12px;color:#9a3412;background:#fff6ef;border:1px solid #fcd34d;border-radius:8px;padding:10px;line-height:1.7">' +
+          '<summary style="font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer">Google Gemini AI (বিকল্প — personal Gmail লাগবে)</summary>' +
+          '<div style="margin-top:10px;font-size:13.5px;color:#9a3412;background:#fff6ef;border:1px solid #fcd34d;border-radius:8px;padding:10px;line-height:1.7">' +
             '⚠️ org/work Gmail (যেমন @grameenbank.org.bd) দিয়ে <strong>কাজ করবে না</strong><br>' +
             'শুধুমাত্র personal @gmail.com account থেকে <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#b45309">aistudio.google.com</a> এ গিয়ে key নিন।<br>' +
             'Key দেখতে হবে: <code>AIzaSy...</code>' +
           '</div>' +
           '<input id="geminiKeyInput" type="password" placeholder="AIzaSy..." value="' + geminiKey + '" ' +
-            'style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:monospace;outline:none;box-sizing:border-box;margin-top:8px">' +
-          '<button onclick="saveGeminiKey()" style="margin-top:8px;width:100%;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer">Gemini Key সংরক্ষণ করুন</button>' +
+            'style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14.5px;font-family:monospace;outline:none;box-sizing:border-box;margin-top:8px">' +
+          '<button onclick="saveGeminiKey()" style="margin-top:8px;width:100%;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-size:13.5px;font-weight:700;cursor:pointer">Gemini Key সংরক্ষণ করুন</button>' +
         '</details>' +
 
-        '<div style="font-size:11px;color:var(--muted);text-align:center">Key আপনার browser-এ সংরক্ষিত থাকে — server-এ যায় না</div>' +
-        '<button onclick="clearAllKeys()" style="margin-top:10px;width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;color:var(--muted)">সব Key মুছুন (Tesseract-এ ফিরে যান)</button>' +
+        '<div style="font-size:12.5px;color:var(--muted);text-align:center">Key আপনার browser-এ সংরক্ষিত থাকে — server-এ যায় না</div>' +
+        '<button onclick="clearAllKeys()" style="margin-top:10px;width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13.5px;cursor:pointer;color:var(--muted)">সব Key মুছুন (Tesseract-এ ফিরে যান)</button>' +
       '</div>' +
     '</div>';
 
@@ -1519,7 +1519,7 @@ function fillManual() {
 function handlePhotoUpload(type, input) {
   if (!input.files[0]) return;
   const area = document.getElementById('livePhotoArea');
-  area.innerHTML = `<i class="ti ti-circle-check" style="font-size:28px;color:var(--success)"></i><p style="color:var(--success);font-weight:600">Photo uploaded ✓</p>`;
+  area.innerHTML = `<i class="ti ti-circle-check" style="font-size:30px;color:var(--success)"></i><p style="color:var(--success);font-weight:600">Photo uploaded ✓</p>`;
   area.classList.add('uploaded');
 }
 function handleDocsUpload(input) {
@@ -1755,7 +1755,7 @@ function calcEMI() {
   });
   if (installments > 5) lines.push(
     '<button onclick="showFullSchedule(' + JSON.stringify({amt,installments,intervalDays,startISO:startDate.toISOString()}) + ')" ' +
-    'style="margin-top:8px;background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-weight:600">' +
+    'style="margin-top:8px;background:var(--green);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13.5px;cursor:pointer;font-weight:600">' +
     '<i class="ti ti-calendar-stats"></i> সম্পূর্ণ ' + installments + 'টি কিস্তির সময়সূচি দেখুন</button>'
   );
 
@@ -1787,12 +1787,12 @@ function showFullSchedule(cfg) {
   modal.innerHTML =
     '<div style="background:#fff;border-radius:16px;max-width:480px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column">' +
       '<div style="background:linear-gradient(135deg,var(--green),var(--mdgreen));color:#fff;padding:18px 20px;display:flex;justify-content:space-between;align-items:center">' +
-        '<div><div style="font-size:15px;font-weight:800">সম্পূর্ণ কিস্তির সময়সূচি</div>' +
-        '<div style="font-size:12px;opacity:.8">মোট ' + installments + ' কিস্তি | মোট পরিশোধ: ৳' + amt.toLocaleString('en-IN') + ' | সুদ: ০%</div></div>' +
-        '<button onclick="document.getElementById(\'khFullSched\').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px">✕ বন্ধ</button>' +
+        '<div><div style="font-size:16px;font-weight:800">সম্পূর্ণ কিস্তির সময়সূচি</div>' +
+        '<div style="font-size:13.5px;opacity:.8">মোট ' + installments + ' কিস্তি | মোট পরিশোধ: ৳' + amt.toLocaleString('en-IN') + ' | সুদ: ০%</div></div>' +
+        '<button onclick="document.getElementById(\'khFullSched\').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14.5px">✕ বন্ধ</button>' +
       '</div>' +
       '<div style="overflow-y:auto;flex:1">' +
-        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:14.5px">' +
           '<thead><tr style="background:#f9fafb">' +
             '<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted)">#</th>' +
             '<th style="padding:8px 10px;text-align:left;font-weight:700;color:var(--muted)">তারিখ</th>' +
@@ -1800,7 +1800,7 @@ function showFullSchedule(cfg) {
           '</tr></thead><tbody>' + rows + '</tbody>' +
         '</table>' +
       '</div>' +
-      '<div style="padding:14px 20px;background:#f9fafb;font-size:12px;color:var(--muted);text-align:center">' +
+      '<div style="padding:14px 20px;background:#f9fafb;font-size:13.5px;color:var(--muted);text-align:center">' +
         '* শেষ কিস্তিতে ভগ্নাংশ সমন্বয় করা হয়েছে। মোট আদায় = মূল ঋণ (৳' + amt.toLocaleString('en-IN') + ')</div>' +
     '</div>';
   document.body.appendChild(modal);
@@ -1842,7 +1842,7 @@ function updateStepper(n, state) {
   if (!circle) return;
   circle.className = 'step-circle';
   label.className  = 'step-label';
-  if (state === 'done')   { circle.classList.add('done');   circle.innerHTML = '<i class="ti ti-check" style="font-size:14px"></i>'; }
+  if (state === 'done')   { circle.classList.add('done');   circle.innerHTML = '<i class="ti ti-check" style="font-size:15.5px"></i>'; }
   if (state === 'active') { circle.classList.add('active'); circle.innerHTML = n; label.classList.add('active'); }
   if (state === 'pending') { circle.innerHTML = n; }
   if (n > 1) { const line = document.getElementById('line' + (n-1)); if (line && state === 'done') line.classList.add('done'); if (line && state === 'active') line.classList.add('done'); }
