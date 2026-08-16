@@ -22,11 +22,11 @@
      ══════════════════════════════════════════════════════ */
 
   var NAV_ITEMS = [
-    { href: 'index.html',            icon: 'ti-home',        label: 'হোম'      },
-    { href: 'donation.html',         icon: 'ti-heart',       label: 'দান'      },
-    { href: 'loan-application.html', icon: 'ti-wallet',      label: 'ঋণ'       },
-    { href: 'savings-portal.html',   icon: 'ti-pig-money',   label: 'সঞ্চয়'    },
-    { href: 'borrower-portal.html',  icon: 'ti-user-circle', label: 'পোর্টাল'  }
+    { href: 'index.html',            icon: 'ti-home',      label: 'হোম'    },
+    { href: 'donation.html',         icon: 'ti-heart',     label: 'দান'    },
+    { href: 'loan-application.html', icon: 'ti-wallet',    label: 'ঋণ'     },
+    { href: 'savings-portal.html',   icon: 'ti-pig-money', label: 'সঞ্চয়'  },
+    { href: 'user-login.html',       icon: 'ti-login',     label: 'লগইন'   }
   ];
 
   KHUI.mountNav = function (opts) {
@@ -55,12 +55,23 @@
     sep.className = 'kh-glassnav-sep';
     nav.appendChild(sep);
 
+    /* theme toggle — sits to the left of the scroll-top button */
+    var th = document.createElement('button');
+    th.className = 'kh-glassnav-top kh-theme-btn';
+    th.setAttribute('aria-label', 'থিম পরিবর্তন করুন');
+    th.title = 'থিম পরিবর্তন';
+    th.innerHTML = '<i class="ti ti-moon" aria-hidden="true"></i>';
+    th.onclick = function () { KHUI.toggleTheme(); };
+    nav.appendChild(th);
+
     var top = document.createElement('button');
     top.className = 'kh-glassnav-top';
     top.setAttribute('aria-label', 'উপরে যান');
     top.innerHTML = '<i class="ti ti-arrow-up" aria-hidden="true"></i>';
     top.onclick = function () { window.scrollTo({ top: 0, behavior: 'smooth' }); };
     nav.appendChild(top);
+
+    KHUI._syncThemeIcon();
 
     document.body.appendChild(nav);
 
@@ -564,6 +575,50 @@
 
     KHUI._chat = { open: function () { toggle(true); }, close: function () { toggle(false); } };
   };
+
+  /* ══════════════════════════════════════════════════════
+     7 ── THEME (dark ⇄ light)
+     ══════════════════════════════════════════════════════ */
+
+  var THEME_KEY = 'kh_theme';
+
+  KHUI.getTheme = function () {
+    try { return localStorage.getItem(THEME_KEY) || 'dark'; }
+    catch (e) { return 'dark'; }
+  };
+
+  KHUI.setTheme = function (t) {
+    t = (t === 'light') ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem(THEME_KEY, t); } catch (e) {}
+    KHUI._syncThemeIcon();
+  };
+
+  KHUI.toggleTheme = function () {
+    var next = KHUI.getTheme() === 'light' ? 'dark' : 'light';
+    var root = document.documentElement;
+    root.classList.add('kh-theming');           // brief cross-fade
+    KHUI.setTheme(next);
+    setTimeout(function () { root.classList.remove('kh-theming'); }, 420);
+  };
+
+  KHUI._syncThemeIcon = function () {
+    var b = document.querySelector('.kh-theme-btn i');
+    if (!b) return;
+    var light = KHUI.getTheme() === 'light';
+    b.className = light ? 'ti ti-sun' : 'ti ti-moon';
+    var btn = b.parentElement;
+    btn.setAttribute('aria-label', light ? 'ডার্ক থিমে যান' : 'লাইট থিমে যান');
+    btn.title = light ? 'ডার্ক থিম' : 'লাইট থিম';
+  };
+
+  /* apply the saved theme as early as possible to avoid a flash */
+  (function () {
+    try {
+      var t = localStorage.getItem(THEME_KEY);
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
 
   /* ══════════════════════════════════════════════════════
      6 ── CURSOR GLOW (site-wide)

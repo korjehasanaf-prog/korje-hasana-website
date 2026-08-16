@@ -955,6 +955,145 @@ body:not([data-kh-nav="off"]) .topbar-admin-btn:hover {
   color: #fff !important;
 }
 
+/* ══════════════════════════════════════════════════════════
+   11 ── LIGHT THEME
+        Activated with <html data-theme="light">.
+        The dark aurora theme is the default.
+   ══════════════════════════════════════════════════════════ */
+
+.kh-theming, .kh-theming * {
+  transition: background-color .4s ease, color .4s ease,
+              border-color .4s ease, background-image .4s ease !important;
+}
+
+html[data-theme="light"] {
+  --green:    #3b2560;
+  --dkgreen:  #4c2f78;
+  --mdgreen:  #7048e8;
+  --ltgreen:  #6d4fa8;
+  --gold:     #c2410c;
+  --dkgold:   #be185d;
+  --offwhite: #fbf8fd;
+  --border:   #e6dff0;
+  --text:     #241539;
+  --muted:    #6b6280;
+}
+
+html[data-theme="light"] body { background: #fdfcfe; color: #241539; }
+
+/* ── top strip + menubar ── */
+html[data-theme="light"] .topbar {
+  background: linear-gradient(180deg, #f6f0fb 0%, #efe7f7 100%) !important;
+  border-bottom: 1px solid #e6dff0;
+}
+html[data-theme="light"] .topbar,
+html[data-theme="light"] .topbar-item,
+html[data-theme="light"] .topbar-soc i { color: #5b5170 !important; }
+html[data-theme="light"] .topbar-item i { color: #b02a80 !important; }
+html[data-theme="light"] .topbar-soc { border-color: #d9cfe8 !important; }
+
+html[data-theme="light"] .navbar::before {
+  background: linear-gradient(180deg, #efe7f7 0%, #efe7f7 72%, rgba(239,231,247,.55) 88%, rgba(239,231,247,0) 100%);
+}
+html[data-theme="light"] body:not([data-kh-nav="off"]) .navbar {
+  background: linear-gradient(112deg,
+    rgba(255, 255, 255, .82) 0%,
+    rgba(252, 240, 246, .8) 38%,
+    rgba(247, 238, 252, .8) 70%,
+    rgba(240, 236, 254, .82) 100%) !important;
+  border: 1px solid rgba(112, 72, 232, .18);
+  box-shadow: 0 10px 30px rgba(112, 72, 232, .14), inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+html[data-theme="light"] .navbar .nav-link,
+html[data-theme="light"] .navbar .logo-bn { color: #35204f !important; }
+html[data-theme="light"] .navbar .logo-en { color: #6b6280 !important; }
+html[data-theme="light"] .navbar .logo-sl { color: #b02a80 !important; }
+html[data-theme="light"] .navbar .nav-link:hover,
+html[data-theme="light"] .navbar .nav-link.active { color: #7048e8 !important; }
+html[data-theme="light"] .nav-indicator {
+  background: rgba(112, 72, 232, .13) !important;
+  border-color: rgba(112, 72, 232, .26) !important;
+}
+
+/* ── large dark bands become soft tinted bands ── */
+html[data-theme="light"] .page-hero,
+html[data-theme="light"] .hero,
+html[data-theme="light"] .cta-band,
+html[data-theme="light"] .how-section,
+html[data-theme="light"] .islamic-sec,
+html[data-theme="light"] .impact-calc,
+html[data-theme="light"] .impact-section,
+html[data-theme="light"] .mv-section,
+html[data-theme="light"] .quran-strip,
+html[data-theme="light"] .guest-sidebar,
+html[data-theme="light"] .footer {
+  background: linear-gradient(135deg, #f7f1fb 0%, #fdeef4 48%, #fff4ec 100%) !important;
+  border-top: 1px solid #eee2f5;
+}
+
+html[data-theme="light"] :is(.page-hero, .hero, .cta-band, .how-section,
+  .islamic-sec, .impact-calc, .impact-section, .mv-section, .quran-strip,
+  .guest-sidebar, .footer) :is(h1, h2, h3, h4, h5, p, li, td, th, label, small, div, span, a) {
+  color: #35204f !important;
+}
+/* accents inside those bands stay coloured */
+html[data-theme="light"] :is(.page-hero, .hero) h1 span,
+html[data-theme="light"] .hero-badge,
+html[data-theme="light"] .sec-label,
+html[data-theme="light"] .breadcrumb a { color: #b02a80 !important; }
+html[data-theme="light"] .hero-badge {
+  background: rgba(214, 51, 108, .1) !important;
+  border-color: rgba(214, 51, 108, .3) !important;
+}
+html[data-theme="light"] .footer a:hover { color: #7048e8 !important; }
+html[data-theme="light"] .hero-glow { opacity: .35; }
+
+/* ── bottom glass pill ── */
+html[data-theme="light"] .kh-glassnav {
+  background: linear-gradient(112deg,
+    rgba(255, 255, 255, .88) 0%,
+    rgba(252, 240, 246, .84) 38%,
+    rgba(240, 236, 254, .86) 100%);
+  border: 1px solid rgba(112, 72, 232, .2);
+  box-shadow: 0 8px 28px rgba(112, 72, 232, .18), inset 0 1px 0 rgba(255, 255, 255, .9);
+}
+html[data-theme="light"] .kh-glassnav a,
+html[data-theme="light"] .kh-glassnav button { color: #4a3568; }
+html[data-theme="light"] .kh-glassnav a:hover,
+html[data-theme="light"] .kh-glassnav button:hover { color: #241539; }
+html[data-theme="light"] .kh-glassnav-pill {
+  background: linear-gradient(120deg, #d6336c, #7048e8);
+}
+html[data-theme="light"] .kh-glassnav a.kh-on { color: #fff; }
+html[data-theme="light"] .kh-glassnav-sep { background: rgba(112, 72, 232, .22); }
+
+/* ── cursor glow: gentler on a light page ── */
+html[data-theme="light"] .kh-cursor-glow {
+  background: radial-gradient(circle,
+    rgba(232, 62, 140, .17) 0%,
+    rgba(150, 90, 230, .11) 34%,
+    rgba(112, 72, 232, .05) 60%,
+    transparent 74%);
+}
+html[data-theme="light"] .kh-cursor-glow.kh-on-dark {
+  background: radial-gradient(circle,
+    rgba(232, 62, 140, .26) 0%,
+    rgba(150, 90, 230, .16) 34%,
+    rgba(112, 72, 232, .07) 60%,
+    transparent 74%);
+}
+
+/* ── chat widget header keeps the brand gradient; body lightens ── */
+html[data-theme="light"] .kh-chat-body { background: #f8f4fc; }
+html[data-theme="light"] .kh-chat-panel { box-shadow: 0 22px 60px rgba(112, 72, 232, .28); }
+
+/* ── auth slider ── */
+html[data-theme="light"] .kh-slider { box-shadow: 0 14px 46px rgba(112, 72, 232, .16); }
+
+/* cards and surfaces */
+html[data-theme="light"] .pc-text { background: #fff; }
+html[data-theme="light"] .kh-otp-back { background: rgba(60, 40, 90, .55); }
+
 /* utility */
 .kh-spin { animation: khSpin .9s linear infinite; display: inline-block; }
 @keyframes khSpin { to { transform: rotate(360deg); } }

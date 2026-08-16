@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>লগইন | কর্জে হাসানা ফাউন্ডেশন</title>
+  <meta name="description" content="কর্জে হাসানা ফাউন্ডেশনের সদস্য পোর্টালে লগইন করুন — আমানতকারী, ঋণগ্রহীতা ও দাতা সদস্যদের জন্য।">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{
+      --pink:#d6336c; --orange:#e95420; --amber:#f08c28; --violet:#7048e8;
+      --ink:#241539; --muted:#6b6280;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      background:#150c24; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:28px 16px; position:relative; overflow-x:hidden;
+    }
+
+    /* ── ambient background orbs ── */
+    .orb{position:fixed;border-radius:50%;filter:blur(95px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite}
+    .o1{width:460px;height:460px;background:#d6336c;opacity:.4;top:-140px;left:-110px}
+    .o2{width:440px;height:440px;background:#7048e8;opacity:.48;bottom:-160px;right:-100px;animation-delay:-6s}
+    .o3{width:380px;height:380px;background:#e95420;opacity:.26;top:44%;left:48%;animation-delay:-11s}
+    @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(36px,-28px) scale(1.09)}66%{transform:translate(-28px,24px) scale(.95)}}
+
+    /* ── cursor-following spotlight ── */
+    .spot{
+      position:fixed;width:640px;height:640px;left:0;top:0;margin:-320px 0 0 -320px;
+      border-radius:50%;pointer-events:none;z-index:0;opacity:0;
+      background:radial-gradient(circle,rgba(232,62,140,.6) 0%,rgba(196,58,180,.34) 32%,rgba(120,60,220,.13) 58%,transparent 74%);
+      filter:blur(48px);transition:opacity .5s;will-change:transform;
+    }
+    .spot.lit{opacity:1}
+
+    /* ── flip scene ── */
+    .scene{position:relative;z-index:1;width:380px;max-width:100%;perspective:1600px}
+    .flip{position:relative;width:100%;height:560px;transform-style:preserve-3d;
+      transition:transform .95s cubic-bezier(.68,-.05,.3,1.05),height .95s cubic-bezier(.68,-.05,.3,1.05);will-change:transform}
+    .flip.reg{height:764px}
+    .face{
+      position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+      background:rgba(255,255,255,.075);
+      backdrop-filter:blur(24px) saturate(155%);-webkit-backdrop-filter:blur(24px) saturate(155%);
+      border:1px solid rgba(255,255,255,.17);border-radius:24px;
+      padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.46);overflow:hidden
+    }
+    .back{transform:rotateY(180deg)}
+    .face::before{content:'';position:absolute;inset:0;border-radius:24px;pointer-events:none;opacity:.5;
+      background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.13),transparent 60%)}
+    .face > *{position:relative;z-index:1}
+
+    /* ── animated eyes ── */
+    .head{width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.18);margin:0 auto 13px;display:flex;
+      align-items:center;justify-content:center;gap:12px}
+    .eye{width:15px;height:15px;border-radius:50%;background:#fff;position:relative;transition:height .14s}
+    .pup{position:absolute;width:6px;height:6px;border-radius:50%;background:#241539;
+      top:50%;left:50%;margin:-3px 0 0 -3px;transition:transform .09s ease-out}
+    .head.shut .eye{height:2.5px}
+    .head.shut .pup{opacity:0}
+
+    .h1{text-align:center;color:#fff;font-size:24px;font-weight:700;margin-bottom:3px}
+    .sub{text-align:center;color:rgba(255,255,255,.55);font-size:12px;margin-bottom:18px}
+
+    /* ── role chips ── */
+    .sect{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+      color:rgba(255,255,255,.5);margin:2px 0 11px;display:flex;align-items:center;gap:7px}
+    .sect::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.14)}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:15px}
+    .chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);border-radius:20px;
+      padding:7px 13px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:#fff;
+      display:flex;align-items:center;gap:5px;transition:all .25s}
+    .chip i{font-size:13px;color:#fff}
+    .chip .tick{display:none}
+    .chip.on{background:linear-gradient(135deg,#e83e8c,#7048e8);border-color:rgba(255,255,255,.55);
+      box-shadow:0 5px 18px rgba(232,62,140,.5)}
+    .chip.on .tick{display:inline}
+    .chip.on .ico{display:none}
+
+    /* ── fields ── */
+    .fg{position:relative;margin-bottom:14px}
+    .fg input{width:100%;padding:13px 42px 13px 40px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.07);color:#fff;
+      font-family:inherit;font-size:14.5px;outline:none;transition:border-color .25s,box-shadow .25s}
+    .fg input::placeholder{color:transparent}
+    .fg input:focus{border-color:#c084fc;box-shadow:0 0 0 3px rgba(192,132,252,.22)}
+    .fg .li{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+      color:rgba(255,255,255,.55);font-size:16px;pointer-events:none;transition:color .25s}
+    .fg input:focus~.li{color:#e9d5ff}
+    .fg label{position:absolute;left:38px;top:50%;transform:translateY(-50%);font-size:14.5px;
+      color:rgba(255,255,255,.5);pointer-events:none;padding:0 5px;white-space:nowrap;
+      transition:all .24s cubic-bezier(.34,1.4,.5,1)}
+    .fg input:focus+label,.fg input:not(:placeholder-shown)+label{
+      top:-1px;left:13px;font-size:10.5px;font-weight:700;letter-spacing:.4px;color:#fff;
+      background:linear-gradient(100deg,#b02a80,#6d3fd4);border-radius:6px;transform:none;
+      padding:3px 8px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+    .eb{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;
+      color:rgba(255,255,255,.55);cursor:pointer;font-size:17px;padding:3px}
+    .eb:hover{color:#e9d5ff}
+
+    .ut{display:flex;justify-content:space-between;align-items:center;margin:2px 0 15px;font-size:12px}
+    .ut label{color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px;cursor:pointer}
+    .ut input{accent-color:#e83e8c;width:13px;height:13px}
+    .ut a{color:#e9d5ff;text-decoration:none;font-weight:500;cursor:pointer}
+
+    .btn{width:100%;padding:13.5px;border:none;border-radius:12px;
+      background:linear-gradient(112deg,#7048e8,#a021c9 48%,#e83e8c);color:#fff;
+      font-family:inherit;font-size:15.5px;font-weight:700;cursor:pointer;
+      box-shadow:0 8px 26px rgba(160,33,201,.5);transition:transform .15s,filter .25s;
+      display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover{filter:brightness(1.12)}
+    .btn:active{transform:scale(.98)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+
+    .or{display:flex;align-items:center;gap:9px;margin:14px 0;color:rgba(255,255,255,.4);font-size:11px}
+    .or::before,.or::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
+    .guest{width:100%;padding:11px;border-radius:12px;border:1px dashed rgba(255,255,255,.32);
+      background:rgba(255,255,255,.05);color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .25s}
+    .guest:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.5)}
+
+    .alt{text-align:center;color:rgba(255,255,255,.6);font-size:12.5px;margin-top:14px}
+    .alt a{color:#f0abfc;font-weight:700;text-decoration:none;cursor:pointer}
+    .alt a:hover{text-decoration:underline}
+
+    .pwbar{height:4px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin:-8px 0 12px}
+    .pwfill{height:100%;width:0;border-radius:99px;background:#ef4444;transition:width .4s,background .35s}
+
+    .msg{display:none;padding:9px 12px;border-radius:9px;font-size:12.5px;margin-bottom:14px;line-height:1.55}
+    .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
+    .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
+    .msg.info{display:block;background:rgba(240,140,40,.16);border:1px solid rgba(240,140,40,.4);color:#fde68a}
+
+    .shake{animation:shk .45s}
+    @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+
+    .caps{display:none;font-size:11px;color:#fde68a;margin:-9px 0 11px;align-items:center;gap:5px}
+    .caps.on{display:flex}
+
+    .home{position:fixed;top:18px;left:18px;z-index:2;color:rgba(255,255,255,.7);
+      text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+      padding:8px 14px;border-radius:20px;transition:all .25s;font-family:inherit}
+    .home:hover{background:rgba(255,255,255,.16);color:#fff}
+
+    .spin{animation:sp .9s linear infinite;display:inline-block}
+    @keyframes sp{to{transform:rotate(360deg)}}
+
+    @media(max-width:640px){
+      .orb,.spot{display:none}
+      body{background:linear-gradient(160deg,#2a1040,#150c24 55%,#3a1236)}
+      .home{position:static;margin-bottom:14px;align-self:flex-start}
+      body{flex-direction:column;justify-content:center}
+    }
+  </style>
+</head>
+<body data-kh-nav="off">
+
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+<div class="spot" id="spot"></div>
+
+<a href="index.html" class="home"><i class="ti ti-arrow-left"></i> হোমপেজ</a>
+
+<div class="scene">
+  <div class="flip" id="flip">
+
+    <!-- ════════ LOGIN ════════ -->
+    <div class="face front">
+      <div class="head" id="hA"><div class="eye"><span class="pup"></span></div><div class="eye"><span class="pup"></span></div></div>
+      <div class="h1">লগইন</div>
+      <div class="sub">কর্জে হাসানা ফাউন্ডেশন</div>
+
+      <div class="msg" id="loginMsg"></div>
+
+      <div class="fg">
+        <input id="lu" placeholder=" " autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lp').focus()">
+        <label>মোবাইল নম্বর বা ই-মেইল</label>
+        <i class="ti ti-user li" aria-hidden="true"></i>
+      </div>
+
+      <div class="fg">
+        <input id="lp" type="password" placeholder=" " autocomplete="current-password" onkeydown="capsCheck(event);if(event.key==='Enter')doLogin()">
+        <label>পাসওয়ার্ড</label>
+        <i class="ti ti-lock li" aria-hidden="true"></i>
+        <button class="eb" type="button" onclick="tg('lp',this)" aria-label="পাসওয়ার্ড দেখান"><i class="ti ti-eye"></i></button>
+      </div>
+      <div class="caps" id="caps"><i class="ti ti-alert-triangle"></i> Caps Lock চালু আছে</div>
+
+      <div class="ut">
+        <label><input type="checkbox" id="remember"> মনে রাখুন</label>
+        <a onclick="doReset()">পাসওয়ার্ড ভুলে গেছেন?</a>
+      </div>
+
+      <button class="btn" id="loginBtn" onclick="doLogin()"><i class="ti ti-login"></i> প্রবেশ করুন</button>
+
+      <div class="or">অথবা</div>
+      <button class="guest" onclick="doGuest()"><i class="ti ti-eye-search"></i> গেস্ট হিসেবে ঘুরে দেখুন</button>
+
+      <div class="alt">নিউ ইউজার? <a onclick="flipTo(1)">সাইন আপ</a></div>
+    </div>
+
+    <!-- ════════ SIGN UP ════════ -->
+    <div class="face back">
+      <div class="head" id="hB"><div class="eye"><span class="pup"></span></div><div class="eye"><span class="pup"></span></div></div>
+      <div class="h1">সাইন আপ</div>
+      <div class="sub">নতুন অ্যাকাউন্ট তৈরি করুন</div>
+
+      <div class="msg" id="regMsg"></div>
+
+      <div class="sect">আপনি কী কী? (একাধিক)</div>
+      <div class="chips">
+        <button class="chip on" type="button" data-role="depositor" onclick="tog(this)"><i class="ti ti-pig-money ico"></i><i class="ti ti-check tick"></i>আমানতকারী</button>
+        <button class="chip" type="button" data-role="borrower" onclick="tog(this)"><i class="ti ti-wallet ico"></i><i class="ti ti-check tick"></i>ঋণগ্রহীতা</button>
+        <button class="chip" type="button" data-role="donor" onclick="tog(this)"><i class="ti ti-heart ico"></i><i class="ti ti-check tick"></i>দাতা সদস্য</button>
+      </div>
+
+      <div class="sect">তথ্য</div>
+      <div class="fg">
+        <input id="sn" placeholder=" " autocomplete="name">
+        <label>পূর্ণ নাম</label>
+        <i class="ti ti-id-badge-2 li" aria-hidden="true"></i>
+      </div>
+      <div class="fg">
+        <input id="sm" placeholder=" " inputmode="numeric" autocomplete="tel">
+        <label>মোবাইল নম্বর</label>
+        <i class="ti ti-phone li" aria-hidden="true"></i>
+      </div>
+      <div class="fg">
+        <input id="se" placeholder=" " type="email" autocomplete="email">
+        <label>ই-মেইল (ঐচ্ছিক)</label>
+        <i class="ti ti-mail li" aria-hidden="true"></i>
+      </div>
+      <div class="fg">
+        <input id="sp" type="password" placeholder=" " autocomplete="new-password" oninput="pwMeter()">
+        <label>পাসওয়ার্ড</label>
+        <i class="ti ti-lock li" aria-hidden="true"></i>
+        <button class="eb" type="button" onclick="tg('sp',this)" aria-label="পাসওয়ার্ড দেখান"><i class="ti ti-eye"></i></button>
+      </div>
+      <div class="pwbar"><div class="pwfill" id="pf"></div></div>
+
+      <button class="btn" id="regBtn" onclick="doSignup()"><i class="ti ti-user-plus"></i> অ্যাকাউন্ট তৈরি করুন</button>
+      <div class="alt">অ্যাকাউন্ট আছে? <a onclick="flipTo(0)">লগইন</a></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   Interaction: spotlight, tilt, eyes
+   ══════════════════════════════════════════════════════════ */
+(function () {
+  var spot = document.getElementById('spot');
+  var flip = document.getElementById('flip');
+  var heads = [document.getElementById('hA'), document.getElementById('hB')];
+  var faces = document.querySelectorAll('.face');
+  var flipped = 0;
+  var small = window.matchMedia('(max-width:640px)').matches;
+
+  window.__setFlipped = function (v) { flipped = v ? 1 : 0; };
+  window.__flipped = function () { return flipped; };
+
+  if (!small) {
+    document.addEventListener('pointermove', function (ev) {
+      if (ev.pointerType === 'touch') return;
+      spot.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px)';
+      spot.classList.add('lit');
+
+      faces.forEach(function (f) {
+        var r = f.getBoundingClientRect();
+        if (!r.width) return;
+        f.style.setProperty('--mx', ((ev.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+        f.style.setProperty('--my', ((ev.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      });
+
+      var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      var ry = ((ev.clientX - cx) / cx) * 6, rx = -((ev.clientY - cy) / cy) * 6;
+      flip.style.transform = 'rotateY(' + (flipped ? 180 : 0) + 'deg) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
+
+      heads.forEach(function (h) {
+        if (!h || h.classList.contains('shut')) return;
+        var hr = h.getBoundingClientRect();
+        if (!hr.width) return;
+        var hx = hr.left + hr.width / 2, hy = hr.top + hr.height / 2;
+        var a = Math.atan2(ev.clientY - hy, ev.clientX - hx);
+        var d = Math.min(3.6, Math.hypot(ev.clientX - hx, ev.clientY - hy) / 40);
+        var tx = (Math.cos(a) * d).toFixed(1), ty = (Math.sin(a) * d).toFixed(1);
+        h.querySelectorAll('.pup').forEach(function (p) { p.style.transform = 'translate(' + tx + 'px,' + ty + 'px)'; });
+      });
+    }, { passive: true });
+  }
+
+  document.addEventListener('focusin', function (e) {
+    if (e.target.type === 'password') heads.forEach(function (h) { h.classList.add('shut'); });
+  });
+  document.addEventListener('focusout', function (e) {
+    if (e.target.type === 'password') heads.forEach(function (h) { h.classList.remove('shut'); });
+  });
+})();
+
+function flipTo(on) {
+  var f = document.getElementById('flip');
+  window.__setFlipped(on);
+  f.classList.toggle('reg', !!on);
+  f.style.transform = 'rotateY(' + (on ? 180 : 0) + 'deg)';
+}
+function tog(b) { b.classList.toggle('on'); }
+function tg(id, btn) {
+  var p = document.getElementById(id), i = btn.querySelector('i'), s = p.type === 'password';
+  p.type = s ? 'text' : 'password';
+  i.className = s ? 'ti ti-eye-off' : 'ti ti-eye';
+  document.querySelectorAll('.head').forEach(function (h) { h.classList.toggle('shut', !s && document.activeElement === p); });
+  p.focus();
+}
+function capsCheck(e) {
+  var on = e.getModifierState && e.getModifierState('CapsLock');
+  document.getElementById('caps').classList.toggle('on', !!on);
+}
+function pwMeter() {
+  var v = document.getElementById('sp').value, n = 0;
+  if (v.length >= 8) n++;
+  if (/[A-Z]/.test(v)) n++;
+  if (/[a-z]/.test(v)) n++;
+  if (/[0-9]/.test(v)) n++;
+  if (/[^A-Za-z0-9]/.test(v)) n++;
+  var f = document.getElementById('pf');
+  f.style.width = v ? Math.round(n / 5 * 100) + '%' : '0';
+  f.style.background = n <= 2 ? '#ef4444' : (n <= 4 ? '#f59e0b' : '#22c55e');
+  return n;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Helpers
+   ══════════════════════════════════════════════════════════ */
+var ALIAS_DOMAIN = 'user.korjehasana.org';   // internal alias for mobile-only accounts
+
+function msg(id, text, kind) {
+  var el = document.getElementById(id);
+  if (!text) { el.className = 'msg'; el.textContent = ''; return; }
+  el.textContent = text;
+  el.className = 'msg ' + (kind || 'err');
+}
+function shake() {
+  var f = document.querySelector('.flip');
+  f.classList.add('shake');
+  setTimeout(function () { f.classList.remove('shake'); }, 460);
+}
+function busy(id, on, label) {
+  var b = document.getElementById(id);
+  b.disabled = on;
+  b.innerHTML = on
+    ? '<i class="ti ti-loader-2 spin"></i> ' + label
+    : b.dataset.orig;
+}
+['loginBtn', 'regBtn'].forEach(function (id) {
+  var b = document.getElementById(id);
+  if (b) b.dataset.orig = b.innerHTML;
+});
+
+function normMobile(v) {
+  var d = String(v || '').replace(/\D/g, '');
+  if (d.length === 11 && d[0] === '0') return d;          // 01711515952
+  if (d.length === 13 && d.indexOf('880') === 0) return '0' + d.slice(3);
+  return d;
+}
+function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim()); }
+
+/* a mobile number becomes 01711515952@user.korjehasana.org inside Supabase */
+function toAuthEmail(idOrMobile) {
+  var v = String(idOrMobile || '').trim();
+  if (isEmail(v)) return v.toLowerCase();
+  var m = normMobile(v);
+  return m ? m + '@' + ALIAS_DOMAIN : '';
+}
+
+/* ══════════════════════════════════════════════════════════
+   Login
+   ══════════════════════════════════════════════════════════ */
+async function doLogin() {
+  var raw  = document.getElementById('lu').value.trim();
+  var pass = document.getElementById('lp').value;
+  msg('loginMsg', '');
+
+  if (!raw)  { msg('loginMsg', 'মোবাইল নম্বর বা ই-মেইল দিন।'); shake(); return; }
+  if (!pass) { msg('loginMsg', 'পাসওয়ার্ড দিন।'); shake(); return; }
+
+  var email = toAuthEmail(raw);
+  if (!email) { msg('loginMsg', 'সঠিক মোবাইল নম্বর বা ই-মেইল দিন।'); shake(); return; }
+
+  busy('loginBtn', true, 'যাচাই করা হচ্ছে…');
+
+  try {
+    var res = await _db.auth.signInWithPassword({ email: email, password: pass });
+
+    /* if the mobile alias failed, the number may be registered with a real email */
+    if (res.error && !isEmail(raw)) {
+      msg('loginMsg', 'এই মোবাইল নম্বরে অ্যাকাউন্ট পাওয়া যায়নি। ই-মেইল দিয়ে চেষ্টা করুন অথবা সাইন আপ করুন।');
+      busy('loginBtn', false); shake(); return;
+    }
+    if (res.error) {
+      msg('loginMsg', 'ভুল তথ্য। আবার চেষ্টা করুন।');
+      busy('loginBtn', false); shake(); return;
+    }
+
+    await _db.rpc('touch_my_login').catch(function () {});
+
+    var p = await _db.rpc('get_my_profile');
+    var prof = p && p.data ? p.data : null;
+
+    msg('loginMsg', 'স্বাগতম' + (prof && prof.full_name ? ', ' + prof.full_name : '') + '! নিয়ে যাচ্ছি…', 'ok');
+    setTimeout(function () { route(prof); }, 800);
+
+  } catch (err) {
+    msg('loginMsg', 'সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
+    busy('loginBtn', false); shake();
+  }
+}
+
+/* send the member to the right portal for their role */
+function route(prof) {
+  if (!prof) { location.href = 'index.html'; return; }
+  var roles = [];
+  if (prof.is_depositor) roles.push('savings-portal.html');
+  if (prof.is_borrower)  roles.push('borrower-portal.html');
+  if (prof.is_donor)     roles.push('donation.html');
+
+  if (roles.length === 1) { location.href = roles[0]; return; }
+  /* more than one role (or none yet) → let them choose from the home portal menu */
+  sessionStorage.setItem('kh_user', JSON.stringify({
+    name: prof.full_name, code: prof.user_code,
+    depositor: prof.is_depositor, borrower: prof.is_borrower, donor: prof.is_donor
+  }));
+  location.href = roles.length ? 'index.html#portal' : 'index.html';
+}
+
+/* ══════════════════════════════════════════════════════════
+   Sign up
+   ══════════════════════════════════════════════════════════ */
+async function doSignup() {
+  var name   = document.getElementById('sn').value.trim();
+  var mobile = normMobile(document.getElementById('sm').value);
+  var email  = document.getElementById('se').value.trim();
+  var pass   = document.getElementById('sp').value;
+  msg('regMsg', '');
+
+  if (!name)              { msg('regMsg', 'আপনার পূর্ণ নাম লিখুন।'); shake(); return; }
+  if (mobile.length !== 11) { msg('regMsg', 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (যেমন 01711515952)।'); shake(); return; }
+  if (email && !isEmail(email)) { msg('regMsg', 'ই-মেইল ঠিকানাটি সঠিক নয়।'); shake(); return; }
+  if (pass.length < 8)    { msg('regMsg', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); shake(); return; }
+  if (pwMeter() <= 2)     { msg('regMsg', 'পাসওয়ার্ডটি দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।'); shake(); return; }
+
+  var roles = [].map.call(document.querySelectorAll('.chip.on'), function (c) { return c.dataset.role; });
+  if (!roles.length) { msg('regMsg', 'অন্তত একটি ভূমিকা নির্বাচন করুন।'); shake(); return; }
+
+  var authEmail = email ? email.toLowerCase() : (mobile + '@' + ALIAS_DOMAIN);
+
+  busy('regBtn', true, 'অ্যাকাউন্ট তৈরি হচ্ছে…');
+
+  try {
+    var su = await _db.auth.signUp({ email: authEmail, password: pass });
+    if (su.error) {
+      msg('regMsg', /already/i.test(su.error.message)
+        ? 'এই মোবাইল/ই-মেইলে অ্যাকাউন্ট আগে থেকেই আছে। লগইন করুন।'
+        : su.error.message);
+      busy('regBtn', false); shake(); return;
+    }
+
+    /* sign in straight away so the profile insert runs as this user */
+    var si = await _db.auth.signInWithPassword({ email: authEmail, password: pass });
+    if (si.error) {
+      msg('regMsg', 'অ্যাকাউন্ট তৈরি হয়েছে! ই-মেইল যাচাই করে লগইন করুন।', 'ok');
+      busy('regBtn', false); return;
+    }
+
+    var pr = await _db.rpc('create_user_profile', {
+      p_id:        si.data.user.id,
+      p_full_name: name,
+      p_mobile:    mobile,
+      p_email:     email || null,
+      p_nid:       null,
+      p_address:   null,
+      p_district:  null
+    });
+    if (pr.error) {
+      msg('regMsg', pr.error.message);
+      busy('regBtn', false); shake(); return;
+    }
+
+    var prof = pr.data;
+    msg('regMsg', 'স্বাগতম! আপনার সদস্য আইডি: ' + (prof && prof.user_code ? prof.user_code : '—'), 'ok');
+    setTimeout(function () { route(prof); }, 1400);
+
+  } catch (err) {
+    msg('regMsg', 'সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
+    busy('regBtn', false); shake();
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Password reset + guest
+   ══════════════════════════════════════════════════════════ */
+async function doReset() {
+  var raw = document.getElementById('lu').value.trim();
+  if (!isEmail(raw)) {
+    msg('loginMsg', 'পাসওয়ার্ড রিসেট করতে উপরের ঘরে আপনার ই-মেইল ঠিকানা লিখুন, তারপর আবার চাপুন। ই-মেইল না থাকলে যোগাযোগ করুন: ০১৭১১-৫১৫৯৫২', 'info');
+    return;
+  }
+  var r = await _db.auth.resetPasswordForEmail(raw, { redirectTo: location.origin + '/user-login.html' });
+  msg('loginMsg', r.error ? r.error.message : 'রিসেট লিংক পাঠানো হয়েছে। ই-মেইল দেখুন।', r.error ? 'err' : 'ok');
+}
+
+function doGuest() {
+  sessionStorage.setItem('kh_guest', '1');
+  location.href = 'index.html';
+}
+
+/* already signed in? go straight through */
+(async function () {
+  try {
+    var s = await _db.auth.getSession();
+    if (s && s.data && s.data.session) {
+      var p = await _db.rpc('get_my_profile');
+      if (p && p.data) route(p.data);
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="kh-ui.css">
+<script src="kh-ui.js"></script>
+</body>
+</html>
