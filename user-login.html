@@ -40,9 +40,9 @@
 
     /* ── flip scene ── */
     .scene{position:relative;z-index:1;width:380px;max-width:100%;perspective:1600px}
-    .flip{position:relative;width:100%;height:560px;transform-style:preserve-3d;
+    .flip{position:relative;width:100%;height:600px;transform-style:preserve-3d;
       transition:transform .95s cubic-bezier(.68,-.05,.3,1.05),height .95s cubic-bezier(.68,-.05,.3,1.05);will-change:transform}
-    .flip.reg{height:764px}
+    .flip.reg{height:822px}
     .face{
       position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
       background:rgba(255,255,255,.075);
@@ -65,18 +65,18 @@
     .head.shut .eye{height:2.5px}
     .head.shut .pup{opacity:0}
 
-    .h1{text-align:center;color:#fff;font-size:24px;font-weight:700;margin-bottom:3px}
-    .sub{text-align:center;color:rgba(255,255,255,.55);font-size:12px;margin-bottom:18px}
+    .h1{text-align:center;color:#fff;font-size:25px;font-weight:700;margin-bottom:4px;line-height:1.4}
+    .sub{text-align:center;color:rgba(255,255,255,.8);font-size:14px;margin-bottom:18px;line-height:1.6}
 
     /* ── role chips ── */
-    .sect{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
-      color:rgba(255,255,255,.5);margin:2px 0 11px;display:flex;align-items:center;gap:7px}
-    .sect::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.14)}
+    .sect{font-size:13px;font-weight:700;color:#f3d5ff;
+      margin:2px 0 12px;display:flex;align-items:center;gap:8px;line-height:1.6}
+    .sect::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.22)}
     .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:15px}
     .chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);border-radius:20px;
-      padding:7px 13px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:#fff;
-      display:flex;align-items:center;gap:5px;transition:all .25s}
-    .chip i{font-size:13px;color:#fff}
+      padding:8px 14px;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;color:#fff;
+      display:flex;align-items:center;gap:6px;transition:all .25s;line-height:1.5}
+    .chip i{font-size:14.5px;color:#fff}
     .chip .tick{display:none}
     .chip.on{background:linear-gradient(135deg,#e83e8c,#7048e8);border-color:rgba(255,255,255,.55);
       box-shadow:0 5px 18px rgba(232,62,140,.5)}
@@ -87,27 +87,27 @@
     .fg{position:relative;margin-bottom:14px}
     .fg input{width:100%;padding:13px 42px 13px 40px;border-radius:12px;
       border:1px solid rgba(255,255,255,.17);background:rgba(255,255,255,.07);color:#fff;
-      font-family:inherit;font-size:14.5px;outline:none;transition:border-color .25s,box-shadow .25s}
+      font-family:inherit;font-size:15.5px;outline:none;transition:border-color .25s,box-shadow .25s}
     .fg input::placeholder{color:transparent}
     .fg input:focus{border-color:#c084fc;box-shadow:0 0 0 3px rgba(192,132,252,.22)}
     .fg .li{position:absolute;left:14px;top:50%;transform:translateY(-50%);
       color:rgba(255,255,255,.55);font-size:16px;pointer-events:none;transition:color .25s}
     .fg input:focus~.li{color:#e9d5ff}
-    .fg label{position:absolute;left:38px;top:50%;transform:translateY(-50%);font-size:14.5px;
-      color:rgba(255,255,255,.5);pointer-events:none;padding:0 5px;white-space:nowrap;
+    .fg label{position:absolute;left:38px;top:50%;transform:translateY(-50%);font-size:15px;
+      color:rgba(255,255,255,.72);pointer-events:none;padding:0 5px;white-space:nowrap;
       transition:all .24s cubic-bezier(.34,1.4,.5,1)}
     .fg input:focus+label,.fg input:not(:placeholder-shown)+label{
-      top:-1px;left:13px;font-size:10.5px;font-weight:700;letter-spacing:.4px;color:#fff;
-      background:linear-gradient(100deg,#b02a80,#6d3fd4);border-radius:6px;transform:none;
-      padding:3px 8px;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+      top:-2px;left:12px;font-size:12.5px;font-weight:600;color:#fff;line-height:1.5;
+      background:linear-gradient(100deg,#9c2472,#5b34c4);border-radius:7px;transform:none;
+      padding:2px 9px;box-shadow:0 2px 10px rgba(0,0,0,.45)}
     .eb{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;
       color:rgba(255,255,255,.55);cursor:pointer;font-size:17px;padding:3px}
     .eb:hover{color:#e9d5ff}
 
-    .ut{display:flex;justify-content:space-between;align-items:center;margin:2px 0 15px;font-size:12px}
-    .ut label{color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px;cursor:pointer}
+    .ut{display:flex;justify-content:space-between;align-items:center;margin:2px 0 16px;font-size:13.5px}
+    .ut label{color:rgba(255,255,255,.88);display:flex;align-items:center;gap:6px;cursor:pointer}
     .ut input{accent-color:#e83e8c;width:13px;height:13px}
-    .ut a{color:#e9d5ff;text-decoration:none;font-weight:500;cursor:pointer}
+    .ut a{color:#f0abfc;text-decoration:none;font-weight:600;cursor:pointer}
 
     .btn{width:100%;padding:13.5px;border:none;border-radius:12px;
       background:linear-gradient(112deg,#7048e8,#a021c9 48%,#e83e8c);color:#fff;
@@ -118,21 +118,21 @@
     .btn:active{transform:scale(.98)}
     .btn:disabled{opacity:.6;cursor:not-allowed}
 
-    .or{display:flex;align-items:center;gap:9px;margin:14px 0;color:rgba(255,255,255,.4);font-size:11px}
+    .or{display:flex;align-items:center;gap:9px;margin:15px 0;color:rgba(255,255,255,.65);font-size:12.5px}
     .or::before,.or::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.15)}
     .guest{width:100%;padding:11px;border-radius:12px;border:1px dashed rgba(255,255,255,.32);
-      background:rgba(255,255,255,.05);color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;
+      background:rgba(255,255,255,.05);color:#fff;font-family:inherit;font-size:14.5px;font-weight:600;
       cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .25s}
     .guest:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.5)}
 
-    .alt{text-align:center;color:rgba(255,255,255,.6);font-size:12.5px;margin-top:14px}
+    .alt{text-align:center;color:rgba(255,255,255,.85);font-size:14px;margin-top:15px;line-height:1.6}
     .alt a{color:#f0abfc;font-weight:700;text-decoration:none;cursor:pointer}
     .alt a:hover{text-decoration:underline}
 
     .pwbar{height:4px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin:-8px 0 12px}
     .pwfill{height:100%;width:0;border-radius:99px;background:#ef4444;transition:width .4s,background .35s}
 
-    .msg{display:none;padding:9px 12px;border-radius:9px;font-size:12.5px;margin-bottom:14px;line-height:1.55}
+    .msg{display:none;padding:10px 13px;border-radius:9px;font-size:13.5px;margin-bottom:14px;line-height:1.65}
     .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
     .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
     .msg.info{display:block;background:rgba(240,140,40,.16);border:1px solid rgba(240,140,40,.4);color:#fde68a}
@@ -140,13 +140,13 @@
     .shake{animation:shk .45s}
     @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
 
-    .caps{display:none;font-size:11px;color:#fde68a;margin:-9px 0 11px;align-items:center;gap:5px}
+    .caps{display:none;font-size:12.5px;color:#fde68a;margin:-9px 0 12px;align-items:center;gap:5px}
     .caps.on{display:flex}
 
     .home{position:fixed;top:18px;left:18px;z-index:2;color:rgba(255,255,255,.7);
-      text-decoration:none;font-size:13px;display:flex;align-items:center;gap:6px;
+      text-decoration:none;font-size:14px;display:flex;align-items:center;gap:6px;
       background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
-      padding:8px 14px;border-radius:20px;transition:all .25s;font-family:inherit}
+      padding:9px 15px;border-radius:20px;transition:all .25s;font-family:inherit}
     .home:hover{background:rgba(255,255,255,.16);color:#fff}
 
     .spin{animation:sp .9s linear infinite;display:inline-block}
@@ -154,9 +154,14 @@
 
     @media(max-width:640px){
       .orb,.spot{display:none}
-      body{background:linear-gradient(160deg,#2a1040,#150c24 55%,#3a1236)}
+      body{background:linear-gradient(160deg,#2a1040,#150c24 55%,#3a1236);
+           flex-direction:column;justify-content:flex-start;padding:16px 12px 28px}
       .home{position:static;margin-bottom:14px;align-self:flex-start}
-      body{flex-direction:column;justify-content:center}
+      .face{padding:22px 18px}
+      .flip{height:620px}
+      .flip.reg{height:856px}
+      .chip{font-size:13px;padding:8px 12px}
+      .fg input{font-size:16px}       /* 16px stops iOS from zooming on focus */
     }
   </style>
 </head>
