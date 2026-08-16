@@ -412,12 +412,167 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     5 ── WHATSAPP CHAT WIDGET
+     ══════════════════════════════════════════════════════ */
+
+  var WA_NUMBER = '8801711515952';   // wa.me format: country code + number, digits only
+
+  var CHAT_CHIPS = [
+    { label: 'ঋণের আবেদন',  msg: 'আসসালামু আলাইকুম। আমি সুদমুক্ত ঋণের আবেদন করতে চাই।' },
+    { label: 'সঞ্চয় স্কিম',  msg: 'আসসালামু আলাইকুম। সঞ্চয় স্কিম সম্পর্কে জানতে চাই।' },
+    { label: 'দান করব',      msg: 'আসসালামু আলাইকুম। আমি দান করতে চাই।' },
+    { label: 'কিস্তি পরিশোধ', msg: 'আসসালামু আলাইকুম। কিস্তি পরিশোধ সম্পর্কে জানতে চাই।' }
+  ];
+
+  KHUI.mountChat = function (opts) {
+    opts = opts || {};
+    if (document.querySelector('.kh-chat-launch')) return;
+    var wa = (opts.number || WA_NUMBER).replace(/\D/g, '');
+
+    /* launcher */
+    var btn = document.createElement('button');
+    btn.className = 'kh-chat-launch';
+    btn.setAttribute('aria-label', 'WhatsApp চ্যাট খুলুন');
+    btn.innerHTML = '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i><span class="kh-chat-badge">1</span>';
+    document.body.appendChild(btn);
+
+    /* panel */
+    var panel = document.createElement('div');
+    panel.className = 'kh-chat-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', 'কর্জে হাসানা চ্যাট');
+    panel.innerHTML =
+      '<div class="kh-chat-head">' +
+        '<div class="kh-chat-av">KH<span class="kh-chat-dot"></span></div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="kh-chat-name">কর্জে হাসানা ফাউন্ডেশন</div>' +
+          '<div class="kh-chat-stat"><i class="ti ti-circle-filled" style="font-size:7px;color:#8effb4" aria-hidden="true"></i> অনলাইন — সাধারণত কয়েক মিনিটেই উত্তর দিই</div>' +
+        '</div>' +
+        '<button class="kh-chat-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="kh-chat-body"></div>' +
+      '<div class="kh-chat-foot">' +
+        '<div class="kh-chat-pill">' +
+          '<button type="button" class="kh-cp-plus" aria-label="আরও অপশন"><i class="ti ti-plus" aria-hidden="true"></i></button>' +
+          '<span class="kh-chat-div"></span>' +
+          '<input type="text" placeholder="মেসেজ লিখুন..." aria-label="মেসেজ">' +
+          '<button type="button" class="kh-cp-cam" aria-label="ছবি পাঠান"><i class="ti ti-camera" aria-hidden="true"></i></button>' +
+          '<button type="button" class="kh-cp-emo" aria-label="ইমোজি"><i class="ti ti-mood-smile" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<button type="button" class="kh-chat-rbtn kh-chat-send" aria-label="পাঠান"><i class="ti ti-send" aria-hidden="true"></i></button>' +
+        '<button type="button" class="kh-chat-rbtn kh-chat-mic" aria-label="ভয়েস মেসেজ"><i class="ti ti-microphone" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="kh-chat-note"><i class="ti ti-brand-whatsapp" aria-hidden="true"></i> মেসেজ পাঠালে WhatsApp-এ কথোপকথন চালু হবে</div>';
+    document.body.appendChild(panel);
+
+    var body   = panel.querySelector('.kh-chat-body');
+    var input  = panel.querySelector('.kh-chat-pill input');
+    var opened = false;
+
+    function now() {
+      var d = new Date(), h = d.getHours() % 12 || 12;
+      return KHUI.bn(h + ':' + String(d.getMinutes()).padStart(2, '0'));
+    }
+
+    function typingEl() { return panel.querySelector('.kh-chat-typing'); }
+
+    function addBubble(txt, out) {
+      var el = document.createElement('div');
+      el.className = 'kh-bub ' + (out ? 'kh-bub-out' : 'kh-bub-in');
+      el.innerHTML = txt + '<div class="kh-bub-t">' + (out ? '✓✓ ' : '') + now() + '</div>';
+      var ty = typingEl();
+      if (ty) body.insertBefore(el, ty); else body.appendChild(el);
+      body.scrollTop = body.scrollHeight;
+      return el;
+    }
+
+    function botReply(msg, delay) {
+      var ty = typingEl();
+      if (!ty) return;
+      ty.classList.add('kh-on');
+      body.scrollTop = body.scrollHeight;
+      setTimeout(function () {
+        ty.classList.remove('kh-on');
+        addBubble(msg, false);
+      }, delay || 1300);
+    }
+
+    function openWA(text) {
+      var url = 'https://wa.me/' + wa + '?text=' + encodeURIComponent(text);
+      window.open(url, '_blank', 'noopener');
+    }
+
+    function greet() {
+      body.innerHTML = '';
+      addBubble('আসসালামু আলাইকুম! 🌙<br>কর্জে হাসানা ফাউন্ডেশনে স্বাগতম। কীভাবে সাহায্য করতে পারি?', false);
+      var chips = document.createElement('div');
+      chips.className = 'kh-chat-chips';
+      CHAT_CHIPS.forEach(function (c) {
+        var b = document.createElement('button');
+        b.className = 'kh-chat-chip';
+        b.type = 'button';
+        b.textContent = c.label;
+        b.onclick = function () { userSend(c.msg); };
+        chips.appendChild(b);
+      });
+      body.appendChild(chips);
+      var ty = document.createElement('div');
+      ty.className = 'kh-chat-typing';
+      ty.innerHTML = '<span></span><span></span><span></span>';
+      body.appendChild(ty);
+    }
+
+    function userSend(text) {
+      text = (text || '').trim();
+      if (!text) return;
+      addBubble(text, true);
+      botReply('জাযাকাল্লাহ খাইর! WhatsApp-এ নিয়ে যাচ্ছি — সেখানেই আমরা উত্তর দেব। 📱', 1100);
+      setTimeout(function () { openWA(text); }, 2200);
+    }
+
+    function toggle(want) {
+      opened = (want !== undefined) ? want : !opened;
+      panel.classList.toggle('kh-open', opened);
+      btn.style.opacity = opened ? '0' : '1';
+      btn.style.pointerEvents = opened ? 'none' : 'auto';
+      if (opened) {
+        var badge = btn.querySelector('.kh-chat-badge');
+        if (badge) badge.remove();
+        if (!body.childElementCount) greet();
+        setTimeout(function () { input.focus(); }, 350);
+      }
+    }
+
+    btn.onclick = function () { toggle(true); };
+    panel.querySelector('.kh-chat-x').onclick = function () { toggle(false); };
+    panel.querySelector('.kh-chat-send').onclick = function () {
+      userSend(input.value); input.value = '';
+    };
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { userSend(input.value); input.value = ''; }
+      if (e.key === 'Escape') toggle(false);
+    });
+    /* the extras open WhatsApp directly — photos & voice live there */
+    panel.querySelector('.kh-cp-cam').onclick =
+    panel.querySelector('.kh-cp-plus').onclick = function () {
+      openWA('আসসালামু আলাইকুম। আমি একটি ছবি/ডকুমেন্ট পাঠাতে চাই।');
+    };
+    panel.querySelector('.kh-chat-mic').onclick = function () {
+      openWA('আসসালামু আলাইকুম।'); /* voice notes are recorded in WhatsApp itself */
+    };
+    panel.querySelector('.kh-cp-emo').onclick = function () { input.focus(); };
+
+    KHUI._chat = { open: function () { toggle(true); }, close: function () { toggle(false); } };
+  };
+
+  /* ══════════════════════════════════════════════════════
      AUTO-INIT
      ══════════════════════════════════════════════════════ */
 
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
+      if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
     }
     KHUI.enhancePasswords(document);
   }
