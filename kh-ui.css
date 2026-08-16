@@ -886,10 +886,11 @@ body:not([data-kh-nav="off"]) #toast { bottom: 92px !important; }
     transparent 74%);
 }
 
-/* keep page content above the glow */
-body > header, body > nav, body > section, body > footer,
-body > div:not(.kh-cursor-glow):not(.kh-chat-panel),
-body > main { position: relative; z-index: 1; }
+/* NOTE: do not force `position: relative` on body's children here.
+   It overrides `position: fixed` on decorative and floating elements
+   (background orbs, toasts, spotlights) and drags them into the
+   layout flow, pushing centred content sideways. The glow is a soft,
+   low-opacity light and reads fine painted over the page. */
 
 @media (max-width: 900px), (prefers-reduced-motion: reduce) {
   .kh-cursor-glow { display: none; }
