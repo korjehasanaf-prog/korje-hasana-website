@@ -40,6 +40,10 @@
 
     /* ── flip scene ── */
     .scene{position:relative;z-index:1;width:380px;max-width:100%;perspective:1600px}
+    /* the cursor tilt lives on its own layer so it can never interrupt
+       the flip — two elements, two independent transforms */
+    .tilt{position:relative;width:100%;transform-style:preserve-3d;
+      transition:transform .3s ease-out;will-change:transform}
     /* height is set by JS to match the visible face; these are no-JS fallbacks */
     .flip{position:relative;width:100%;min-height:600px;transform-style:preserve-3d;
       transition:transform .95s cubic-bezier(.68,-.05,.3,1.05),height .55s cubic-bezier(.4,0,.2,1);will-change:transform}
@@ -177,6 +181,7 @@
 <a href="index.html" class="home"><i class="ti ti-arrow-left"></i> হোমপেজ</a>
 
 <div class="scene">
+ <div class="tilt" id="tilt">
   <div class="flip" id="flip">
 
     <!-- ════════ LOGIN ════════ -->
@@ -258,6 +263,7 @@
     </div>
 
   </div>
+ </div>
 </div>
 
 <script>
@@ -267,6 +273,7 @@
 (function () {
   var spot = document.getElementById('spot');
   var flip = document.getElementById('flip');
+  var tilt = document.getElementById('tilt');
   var heads = [document.getElementById('hA'), document.getElementById('hB')];
   var faces = document.querySelectorAll('.face');
   var flipped = 0;
@@ -290,7 +297,7 @@
 
       var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
       var ry = ((ev.clientX - cx) / cx) * 6, rx = -((ev.clientY - cy) / cy) * 6;
-      flip.style.transform = 'rotateY(' + (flipped ? 180 : 0) + 'deg) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
+      tilt.style.transform = 'rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
 
       heads.forEach(function (h) {
         if (!h || h.classList.contains('shut')) return;
@@ -320,7 +327,11 @@ function syncFlipHeight() {
   var face = flip.querySelector(flip.classList.contains('reg') ? '.back' : '.front');
   if (!face) return;
   var h = face.offsetHeight;
-  if (h > 0) flip.style.height = h + 'px';
+  if (!h) return;
+  /* only write when it actually changed, otherwise the MutationObserver
+     below would keep re-triggering itself */
+  var cur = parseFloat(flip.style.height) || 0;
+  if (Math.abs(cur - h) > 0.5) flip.style.height = h + 'px';
 }
 
 function flipTo(on) {
