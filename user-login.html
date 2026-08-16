@@ -427,21 +427,32 @@ async function doLogin() {
   }
 }
 
-/* send the member to the right portal for their role */
-function route(prof) {
-  if (!prof) { location.href = 'index.html'; return; }
+/* Work out where a member belongs.
+   Returns a URL, or null when there is nowhere specific to send them —
+   in that case the caller must NOT redirect. */
+function destinationFor(prof) {
+  if (!prof || !prof.id) return null;
+
   var roles = [];
   if (prof.is_depositor) roles.push('savings-portal.html');
   if (prof.is_borrower)  roles.push('borrower-portal.html');
   if (prof.is_donor)     roles.push('donation.html');
 
-  if (roles.length === 1) { location.href = roles[0]; return; }
-  /* more than one role (or none yet) → let them choose from the home portal menu */
-  sessionStorage.setItem('kh_user', JSON.stringify({
-    name: prof.full_name, code: prof.user_code,
-    depositor: prof.is_depositor, borrower: prof.is_borrower, donor: prof.is_donor
-  }));
-  location.href = roles.length ? 'index.html#portal' : 'index.html';
+  try {
+    sessionStorage.setItem('kh_user', JSON.stringify({
+      name: prof.full_name, code: prof.user_code,
+      depositor: prof.is_depositor, borrower: prof.is_borrower, donor: prof.is_donor
+    }));
+  } catch (e) {}
+
+  if (roles.length === 1) return roles[0];
+  if (roles.length > 1)   return 'index.html#portal';
+  return null;                       /* signed in but no role attached yet */
+}
+
+/* used after a deliberate login/signup — always lands somewhere */
+function route(prof) {
+  location.href = destinationFor(prof) || 'index.html';
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -525,16 +536,48 @@ function doGuest() {
   location.href = 'index.html';
 }
 
-/* already signed in? go straight through */
+/* ══════════════════════════════════════════════════════════
+   Already signed in?
+   Only leave this page when there is a definite destination.
+   A stale session with no member profile must NOT bounce the
+   visitor to the homepage — they stay here and can sign in
+   as somebody else.
+   ══════════════════════════════════════════════════════════ */
 (async function () {
+  if (location.search.indexOf('stay=1') !== -1) return;   // escape hatch
   try {
     var s = await _db.auth.getSession();
-    if (s && s.data && s.data.session) {
-      var p = await _db.rpc('get_my_profile');
-      if (p && p.data) route(p.data);
-    }
-  } catch (e) {}
+    if (!s || !s.data || !s.data.session) return;         // nobody signed in
+
+    var p = await _db.rpc('get_my_profile');
+    var prof = (p && !p.error) ? p.data : null;
+    var dest = destinationFor(prof);
+
+    if (dest) { location.replace(dest); return; }
+
+    /* signed in, but no member profile / no role → stay put and explain */
+    msg('loginMsg',
+        'আপনি ইতিমধ্যে সাইন ইন করা আছেন, তবে এখনো কোনো সদস্য প্রোফাইল যুক্ত হয়নি। ' +
+        'নতুন অ্যাকাউন্ট খুলুন অথবা অন্য পরিচয়ে লগইন করুন।', 'info');
+    showSignOut();
+  } catch (e) { /* offline or RPC missing — just show the form */ }
 })();
+
+/* offer a way out of a stale session */
+function showSignOut() {
+  if (document.getElementById('signOutRow')) return;
+  var row = document.createElement('div');
+  row.id = 'signOutRow';
+  row.className = 'alt';
+  row.innerHTML = 'অন্য অ্যাকাউন্টে ঢুকতে চান? <a id="soLink">সাইন আউট করুন</a>';
+  var alt = document.querySelector('.front .alt');
+  alt.parentNode.insertBefore(row, alt);
+  document.getElementById('soLink').onclick = async function () {
+    await _db.auth.signOut();
+    msg('loginMsg', 'সাইন আউট হয়েছে। এখন লগইন করুন।', 'ok');
+    row.remove();
+  };
+}
 </script>
 <link rel="stylesheet" href="kh-ui.css">
 <script src="kh-ui.js"></script>
