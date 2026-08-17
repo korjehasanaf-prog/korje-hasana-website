@@ -247,7 +247,7 @@
       </div>
       <div class="fg">
         <input id="se" placeholder=" " type="email" autocomplete="email">
-        <label>ই-মেইল (ঐচ্ছিক)</label>
+        <label>ই-মেইল (যাচাই হবে)</label>
         <i class="ti ti-mail li" aria-hidden="true"></i>
       </div>
       <div class="fg">
@@ -511,57 +511,83 @@ function route(prof) {
 async function doSignup() {
   var name   = document.getElementById('sn').value.trim();
   var mobile = normMobile(document.getElementById('sm').value);
-  var email  = document.getElementById('se').value.trim();
+  var email  = document.getElementById('se').value.trim().toLowerCase();
   var pass   = document.getElementById('sp').value;
   msg('regMsg', '');
 
-  if (!name)              { msg('regMsg', 'আপনার পূর্ণ নাম লিখুন।'); shake(); return; }
+  if (!name)                { msg('regMsg', 'আপনার পূর্ণ নাম লিখুন।'); shake(); return; }
   if (mobile.length !== 11) { msg('regMsg', 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (যেমন 01711515952)।'); shake(); return; }
-  if (email && !isEmail(email)) { msg('regMsg', 'ই-মেইল ঠিকানাটি সঠিক নয়।'); shake(); return; }
-  if (pass.length < 8)    { msg('regMsg', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); shake(); return; }
-  if (pwMeter() <= 2)     { msg('regMsg', 'পাসওয়ার্ডটি দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।'); shake(); return; }
+  if (!isEmail(email))      { msg('regMsg', 'যাচাইয়ের জন্য একটি সঠিক ই-মেইল ঠিকানা দিন।'); shake(); return; }
+  if (pass.length < 8)      { msg('regMsg', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); shake(); return; }
+  if (pwMeter() <= 2)       { msg('regMsg', 'পাসওয়ার্ডটি দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।'); shake(); return; }
 
   var roles = [].map.call(document.querySelectorAll('.chip.on'), function (c) { return c.dataset.role; });
   if (!roles.length) { msg('regMsg', 'অন্তত একটি ভূমিকা নির্বাচন করুন।'); shake(); return; }
 
-  var authEmail = email ? email.toLowerCase() : (mobile + '@' + ALIAS_DOMAIN);
+  /* ── the member chooses how to verify ── */
+  if (!(window.KHUI && KHUI.chooseVerify)) { emailStep(name, mobile, email, pass); return; }
 
-  busy('regBtn', true, 'অ্যাকাউন্ট তৈরি হচ্ছে…');
-
-  try {
-    var su = await _db.auth.signUp({ email: authEmail, password: pass });
-    if (su.error) {
-      msg('regMsg', /already/i.test(su.error.message)
-        ? 'এই মোবাইল/ই-মেইলে অ্যাকাউন্ট আগে থেকেই আছে। লগইন করুন।'
-        : su.error.message);
-      busy('regBtn', false); shake(); return;
+  msg('regMsg', 'যাচাইয়ের মাধ্যম বেছে নিন।', 'info');
+  KHUI.chooseVerify({
+    onCancel: function () { msg('regMsg', 'অ্যাকাউন্ট খুলতে যাচাই আবশ্যক।'); },
+    onPick: function (method) {
+      if (method === 'email') emailStep(name, mobile, email, pass);
+      /* 'sms' is shown as "coming soon" and cannot be picked yet */
     }
+  });
+}
 
-    /* sign in straight away so the profile insert runs as this user */
-    var si = await _db.auth.signInWithPassword({ email: authEmail, password: pass });
-    if (si.error) {
-      msg('regMsg', 'অ্যাকাউন্ট তৈরি হয়েছে! ই-মেইল যাচাই করে লগইন করুন।', 'ok');
-      busy('regBtn', false); return;
+/* ── real email OTP via Supabase (free) ── */
+async function emailStep(name, mobile, email, pass) {
+  msg('regMsg', 'ই-মেইলে পাঠানো কোডটি যাচাই করুন।', 'info');
+  busy('regBtn', true, 'ই-মেইল কোড পাঠানো হচ্ছে…');
+
+  var sent = await _db.auth.signInWithOtp({
+    email: email,
+    options: { shouldCreateUser: true }
+  });
+  busy('regBtn', false);
+  if (sent.error) {
+    msg('regMsg', 'ই-মেইল কোড পাঠানো যায়নি: ' + sent.error.message);
+    shake(); return;
+  }
+
+  KHUI.otp({
+    length: 6, demo: false,
+    title: 'ই-মেইল যাচাই',
+    subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
+    onVerify: async function (code, done) {
+      var v = await _db.auth.verifyOtp({ email: email, token: code, type: 'email' });
+      done(!v.error && v.data && v.data.session);
+    },
+    onCancel: function () { msg('regMsg', 'ই-মেইল যাচাই না করলে অ্যাকাউন্ট সম্পূর্ণ হবে না।'); },
+    onSuccess: function () { finishSignup(name, mobile, email, pass); }
+  });
+}
+
+/* ── STEP 3 · both verified → set password + create profile ── */
+async function finishSignup(name, mobile, email, pass) {
+  busy('regBtn', true, 'অ্যাকাউন্ট তৈরি হচ্ছে…');
+  try {
+    /* the email OTP already signed us in; attach the chosen password */
+    var upd = await _db.auth.updateUser({ password: pass });
+    var sess = await _db.auth.getSession();
+    var uid = sess && sess.data && sess.data.session ? sess.data.session.user.id : null;
+    if (!uid) {
+      msg('regMsg', 'যাচাই সম্পন্ন হয়নি। আবার চেষ্টা করুন।');
+      busy('regBtn', false); shake(); return;
     }
 
     var pr = await _db.rpc('create_user_profile', {
-      p_id:        si.data.user.id,
-      p_full_name: name,
-      p_mobile:    mobile,
-      p_email:     email || null,
-      p_nid:       null,
-      p_address:   null,
-      p_district:  null
+      p_id: uid, p_full_name: name, p_mobile: mobile,
+      p_email: email, p_nid: null, p_address: null, p_district: null
     });
-    if (pr.error) {
-      msg('regMsg', pr.error.message);
-      busy('regBtn', false); shake(); return;
-    }
+    if (pr.error) { msg('regMsg', pr.error.message); busy('regBtn', false); shake(); return; }
 
     var prof = pr.data;
-    msg('regMsg', 'স্বাগতম! আপনার সদস্য আইডি: ' + (prof && prof.user_code ? prof.user_code : '—'), 'ok');
-    setTimeout(function () { route(prof); }, 1400);
-
+    msg('regMsg', 'স্বাগতম! মোবাইল ও ই-মেইল যাচাই সম্পন্ন। আপনার সদস্য আইডি: ' +
+        (prof && prof.user_code ? prof.user_code : '—'), 'ok');
+    setTimeout(function () { route(prof); }, 1500);
   } catch (err) {
     msg('regMsg', 'সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
     busy('regBtn', false); shake();

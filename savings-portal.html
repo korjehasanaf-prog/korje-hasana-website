@@ -903,50 +903,53 @@ async function doRegister() {
   if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
   if(window.KHUI && KHUI.score && KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
 
-  // Step 0: Verify the mobile number by OTP before creating the account
-  if (!(window.KHUI && KHUI.otp)) { finishRegister(); return; }
-  showMsg('regMsg','মোবাইল নম্বর যাচাই করা হচ্ছে…','info');
-  KHUI.otp({
-    phone: phone,
-    length: 4,
-    demo: true,
-    title: 'মোবাইল নম্বর যাচাই করুন',
-    onSuccess: function () { finishRegister(); },
-    onCancel:  function () { showMsg('regMsg','মোবাইল যাচাই না করলে হিসাব খোলা যাবে না।','error'); }
+  // ── the member chooses how to verify before the account is created ──
+  if (!(window.KHUI && KHUI.chooseVerify)) { emailStep(); return; }
+
+  showMsg('regMsg','যাচাইয়ের মাধ্যম বেছে নিন।','info');
+  KHUI.chooseVerify({
+    onCancel: function () { showMsg('regMsg','হিসাব খুলতে যাচাই আবশ্যক।','error'); },
+    onPick: function (method) { if (method === 'email') emailStep(); }
   });
   return;
 
-  async function finishRegister() {
-  showMsg('regMsg','হিসাব তৈরি হচ্ছে…','info');
-
-  // Step 1: Sign up
-  const { data: suData, error: suErr } = await _db.auth.signUp({ email, password: pass });
-  if(suErr) return showMsg('regMsg', suErr.message, 'error');
-  if(!suData.user) return showMsg('regMsg','ইমেইল যাচাই করুন — ইনবক্সে একটি লিঙ্ক পাঠানো হয়েছে','success');
-
-  // Step 2: Sign in immediately to get an authenticated session
-  const { data: siData, error: siErr } = await _db.auth.signInWithPassword({ email, password: pass });
-  if(siErr) {
-    // Email confirmation required — profile will be created on first login
-    showMsg('regMsg','নিবন্ধন সম্পন্ন! ইমেইল যাচাই করে লগইন করুন।','success');
-    return;
+  // real email OTP via Supabase (free)
+  async function emailStep() {
+    showMsg('regMsg','ই-মেইলে পাঠানো কোডটি যাচাই করুন।','info');
+    const sent = await _db.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+    if (sent.error) { showMsg('regMsg','ই-মেইল কোড পাঠানো যায়নি: '+sent.error.message,'error'); return; }
+    KHUI.otp({
+      length: 6, demo: false,
+      title: 'ই-মেইল যাচাই',
+      subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
+      onVerify: async function (code, done) {
+        const v = await _db.auth.verifyOtp({ email, token: code, type: 'email' });
+        done(!v.error && v.data && v.data.session);
+      },
+      onCancel:  function () { showMsg('regMsg','ই-মেইল যাচাই না করলে হিসাব সম্পূর্ণ হবে না।','error'); },
+      onSuccess: finishRegister
+    });
   }
 
-  // Step 3: Create depositor profile via SECURITY DEFINER function (bypasses RLS)
-  const { error: rpcErr } = await _db.rpc('create_depositor', {
-    p_id:                 siData.user.id,
-    p_full_name:          name,
-    p_phone:              phone,
-    p_nid:                nid,
-    p_scheme_type:        scheme,
-    p_withdrawal_method:  method,
-    p_withdrawal_account: account,
-    p_withdrawal_bank:    method === 'bank' ? bank : null
-  });
-  if(rpcErr) return showMsg('regMsg', rpcErr.message, 'error');
+  async function finishRegister() {
+    showMsg('regMsg','হিসাব তৈরি হচ্ছে…','info');
+    // email OTP already signed us in — attach the chosen password
+    await _db.auth.updateUser({ password: pass });
+    const { data: { session } } = await _db.auth.getSession();
+    if (!session || !session.user) { showMsg('regMsg','যাচাই সম্পন্ন হয়নি। আবার চেষ্টা করুন।','error'); return; }
 
-  // Step 4: Load portal directly
-  await loadPortal(siData.user);
+    const { error: rpcErr } = await _db.rpc('create_depositor', {
+      p_id:                 session.user.id,
+      p_full_name:          name,
+      p_phone:              phone,
+      p_nid:                nid,
+      p_scheme_type:        scheme,
+      p_withdrawal_method:  method,
+      p_withdrawal_account: account,
+      p_withdrawal_bank:    method === 'bank' ? bank : null
+    });
+    if(rpcErr) return showMsg('regMsg', rpcErr.message, 'error');
+    await loadPortal(session.user);
   }
 }
 

@@ -177,8 +177,9 @@
         '<div class="kh-otp-icon"><i class="ti ti-lock" aria-hidden="true"></i></div>' +
         '<h3 class="kh-otp-title">' + (cfg.title || 'মোবাইল নম্বর যাচাই করুন') + '</h3>' +
         '<p class="kh-otp-sub">' +
-          (masked ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
-                  : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন') +
+          (cfg.subtitle ? cfg.subtitle
+            : (masked ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
+                      : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন')) +
         '</p>' +
         (DEMO ? '<div class="kh-otp-demo">ডেমো মোড — আপনার কোড: <b>' + KHUI.bn(code) + '</b></div>' : '') +
         '<div class="kh-otp-row"></div>' +
@@ -246,9 +247,10 @@
             boxes.forEach(function (b) { b.value = ''; b.classList.remove('kh-filled'); });
             boxes[0].focus();
             reset();
-            sub.textContent = masked
-              ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
-              : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন';
+            sub.textContent = cfg.subtitle ? cfg.subtitle
+              : (masked
+                ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
+                : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন');
           }, 1200);
         }
       }
@@ -323,6 +325,60 @@
     });
 
     return { close: close, code: function () { return code; } };
+  };
+
+  /* ══════════════════════════════════════════════════════
+     VERIFICATION METHOD CHOOSER
+     Shows the available ways to verify an account. Methods
+     marked soon:true render disabled with a "শীঘ্রই আসছে" tag.
+     KHUI.chooseVerify({ onPick(method){}, onCancel(){} })
+     ══════════════════════════════════════════════════════ */
+  KHUI.chooseVerify = function (cfg) {
+    cfg = cfg || {};
+    var methods = cfg.methods || [
+      { id: 'email', icon: 'ti-mail-fast', title: 'ই-মেইল OTP',
+        sub: 'ই-মেইলে ৬ সংখ্যার কোড যাবে', active: true },
+      { id: 'sms', icon: 'ti-device-mobile-message', title: 'মোবাইল SMS',
+        sub: 'SMS-এ কোড', active: false, soonText: 'শীঘ্রই আসছে' }
+    ];
+
+    var back = document.createElement('div');
+    back.className = 'kh-otp-back';
+    var cards = methods.map(function (m) {
+      return '<button type="button" class="kh-vc-card' + (m.active ? '' : ' kh-vc-off') + '" data-m="' + m.id + '"' + (m.active ? '' : ' disabled') + '>' +
+        '<span class="kh-vc-ic"><i class="ti ' + m.icon + '" aria-hidden="true"></i></span>' +
+        '<span class="kh-vc-tx"><b>' + m.title + '</b><small>' + m.sub + '</small></span>' +
+        (m.active ? '<i class="ti ti-chevron-right kh-vc-go" aria-hidden="true"></i>'
+                  : '<span class="kh-vc-soon">' + (m.soonText || 'শীঘ্রই') + '</span>') +
+        '</button>';
+    }).join('');
+    back.innerHTML =
+      '<div class="kh-otp-card" style="position:relative;text-align:left">' +
+        '<button class="kh-otp-x" aria-label="বন্ধ করুন"><i class="ti ti-x"></i></button>' +
+        '<div class="kh-otp-icon" style="display:flex;margin:0 auto 14px"><i class="ti ti-shield-check" aria-hidden="true"></i></div>' +
+        '<h3 class="kh-otp-title" style="text-align:center">যাচাইয়ের মাধ্যম বেছে নিন</h3>' +
+        '<p class="kh-otp-sub" style="text-align:center">অ্যাকাউন্ট খুলতে যেকোনো একটি মাধ্যমে যাচাই করুন</p>' +
+        '<div class="kh-vc-list">' + cards + '</div>' +
+      '</div>';
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+
+    function close(picked) {
+      back.classList.remove('kh-show');
+      document.body.style.overflow = '';
+      setTimeout(function () { back.remove(); }, 280);
+      if (!picked && cfg.onCancel) cfg.onCancel();
+    }
+    back.querySelector('.kh-otp-x').onclick = function () { close(false); };
+    back.addEventListener('mousedown', function (e) { if (e.target === back) close(false); });
+    back.querySelectorAll('.kh-vc-card:not(.kh-vc-off)').forEach(function (b) {
+      b.onclick = function () {
+        var m = b.dataset.m;
+        close(true);
+        if (cfg.onPick) setTimeout(function () { cfg.onPick(m); }, 300);
+      };
+    });
+    requestAnimationFrame(function () { back.classList.add('kh-show'); });
   };
 
   /* ══════════════════════════════════════════════════════
