@@ -1305,48 +1305,44 @@ html[data-theme="light"] .fl-field label { color: #8a7fa0; }
   color: var(--kh-mute);
   margin-right: 2px;
 }
+/* Chip = solid brand-gradient pill with WHITE text.
+   Because the text is white, the chip itself is always colourful —
+   so it stays readable on ANY surface, in EITHER theme. */
 .kh-domain-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 11px;
+  gap: 6px;
+  padding: 6px 13px 6px 7px;
   border-radius: 20px;
-  border: 1px solid var(--kh-line);
-  background: #fff;
-  color: #3a3348;
+  border: none;
+  background: linear-gradient(112deg, #7048e8, #a021c9 55%, #d6336c);
+  color: #fff;
   font-family: 'Hind Siliguri', system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all .2s;
+  transition: transform .18s, filter .2s, box-shadow .2s;
   line-height: 1.4;
+  box-shadow: 0 2px 8px rgba(112, 72, 232, .28);
 }
-.kh-domain-chip:hover {
-  border-color: #7048e8;
-  color: #5b34c4;
-  background: #faf7ff;
-  transform: translateY(-1px);
-}
+.kh-domain-chip:hover  { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(112, 72, 232, .38); }
+.kh-domain-chip:active { transform: scale(.97); }
 .kh-domain-chip .kh-dc-ic {
-  width: 15px; height: 15px; border-radius: 4px;
+  width: 17px; height: 17px; border-radius: 5px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 9px; font-weight: 800; color: #fff;
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: rgba(255, 255, 255, .25);
 }
-.kh-dc-gmail   { background: #ea4335; }
-.kh-dc-outlook { background: #0072c6; }
-.kh-dc-yahoo   { background: #6001d2; }
+/* the provider mark keeps its own brand tint for recognisability */
+.kh-dc-gmail   { background: rgba(234, 67, 53, .95) !important; }
+.kh-dc-outlook { background: rgba(0, 114, 198, .95) !important; }
+.kh-dc-yahoo   { background: rgba(96, 1, 210, .95) !important; }
 
-/* dark surfaces (login cards) get light-on-dark chips */
-html[data-theme="light"] .kh-domain-chip { background: #fff; }
-.kh-slider .kh-domain-chip,
-.kh-otp-back .kh-domain-chip,
-[data-kh-nav="off"] .face .kh-domain-chip {
-  background: rgba(255,255,255,.1);
-  border-color: rgba(255,255,255,.28);
-  color: #fff;
-}
+.kh-domain-lbl { color: var(--kh-mute); }
+html[data-theme="light"] .kh-domain-lbl { color: #6b6280; }
 .kh-slider .kh-domain-lbl,
-[data-kh-nav="off"] .face .kh-domain-lbl { color: rgba(255,255,255,.6); }
+.kh-otp-back .kh-domain-lbl,
+[data-kh-nav="off"] .face .kh-domain-lbl { color: rgba(255, 255, 255, .7); }
 
 /* utility */
 .kh-spin { animation: khSpin .9s linear infinite; display: inline-block; }
