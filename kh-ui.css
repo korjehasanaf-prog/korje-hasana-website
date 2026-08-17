@@ -1354,3 +1354,128 @@ body:not([data-kh-nav="off"]) .wa-float { display: none !important; }
 body:not([data-kh-nav="off"]) .btt-btn  { display: none !important; }
 body:not([data-kh-nav="off"]) { padding-bottom: 78px; }
 @media (max-width: 640px) { body:not([data-kh-nav="off"]) { padding-bottom: 66px; } }
+
+/* ══════════════════════════════════════════════════════════
+   14 ── TOPBAR BUTTONS — colourful in BOTH themes
+        Rule (CLAUDE.md): white text ⇒ the control itself must
+        sit on a colourful/gradient fill, whatever the theme.
+        Placed at the end of this file so it wins over the
+        light-theme section and over inline styles (!important).
+   ══════════════════════════════════════════════════════════ */
+
+/* সদস্য লগইন pill */
+body:not([data-kh-nav="off"]) .kh-login-link {
+  background: linear-gradient(112deg, #7048e8 0%, #a021c9 55%, #d6336c 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .3) !important;
+  color: #fff !important;
+  box-shadow: 0 3px 10px rgba(112, 72, 232, .35);
+  transition: filter .2s, transform .15s;
+}
+body:not([data-kh-nav="off"]) .kh-login-link:hover { filter: brightness(1.12); transform: translateY(-1px); color: #fff !important; }
+body:not([data-kh-nav="off"]) .kh-login-link i { color: #fff !important; }
+
+/* Admin pill */
+body:not([data-kh-nav="off"]) .topbar-admin-btn {
+  background: linear-gradient(112deg, #d6336c 0%, #c2410c 60%, #b45309 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .3) !important;
+  color: #fff !important;
+  box-shadow: 0 3px 10px rgba(214, 51, 108, .35);
+  transition: filter .2s, transform .15s;
+}
+body:not([data-kh-nav="off"]) .topbar-admin-btn:hover { filter: brightness(1.12); transform: translateY(-1px); color: #fff !important; }
+body:not([data-kh-nav="off"]) .topbar-admin-btn i { color: #fff !important; }
+
+/* EN/বাং language toggle */
+body:not([data-kh-nav="off"]) .lang-toggle {
+  background: rgba(112, 72, 232, .14) !important;
+  border: 1px solid rgba(112, 72, 232, .35) !important;
+}
+body:not([data-kh-nav="off"]) .lang-btn { color: rgba(255, 255, 255, .75); }
+html[data-theme="light"] body:not([data-kh-nav="off"]) .lang-btn { color: #5b4a78; }
+body:not([data-kh-nav="off"]) .lang-btn.active {
+  background: linear-gradient(112deg, #c2410c, #d6336c) !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* social icon circles */
+body:not([data-kh-nav="off"]) .topbar-soc {
+  background: linear-gradient(135deg, rgba(214, 51, 108, .92), rgba(112, 72, 232, .92)) !important;
+  border: 1px solid rgba(255, 255, 255, .3) !important;
+}
+body:not([data-kh-nav="off"]) .topbar-soc i { color: #fff !important; }
+body:not([data-kh-nav="off"]) .topbar-soc:hover { filter: brightness(1.15); }
+
+/* "সুদ বিহীন সঞ্চয়" pill — was white text on translucent amber
+   (invisible in light theme); now a solid gradient */
+body:not([data-kh-nav="off"]) .nav-savings-btn {
+  background: linear-gradient(112deg, #b45309 0%, #c2410c 55%, #d6336c 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .35) !important;
+  color: #fff !important;
+  box-shadow: 0 3px 10px rgba(233, 84, 32, .35);
+}
+body:not([data-kh-nav="off"]) .nav-savings-btn:hover { filter: brightness(1.12); color: #fff !important; }
+body:not([data-kh-nav="off"]) .nav-savings-btn i { color: #fff !important; }
+
+/* topbar contact text stays readable per theme */
+html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar-item { color: #4a3f5c !important; }
+html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar-item i { color: #b02a80 !important; }
+
+/* ══════════════════════════════════════════════════════════
+   15 ── GOLDEN DIVIDER — a thin bright golden streak glides
+        back and forth along the line separating the topbar
+        from the menubar. Works in both themes.
+   ══════════════════════════════════════════════════════════ */
+
+body:not([data-kh-nav="off"]) .topbar { position: relative; }
+
+body:not([data-kh-nav="off"]) .topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  z-index: 8;
+  pointer-events: none;
+  /* layer 1: the travelling bright streak · layer 2: faint static gold base */
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 214, 90, .35) 30%,
+      #ffe9a8 46%,
+      #ffd54f 50%,
+      #ffe9a8 54%,
+      rgba(255, 214, 90, .35) 70%,
+      transparent 100%) no-repeat,
+    linear-gradient(90deg, rgba(240, 170, 60, .30), rgba(240, 170, 60, .30));
+  background-size: 240px 100%, 100% 1px;
+  background-position: -240px 0, 0 100%;
+  filter: drop-shadow(0 0 5px rgba(255, 213, 79, .85));
+  animation: khGoldSlide 9s ease-in-out infinite alternate;
+}
+
+@keyframes khGoldSlide {
+  from { background-position: -240px 0, 0 100%; }
+  to   { background-position: calc(100% + 240px) 0, 0 100%; }
+}
+
+/* light theme: slightly deeper gold so it shows on pale lavender */
+html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar::after {
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(224, 160, 20, .4) 30%,
+      #f5c437 46%,
+      #eaa508 50%,
+      #f5c437 54%,
+      rgba(224, 160, 20, .4) 70%,
+      transparent 100%) no-repeat,
+    linear-gradient(90deg, rgba(200, 140, 20, .35), rgba(200, 140, 20, .35));
+  background-size: 240px 100%, 100% 1px;
+  filter: drop-shadow(0 0 4px rgba(234, 165, 8, .7));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not([data-kh-nav="off"]) .topbar::after { animation: none; background-position: 50% 0, 0 100%; }
+}
