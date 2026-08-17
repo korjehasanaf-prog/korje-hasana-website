@@ -1422,62 +1422,73 @@ html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar-item { color: #4a
 html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar-item i { color: #b02a80 !important; }
 
 /* ══════════════════════════════════════════════════════════
-   15 ── GOLDEN DIVIDER — a thin bright golden streak glides
-        back and forth along the line separating the topbar
-        from the menubar. Works in both themes.
+   15 ── MOVING DIVIDER — a bold deep-orange line separates the
+        topbar from the menubar, with a bright highlight that
+        sweeps across it continuously. Both themes.
    ══════════════════════════════════════════════════════════ */
 
 body:not([data-kh-nav="off"]) .topbar { position: relative; }
 
+/* the base line: a solid, always-visible deep-orange bar */
+body:not([data-kh-nav="off"]) .topbar::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 3px;
+  z-index: 7;
+  pointer-events: none;
+  background: linear-gradient(90deg, #e8590c, #ff6b1a 50%, #e8590c);
+  box-shadow: 0 0 6px rgba(255, 107, 26, .7);
+}
+
+/* the travelling highlight that sweeps along the line */
 body:not([data-kh-nav="off"]) .topbar::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
+  left: 0; right: 0; bottom: -2px;
+  height: 3px;
   z-index: 8;
   pointer-events: none;
-  /* layer 1: the travelling bright streak · layer 2: faint static gold base */
-  background:
-    linear-gradient(90deg,
-      transparent 0%,
-      rgba(232, 89, 12, .45) 30%,
-      #ff8a3d 46%,
-      #ff6b1a 50%,
-      #ff8a3d 54%,
-      rgba(232, 89, 12, .45) 70%,
-      transparent 100%) no-repeat,
-    linear-gradient(90deg, rgba(217, 72, 15, .38), rgba(217, 72, 15, .38));
-  background-size: 240px 100%, 100% 1px;
-  background-position: -240px 0, 0 100%;
-  filter: drop-shadow(0 0 5px rgba(255, 107, 26, .9));
-  animation: khGoldSlide 9s ease-in-out infinite alternate;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 236, 210, 0) 35%,
+    #fff2df 48%,
+    #ffffff 50%,
+    #fff2df 52%,
+    rgba(255, 236, 210, 0) 65%,
+    transparent 100%) no-repeat;
+  background-size: 200px 100%;
+  background-position: -200px 0;
+  filter: drop-shadow(0 0 6px rgba(255, 180, 90, 1));
+  animation: khGoldSlide 3.5s linear infinite;
 }
 
 @keyframes khGoldSlide {
-  from { background-position: -240px 0, 0 100%; }
-  to   { background-position: calc(100% + 240px) 0, 0 100%; }
+  from { background-position: -200px 0; }
+  to   { background-position: calc(100% + 200px) 0; }
 }
 
-/* light theme: slightly deeper gold so it shows on pale lavender */
+/* light theme: darker base + amber sweep so it stands out on lavender */
+html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar::before {
+  background: linear-gradient(90deg, #c2410c, #e8590c 50%, #c2410c);
+  box-shadow: 0 0 5px rgba(217, 72, 15, .6);
+}
 html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar::after {
-  background:
-    linear-gradient(90deg,
-      transparent 0%,
-      rgba(200, 65, 10, .5) 30%,
-      #e8590c 46%,
-      #d9480f 50%,
-      #e8590c 54%,
-      rgba(200, 65, 10, .5) 70%,
-      transparent 100%) no-repeat,
-    linear-gradient(90deg, rgba(190, 65, 12, .42), rgba(190, 65, 12, .42));
-  background-size: 240px 100%, 100% 1px;
-  filter: drop-shadow(0 0 4px rgba(217, 72, 15, .8));
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 210, 150, 0) 35%,
+    #ffd9a0 48%,
+    #ffbf70 50%,
+    #ffd9a0 52%,
+    rgba(255, 210, 150, 0) 65%,
+    transparent 100%) no-repeat;
+  background-size: 200px 100%;
+  background-position: -200px 0;
+  filter: drop-shadow(0 0 5px rgba(234, 120, 20, .9));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body:not([data-kh-nav="off"]) .topbar::after { animation: none; background-position: 50% 0, 0 100%; }
+  body:not([data-kh-nav="off"]) .topbar::after { animation: none; opacity: 0; }
 }
 
 /* ══════════════════════════════════════════════════════════
