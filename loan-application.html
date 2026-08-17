@@ -477,6 +477,10 @@
         </div>
       </div>
       <div class="card-body">
+        <div id="autofillNote" style="display:none;align-items:center;gap:8px;background:rgba(112,72,232,.08);border:1px solid rgba(112,72,232,.25);color:#5b34c4;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:16px">
+          <i class="ti ti-user-check" style="font-size:17px"></i>
+          আপনার অ্যাকাউন্টের তথ্য থেকে ফর্মটি স্বয়ংক্রিয়ভাবে পূরণ করা হয়েছে। প্রয়োজনে সম্পাদনা করুন।
+        </div>
         <div class="form-grid">
           <div class="field-section"><i class="ti ti-user"></i>Basic Information</div>
           <div class="form-group">
@@ -1810,7 +1814,33 @@ function showFullSchedule(cfg) {
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', function() {
   populateDistricts();
+  prefillApplicant();
 });
+
+// Auto-fill the applicant form from the logged-in member's profile.
+// Runs after districts populate so the district <select> can be set.
+function prefillApplicant() {
+  if (!window.KHUI || !KHUI.prefillFromProfile) return;
+  KHUI.prefillFromProfile({
+    full_name: 'p_nameEn',
+    nid:       'p_nid',
+    mobile:    'p_mobile',
+    address:   'p_address',
+    district:  'p_district'
+  }, {
+    onFilled: function (p) {
+      // bilingual name: if a Bangla name is stored, use it for the Bangla field
+      var bn = document.getElementById('p_nameBn');
+      if (bn && !bn.value && (p.full_name_bn || p.full_name)) {
+        bn.value = p.full_name_bn || p.full_name;
+      }
+      // refresh dependent upazila dropdown if district got set
+      if (typeof updateUpazila === 'function') { try { updateUpazila(); } catch (e) {} }
+      var note = document.getElementById('autofillNote');
+      if (note) note.style.display = 'flex';
+    }
+  });
+}
 
 /* ── STEP NAVIGATION ── */
 function nextStep() {

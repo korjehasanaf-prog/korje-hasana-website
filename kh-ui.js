@@ -423,6 +423,126 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     PREMIUM EMAIL INPUT — validity tick + quick domain chips
+     ══════════════════════════════════════════════════════ */
+
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var DOMAINS = [
+    { d: 'gmail.com',   cls: 'kh-dc-gmail',   ic: 'G' },
+    { d: 'outlook.com', cls: 'kh-dc-outlook', ic: 'O' },
+    { d: 'yahoo.com',   cls: 'kh-dc-yahoo',   ic: 'Y' }
+  ];
+
+  function enhanceEmail(inp) {
+    if (inp.dataset.khEmail === '1' || inp.dataset.khSkip === '1') return;
+    inp.dataset.khEmail = '1';
+    inp.classList.add('kh-email-live');
+
+    /* 1 ── validity tick inside the field ── */
+    var host = inp.parentElement;
+    if (host) {
+      var cs = window.getComputedStyle(host).position;
+      if (cs === 'static') host.classList.add('kh-email-host');
+      var tick = document.createElement('span');
+      tick.className = 'kh-email-tick';
+      tick.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>';
+      host.appendChild(tick);
+      inp._khTick = tick;
+      /* keep the value clear of the tick */
+      var pr = parseFloat(window.getComputedStyle(inp).paddingRight) || 0;
+      if (pr < 34) inp.style.paddingRight = '34px';
+    }
+
+    /* 2 ── quick-select domain chips below the field ── */
+    var anchor = inp.closest('.kh-field') || inp.closest('.form-group') ||
+                 inp.closest('.fg') || inp.closest('.fl-field') ||
+                 inp.closest('.mfield') || inp.parentElement;
+    if (anchor && anchor.parentNode && inp.dataset.khDomains !== 'off') {
+      var row = document.createElement('div');
+      row.className = 'kh-domain-row';
+      row.innerHTML = '<span class="kh-domain-lbl">দ্রুত বাছাই:</span>';
+      DOMAINS.forEach(function (o) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'kh-domain-chip';
+        b.innerHTML = '<span class="kh-dc-ic ' + o.cls + '">' + o.ic + '</span>' + o.d;
+        b.addEventListener('click', function (e) {
+          e.preventDefault();
+          applyDomain(inp, o.d);
+        });
+        row.appendChild(b);
+      });
+      anchor.parentNode.insertBefore(row, anchor.nextSibling);
+    }
+
+    function validate() {
+      var v = inp.value.trim();
+      var ok = EMAIL_RE.test(v);
+      if (inp._khTick) inp._khTick.classList.toggle('kh-ok', ok);
+      inp.classList.toggle('kh-valid', ok);
+      inp.classList.toggle('kh-invalid', v.length > 3 && v.indexOf('@') > 0 && !ok);
+    }
+    inp.addEventListener('input', validate);
+    inp.addEventListener('blur', validate);
+    validate();
+  }
+
+  function applyDomain(inp, domain) {
+    var v = inp.value.trim();
+    var at = v.indexOf('@');
+    if (at === -1) {
+      /* no @ yet: append the domain to whatever local part they typed */
+      inp.value = (v || '') + '@' + domain;
+    } else {
+      /* replace whatever is after @ */
+      inp.value = v.slice(0, at + 1) + domain;
+    }
+    inp.focus();
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    /* nudge the caret to the end */
+    try { inp.setSelectionRange(inp.value.length, inp.value.length); } catch (e) {}
+  }
+
+  KHUI.enhanceEmails = function (root) {
+    root = root || document;
+    root.querySelectorAll('input[type="email"]').forEach(enhanceEmail);
+  };
+
+  /* ══════════════════════════════════════════════════════
+     AUTO-FILL FORMS FROM THE LOGGED-IN MEMBER PROFILE
+     Pages pass a map of  profileField -> inputElementId.
+     Fields the user already typed are left untouched.
+     Returns the profile (or null) so the caller can react.
+     ══════════════════════════════════════════════════════ */
+  KHUI.prefillFromProfile = function (map, opts) {
+    opts = opts || {};
+    if (!window._db || !window._db.rpc) return Promise.resolve(null);
+
+    return window._db.auth.getSession().then(function (s) {
+      if (!s || !s.data || !s.data.session) return null;
+      return window._db.rpc('get_my_profile').then(function (r) {
+        var p = (r && !r.error) ? r.data : null;
+        if (!p) return null;
+
+        Object.keys(map).forEach(function (field) {
+          var el = document.getElementById(map[field]);
+          if (!el) return;
+          var val = p[field];
+          if (val === null || val === undefined || val === '') return;
+          if (el.value && el.value.trim() !== '' && !opts.overwrite) return; // don't clobber typing
+          el.value = val;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+          el.classList.add('kh-autofilled');
+        });
+
+        if (typeof opts.onFilled === 'function') opts.onFilled(p);
+        return p;
+      });
+    }).catch(function () { return null; });
+  };
+
+  /* ══════════════════════════════════════════════════════
      5 ── WHATSAPP CHAT WIDGET
      ══════════════════════════════════════════════════════ */
 
@@ -705,6 +825,7 @@
     }
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     KHUI.enhancePasswords(document);
+    KHUI.enhanceEmails(document);
   }
 
   if (document.readyState === 'loading') {

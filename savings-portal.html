@@ -1135,8 +1135,27 @@ async function loadHeroStats() {
 (async () => {
   loadHeroStats();
   const { data: { session } } = await _db.auth.getSession();
-  if(session?.user) await loadPortal(session.user);
+  if(session?.user) {
+    await loadPortal(session.user);
+    // logged-in member opening the register tab → prefill from their profile
+    prefillRegister();
+  }
 })();
+
+// Auto-fill the "new savings account" form from the member's profile
+function prefillRegister() {
+  if (!window.KHUI || !KHUI.prefillFromProfile) return;
+  KHUI.prefillFromProfile({
+    full_name: 'regName',
+    mobile:    'regPhone',
+    nid:       'regNid',
+    email:     'regEmail'
+  }, {
+    onFilled: function () {
+      showMsg('regMsg', 'আপনার অ্যাকাউন্টের তথ্য থেকে ফর্মটি স্বয়ংক্রিয়ভাবে পূরণ করা হয়েছে।', 'info');
+    }
+  });
+}
 
 // ─── Sidebar panel navigation ─────────────────────────────────────
 function showPanel(name) {
