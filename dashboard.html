@@ -369,6 +369,20 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div class="stat-card sc-green"><span class="stat-ico">📊</span><div class="stat-num" id="ds-expense">—</div><div class="stat-lbl">মোট খরচ (৳)</div></div>
         </div>
 
+        <!-- ══ WALLET SUMMARY ══ -->
+        <div class="card" id="walletSummary" style="margin-bottom:16px;background:linear-gradient(120deg,#241539,#4c2f78 60%,#7048e8);color:#fff;border:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div class="card-title" style="color:#fff;margin:0"><i class="ti ti-wallet"></i> ওয়ালেট সামারি</div>
+            <a href="wallet.html" style="color:#fff;text-decoration:none;font-size:12.5px;font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:7px 14px;border-radius:18px">বিস্তারিত দেখুন <i class="ti ti-arrow-right"></i></a>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px" id="wsGrid">
+            <div><div style="font-size:11.5px;opacity:.82">সর্বমোট</div><div style="font-size:20px;font-weight:700;font-family:monospace" id="ws-total">৳—</div></div>
+            <div><div style="font-size:11.5px;opacity:.82">মোবাইল ওয়ালেট</div><div style="font-size:18px;font-weight:700;font-family:monospace" id="ws-wallet">৳—</div></div>
+            <div><div style="font-size:11.5px;opacity:.82">ব্যাংক</div><div style="font-size:18px;font-weight:700;font-family:monospace" id="ws-bank">৳—</div></div>
+            <div><div style="font-size:11.5px;opacity:.82">ক্যাশ</div><div style="font-size:18px;font-weight:700;font-family:monospace" id="ws-cash">৳—</div></div>
+          </div>
+        </div>
+
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
           <div class="card">
             <div class="card-title"><i class="ti ti-clock-hour-3"></i> সাম্প্রতিক ঋণ আবেদন</div>
@@ -720,6 +734,23 @@ async function initAdmin() {
   // Load dashboard
   loadDashboard();
   loadPendingBadges();
+  loadWalletSummary();
+}
+
+// ════════════════════════════════════════
+//  WALLET SUMMARY (dashboard card)
+// ════════════════════════════════════════
+function _bnNum(n){ return Number(n||0).toLocaleString('en-US').replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
+async function loadWalletSummary(){
+  try{
+    const { data, error } = await _db.rpc('get_balance_summary');
+    if (error) return;
+    let sum = { wallet:0, bank:0, cash:0 };
+    (data||[]).forEach(r => { sum[r.kind] = Number(r.total)||0; });
+    const total = sum.wallet + sum.bank + sum.cash;
+    const set = (id,v) => { const e=document.getElementById(id); if(e) e.textContent='৳'+_bnNum(Math.round(v)); };
+    set('ws-total', total); set('ws-wallet', sum.wallet); set('ws-bank', sum.bank); set('ws-cash', sum.cash);
+  }catch(e){ /* summary is non-critical */ }
 }
 
 function showAccessDenied() {

@@ -671,14 +671,16 @@ async function doLogin() {
   btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> যাচাই করা হচ্ছে…';
 
   try {
-    // Verify identity: NID + mobile must both match
-    const { data: borrower, error: be } = await _db
-      .from('borrowers')
-      .select('*')
-      .eq('nid', nid)
-      .eq('mobile', mobile)
-      .limit(1)
-      .single();
+    /* ── Identity check ──────────────────────────────────────
+       The borrowers table is no longer readable from the browser.
+       verify_borrower() runs on the server and returns a single
+       row only when BOTH the NID and the mobile match, so the
+       table cannot be listed or guessed at.
+       ──────────────────────────────────────────────────────── */
+    const { data: rows, error: be } = await _db
+      .rpc('verify_borrower', { p_nid: nid, p_mobile: mobile });
+
+    const borrower = Array.isArray(rows) ? rows[0] : rows;
 
     if (be || !borrower) {
       showLoginError('NID বা মোবাইল নম্বর মেলেনি। সঠিক তথ্য দিন অথবা আমাদের সাথে যোগাযোগ করুন।');
@@ -687,22 +689,18 @@ async function doLogin() {
       return;
     }
 
-    // Fetch all loans for this borrower
-    const { data: loans, error: le } = await _db
-      .from('loans')
-      .select('*')
-      .eq('borrower_id', borrower.id)
-      .order('created_at', { ascending: false });
+    // Loans — also gated behind the same NID + mobile proof
+    const { data: loans } = await _db
+      .rpc('verify_borrower_loans', { p_nid: nid, p_mobile: mobile });
 
-    const loan = loans?.[0] || null;
+    const loan = (loans && loans.length) ? loans[0] : null;
     let schedule = [];
 
     if (loan) {
       const { data: sched } = await _db
-        .from('repayments')
-        .select('*')
-        .eq('loan_id', loan.id)
-        .order('installment_no', { ascending: true });
+        .rpc('verify_borrower_repayments', {
+          p_nid: nid, p_mobile: mobile, p_loan_id: loan.id
+        });
       schedule = sched || [];
     }
 

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ব্যালেন্স ও ওয়ালেট | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{
+      --pink:#d6336c; --orange:#e95420; --amber:#f08c28; --violet:#7048e8;
+      --ink:#241539; --ink2:#160d26; --muted:#6b6280; --border:#ece7f0;
+      --green:#16a34a; --red:#dc2626;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hind Siliguri','Inter',sans-serif;background:#f6f2fb;color:var(--ink);min-height:100vh}
+
+    /* top bar */
+    .wbar{background:linear-gradient(112deg,#241539,#4c2f78 60%,#7048e8);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;color:#fff;position:sticky;top:0;z-index:50}
+    .wbar-l{display:flex;align-items:center;gap:12px}
+    .wbar-logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+    .wbar-t b{font-size:15.5px;font-weight:700;display:block;line-height:1.2}
+    .wbar-t span{font-size:11.5px;opacity:.8}
+    .wbar-back{color:#fff;text-decoration:none;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:8px 15px;border-radius:20px}
+    .wbar-back:hover{background:rgba(255,255,255,.24)}
+
+    .wrap{max-width:1080px;margin:0 auto;padding:24px 20px 60px}
+
+    /* access denied */
+    .denied{max-width:440px;margin:80px auto;background:#fff;border:1px solid var(--border);border-radius:18px;padding:40px 32px;text-align:center;box-shadow:0 14px 44px rgba(112,72,232,.12)}
+    .denied i{font-size:46px;color:var(--pink)}
+    .denied h2{font-size:21px;margin:14px 0 8px}
+    .denied p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+    .denied a{display:inline-block;background:linear-gradient(112deg,var(--pink),var(--violet));color:#fff;text-decoration:none;padding:11px 26px;border-radius:10px;font-weight:600;font-size:14px}
+
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+    @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+    .kpi{border-radius:15px;padding:16px 17px;color:#fff;position:relative;overflow:hidden}
+    .kpi i{position:absolute;right:11px;top:11px;font-size:32px;opacity:.22}
+    .kpi .lbl{font-size:12.5px;opacity:.92;margin-bottom:6px}
+    .kpi .amt{font-size:22px;font-weight:700;font-family:monospace}
+    .kpi .sub{font-size:11px;opacity:.85;margin-top:3px}
+    .k-total{background:linear-gradient(135deg,#241539,#7048e8)}
+    .k-wallet{background:linear-gradient(135deg,#d6336c,#e95420)}
+    .k-bank{background:linear-gradient(135deg,#0d6e56,#1d9e75)}
+    .k-cash{background:linear-gradient(135deg,#b8860b,#f08c28)}
+
+    .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+    .tab{display:flex;align-items:center;gap:6px;padding:9px 17px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s}
+    .tab.on{background:linear-gradient(112deg,var(--pink),var(--violet));border-color:transparent;color:#fff}
+    .tab i{font-size:16px}
+    .tab-add{margin-left:auto;background:#fff;border:1.5px dashed var(--violet);color:var(--violet)}
+
+    .body{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start}
+    @media(max-width:760px){.body{grid-template-columns:1fr}}
+
+    .stage{background:linear-gradient(160deg,#efe6d6,#e4d5be);border-radius:18px;padding:26px 22px 30px;position:relative;min-height:320px}
+    .stack{position:relative;max-width:300px;margin:0 auto}
+    .pcard{position:absolute;left:6px;right:6px;height:170px;border-radius:15px;padding:15px 17px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.28);cursor:pointer;text-align:left;transform-origin:center bottom;transition:transform .42s cubic-bezier(.34,1.25,.5,1),box-shadow .3s,filter .3s;filter:brightness(.92)}
+    .pcard.sel{filter:brightness(1);box-shadow:0 20px 44px rgba(0,0,0,.42)}
+    .pc-top{display:flex;justify-content:space-between;align-items:flex-start}
+    .pc-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px}
+    .pc-badge{width:26px;height:26px;border-radius:7px;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+    .pc-chip{width:30px;height:22px;border-radius:5px;background:rgba(255,255,255,.32)}
+    .pc-no{font-size:12px;letter-spacing:1.5px;margin-top:32px;opacity:.9}
+    .pc-lbl{font-size:9px;opacity:.75;text-transform:uppercase;letter-spacing:.5px;margin-top:10px}
+    .pc-bal{font-size:17px;font-weight:700;font-family:monospace}
+    .pocket{position:absolute;left:0;right:0;bottom:0;height:100px;border-radius:16px;background:linear-gradient(160deg,#5a3d28,#3a2416);box-shadow:inset 0 4px 12px rgba(0,0,0,.45),0 8px 20px rgba(0,0,0,.25);z-index:60;pointer-events:none;border-top:2px dashed rgba(255,255,255,.12)}
+    .pocket::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1.5px dashed rgba(255,255,255,.14)}
+    .stage-hint{text-align:center;font-size:11.5px;color:#8a7355;margin-top:14px;font-style:italic}
+    .stage-empty{text-align:center;color:#8a7355;padding:50px 20px;font-size:14px}
+
+    .detail{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 8px 26px rgba(112,72,232,.1)}
+    .detail-head{padding:20px;color:#fff;transition:background .4s}
+    .dh-badge{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:12px}
+    .dh-name{font-size:19px;font-weight:700}
+    .dh-no{font-size:12.5px;opacity:.85;letter-spacing:1px;margin-top:2px}
+    .dh-bal{font-size:29px;font-weight:700;font-family:monospace;margin-top:14px}
+    .dh-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;opacity:.8}
+    .detail-body{padding:16px 20px}
+    .dstat{display:flex;justify-content:space-between;padding:9px 0;font-size:13px;border-bottom:1px solid var(--border)}
+    .dstat:last-child{border-bottom:none}
+    .dstat .k{color:var(--muted)}
+    .dstat .v{font-weight:600}
+    .dactions{display:flex;gap:8px;margin-top:16px}
+    .dbtn{flex:1;padding:11px;border-radius:9px;border:none;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;color:#fff}
+    .db-in{background:var(--green)}.db-out{background:var(--red)}.db-edit{background:var(--violet)}
+
+    /* modal */
+    .modal-back{position:fixed;inset:0;background:rgba(36,21,57,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+    .modal-back.show{display:flex}
+    .modal{background:#fff;border-radius:18px;width:100%;max-width:420px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.3);animation:mpop .3s cubic-bezier(.34,1.3,.5,1)}
+    @keyframes mpop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+    .modal h3{font-size:18px;margin-bottom:4px}
+    .modal .msub{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+    .mfield{margin-bottom:14px}
+    .mfield label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+    .mfield input,.mfield select{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:14.5px;color:var(--ink);outline:none;background:#faf7fd}
+    .mfield input:focus,.mfield select:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(112,72,232,.13)}
+    .mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mactions{display:flex;gap:10px;margin-top:20px}
+    .mbtn{flex:1;padding:12px;border-radius:10px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+    .mbtn-primary{background:linear-gradient(112deg,var(--pink),var(--violet));color:#fff}
+    .mbtn-ghost{background:#f1edf6;color:var(--muted)}
+    .mmsg{display:none;padding:9px 12px;border-radius:8px;font-size:12.5px;margin-bottom:14px}
+    .mmsg.err{display:block;background:#fee2e2;color:#991b1b}
+    .mmsg.ok{display:block;background:#dcfce7;color:#14532d}
+    .spin{animation:sp .9s linear infinite;display:inline-block}
+    @keyframes sp{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body data-kh-nav="off" data-kh-glow="off">
+
+<!-- top bar -->
+<div class="wbar">
+  <div class="wbar-l">
+    <div class="wbar-logo">KH</div>
+    <div class="wbar-t"><b>ব্যালেন্স ও ওয়ালেট</b><span>কর্জে হাসানা ফাউন্ডেশন</span></div>
+  </div>
+  <a class="wbar-back" href="dashboard.html"><i class="ti ti-arrow-left"></i> ড্যাশবোর্ড</a>
+</div>
+
+<!-- access gate -->
+<div id="denied" class="denied" style="display:none">
+  <i class="ti ti-lock-access"></i>
+  <h2>প্রবেশাধিকার নেই</h2>
+  <p>ব্যালেন্স তথ্য শুধুমাত্র অনুমোদিত অ্যাডমিন দেখতে পারবেন। অনুগ্রহ করে লগইন করুন।</p>
+  <a href="admin-login.html">অ্যাডমিন লগইন</a>
+</div>
+
+<!-- main -->
+<div class="wrap" id="wrap" style="display:none">
+
+  <div class="kpis">
+    <div class="kpi k-total"><i class="ti ti-wallet"></i><div class="lbl">সর্বমোট ব্যালেন্স</div><div class="amt" id="kTotal">৳০</div><div class="sub" id="kTotalSub">—</div></div>
+    <div class="kpi k-wallet"><i class="ti ti-device-mobile"></i><div class="lbl">মোবাইল ওয়ালেট</div><div class="amt" id="kWallet">৳০</div><div class="sub" id="kWalletSub">—</div></div>
+    <div class="kpi k-bank"><i class="ti ti-building-bank"></i><div class="lbl">ব্যাংক</div><div class="amt" id="kBank">৳০</div><div class="sub" id="kBankSub">—</div></div>
+    <div class="kpi k-cash"><i class="ti ti-cash"></i><div class="lbl">ক্যাশ</div><div class="amt" id="kCash">৳০</div><div class="sub" id="kCashSub">—</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-kind="wallet" onclick="wbTab('wallet',this)"><i class="ti ti-device-mobile"></i> ওয়ালেট</button>
+    <button class="tab" data-kind="bank" onclick="wbTab('bank',this)"><i class="ti ti-building-bank"></i> ব্যাংক</button>
+    <button class="tab" data-kind="cash" onclick="wbTab('cash',this)"><i class="ti ti-cash"></i> ক্যাশ</button>
+    <button class="tab tab-add" onclick="openAdd()"><i class="ti ti-plus"></i> নতুন অ্যাকাউন্ট</button>
+  </div>
+
+  <div class="body">
+    <div class="stage">
+      <div class="stack" id="stack"></div>
+      <div class="pocket" id="pocket"></div>
+      <div class="stage-hint" id="stageHint">যেকোনো কার্ডে ক্লিক করুন — সেটি ওয়ালেট থেকে বেরিয়ে আসবে</div>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+
+<!-- adjust / add modal -->
+<div class="modal-back" id="modalBack">
+  <div class="modal">
+    <h3 id="mTitle">ব্যালেন্স আপডেট</h3>
+    <div class="msub" id="mSub"></div>
+    <div class="mmsg" id="mMsg"></div>
+    <div id="mAdjust">
+      <div class="mfield">
+        <label>পরিমাণ (৳)</label>
+        <input type="number" id="mAmount" placeholder="0" inputmode="numeric">
+      </div>
+      <div class="mfield">
+        <label>কারণ / নোট</label>
+        <input type="text" id="mReason" placeholder="যেমন: দান জমা, ব্যাংক ট্রান্সফার">
+      </div>
+    </div>
+    <div id="mAddFields" style="display:none">
+      <div class="mrow">
+        <div class="mfield"><label>ধরন</label>
+          <select id="mKind">
+            <option value="wallet">মোবাইল ওয়ালেট</option>
+            <option value="bank">ব্যাংক</option>
+            <option value="cash">ক্যাশ</option>
+          </select>
+        </div>
+        <div class="mfield"><label>প্রোভাইডার</label>
+          <select id="mProvider">
+            <option value="bkash">বিকাশ</option>
+            <option value="nagad">নগদ</option>
+            <option value="rocket">রকেট</option>
+            <option value="upay">উপায়</option>
+            <option value="mcash">এম-ক্যাশ</option>
+            <option value="somadhan">সমাধান</option>
+            <option value="bank">ব্যাংক</option>
+            <option value="cash">ক্যাশ</option>
+          </select>
+        </div>
+      </div>
+      <div class="mfield"><label>নাম / লেবেল</label><input type="text" id="mLabel" placeholder="যেমন: বিকাশ (মার্চেন্ট)"></div>
+      <div class="mrow">
+        <div class="mfield"><label>অ্যাকাউন্ট নম্বর</label><input type="text" id="mAccNo" placeholder="01XXX****XX"></div>
+        <div class="mfield"><label>প্রারম্ভিক ব্যালেন্স</label><input type="number" id="mOpening" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="mactions">
+      <button class="mbtn mbtn-ghost" onclick="closeModal()">বাতিল</button>
+      <button class="mbtn mbtn-primary" id="mSave" onclick="saveModal()">সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var TYPE={wallet:'মোবাইল ওয়ালেট',bank:'ব্যাংক অ্যাকাউন্ট',cash:'নগদ'};
+var PROVIDER_COLOR={bkash:'#e2136e',nagad:'#f6941e',rocket:'#8c3494',upay:'#e8452a',mcash:'#00857c',somadhan:'#2c6e49',bank:'#00693c',cash:'#3b6d11',islami:'#00693c',dbbl:'#e6001f'};
+var GAP=46;
+var ACCOUNTS=[], curKind='wallet', curIdx=0, modalMode='adjust', modalDir=1;
+
+function bn(n){ return Number(n||0).toLocaleString('en-US').replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
+function taka(n){ return '৳'+bn(Math.round(n)); }
+function shade(hex){var n=parseInt(hex.slice(1),16),r=(n>>16)-30,g=((n>>8)&255)-30,b=(n&255)-30;return '#'+[r,g,b].map(v=>Math.max(0,v).toString(16).padStart(2,'0')).join('');}
+function badge(a){ var s=(a.label||a.provider||'?').trim(); return s.charAt(0); }
+function color(a){ return a.accent || PROVIDER_COLOR[a.provider] || '#7048e8'; }
+
+// ── init: admin gate ──
+(async function(){
+  try{
+    var s=await _db.auth.getSession();
+    if(!s.data.session){ gateFail(); return; }
+    var r=await _db.rpc('get_my_admin_info');
+    if(r.error || !r.data || !r.data.length){ gateFail(); return; }
+    document.getElementById('wrap').style.display='';
+    await loadAccounts();
+  }catch(e){ gateFail(); }
+})();
+function gateFail(){ document.getElementById('denied').style.display=''; document.getElementById('wrap').style.display='none'; }
+
+async function loadAccounts(){
+  var r=await _db.from('accounts').select('*').eq('is_active',true).order('kind').order('sort_order');
+  ACCOUNTS = r.data || [];
+  renderKPIs();
+  render(curKind);
+}
+
+function renderKPIs(){
+  var sum={wallet:0,bank:0,cash:0}, cnt={wallet:0,bank:0,cash:0};
+  ACCOUNTS.forEach(function(a){ sum[a.kind]=(sum[a.kind]||0)+Number(a.balance); cnt[a.kind]=(cnt[a.kind]||0)+1; });
+  var total=sum.wallet+sum.bank+sum.cash, tc=cnt.wallet+cnt.bank+cnt.cash;
+  document.getElementById('kTotal').textContent=taka(total);
+  document.getElementById('kTotalSub').textContent=bn(tc)+'টি অ্যাকাউন্ট';
+  document.getElementById('kWallet').textContent=taka(sum.wallet);
+  document.getElementById('kWalletSub').textContent=bn(cnt.wallet)+'টি';
+  document.getElementById('kBank').textContent=taka(sum.bank);
+  document.getElementById('kBankSub').textContent=bn(cnt.bank)+'টি';
+  document.getElementById('kCash').textContent=taka(sum.cash);
+  document.getElementById('kCashSub').textContent=bn(cnt.cash)+'টি';
+}
+
+function render(kind){
+  curKind=kind;
+  var items=ACCOUNTS.filter(a=>a.kind===kind);
+  var stack=document.getElementById('stack'), pk=document.getElementById('pocket'), hint=document.getElementById('stageHint');
+  stack.innerHTML='';
+  if(!items.length){
+    stack.style.height='auto';
+    stack.innerHTML='<div class="stage-empty"><i class="ti ti-folder-open" style="font-size:34px;opacity:.5"></i><br>এই ধরনের কোনো অ্যাকাউন্ট নেই।<br>উপরে "নতুন অ্যাকাউন্ট" চাপুন।</div>';
+    pk.style.display='none'; hint.style.display='none';
+    document.getElementById('detail').innerHTML='';
+    return;
+  }
+  pk.style.display=''; hint.style.display='';
+  items.forEach(function(it,i){
+    var tilt=(i-(items.length-1)/2)*2.4, c=color(it);
+    var el=document.createElement('div');
+    el.className='pcard'; el.dataset.i=i;
+    el.style.background='linear-gradient(135deg,'+c+','+shade(c)+')';
+    el.style.top=(i*GAP)+'px'; el.style.zIndex=(i+1);
+    el.style.transform='rotate('+tilt+'deg)'; el.dataset.tilt=tilt;
+    el.innerHTML='<div class="pc-top"><span class="pc-name"><span class="pc-badge">'+badge(it)+'</span>'+(it.label||'')+'</span><span class="pc-chip"></span></div>'+
+      '<div class="pc-no">'+(it.account_no||'')+'</div>'+
+      '<div class="pc-lbl">ব্যালেন্স</div><div class="pc-bal">'+taka(it.balance)+'</div>';
+    el.onclick=function(){ select(i); };
+    stack.appendChild(el);
+  });
+  var h=(items.length-1)*GAP+170;
+  stack.style.height=h+'px';
+  pk.style.height=Math.min(110,h*0.42)+'px';
+  select(0);
+}
+
+function select(idx){
+  curIdx=idx;
+  var items=ACCOUNTS.filter(a=>a.kind===curKind);
+  [].forEach.call(document.querySelectorAll('.pcard'),function(el){
+    var i=+el.dataset.i, tilt=+el.dataset.tilt;
+    if(i===idx){ el.classList.add('sel'); el.style.transform='translateY(-14px) rotate(0deg) scale(1.04)'; el.style.zIndex=99; }
+    else{ el.classList.remove('sel'); el.style.transform='rotate('+tilt+'deg)'; el.style.zIndex=(i+1); }
+  });
+  var it=items[idx]; if(!it) return;
+  var c=color(it), d=document.getElementById('detail');
+  d.innerHTML=
+    '<div class="detail-head" style="background:linear-gradient(135deg,'+c+','+shade(c)+')">'+
+      '<div class="dh-badge">'+badge(it)+'</div><div class="dh-name">'+(it.label||'')+'</div>'+
+      '<div class="dh-no">'+(it.account_no||'')+'</div><div class="dh-lbl">বর্তমান ব্যালেন্স</div>'+
+      '<div class="dh-bal">'+taka(it.balance)+'</div></div>'+
+    '<div class="detail-body">'+
+      '<div class="dstat"><span class="k">ধরন</span><span class="v">'+TYPE[curKind]+'</span></div>'+
+      '<div class="dstat"><span class="k">প্রোভাইডার</span><span class="v">'+(it.provider||'—')+'</span></div>'+
+      '<div class="dstat"><span class="k">অ্যাকাউন্ট নম্বর</span><span class="v">'+(it.account_no||'—')+'</span></div>'+
+      '<div class="dstat"><span class="k">মুদ্রা</span><span class="v">'+(it.currency||'BDT')+'</span></div>'+
+      '<div class="dactions">'+
+        '<button class="dbtn db-in" onclick="openAdjust(1)"><i class="ti ti-plus"></i>জমা</button>'+
+        '<button class="dbtn db-out" onclick="openAdjust(-1)"><i class="ti ti-minus"></i>উত্তোলন</button>'+
+      '</div></div>';
+}
+
+function wbTab(kind,btn){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on')); btn.classList.add('on'); render(kind); }
+
+// ── modal ──
+function mmsg(t,k){ var e=document.getElementById('mMsg'); if(!t){e.className='mmsg';e.textContent='';return;} e.textContent=t; e.className='mmsg '+(k||'err'); }
+function closeModal(){ document.getElementById('modalBack').classList.remove('show'); mmsg(''); }
+
+function openAdjust(dir){
+  modalMode='adjust'; modalDir=dir;
+  var it=ACCOUNTS.filter(a=>a.kind===curKind)[curIdx];
+  document.getElementById('mAdjust').style.display='';
+  document.getElementById('mAddFields').style.display='none';
+  document.getElementById('mTitle').textContent = dir>0 ? 'জমা যোগ করুন' : 'উত্তোলন করুন';
+  document.getElementById('mSub').textContent = (it.label||'') + ' — বর্তমান ' + taka(it.balance);
+  document.getElementById('mAmount').value=''; document.getElementById('mReason').value='';
+  mmsg('');
+  document.getElementById('modalBack').classList.add('show');
+  setTimeout(()=>document.getElementById('mAmount').focus(),100);
+}
+function openAdd(){
+  modalMode='add';
+  document.getElementById('mAdjust').style.display='none';
+  document.getElementById('mAddFields').style.display='';
+  document.getElementById('mTitle').textContent='নতুন অ্যাকাউন্ট যোগ করুন';
+  document.getElementById('mSub').textContent='ওয়ালেট / ব্যাংক / ক্যাশ অ্যাকাউন্ট তৈরি করুন';
+  document.getElementById('mLabel').value=''; document.getElementById('mAccNo').value=''; document.getElementById('mOpening').value='';
+  mmsg('');
+  document.getElementById('modalBack').classList.add('show');
+}
+
+async function saveModal(){
+  var btn=document.getElementById('mSave'), orig=btn.textContent;
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader-2 spin"></i>';
+  try{
+    if(modalMode==='adjust'){
+      var amt=parseFloat(document.getElementById('mAmount').value);
+      if(!amt || amt<=0){ mmsg('সঠিক পরিমাণ দিন।'); btn.disabled=false; btn.textContent=orig; return; }
+      var it=ACCOUNTS.filter(a=>a.kind===curKind)[curIdx];
+      var delta = modalDir>0 ? amt : -amt;
+      var reason=document.getElementById('mReason').value.trim() || (modalDir>0?'জমা':'উত্তোলন');
+      var r=await _db.rpc('adjust_account_balance',{ p_account_id:it.id, p_delta:delta, p_reason:reason });
+      if(r.error){ mmsg(r.error.message); btn.disabled=false; btn.textContent=orig; return; }
+    } else {
+      var kind=document.getElementById('mKind').value;
+      var prov=document.getElementById('mProvider').value;
+      var label=document.getElementById('mLabel').value.trim();
+      var accno=document.getElementById('mAccNo').value.trim();
+      var opening=parseFloat(document.getElementById('mOpening').value)||0;
+      if(!label){ mmsg('অ্যাকাউন্টের নাম দিন।'); btn.disabled=false; btn.textContent=orig; return; }
+      var ins=await _db.from('accounts').insert({
+        kind:kind, provider:prov, label:label, account_no:accno||null,
+        balance:opening, accent:PROVIDER_COLOR[prov]||null,
+        sort_order: ACCOUNTS.filter(a=>a.kind===kind).length + 1
+      });
+      if(ins.error){ mmsg(ins.error.message); btn.disabled=false; btn.textContent=orig; return; }
+      curKind=kind;
+    }
+    closeModal();
+    await loadAccounts();
+    // switch tab UI to the affected kind
+    document.querySelectorAll('.tab').forEach(t=>{ if(t.dataset.kind===curKind){ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on')); t.classList.add('on'); } });
+    render(curKind);
+  }catch(e){ mmsg('সংযোগ ত্রুটি।'); }
+  btn.disabled=false; btn.textContent=orig;
+}
+document.getElementById('modalBack').addEventListener('mousedown',function(e){ if(e.target===this) closeModal(); });
+</script>
+<link rel="stylesheet" href="kh-ui.css">
+<script src="kh-ui.js"></script>
+</body>
+</html>

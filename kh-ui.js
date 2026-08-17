@@ -684,10 +684,24 @@
      AUTO-INIT
      ══════════════════════════════════════════════════════ */
 
+  /* pages without the glass navbar still need a way to switch theme */
+  KHUI.mountThemeButton = function () {
+    if (document.querySelector('.kh-theme-btn')) return;
+    var b = document.createElement('button');
+    b.className = 'kh-theme-btn kh-theme-float';
+    b.setAttribute('aria-label', 'থিম পরিবর্তন করুন');
+    b.innerHTML = '<i class="ti ti-moon" aria-hidden="true"></i>';
+    b.onclick = function () { KHUI.toggleTheme(); };
+    document.body.appendChild(b);
+    KHUI._syncThemeIcon();
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
       if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
+    } else if (document.body.dataset.khTheme !== 'off') {
+      KHUI.mountThemeButton();
     }
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     KHUI.enhancePasswords(document);

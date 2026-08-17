@@ -1095,6 +1095,167 @@ html[data-theme="light"] .kh-slider { box-shadow: 0 14px 46px rgba(112, 72, 232,
 html[data-theme="light"] .pc-text { background: #fff; }
 html[data-theme="light"] .kh-otp-back { background: rgba(60, 40, 90, .55); }
 
+/* ══════════════════════════════════════════════════════════
+   12 ── LIGHT THEME · AUTH PAGES (user-login, admin-login)
+        These pages are built as dark glass cards with white
+        text. In light mode the card turns solid white, so the
+        text has to flip to dark or it disappears.
+   ══════════════════════════════════════════════════════════ */
+
+html[data-theme="light"] body {
+  background: linear-gradient(150deg, #fdf3f8 0%, #faf5fd 45%, #fff5ee 100%);
+}
+
+/* soften the ambient orbs so they don't wash the page out */
+html[data-theme="light"] .orb { opacity: .16 !important; }
+html[data-theme="light"] .o1  { background: #d6336c; }
+html[data-theme="light"] .o2  { background: #7048e8; }
+html[data-theme="light"] .o3  { background: #f08c28; }
+html[data-theme="light"] .spot {
+  background: radial-gradient(circle,
+    rgba(232,62,140,.16) 0%, rgba(150,90,230,.10) 34%,
+    rgba(112,72,232,.05) 60%, transparent 74%) !important;
+}
+html[data-theme="light"] .glow-mid { opacity: .18; }
+
+/* ── the card itself ── */
+html[data-theme="light"] .face {
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid #ecdff2;
+  box-shadow: 0 20px 60px rgba(112, 72, 232, .16);
+}
+html[data-theme="light"] .face::before {
+  background: radial-gradient(320px circle at var(--mx,50%) var(--my,50%),
+              rgba(214,51,108,.07), transparent 60%);
+}
+
+/* ── headings ── */
+html[data-theme="light"] .h1  { color: #241539; }
+html[data-theme="light"] .sub { color: #6b6280; }
+html[data-theme="light"] .sect { color: #b02a80; }
+html[data-theme="light"] .sect::after { background: #ecdff2; }
+
+/* ── the animated eyes ── */
+html[data-theme="light"] .head {
+  background: linear-gradient(135deg, rgba(214,51,108,.13), rgba(112,72,232,.13));
+  border: 1px solid rgba(112,72,232,.25);
+}
+html[data-theme="light"] .eye { background: #4c2f78; }
+html[data-theme="light"] .pup { background: #fff; }
+html[data-theme="light"] .head.shut .eye { background: #4c2f78; }
+
+/* ── role chips ── */
+html[data-theme="light"] .chip {
+  background: #fff;
+  border: 1.5px solid #d6336c;
+  color: #b02a80;
+}
+html[data-theme="light"] .chip i { color: #b02a80; }
+html[data-theme="light"] .chip:hover { background: #fdf1f6; }
+html[data-theme="light"] .chip.on {
+  background: linear-gradient(135deg, #e83e8c, #7048e8);
+  border-color: transparent;
+  color: #fff;
+}
+html[data-theme="light"] .chip.on i { color: #fff; }
+
+/* ── input fields ── */
+html[data-theme="light"] .fg input {
+  background: #faf7fd;
+  border: 1.5px solid #e3d8ee;
+  color: #241539;
+}
+html[data-theme="light"] .fg input:focus {
+  background: #fff;
+  border-color: #a021c9;
+  box-shadow: 0 0 0 3px rgba(160,33,201,.14);
+}
+html[data-theme="light"] .fg label  { color: #6b5f80; }
+html[data-theme="light"] .fg .li    { color: #8578a0; }
+html[data-theme="light"] .fg input:focus ~ .li { color: #a021c9; }
+html[data-theme="light"] .fg input:focus + label,
+html[data-theme="light"] .fg input:not(:placeholder-shown) + label {
+  background: linear-gradient(100deg, #b02a80, #6d3fd4);
+  color: #fff;
+}
+html[data-theme="light"] .eb { color: #a396b8; }
+html[data-theme="light"] .eb:hover { color: #b02a80; }
+
+/* ── remember me / forgot password ── */
+html[data-theme="light"] .ut label { color: #4a3f5c; }
+html[data-theme="light"] .ut a     { color: #b02a80; }
+html[data-theme="light"] .or       { color: #8a7fa0; }
+html[data-theme="light"] .or::before,
+html[data-theme="light"] .or::after { background: #e8dcf0; }
+
+/* ── guest button: outline in brand colours ── */
+html[data-theme="light"] .guest {
+  background: #fff;
+  border: 1.5px dashed #7048e8;
+  color: #5b34c4;
+}
+html[data-theme="light"] .guest:hover {
+  background: linear-gradient(112deg, rgba(214,51,108,.09), rgba(112,72,232,.09));
+  border-color: #d6336c;
+  color: #b02a80;
+}
+
+/* ── bottom links ── */
+html[data-theme="light"] .alt   { color: #6b6280; }
+html[data-theme="light"] .alt a { color: #b02a80; }
+html[data-theme="light"] .caps  { color: #b45309; }
+
+/* ── messages ── */
+html[data-theme="light"] .msg.err  { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+html[data-theme="light"] .msg.ok   { background: #dcfce7; border-color: #86efac; color: #14532d; }
+html[data-theme="light"] .msg.info { background: #fff4e6; border-color: #fcd9a0; color: #92400e; }
+
+/* ── home button: colourful gradient pill ── */
+html[data-theme="light"] .home,
+.home {
+  background: linear-gradient(112deg, #d6336c 0%, #a021c9 55%, #7048e8 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .35) !important;
+  color: #fff !important;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(160, 33, 201, .35);
+}
+html[data-theme="light"] .home:hover,
+.home:hover { filter: brightness(1.1); color: #fff !important; }
+
+/* ── admin-login page in light mode ── */
+html[data-theme="light"] .login-shell { box-shadow: 0 20px 60px rgba(112,72,232,.22); }
+html[data-theme="light"] .role-tabs   { background: #faf7fd; border-color: #e8dcf0; }
+html[data-theme="light"] .role-tab    { color: #6b6280; }
+html[data-theme="light"] .back-link a { color: #b02a80; font-weight: 600; }
+html[data-theme="light"] .fl-field input { color: #241539; }
+html[data-theme="light"] .fl-field label { color: #8a7fa0; }
+
+/* ── floating theme button for pages without the glass navbar ── */
+.kh-theme-float {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 9200;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .35);
+  background: linear-gradient(112deg, #d6336c 0%, #a021c9 55%, #7048e8 100%);
+  color: #fff;
+  font-size: 19px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(160, 33, 201, .38);
+  transition: transform .2s, filter .25s;
+}
+.kh-theme-float:hover  { filter: brightness(1.12); transform: scale(1.06); }
+.kh-theme-float:active { transform: scale(.94); }
+@media (max-width: 640px) { .kh-theme-float { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 17px; } }
+
 /* utility */
 .kh-spin { animation: khSpin .9s linear infinite; display: inline-block; }
 @keyframes khSpin { to { transform: rotate(360deg); } }
