@@ -1442,16 +1442,16 @@ body:not([data-kh-nav="off"]) .topbar::after {
   background:
     linear-gradient(90deg,
       transparent 0%,
-      rgba(255, 214, 90, .35) 30%,
-      #ffe9a8 46%,
-      #ffd54f 50%,
-      #ffe9a8 54%,
-      rgba(255, 214, 90, .35) 70%,
+      rgba(232, 89, 12, .45) 30%,
+      #ff8a3d 46%,
+      #ff6b1a 50%,
+      #ff8a3d 54%,
+      rgba(232, 89, 12, .45) 70%,
       transparent 100%) no-repeat,
-    linear-gradient(90deg, rgba(240, 170, 60, .30), rgba(240, 170, 60, .30));
+    linear-gradient(90deg, rgba(217, 72, 15, .38), rgba(217, 72, 15, .38));
   background-size: 240px 100%, 100% 1px;
   background-position: -240px 0, 0 100%;
-  filter: drop-shadow(0 0 5px rgba(255, 213, 79, .85));
+  filter: drop-shadow(0 0 5px rgba(255, 107, 26, .9));
   animation: khGoldSlide 9s ease-in-out infinite alternate;
 }
 
@@ -1465,17 +1465,37 @@ html[data-theme="light"] body:not([data-kh-nav="off"]) .topbar::after {
   background:
     linear-gradient(90deg,
       transparent 0%,
-      rgba(224, 160, 20, .4) 30%,
-      #f5c437 46%,
-      #eaa508 50%,
-      #f5c437 54%,
-      rgba(224, 160, 20, .4) 70%,
+      rgba(200, 65, 10, .5) 30%,
+      #e8590c 46%,
+      #d9480f 50%,
+      #e8590c 54%,
+      rgba(200, 65, 10, .5) 70%,
       transparent 100%) no-repeat,
-    linear-gradient(90deg, rgba(200, 140, 20, .35), rgba(200, 140, 20, .35));
+    linear-gradient(90deg, rgba(190, 65, 12, .42), rgba(190, 65, 12, .42));
   background-size: 240px 100%, 100% 1px;
-  filter: drop-shadow(0 0 4px rgba(234, 165, 8, .7));
+  filter: drop-shadow(0 0 4px rgba(217, 72, 15, .8));
 }
 
 @media (prefers-reduced-motion: reduce) {
   body:not([data-kh-nav="off"]) .topbar::after { animation: none; background-position: 50% 0, 0 100%; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   16 ── HERO "DONATE NOW" — was transparent w/ white text
+        (invisible on the light hero). Make it a solid
+        colourful pill in both themes (CLAUDE.md rule).
+   ══════════════════════════════════════════════════════════ */
+body:not([data-kh-nav="off"]) .hero .btn-outline,
+body:not([data-kh-nav="off"]) .hero-btns .btn-outline {
+  background: linear-gradient(112deg, #d6336c 0%, #a021c9 55%, #7048e8 100%) !important;
+  border: 1px solid rgba(255, 255, 255, .35) !important;
+  color: #fff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(160, 33, 201, .4);
+}
+body:not([data-kh-nav="off"]) .hero .btn-outline:hover,
+body:not([data-kh-nav="off"]) .hero-btns .btn-outline:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  color: #fff !important;
 }
