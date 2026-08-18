@@ -46,6 +46,16 @@
 - **অ্যাডমিন:** dashboard.html → "বকেয়া রিমাইন্ডার" প্যানেল (তালিকা, হিসাব, এখনই পাঠানো)।
 - SMS পরে যোগ হবে — `reminders.channel` কলামে `'sms'` রাখার জায়গা আছে।
 
+## 🧾 ডিজিটাল ভাউচার ও OCR
+
+- **ভাউচার:** `KHUI.voucher({title,no,amount,name,code,mobile,photo,rows,status,note})` — kh-ui.js-এ। সঞ্চয় জমা/উত্তোলনে স্বয়ংক্রিয়ভাবে দেখায়; দানের ভাউচার donation.html-এ আলাদা (সেখানে ছবি `paintVoucherMember()` বসায়)। সব ইনপুট `vEsc()` দিয়ে এসকেপ হয় — XSS পরীক্ষিত।
+- ভাউচারের ভেতরটা সবসময় সাদা কাগজের মতো (দুই থীমে এক), কারণ এটি প্রিন্ট হয়। প্রিন্ট নতুন উইন্ডোতে HTML হিসেবে — টেক্সট ঝকঝকে থাকে।
+- **ভাউচার ই-মেইল:** Edge Function `send-voucher` (verify_jwt চালু)। `KHUI.sendVoucherMail(kind, id)` — kind: `donation` · `savings` · `loan_disburse` · `loan_repayment`। ই-মেইল ঠিকানা **কখনো request body থেকে নেওয়া হয় না** (spam রোধ); সদস্য শুধু নিজের লেনদেন পাঠাতে পারেন, অ্যাডমিন সংশ্লিষ্ট ব্যক্তির ঠিকানায়। ভাউচারে `email:{kind,id}` দিলে বাটন আপনাআপনি আসে।
+- **ক্যামেরা:** `KHUI.camera({facing,title,guide,onShot})` — লাইভ প্রিভিউ, সেলফিতে ওভাল গাইড ও মিরর (সংরক্ষণে সোজা), পেছনের ক্যামেরায় কার্ড ফ্রেম। প্রোফাইল ছবি ও NID — দুটোতেই ক্যামেরা বা গ্যালারি বেছে নেওয়া যায়।
+- **OCR:** `kh-ocr.js` → `KHOCR.readNID(file,{onProgress})`. সম্পূর্ণ ব্রাউজারে (Tesseract.js CDN), ছবি কোথাও আপলোড হয় না।
+  ধাপ: স্মার্ট আপস্কেল ২২০০px → পার্সেন্টাইল স্ট্রেচ → আনশার্প → **Sauvola অভিযোজিত থ্রেশহোল্ড (সমতল-এলাকা গার্ডসহ)** → ৩ পাস (eng PSM6 · eng PSM4 · ben+eng PSM6) → স্কোর দিয়ে সেরা ফল।
+  `KHOCR.extract(text)` NID (১০/১৩/১৭), জন্ম তারিখ (ইংরেজি ও বাংলা মাস), নাম, পিতা/মাতা, রক্তের গ্রুপ বের করে; OCR-এর সাধারণ ভুল (O→0, l→1) সংশোধন করে।
+
 ## 🗄️ গুরুত্বপূর্ণ DB ফাংশন
 
 `create_user_profile`, `get_my_profile`, `update_my_profile`, `get_my_overview`, `touch_my_login`,

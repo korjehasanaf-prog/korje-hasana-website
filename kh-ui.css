@@ -1350,6 +1350,222 @@ html[data-theme="light"] .kh-gmenu .kh-gzoom:hover {
   .kh-zoom-ini { font-size: 62px; }
 }
 
+/* ══════════════════════════════════════════════════════════
+   11.75 ── লাইভ ক্যামেরা (সেলফি / কার্ডের ছবি)
+   ══════════════════════════════════════════════════════════ */
+
+.kh-cam-back {
+  position: fixed; inset: 0; z-index: 10001;
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+  background: rgba(10, 4, 18, .9);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .2s;
+}
+.kh-cam-back.kh-in { opacity: 1; }
+
+.kh-cam {
+  width: 100%; max-width: 440px;
+  background: rgba(30, 17, 51, .98);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  color: #f3edfb;
+}
+html[data-theme="light"] .kh-cam {
+  background: #ffffff; border-color: #ece2f4; color: #241539;
+  box-shadow: 0 24px 64px rgba(112,72,232,.3);
+}
+
+.kh-cam-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; font-size: 15px; font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+html[data-theme="light"] .kh-cam-head { border-color: #f0e9f7; }
+.kh-cam-x {
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.12);
+  color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center;
+}
+html[data-theme="light"] .kh-cam-x { background: #f4eefb; border-color: #e3d8ee; color: #4a3568; }
+
+.kh-cam-stage { position: relative; background: #000; aspect-ratio: 4 / 3; overflow: hidden; }
+.kh-cam-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kh-cam-stage.kh-cam-mirror .kh-cam-video { transform: scaleX(-1); }
+
+.kh-cam-guide {
+  position: absolute; inset: 8% 6%;
+  border: 2.5px dashed rgba(255,255,255,.6);
+  border-radius: 12px; pointer-events: none;
+}
+.kh-cam-guide.kh-cam-oval {
+  inset: 6% 20%; border-radius: 50%;
+  border-color: rgba(232,62,140,.8);
+  box-shadow: 0 0 0 100vmax rgba(0,0,0,.28);
+}
+.kh-cam-msg {
+  position: absolute; inset: 0; display: none;
+  align-items: center; justify-content: center; text-align: center;
+  padding: 22px; background: rgba(12,5,22,.82);
+  color: #f3edfb; font-size: 13.5px; line-height: 1.7;
+}
+
+.kh-cam-hint { padding: 11px 16px; font-size: 12.5px; color: #cbbfdd; text-align: center; }
+html[data-theme="light"] .kh-cam-hint { color: #6b6280; }
+
+.kh-cam-acts { display: flex; gap: 9px; padding: 0 16px 16px; }
+.kh-cam-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: none; border-radius: 12px; padding: 13px 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700; color: #fff;
+  background: linear-gradient(112deg, #d6336c, #a021c9 55%, #e83e8c);
+  box-shadow: 0 6px 18px rgba(160,33,201,.35);
+}
+.kh-cam-btn:hover { filter: brightness(1.08); }
+.kh-cam-btn.kh-cam-alt { background: linear-gradient(112deg, #4c2f78, #241539); box-shadow: none; }
+
+/* ══════════════════════════════════════════════════════════
+   11.8 ── ডিজিটাল ভাউচার (সঞ্চয় জমা / উত্তোলন)
+        ভাউচারের ভেতরটা সবসময় সাদা কাগজের মতো — দুই থীমেই এক,
+        কারণ এটি প্রিন্ট হয়।
+   ══════════════════════════════════════════════════════════ */
+
+.kh-vch-back {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 22px 16px; overflow-y: auto;
+  background: rgba(12, 5, 22, .8);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  opacity: 0; transition: opacity .22s;
+}
+.kh-vch-back.kh-in { opacity: 1; }
+html[data-theme="light"] .kh-vch-back { background: rgba(60, 40, 90, .58); }
+
+.kh-vch {
+  width: 100%; max-width: 580px; margin: auto;
+  background: #ffffff; color: #1a1a1a;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 22px 64px rgba(0,0,0,.4);
+  font-family: 'Hind Siliguri', 'Inter', sans-serif;
+  transform: translateY(14px); transition: transform .26s cubic-bezier(.34,1.2,.5,1);
+}
+.kh-vch-back.kh-in .kh-vch { transform: none; }
+
+/* হেডার */
+.kh-vch-head {
+  position: relative; padding: 22px 24px 20px;
+  background: linear-gradient(135deg, #160d26 0%, #241539 55%, #7048e8 100%);
+  color: #fff;
+}
+.kh-vch-stripe {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+  background: linear-gradient(90deg, #d6336c, #f08c28, #ffc46b, #f08c28, #d6336c);
+}
+.kh-vch-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.kh-vch-brand { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.kh-vch-logo {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #f08c28, #ffc46b);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; font-weight: 900; color: #241539;
+  box-shadow: 0 4px 16px rgba(240,140,40,.45);
+}
+.kh-vch-brand b { display: block; font-size: 15.5px; font-weight: 800; line-height: 1.25; }
+.kh-vch-brand span { font-size: 12px; color: rgba(203,182,245,.85); }
+.kh-vch-no {
+  flex-shrink: 0; text-align: center;
+  background: rgba(240,140,40,.16); border: 1.5px solid rgba(240,140,40,.45);
+  border-radius: 10px; padding: 7px 13px;
+}
+.kh-vch-no span {
+  display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .6px;
+  color: rgba(255,213,79,.9); text-transform: uppercase; margin-bottom: 2px;
+}
+.kh-vch-no b { font-size: 13px; font-weight: 800; color: #ffc46b; }
+
+.kh-vch-amtrow { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; }
+.kh-vch-cap { font-size: 11.5px; letter-spacing: .8px; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: 4px; }
+.kh-vch-amt { font-size: 38px; font-weight: 900; line-height: 1; color: #f8b76a; text-shadow: 0 2px 12px rgba(240,140,40,.35); }
+.kh-vch-when { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.kh-vch-badge {
+  display: inline-block; font-size: 12px; font-weight: 700; color: #bbf7d0;
+  background: rgba(34,197,94,.22); border: 1px solid rgba(34,197,94,.5);
+  border-radius: 20px; padding: 3px 12px;
+}
+
+/* বডি */
+.kh-vch-body { padding: 20px 24px 22px; }
+.kh-vch-member {
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, #f7f2fd, #fdf3f8);
+  border: 1px solid #ece2f4; border-radius: 12px;
+  padding: 12px 15px; margin-bottom: 14px;
+}
+.kh-vch-avwrap {
+  width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0; padding: 3px;
+  background: linear-gradient(135deg, #d6336c, #7048e8);
+  display: flex; align-items: center; justify-content: center;
+}
+.kh-vch-av {
+  width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+}
+.kh-vch-ini { color: #241539; font-size: 24px; font-weight: 800; }
+.kh-vch-name { font-size: 16px; font-weight: 800; color: #241539; line-height: 1.3; }
+.kh-vch-code { font-size: 12px; color: #6B7280; margin-top: 1px; }
+
+.kh-vch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+@media (max-width: 460px) { .kh-vch-grid { grid-template-columns: 1fr; } }
+.kh-vch-cell {
+  background: #faf8fc; border: 1px solid #f0e9f7;
+  border-left: 3px solid #7048e8; border-radius: 10px; padding: 10px 13px;
+}
+.kh-vch-cell:nth-child(2n) { border-left-color: #f08c28; }
+.kh-vch-lbl { font-size: 10.5px; color: #6B7280; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 3px; }
+.kh-vch-val { font-size: 14px; font-weight: 700; color: #1a1a1a; word-break: break-word; }
+
+.kh-vch-foot {
+  display: flex; align-items: center; gap: 16px;
+  border-top: 1.5px dashed #e6dcf0; padding-top: 15px;
+}
+.kh-vch-qr { width: 92px; height: 92px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.kh-vch-qr img, .kh-vch-qr canvas { width: 92px !important; height: 92px !important; }
+.kh-vch-seal { flex: 1; display: flex; align-items: center; gap: 14px; justify-content: space-between; }
+.kh-vch-sealbox {
+  border: 2px solid #7048e8; color: #4c2f78; border-radius: 10px;
+  padding: 9px 14px; font-size: 11.5px; text-align: center; line-height: 1.5;
+  transform: rotate(-4deg); flex-shrink: 0;
+}
+.kh-vch-sealbox b { font-size: 13px; color: #241539; }
+.kh-vch-note { font-size: 11.5px; color: #6B7280; line-height: 1.65; }
+
+/* বাটন — প্রিন্টে থাকে না */
+.kh-vch-acts { display: flex; gap: 9px; padding: 0 24px 22px; }
+.kh-vch-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  border: none; border-radius: 11px; padding: 12px 14px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700; color: #fff;
+  background: linear-gradient(112deg, #d6336c, #a021c9 55%, #e83e8c);
+  box-shadow: 0 6px 18px rgba(160,33,201,.32);
+}
+.kh-vch-btn:hover { filter: brightness(1.08); }
+.kh-vch-btn.kh-vch-alt { background: linear-gradient(112deg, #4c2f78, #241539); box-shadow: none; }
+
+.kh-vch-mailmsg {
+  margin: -8px 24px 18px; padding: 10px 13px; border-radius: 10px;
+  font-size: 12.5px; line-height: 1.6;
+  background: #f4eefb; color: #4a3568; border: 1px solid #e3d8ee;
+}
+.kh-vch-mailmsg.kh-ok  { background: #dcfce7; color: #14532d; border-color: #86efac; }
+.kh-vch-mailmsg.kh-err { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+.kh-spin { animation: kh-sp .9s linear infinite; display: inline-block; }
+@keyframes kh-sp { to { transform: rotate(360deg); } }
+
+@media print {
+  .kh-vch-acts, .kh-vch-mailmsg { display: none !important; }
+  .kh-vch-back { position: static; background: none; padding: 0; }
+}
+
 /* বাধ্যতামূলক ফিল্ডের তারকা */
 .kh-req-star { color: #f43f5e; font-weight: 700; }
 html[data-theme="light"] .kh-req-star { color: #dc2626; }

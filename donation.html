@@ -748,6 +748,19 @@
 
     <!-- ═══ DONOR INFO GRID ═══ -->
     <div style="padding:20px 24px 0">
+
+      <!-- দাতার ছবি ও পরিচয় (লগইন থাকলে) -->
+      <div id="v_photoRow" style="display:none;align-items:center;gap:14px;margin-bottom:14px;padding:12px 15px;background:linear-gradient(135deg,#f7f2fd,#fdf3f8);border:1px solid #ece2f4;border-radius:12px">
+        <div id="v_photoWrap" style="width:62px;height:62px;border-radius:50%;flex-shrink:0;padding:3px;background:linear-gradient(135deg,#d6336c,#7048e8);display:flex;align-items:center;justify-content:center">
+          <span id="v_photoIni" style="width:100%;height:100%;border-radius:50%;background:#fff;color:#241539;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;font-family:'Hind Siliguri',sans-serif">স</span>
+        </div>
+        <div style="min-width:0">
+          <div style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px">Member / সদস্য</div>
+          <div id="v_photoName" style="font-size:16px;font-weight:800;color:#241539;font-family:'Hind Siliguri',sans-serif;line-height:1.3">—</div>
+          <div id="v_photoCode" style="font-size:12px;color:#6B7280;margin-top:1px"></div>
+        </div>
+      </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
         <div style="background:linear-gradient(135deg,#f0f9f4,#e6f4ec);border-radius:10px;padding:11px 14px;border-left:3px solid #241539">
           <div style="font-size:11px;color:#6B7280;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Donor Name / দাতার নাম</div>
@@ -836,8 +849,10 @@
     <div class="v-actions" style="background:#fff;border-top:1px solid #ece7f0;padding:12px 16px;display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;justify-content:center;align-items:center">
       <button onclick="printVoucher()" style="background:linear-gradient(135deg,#241539,#7048e8);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(36,21,57,.3);white-space:nowrap"><i class="ti ti-printer"></i> Print</button>
       <button onclick="downloadVoucherPDF()" style="background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:20px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(240,140,40,.3);white-space:nowrap"><i class="ti ti-download"></i> Download PDF</button>
+      <button id="v_mailBtn" onclick="emailDonationVoucher()" style="background:linear-gradient(135deg,#0d6e56,#1d9e75);color:#fff;border:none;border-radius:20px;padding:9px 16px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(13,110,86,.3);white-space:nowrap"><i class="ti ti-mail"></i> ই-মেইলে পাঠান</button>
       <button onclick="closeVoucher()" style="background:transparent;color:#6B7280;border:1.5px solid #ece7f0;border-radius:20px;padding:9px 14px;font-size:13.5px;cursor:pointer;white-space:nowrap">Close</button>
     </div>
+    <div id="v_mailMsg" style="display:none;background:#fff;padding:0 16px 12px;font-size:12.5px;line-height:1.6;text-align:center"></div>
   </div>
 </div>
 
@@ -1093,7 +1108,7 @@ function processDonation() {
         purpose:         'general',
         is_anonymous:    isAnon
       });
-      if (!error && data) ref = donationNo || ref;
+      if (!error && data) { ref = donationNo || ref; lastDonationId = data.id || null; }
     }
 
     btn.innerHTML = '<i class="ti ti-heart"></i> Donate ৳' + selectedAmt.toLocaleString() + ' now';
@@ -1106,6 +1121,71 @@ function processDonation() {
   setTimeout(processDonation, 2000);
 }
 function closeSuccess() { document.getElementById('successOverlay').classList.remove('show'); }
+
+/* ── দানের ভাউচার ই-মেইলে পাঠানো ── */
+var lastDonationId = null;
+
+function emailDonationVoucher() {
+  var btn = document.getElementById('v_mailBtn');
+  var box = document.getElementById('v_mailMsg');
+  function say(t, kind) {
+    box.style.display = 'block';
+    box.textContent = t;
+    box.style.color = kind === 'ok' ? '#14532d' : (kind === 'err' ? '#991b1b' : '#6B7280');
+  }
+  if (!(window.KHUI && KHUI.sendVoucherMail)) { say('এই মুহূর্তে ই-মেইল পাঠানো যাচ্ছে না।', 'err'); return; }
+  if (!lastDonationId) {
+    say('এই দানটি সংরক্ষিত হওয়ার পরেই ভাউচার ই-মেইল করা যাবে।', 'err');
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> পাঠানো হচ্ছে…';
+  say('ই-মেইল পাঠানো হচ্ছে…');
+  KHUI.sendVoucherMail('donation', lastDonationId).then(function (r) {
+    say('✓ ভাউচারটি ' + (r.sent_to || 'আপনার ই-মেইলে') + ' পাঠানো হয়েছে।', 'ok');
+    btn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
+  }).catch(function (e) {
+    say('পাঠানো যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন') +
+        (/লগইন/.test(e && e.message || '') ? '' : ' (লগইন করা থাকলে সবচেয়ে ভালো কাজ করে)'), 'err');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-mail"></i> ই-মেইলে পাঠান';
+  });
+}
+
+/* ── ভাউচারে সদস্যের ছবি (গোপন থাকতে চাইলে দেখাবে না) ── */
+function paintVoucherMember(shownName) {
+  var row = document.getElementById('v_photoRow');
+  if (!row) return;
+  row.style.display = 'none';
+  if (document.getElementById('anonCheck') && document.getElementById('anonCheck').checked) return;
+  if (!(window.KHUI && KHUI.getMyProfile)) return;
+
+  KHUI.getMyProfile().then(function (p) {
+    if (!p) return;
+    document.getElementById('v_photoName').textContent = p.full_name || shownName || '—';
+    document.getElementById('v_photoCode').textContent =
+      (p.user_code ? 'সদস্য কোড: ' + p.user_code : '') +
+      (p.mobile ? (p.user_code ? ' · ' : '') + p.mobile : '');
+
+    var wrap = document.getElementById('v_photoWrap');
+    if (p.photo_url) {
+      var img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function () {
+        wrap.innerHTML = '';
+        img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff';
+        wrap.appendChild(img);
+      };
+      img.onerror = function () {
+        document.getElementById('v_photoIni').textContent = (p.full_name || 'স').trim()[0] || 'স';
+      };
+      img.src = p.photo_url;
+    } else {
+      document.getElementById('v_photoIni').textContent = (p.full_name || 'স').trim()[0] || 'স';
+    }
+    row.style.display = 'flex';
+  }).catch(function () {});
+}
 
 /* ── VOUCHER ── */
 function openVoucher() {
@@ -1128,6 +1208,9 @@ function openVoucher() {
   document.getElementById('v_method').textContent  = methodMap[selectedPay] || selectedPay;
   document.getElementById('v_freq').textContent    = freqMap[donationFreq] || donationFreq;
   document.getElementById('v_datetime').textContent= now.toLocaleString('en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  /* লগইন থাকলে ভাউচারে সদস্যের ছবি ও পরিচয় */
+  paintVoucherMember(name);
   // Generate QR Code
   const qrEl = document.getElementById('v_qrcode');
   qrEl.innerHTML = '';

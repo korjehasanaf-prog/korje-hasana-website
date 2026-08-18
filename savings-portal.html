@@ -1340,16 +1340,61 @@ async function submitDepositPanel() {
   const msgEl  = document.getElementById('depositMsgPanel');
   if(!amount || amount < 10) { showMsg('depositMsgPanel','কমপক্ষে ১০ টাকা জমা দিন।','error'); return; }
   if(!ref) { showMsg('depositMsgPanel','রেফারেন্স নম্বর আবশ্যক।','error'); return; }
-  const { error } = await _db.from('savings_transactions').insert({
+  const { data: ins, error } = await _db.from('savings_transactions').insert({
     depositor_id: currentUser.id, type: 'deposit',
     amount, reference: ref, notes: note, status: 'pending'
-  });
+  }).select('id,created_at').single();
   if(error) { showMsg('depositMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
   showMsg('depositMsgPanel','জমার অনুরোধ সফলভাবে পাঠানো হয়েছে! অনুমোদনের পর স্থিতি আপডেট হবে।','success');
   document.getElementById('depositAmountPanel').value='';
   document.getElementById('depositRefPanel').value='';
   document.getElementById('depositNotePanel').value='';
+
+  showSavingsVoucher({
+    kind: 'deposit', amount: amount, reference: ref, note: note,
+    id: ins && ins.id, date: ins && ins.created_at
+  });
+
   setTimeout(() => loadPortal(currentUser), 1500);
+}
+
+/* ── সঞ্চয়ের ডিজিটাল ভাউচার ── */
+const SCHEME_BN = { daily:'দৈনিক আমানত', fortnightly:'পাক্ষিক আমানত', monthly:'মাসিক আমানত', flexible:'যখন খুশি আমানত' };
+
+async function showSavingsVoucher(tx) {
+  if (!(window.KHUI && KHUI.voucher)) return;
+
+  let prof = null;
+  try { prof = await KHUI.getMyProfile(); } catch (e) {}
+
+  const dep  = currentDepositor || {};
+  const isDep = tx.kind === 'deposit';
+  const shortId = (tx.id || '').toString().replace(/-/g, '').slice(0, 6).toUpperCase();
+  const no = (isDep ? 'KH-SD-' : 'KH-SW-') + (shortId || String(Date.now()).slice(-6));
+
+  const rows = [
+    ['লেনদেনের ধরন / Type', isDep ? 'সঞ্চয় জমা (Deposit)' : 'উত্তোলন (Withdrawal)'],
+    ['আমানত স্কীম / Scheme', SCHEME_BN[dep.scheme_type] || '—'],
+    ['রেফারেন্স / Reference', tx.reference || '—'],
+    ['অবস্থা / Status', 'অনুমোদনের অপেক্ষায় (Pending)']
+  ];
+  if (dep.monthly_amount) rows.push(['মাসিক জমা / Monthly', '৳' + KHUI.bn(Number(dep.monthly_amount).toLocaleString('en-IN'))]);
+  if (tx.note) rows.push(['মন্তব্য / Note', tx.note]);
+
+  KHUI.voucher({
+    title: isDep ? 'জমা ভাউচার' : 'উত্তোলন ভাউচার',
+    no: no,
+    amount: tx.amount,
+    date: tx.date,
+    status: 'অপেক্ষমাণ',
+    name: (prof && prof.full_name) || dep.full_name || 'সদস্য',
+    code: prof && prof.user_code,
+    mobile: (prof && prof.mobile) || dep.phone,
+    photo: prof && prof.photo_url,
+    rows: rows,
+    email: tx.id ? { kind: 'savings', id: tx.id } : null,
+    note: 'এটি একটি ডিজিটাল ভাউচার — স্বাক্ষর ছাড়াই বৈধ। অনুমোদনের পর আপনার স্থিতিতে যোগ হবে।'
+  });
 }
 
 // ─── Panel withdrawal submit ──────────────────────────────────────
@@ -1358,14 +1403,20 @@ async function submitWithdrawPanel() {
   const note   = document.getElementById('withdrawNotePanel').value.trim();
   if(!amount || amount < 10) { showMsg('withdrawMsgPanel','কমপক্ষে ১০ টাকা উত্তোলন করুন।','error'); return; }
   if(amount > currentBalance)  { showMsg('withdrawMsgPanel','অপর্যাপ্ত স্থিতি।','error'); return; }
-  const { error } = await _db.from('savings_transactions').insert({
+  const { data: ins, error } = await _db.from('savings_transactions').insert({
     depositor_id: currentUser.id, type: 'withdrawal',
     amount, notes: note, status: 'pending'
-  });
+  }).select('id,created_at').single();
   if(error) { showMsg('withdrawMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
   showMsg('withdrawMsgPanel','উত্তোলনের অনুরোধ সফলভাবে পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে প্রেরণ করা হবে।','success');
   document.getElementById('withdrawAmountPanel').value='';
   document.getElementById('withdrawNotePanel').value='';
+
+  showSavingsVoucher({
+    kind: 'withdrawal', amount: amount, note: note,
+    id: ins && ins.id, date: ins && ins.created_at
+  });
+
   setTimeout(() => loadPortal(currentUser), 1500);
 }
 

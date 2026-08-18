@@ -146,6 +146,35 @@
     .pptxt b{color:#7ee2a8;font-size:14.5px}
     html[data-theme="light"] .pptxt b{color:#0d6e56}
 
+    /* OCR */
+    .ocrbar{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-bottom:8px}
+    html[data-theme="light"] .ocrbar{background:#e8e0f2}
+    .ocrbar i{display:block;height:100%;width:0;border-radius:99px;
+      background:linear-gradient(90deg,#7048e8,#e83e8c);transition:width .35s}
+    .ocrst{font-size:12.5px;color:#cbbfdd;margin-bottom:12px}
+    html[data-theme="light"] .ocrst{color:var(--muted)}
+    .ocrhead{display:flex;align-items:center;justify-content:space-between;gap:10px;
+      font-size:13.5px;font-weight:700;margin-bottom:10px;flex-wrap:wrap}
+    .ocrhead i{color:#e083b4}
+    html[data-theme="light"] .ocrhead i{color:#b02a80}
+    .ocrconf{font-size:11.5px;font-weight:700;color:#fff;border-radius:20px;padding:3px 11px;
+      background:linear-gradient(112deg,#0d6e56,#1d9e75)}
+    .ocrconf.mid{background:linear-gradient(112deg,#b45309,#f08c28)}
+    .ocrconf.low{background:linear-gradient(112deg,#b3123c,#d6336c)}
+    .ocrgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    @media(max-width:560px){.ocrgrid{grid-template-columns:1fr}}
+    .ocrcell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+      border-radius:11px;padding:10px 12px}
+    html[data-theme="light"] .ocrcell{background:#faf7fd;border-color:#e3d8ee}
+    .ocrcell label{display:block;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;
+      color:#a99cc4;margin-bottom:5px}
+    html[data-theme="light"] .ocrcell label{color:#6b6280}
+    .ocrcell input{width:100%;background:none;border:none;outline:none;font-family:inherit;
+      font-size:14px;font-weight:700;color:#fff;border-bottom:1px dashed rgba(255,255,255,.25);padding-bottom:3px}
+    html[data-theme="light"] .ocrcell input{color:var(--ink);border-bottom-color:#d9cfe8}
+    .ocracts{display:flex;gap:9px;flex-wrap:wrap}
+    .upbtn.ocralt{background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none}
+
     .gate{max-width:420px;margin:90px auto;text-align:center}
     .gate .sp{font-size:38px;color:#c88ae0;animation:sp 1s linear infinite;display:inline-block}
     @keyframes sp{to{transform:rotate(360deg)}}
@@ -182,9 +211,14 @@
     <div class="avrow">
       <span class="bigav" id="bigav">স</span>
       <div>
-        <button class="upbtn" type="button" onclick="document.getElementById('photoFile').click()">
-          <i class="ti ti-upload"></i> ছবি বদলান
-        </button>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <button class="upbtn" type="button" id="selfieBtn">
+            <i class="ti ti-camera-selfie"></i> সেলফি তুলুন
+          </button>
+          <button class="upbtn ocralt" type="button" onclick="document.getElementById('photoFile').click()">
+            <i class="ti ti-photo"></i> গ্যালারি থেকে নিন
+          </button>
+        </div>
         <input type="file" id="photoFile" accept="image/*" hidden>
         <div class="upnote">যেকোনো সাইজের JPG/PNG দিন — স্বয়ংক্রিয়ভাবে ২ MB-র নিচে কমপ্রেস হবে · সবাই দেখতে পাবে</div>
       </div>
@@ -214,16 +248,41 @@
   <div class="panel">
     <h2><i class="ti ti-file-certificate"></i> এনআইডি কপি (গোপনীয়)</h2>
     <div class="nidrow">
-      <button class="upbtn" type="button" onclick="document.getElementById('nidFile').click()">
-        <i class="ti ti-upload"></i> এনআইডি আপলোড
+      <button class="upbtn" type="button" id="nidCamBtn">
+        <i class="ti ti-camera"></i> ক্যামেরায় ছবি তুলুন
       </button>
-      <input type="file" id="nidFile" accept="image/*,.pdf" hidden>
+      <button class="upbtn ocralt" type="button" onclick="document.getElementById('nidFile').click()">
+        <i class="ti ti-photo"></i> গ্যালারি / ফাইল থেকে নিন
+      </button>
+      <!-- মোবাইলে সরাসরি ক্যামেরা খোলে -->
+      <input type="file" id="nidCam" accept="image/*" capture="environment" hidden>
+      <!-- গ্যালারি, ডাউনলোড ফোল্ডার, কম্পিউটারের যেকোনো ছবি বা PDF -->
+      <input type="file" id="nidFile" accept="image/*,application/pdf,.pdf" hidden>
       <button class="upbtn" type="button" id="nidView" style="display:none;background:linear-gradient(112deg,#0d6e56,#1d9e75)">
         <i class="ti ti-eye"></i> দেখুন
       </button>
       <span class="nidst" id="nidSt">এখনও আপলোড হয়নি</span>
     </div>
     <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন</div>
+
+    <!-- OCR ফলাফল -->
+    <div id="ocrBox" style="display:none;margin-top:16px">
+      <div class="ocrbar"><i id="ocrFill" style="width:0%"></i></div>
+      <div class="ocrst" id="ocrStatus">প্রস্তুত হচ্ছে…</div>
+
+      <div id="ocrResult" style="display:none">
+        <div class="ocrhead">
+          <span><i class="ti ti-scan"></i> কার্ড থেকে পড়া তথ্য</span>
+          <span class="ocrconf" id="ocrConf">—</span>
+        </div>
+        <div class="ocrgrid" id="ocrFields"></div>
+        <div class="ocracts">
+          <button type="button" class="upbtn" id="ocrApply"><i class="ti ti-arrow-down-to-arc"></i> ফর্মে বসান</button>
+          <button type="button" class="upbtn ocralt" id="ocrRetry"><i class="ti ti-refresh"></i> আবার পড়ুন</button>
+        </div>
+        <div class="upnote" style="margin-top:10px">যন্ত্র পড়া তথ্যে ভুল থাকতে পারে — বসানোর পর নিজে মিলিয়ে নিন।</div>
+      </div>
+    </div>
   </div>
 
   <button class="saveb" id="saveBtn" type="button"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
@@ -232,6 +291,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=3">
 <script src="kh-ui.js?v=3"></script>
+<script src="kh-ocr.js?v=1"></script>
 <script>
 (function(){
   'use strict';
@@ -316,6 +376,88 @@
   }
   function mb(bytes){ return (bytes/1048576).toFixed(2); }
 
+  /* ══════════════════════════════════════════════════
+     NID OCR — কার্ডের ছবি থেকে তথ্য পড়া (ডিভাইসেই, গোপন)
+     ══════════════════════════════════════════════════ */
+  var lastNidFile = null, ocrFields = null;
+
+  var OCR_LABEL = {
+    nid:     'এনআইডি নম্বর',
+    dob:     'জন্ম তারিখ',
+    name_en: 'নাম (ইংরেজি)',
+    name_bn: 'নাম (বাংলা)',
+    father:  'পিতার নাম',
+    mother:  'মাতার নাম',
+    blood:   'রক্তের গ্রুপ'
+  };
+
+  async function runOCR(file){
+    if(!window.KHOCR){ return; }
+    var box = el('ocrBox'), res = el('ocrResult');
+    box.style.display = ''; res.style.display = 'none';
+    el('ocrFill').style.width = '0%';
+    el('ocrStatus').textContent = 'কার্ড পড়া শুরু হচ্ছে…';
+
+    try{
+      var r = await KHOCR.readNID(file, {
+        onProgress: function(pct, m){
+          el('ocrFill').style.width = pct + '%';
+          if(m) el('ocrStatus').textContent = m + '  (' + bnNum(Math.round(pct)) + '%)';
+        }
+      });
+      ocrFields = r.fields || {};
+      var keys = Object.keys(ocrFields).filter(function(k){ return OCR_LABEL[k]; });
+
+      if(!keys.length){
+        el('ocrStatus').textContent = 'কার্ড থেকে তথ্য পড়া যায়নি। আলো ভালো রেখে, কার্ডটি সোজা ও পুরো ফ্রেমে রেখে আবার ছবি তুলুন।';
+        el('ocrFill').style.width = '100%';
+        res.style.display = 'none';
+        return;
+      }
+
+      el('ocrStatus').textContent = 'পড়া সম্পন্ন — নিচের তথ্য মিলিয়ে নিন।';
+      var conf = el('ocrConf');
+      conf.textContent = 'নির্ভরযোগ্যতা ' + bnNum(r.confidence) + '%';
+      conf.className = 'ocrconf' + (r.confidence >= 70 ? '' : (r.confidence >= 45 ? ' mid' : ' low'));
+
+      el('ocrFields').innerHTML = keys.map(function(k){
+        return '<div class="ocrcell"><label>' + OCR_LABEL[k] + '</label>' +
+               '<input data-k="' + k + '" value="' + String(ocrFields[k]).replace(/"/g,'&quot;') + '"></div>';
+      }).join('');
+      res.style.display = '';
+    }catch(e){
+      el('ocrStatus').textContent = 'কার্ড পড়া যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন');
+      el('ocrFill').style.width = '100%';
+    }
+  }
+
+  function bindOcrButtons(){
+    var apply = el('ocrApply'), retry = el('ocrRetry');
+    if(apply) apply.onclick = function(){
+      var vals = {};
+      el('ocrFields').querySelectorAll('input[data-k]').forEach(function(i){
+        vals[i.dataset.k] = i.value.trim();
+      });
+      var filled = [];
+      if(vals.nid){
+        var d = (window.KHOCR ? KHOCR.enDigits(vals.nid) : vals.nid).replace(/\D/g,'');
+        el('fNid').value = d; filled.push('এনআইডি নম্বর');
+      }
+      var nm = vals.name_bn || vals.name_en;
+      if(nm && !el('fName').value.trim()){ el('fName').value = nm; filled.push('নাম'); }
+      if(vals.dob){
+        var dobField = el('fDob');
+        if(dobField){ dobField.value = vals.dob; filled.push('জন্ম তারিখ'); }
+      }
+      msg('ok', filled.length ? (filled.join(', ') + ' ফর্মে বসানো হয়েছে — মিলিয়ে নিয়ে "সংরক্ষণ করুন" চাপুন।')
+                              : 'বসানোর মতো নতুন কিছু পাওয়া যায়নি।');
+    };
+    if(retry) retry.onclick = function(){
+      if(lastNidFile) runOCR(lastNidFile);
+      else msg('err','আগে এনআইডির ছবি আপলোড করুন।');
+    };
+  }
+
   async function upload(bucket, path, file){
     var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
     if(r.error) throw r.error;
@@ -376,10 +518,28 @@
     }
 
     paintProgress();
+    bindOcrButtons();
+
+    /* লাইভ সেলফি — ডিভাইসের ক্যামেরা (ডেস্কটপেও চলে) */
+    el('selfieBtn').onclick = function(){
+      if(window.KHUI && KHUI.camera){
+        KHUI.camera({
+          facing: 'user',
+          title: 'সেলফি তুলুন',
+          guide: 'মুখটি বৃত্তের ভেতরে রাখুন · ভালো আলোয় তুলুন',
+          onShot: function(file){ handlePhotoFile(file); },
+          onError: function(){ msg('err','ক্যামেরা চালু করা যায়নি। গ্যালারি থেকে ছবি নিন।'); }
+        });
+      } else {
+        el('photoFile').click();
+      }
+    };
 
     /* ছবি আপলোড — যেকোনো সাইজ চলবে, ব্রাউজারেই ২ MB-র নিচে কমপ্রেস হয় */
-    el('photoFile').addEventListener('change', async function(){
-      var f = this.files[0]; if(!f) return;
+    el('photoFile').addEventListener('change', function(){ handlePhotoFile(this.files[0]); this.value=''; });
+
+    async function handlePhotoFile(f){
+      if(!f) return;
       msg('ok','ছবি প্রস্তুত করা হচ্ছে…');
       try{
         var orig = f.size;
@@ -399,12 +559,15 @@
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে (' + mb(orig) + ' MB → ' + mb(blob.size) + ' MB)।');
       }catch(e){ msg('err','ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
-    });
+    }
 
-    /* NID আপলোড (প্রাইভেট বাকেট — path সংরক্ষণ) */
-    el('nidFile').addEventListener('change', async function(){
-      var f = this.files[0]; if(!f) return;
-      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি।'); return; }
+    /* NID আপলোড (প্রাইভেট বাকেট — path সংরক্ষণ) + OCR */
+    /* ক্যামেরা ও গ্যালারি — দুটোই একই প্রক্রিয়ায় যায় */
+    async function handleNidFile(f){
+      if(!f) return;
+      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
+      lastNidFile = f;
+      if(/^image\//i.test(f.type)) runOCR(f);      /* ছবি হলে কার্ড পড়ার চেষ্টা */
       msg('ok','এনআইডি আপলোড হচ্ছে…');
       try{
         var path = uid + '/nid.' + extOf(f);
@@ -418,7 +581,25 @@
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডি কপি সংরক্ষণ হয়েছে (গোপনীয়)।');
       }catch(e){ msg('err','এনআইডি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
-    });
+    }
+
+    el('nidFile').addEventListener('change', function(){ handleNidFile(this.files[0]); this.value=''; });
+    el('nidCam').addEventListener('change',  function(){ handleNidFile(this.files[0]); this.value=''; });
+
+    /* NID ক্যামেরা: লাইভ প্রিভিউ (ডেস্কটপেও চলে); না পারলে ফোনের ক্যামেরা অ্যাপ */
+    el('nidCamBtn').onclick = function(){
+      if(window.KHUI && KHUI.camera){
+        KHUI.camera({
+          facing: 'environment',
+          title: 'এনআইডি কার্ডের ছবি',
+          guide: 'কার্ডটি সোজা করে পুরো ফ্রেমে রাখুন · আলোর ঝলক এড়ান',
+          onShot: function(file){ handleNidFile(file); },
+          onError: function(){ el('nidCam').click(); }
+        });
+      } else {
+        el('nidCam').click();
+      }
+    };
 
     /* NID দেখা — signed URL */
     el('nidView').onclick = async function(){

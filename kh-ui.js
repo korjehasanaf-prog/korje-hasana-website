@@ -920,6 +920,325 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     লাইভ ক্যামেরা — সেলফি বা কার্ডের ছবি তোলা
+     KHUI.camera({ facing:'user'|'environment', title, guide, onShot(blob) })
+     ══════════════════════════════════════════════════════ */
+
+  KHUI.camera = function (cfg) {
+    cfg = cfg || {};
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (typeof cfg.onError === 'function') cfg.onError(new Error('এই ব্রাউজারে ক্যামেরা চালু করা যাচ্ছে না'));
+      return null;
+    }
+    if (document.querySelector('.kh-cam-back')) return null;
+
+    var facing = cfg.facing === 'environment' ? 'environment' : 'user';
+    var back = document.createElement('div');
+    back.className = 'kh-cam-back';
+    back.innerHTML =
+      '<div class="kh-cam">' +
+        '<div class="kh-cam-head">' +
+          '<span>' + vEsc(cfg.title || 'ছবি তুলুন') + '</span>' +
+          '<button type="button" class="kh-cam-x" aria-label="বন্ধ করুন"><i class="ti ti-x"></i></button>' +
+        '</div>' +
+        '<div class="kh-cam-stage' + (facing === 'user' ? ' kh-cam-mirror' : '') + '">' +
+          '<video class="kh-cam-video" playsinline autoplay muted></video>' +
+          '<div class="kh-cam-guide' + (facing === 'user' ? ' kh-cam-oval' : '') + '"></div>' +
+          '<div class="kh-cam-msg"></div>' +
+        '</div>' +
+        '<div class="kh-cam-hint">' + vEsc(cfg.guide || (facing === 'user'
+            ? 'মুখটি বৃত্তের ভেতরে রাখুন · ভালো আলোয় তুলুন'
+            : 'কার্ডটি সোজা করে পুরো ফ্রেমে রাখুন · ঝলক এড়ান')) + '</div>' +
+        '<div class="kh-cam-acts">' +
+          '<button type="button" class="kh-cam-btn kh-cam-shot"><i class="ti ti-camera"></i> ছবি তুলুন</button>' +
+          '<button type="button" class="kh-cam-btn kh-cam-alt kh-cam-flip"><i class="ti ti-rotate"></i> ক্যামেরা বদল</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { back.classList.add('kh-in'); });
+
+    var video = back.querySelector('.kh-cam-video');
+    var stage = back.querySelector('.kh-cam-stage');
+    var msgEl = back.querySelector('.kh-cam-msg');
+    var stream = null;
+
+    function say(t) { msgEl.textContent = t || ''; msgEl.style.display = t ? 'flex' : 'none'; }
+
+    function stop() {
+      if (stream) { stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) {} }); stream = null; }
+    }
+    function close() {
+      stop();
+      back.classList.remove('kh-in');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (back.parentNode) back.remove(); }, 200);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    back.querySelector('.kh-cam-x').onclick = close;
+
+    function start() {
+      say('ক্যামেরা চালু হচ্ছে…');
+      stop();
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1440 } },
+        audio: false
+      }).then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        stage.classList.toggle('kh-cam-mirror', facing === 'user');
+        back.querySelector('.kh-cam-guide').classList.toggle('kh-cam-oval', facing === 'user');
+        return video.play();
+      }).then(function () { say(''); })
+        .catch(function (err) {
+          var m = 'ক্যামেরা চালু করা যায়নি।';
+          if (err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')) {
+            m = 'ক্যামেরার অনুমতি দেওয়া হয়নি। ব্রাউজারের ঠিকানা বারে ক্যামেরা আইকনে গিয়ে অনুমতি দিন।';
+          } else if (err && err.name === 'NotFoundError') {
+            m = 'এই ডিভাইসে ক্যামেরা পাওয়া যায়নি।';
+          }
+          say(m);
+        });
+    }
+    start();
+
+    back.querySelector('.kh-cam-flip').onclick = function () {
+      facing = facing === 'user' ? 'environment' : 'user';
+      start();
+    };
+
+    back.querySelector('.kh-cam-shot').onclick = function () {
+      if (!stream || !video.videoWidth) { say('ক্যামেরা এখনো প্রস্তুত নয়…'); return; }
+      var cv = document.createElement('canvas');
+      cv.width = video.videoWidth; cv.height = video.videoHeight;
+      var ctx = cv.getContext('2d');
+      if (facing === 'user') {           /* সেলফি আয়নার মত দেখায় — সোজা করে সংরক্ষণ */
+        ctx.translate(cv.width, 0); ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, cv.width, cv.height);
+      cv.toBlob(function (blob) {
+        if (!blob) { say('ছবি নেওয়া যায়নি, আবার চেষ্টা করুন।'); return; }
+        var file = new File([blob], 'capture-' + Date.now() + '.jpg', { type: 'image/jpeg' });
+        close();
+        if (typeof cfg.onShot === 'function') cfg.onShot(file);
+      }, 'image/jpeg', 0.92);
+    };
+
+    KHUI._closeCamera = close;
+    return back;
+  };
+
+  /* ══════════════════════════════════════════════════════
+     ডিজিটাল ভাউচার (সঞ্চয় জমা / উত্তোলন / যেকোনো লেনদেন)
+     KHUI.voucher({ title, no, amount, name, code, mobile, photo,
+                    rows:[[label,value],...], status, note, verifyUrl })
+     ══════════════════════════════════════════════════════ */
+
+  function vEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  KHUI.voucher = function (cfg) {
+    cfg = cfg || {};
+    var old = document.querySelector('.kh-vch-back');
+    if (old) old.remove();
+
+    var amountTxt = '৳' + KHUI.bn(Number(cfg.amount || 0).toLocaleString('en-IN'));
+    var when = cfg.date ? new Date(cfg.date) : new Date();
+    var whenTxt = when.toLocaleString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    var rowsHtml = (cfg.rows || []).map(function (r) {
+      return '<div class="kh-vch-cell"><div class="kh-vch-lbl">' + vEsc(r[0]) + '</div>' +
+             '<div class="kh-vch-val">' + vEsc(r[1]) + '</div></div>';
+    }).join('');
+
+    var photoHtml = cfg.photo
+      ? '<img class="kh-vch-av" src="' + vEsc(cfg.photo) + '" alt="" crossorigin="anonymous">'
+      : '<span class="kh-vch-av kh-vch-ini">' + vEsc((cfg.name || 'স').trim()[0] || 'স') + '</span>';
+
+    var back = document.createElement('div');
+    back.className = 'kh-vch-back';
+    back.innerHTML =
+      '<div class="kh-vch" id="khVoucher">' +
+        '<div class="kh-vch-head">' +
+          '<div class="kh-vch-top">' +
+            '<div class="kh-vch-brand">' +
+              '<div class="kh-vch-logo">KH</div>' +
+              '<div><b>কর্জে হাসানা ফাউন্ডেশন</b><span>Korje Hasana Foundation</span></div>' +
+            '</div>' +
+            '<div class="kh-vch-no"><span>' + vEsc(cfg.title || 'জমা ভাউচার') + '</span><b>' + vEsc(cfg.no || '—') + '</b></div>' +
+          '</div>' +
+          '<div class="kh-vch-amtrow">' +
+            '<div><div class="kh-vch-cap">পরিমাণ / Amount</div><div class="kh-vch-amt">' + amountTxt + '</div></div>' +
+            '<div style="text-align:left">' +
+              '<div class="kh-vch-cap">তারিখ ও সময়</div>' +
+              '<div class="kh-vch-when">' + vEsc(whenTxt) + '</div>' +
+              '<div class="kh-vch-badge">' + vEsc(cfg.status || 'গৃহীত') + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="kh-vch-stripe"></div>' +
+        '</div>' +
+
+        '<div class="kh-vch-body">' +
+          '<div class="kh-vch-member">' +
+            '<div class="kh-vch-avwrap">' + photoHtml + '</div>' +
+            '<div style="min-width:0">' +
+              '<div class="kh-vch-lbl">সদস্য / Member</div>' +
+              '<div class="kh-vch-name">' + vEsc(cfg.name || '—') + '</div>' +
+              '<div class="kh-vch-code">' +
+                (cfg.code ? 'সদস্য কোড: ' + vEsc(cfg.code) : '') +
+                (cfg.mobile ? (cfg.code ? ' · ' : '') + vEsc(cfg.mobile) : '') +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          '<div class="kh-vch-grid">' + rowsHtml + '</div>' +
+
+          '<div class="kh-vch-foot">' +
+            '<div class="kh-vch-qr" id="khVchQr"></div>' +
+            '<div class="kh-vch-seal">' +
+              '<div class="kh-vch-sealbox">অনুমোদিত<br><b>কর্জে হাসানা</b></div>' +
+              '<div class="kh-vch-note">' + vEsc(cfg.note || 'এটি একটি ডিজিটাল ভাউচার — স্বাক্ষর ছাড়াই বৈধ।') + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="kh-vch-acts">' +
+          '<button type="button" class="kh-vch-btn kh-vch-print"><i class="ti ti-printer"></i> প্রিন্ট / PDF</button>' +
+          (cfg.email ? '<button type="button" class="kh-vch-btn kh-vch-mail"><i class="ti ti-mail"></i> ই-মেইলে পাঠান</button>' : '') +
+          '<button type="button" class="kh-vch-btn kh-vch-alt kh-vch-close"><i class="ti ti-x"></i> বন্ধ করুন</button>' +
+        '</div>' +
+        '<div class="kh-vch-mailmsg" style="display:none"></div>' +
+      '</div>';
+
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { back.classList.add('kh-in'); });
+
+    /* QR — লাইব্রেরি থাকলে, নাহলে আইকন */
+    var qrEl = back.querySelector('#khVchQr');
+    var qrText = cfg.verifyUrl ||
+      ('https://korje-hasana-website.vercel.app/verify.html?ref=' + encodeURIComponent(cfg.no || '') +
+       '&amt=' + encodeURIComponent(cfg.amount || 0));
+    function drawQr() {
+      try {
+        qrEl.innerHTML = '';
+        new window.QRCode(qrEl, { text: qrText, width: 92, height: 92, correctLevel: window.QRCode.CorrectLevel.L });
+      } catch (e) {
+        qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:56px;color:#241539"></i>';
+      }
+    }
+    if (window.QRCode) drawQr();
+    else {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+      s.onload = drawQr;
+      s.onerror = function () { qrEl.innerHTML = '<i class="ti ti-qrcode" style="font-size:56px;color:#241539"></i>'; };
+      document.head.appendChild(s);
+    }
+
+    function close() {
+      back.classList.remove('kh-in');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (back.parentNode) back.remove(); }, 220);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    back.addEventListener('click', function (e) { if (e.target === back) close(); });
+    back.querySelector('.kh-vch-close').onclick = close;
+
+    /* প্রিন্ট: নতুন উইন্ডোতে ভাউচারটিই ছাপা হয় (টেক্সট পরিষ্কার থাকে) */
+    back.querySelector('.kh-vch-print').onclick = function () {
+      var node = back.querySelector('.kh-vch').cloneNode(true);
+      var acts = node.querySelector('.kh-vch-acts');
+      if (acts) acts.remove();
+      var css = '';
+      document.querySelectorAll('link[rel="stylesheet"]').forEach(function (l) {
+        css += '<link rel="stylesheet" href="' + l.href + '">';
+      });
+      var w = window.open('', '_blank', 'width=760,height=980');
+      if (!w) return;
+      w.document.write(
+        '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8">' +
+        '<title>' + vEsc(cfg.title || 'ভাউচার') + ' — ' + vEsc(cfg.no || '') + '</title>' + css +
+        '<style>body{margin:0;background:#f3f0f8;display:flex;justify-content:center;padding:22px;' +
+        "font-family:'Hind Siliguri',sans-serif}" +
+        '.kh-vch{max-width:620px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.15)}' +
+        '@media print{body{background:#fff;padding:0}.kh-vch{box-shadow:none}}</style></head><body>' +
+        node.outerHTML +
+        '<script>window.onload=function(){setTimeout(function(){window.print();},450);}<\/script>' +
+        '</body></html>'
+      );
+      w.document.close();
+    };
+
+    /* ই-মেইলে পাঠানো */
+    var mailBtn = back.querySelector('.kh-vch-mail');
+    if (mailBtn) {
+      mailBtn.onclick = function () {
+        var msgEl = back.querySelector('.kh-vch-mailmsg');
+        function say(t, ok) {
+          msgEl.style.display = 'block';
+          msgEl.textContent = t;
+          msgEl.className = 'kh-vch-mailmsg' + (ok === true ? ' kh-ok' : (ok === false ? ' kh-err' : ''));
+        }
+        mailBtn.disabled = true;
+        mailBtn.innerHTML = '<i class="ti ti-loader-2 kh-spin"></i> পাঠানো হচ্ছে…';
+        say('ই-মেইল পাঠানো হচ্ছে…');
+        KHUI.sendVoucherMail(cfg.email.kind, cfg.email.id).then(function (r) {
+          say('✓ ভাউচারটি ' + (r.sent_to || 'আপনার ই-মেইলে') + ' পাঠানো হয়েছে।', true);
+          mailBtn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
+        }).catch(function (e) {
+          say('পাঠানো যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন'), false);
+          mailBtn.disabled = false;
+          mailBtn.innerHTML = '<i class="ti ti-mail"></i> ই-মেইলে পাঠান';
+        });
+      };
+    }
+
+    KHUI._closeVoucher = close;
+    return back;
+  };
+
+  /* ভাউচার ই-মেইল — Edge Function কল (লগইন আবশ্যক) */
+  KHUI.sendVoucherMail = function (kind, id) {
+    var db = sb();
+    if (!db || !db.auth) return Promise.reject(new Error('সংযোগ নেই'));
+    return db.auth.getSession().then(function (s) {
+      var sess = s && s.data && s.data.session;
+      if (!sess) throw new Error('আগে লগইন করুন');
+      var url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-voucher';
+      return fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + sess.access_token
+        },
+        body: JSON.stringify({ kind: kind, id: id })
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (j) {
+          if (!res.ok) {
+            var m = j.error === 'no email' ? 'আপনার প্রোফাইলে ই-মেইল ঠিকানা নেই'
+                  : j.error === 'forbidden' ? 'এই ভাউচার পাঠানোর অনুমতি নেই'
+                  : j.error === 'not found' ? 'লেনদেনটি পাওয়া যায়নি'
+                  : (j.error || 'ব্যর্থ');
+            throw new Error(m);
+          }
+          return j;
+        });
+      });
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
      5 ── WHATSAPP CHAT WIDGET
      ══════════════════════════════════════════════════════ */
 

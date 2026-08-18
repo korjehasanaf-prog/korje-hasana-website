@@ -1138,7 +1138,7 @@ async function loadProdSavings() {
 
 async function loadProdLoans() {
   const { data: ls } = await _db.from('loans')
-    .select('loan_no,principal,paid_amount,status,disbursement_date,borrowers(name,name_bn,mobile)')
+    .select('id,loan_no,principal,paid_amount,status,disbursement_date,borrowers(name,name_bn,mobile)')
     .order('created_at',{ascending:false});
   const list = ls || [];
   let disb = 0, coll = 0, out = 0, act = 0;
@@ -1154,13 +1154,32 @@ async function loadProdLoans() {
 
   const c = document.getElementById('plTable');
   if (!list.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো ঋণ নেই</p></div>'; return; }
-  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>ঋণ নং</th><th>ঋণগ্রহীতা</th><th style="text-align:right">মূলধন</th><th style="text-align:right">পরিশোধ</th><th style="text-align:right">বকেয়া</th><th>অবস্থা</th></tr></thead><tbody>
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>ঋণ নং</th><th>ঋণগ্রহীতা</th><th style="text-align:right">মূলধন</th><th style="text-align:right">পরিশোধ</th><th style="text-align:right">বকেয়া</th><th>অবস্থা</th><th>ভাউচার</th></tr></thead><tbody>
     ${list.map(l=>{
       const p=parseFloat(l.principal||0), pd=parseFloat(l.paid_amount||0);
       const nm = l.borrowers ? (l.borrowers.name_bn || l.borrowers.name) : '—';
-      return `<tr><td>${esc(l.loan_no)}</td><td>${esc(nm)}</td><td style="text-align:right">${fmt(p)}</td><td style="text-align:right">${fmt(pd)}</td><td style="text-align:right;font-weight:700">${fmt(Math.max(p-pd,0))}</td><td><span class="badge ${statusBadge(l.status)}">${statusBn(l.status)}</span></td></tr>`;
+      return `<tr><td>${esc(l.loan_no)}</td><td>${esc(nm)}</td><td style="text-align:right">${fmt(p)}</td><td style="text-align:right">${fmt(pd)}</td><td style="text-align:right;font-weight:700">${fmt(Math.max(p-pd,0))}</td><td><span class="badge ${statusBadge(l.status)}">${statusBn(l.status)}</span></td>
+        <td><button class="btn btn-sm" data-loan="${esc(l.id)}" onclick="mailLoanVoucher(this)" style="background:rgba(13,110,86,.18);color:#6ee7b7;border:1px solid rgba(13,110,86,.4);white-space:nowrap"><i class="ti ti-mail"></i> ই-মেইল</button></td></tr>`;
     }).join('')}
   </tbody></table></div>`;
+}
+
+/* ঋণ বিতরণের ভাউচার সদস্যের ই-মেইলে */
+function mailLoanVoucher(btn) {
+  const id = btn.dataset.loan;
+  if (!(window.KHUI && KHUI.sendVoucherMail)) return;
+  const old = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
+  KHUI.sendVoucherMail('loan_disburse', id).then(function (r) {
+    btn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
+    btn.title = r.sent_to || '';
+  }).catch(function (e) {
+    btn.disabled = false;
+    btn.innerHTML = old;
+    btn.title = (e && e.message) || 'ব্যর্থ';
+    alert('ভাউচার পাঠানো যায়নি: ' + ((e && e.message) || 'আবার চেষ্টা করুন'));
+  });
 }
 
 async function loadProdDonations() {
@@ -1430,13 +1449,13 @@ async function submitInstallment() {
   const notes = document.getElementById('inst-notes').value.trim();
   if (!loanId||!amount||!no||!date) { showMsg('inst-msg','সকল আবশ্যক তথ্য পূরণ করুন','err'); return; }
 
-  const {error} = await _db.from('repayments').insert({
+  const {data: rep, error} = await _db.from('repayments').insert({
     loan_id: loanId, borrower_id: borrowerId, installment_no: no,
     due_date: date, amount_due: amount, amount_paid: amount,
     payment_date: date, payment_method: method,
     transaction_ref: ref||null, is_paid: true, is_late: late,
     notes: notes||null
-  });
+  }).select('id').single();
   if (error) { showMsg('inst-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
 
   // Update loan paid_installments
@@ -1445,8 +1464,47 @@ async function submitInstallment() {
   }).eq('id', loanId);
 
   showMsg('inst-msg','✅ কিস্তি সফলভাবে নথিভুক্ত হয়েছে','ok');
+  if (rep && rep.id) offerVoucherMail('inst-msg', 'loan_repayment', rep.id, 'কিস্তি আদায়ের রশিদ');
   cancelInstallment();
   loadDashboard();
+}
+
+// ════════════════════════════════════════
+//  ভাউচার ই-মেইল (ঋণ বিতরণ / কিস্তি আদায়)
+// ════════════════════════════════════════
+function offerVoucherMail(msgId, kind, id, label) {
+  const box = document.getElementById(msgId);
+  if (!box) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn-primary';
+  btn.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,#0d6e56,#1d9e75);padding:9px 18px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px';
+  btn.innerHTML = '<i class="ti ti-mail"></i> ' + label + ' ই-মেইল করুন';
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:12.5px;margin-top:8px';
+
+  box.appendChild(document.createElement('br'));
+  box.appendChild(btn);
+  box.appendChild(note);
+
+  btn.onclick = function () {
+    if (!(window.KHUI && KHUI.sendVoucherMail)) {
+      note.style.color = '#f87171'; note.textContent = 'ই-মেইল সেবা এখন পাওয়া যাচ্ছে না।'; return;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
+    note.style.color = 'var(--muted)'; note.textContent = 'সদস্যের ই-মেইলে পাঠানো হচ্ছে…';
+    KHUI.sendVoucherMail(kind, id).then(function (r) {
+      note.style.color = '#22c55e';
+      note.textContent = '✓ ' + (r.sent_to || 'সদস্যের ই-মেইলে') + ' পাঠানো হয়েছে।';
+      btn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
+    }).catch(function (e) {
+      note.style.color = '#f87171';
+      note.textContent = 'পাঠানো যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-mail"></i> ' + label + ' ই-মেইল করুন';
+    });
+  };
 }
 
 function cancelInstallment() {
