@@ -1058,8 +1058,14 @@ function processDonation() {
   const name   = document.getElementById('donorName').value.trim();
   const mobile = document.getElementById('donorMobile').value.trim();
   const amt    = parseInt(document.getElementById('amountInput').value);
-  if (!name)              { alert('Please enter your name.'); return; }
-  if (!mobile)            { alert('Please enter your mobile number.'); return; }
+  /* অ্যাডমিন-নির্ধারিত বাধ্যতামূলক ফিল্ড (জেনারেল সেটিংস) */
+  if (window.KHUI && KHUI.checkRequired) {
+    const missing = KHUI.checkRequired({ full_name:'donorName', mobile:'donorMobile', email:'donorEmail' });
+    if (missing) { document.getElementById(missing).focus(); alert('তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক।'); return; }
+  } else {
+    if (!name)   { alert('Please enter your name.'); return; }
+    if (!mobile) { alert('Please enter your mobile number.'); return; }
+  }
   if (!amt || amt < 100)  { alert('Minimum donation amount is ৳100.'); return; }
   if (['bkash','nagad','rocket'].includes(selectedPay) && !document.getElementById('mobilePayInput').value.trim())
     { alert('Please enter your ' + selectedPay + ' number.'); return; }
@@ -1308,5 +1314,40 @@ function downloadCertPDF() {
 }
 </script>
 <script src="kh-ui.js"></script>
+<script>
+/* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
+(function () {
+  function go() {
+    if (!window.KHUI || !KHUI.prefillFromProfile) return;
+    KHUI.prefillFromProfile({
+      full_name: 'donorName',
+      mobile:    'donorMobile',
+      email:     'donorEmail'
+    });
+    KHUI.prefillFromProfile({
+      full_name: 'donorNameForCert',
+      mobile:    'donorMobileForCert'
+    });
+    /* অ্যাডমিন সেটিংস: বাধ্যতামূলক ফিল্ড + দান চালু আছে কি না */
+    if (KHUI.applyRequiredFields) {
+      KHUI.applyRequiredFields('donation', { full_name:'donorName', mobile:'donorMobile', email:'donorEmail' });
+    }
+    if (KHUI.productEnabled) {
+      KHUI.productEnabled('donation').then(function (on) {
+        if (!on) {
+          var b = document.querySelector('.donate-btn-main');
+          if (b) {
+            b.disabled = true;
+            b.innerHTML = '<i class="ti ti-lock"></i> দান গ্রহণ সাময়িকভাবে বন্ধ আছে';
+          }
+        }
+      });
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', go);
+  } else go();
+})();
+</script>
 </body>
 </html>

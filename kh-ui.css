@@ -1096,6 +1096,159 @@ html[data-theme="light"] .pc-text { background: #fff; }
 html[data-theme="light"] .kh-otp-back { background: rgba(60, 40, 90, .55); }
 
 /* ══════════════════════════════════════════════════════════
+   11.5 ── LOGGED-IN USER CHIP (topbar) + dropdown
+        সাদা লেখা সবসময় রঙিন গ্র্যাডিয়েন্টে — দুই থীমেই।
+   ══════════════════════════════════════════════════════════ */
+
+.kh-uwrap { position: relative; display: inline-flex; }
+
+.kh-uchip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px 3px 4px;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 20px; cursor: pointer;
+  background: linear-gradient(112deg, #d6336c, #a021c9 48%, #e83e8c);
+  color: #fff; font-family: inherit;
+  font-size: 12.5px; font-weight: 700; line-height: 1;
+  box-shadow: 0 4px 14px rgba(160,33,201,.35);
+  transition: filter .2s, transform .15s;
+}
+.kh-uchip:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.kh-uchip i { font-size: 13px; color: #fff; }
+
+.kh-uchip-av {
+  width: 22px; height: 22px; border-radius: 50%;
+  object-fit: cover; display: inline-flex;
+  align-items: center; justify-content: center;
+  border: 1.5px solid rgba(255,255,255,.7);
+  flex-shrink: 0;
+}
+.kh-uchip-ini {
+  background: linear-gradient(135deg, #7048e8, #4c2f78);
+  color: #fff; font-size: 11.5px; font-weight: 700;
+}
+
+.kh-umenu {
+  display: none; position: absolute; top: calc(100% + 9px); right: 0;
+  min-width: 196px; z-index: 320;
+  background: rgba(30, 17, 51, .97);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 14px; padding: 7px;
+  box-shadow: 0 18px 46px rgba(0,0,0,.45);
+  flex-direction: column; gap: 2px;
+}
+.kh-uwrap.kh-open .kh-umenu { display: flex; }
+
+.kh-umenu a, .kh-umenu button {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border: none; border-radius: 9px;
+  background: none; cursor: pointer; text-decoration: none;
+  color: #e9defa; font-family: inherit;
+  font-size: 13.5px; font-weight: 600; text-align: right;
+}
+.kh-umenu a i, .kh-umenu button i { font-size: 15.5px; color: #c88ae0; }
+.kh-umenu a:hover, .kh-umenu button:hover {
+  background: linear-gradient(112deg, rgba(214,51,108,.28), rgba(112,72,232,.28));
+  color: #fff;
+}
+.kh-umenu .kh-uout { color: #ffb4c0; }
+.kh-umenu .kh-uout i { color: #ff8fa3; }
+.kh-umenu .kh-uout:hover { background: rgba(239,68,68,.2); color: #ffd4da; }
+
+/* ── লাইট থীম: মেনু সাদা, লেখা গাঢ়; চিপ রঙিনই থাকে ── */
+html[data-theme="light"] .kh-umenu {
+  background: #ffffff;
+  border-color: #e8dcf0;
+  box-shadow: 0 18px 46px rgba(112,72,232,.2);
+}
+html[data-theme="light"] .kh-umenu a,
+html[data-theme="light"] .kh-umenu button { color: #35204f; }
+html[data-theme="light"] .kh-umenu a i,
+html[data-theme="light"] .kh-umenu button i { color: #8a3fb8; }
+html[data-theme="light"] .kh-umenu a:hover,
+html[data-theme="light"] .kh-umenu button:hover {
+  background: linear-gradient(112deg, rgba(214,51,108,.1), rgba(112,72,232,.1));
+  color: #241539;
+}
+html[data-theme="light"] .kh-umenu .kh-uout { color: #b3123c; }
+html[data-theme="light"] .kh-umenu .kh-uout i { color: #d6336c; }
+html[data-theme="light"] .kh-umenu .kh-uout:hover { background: #fee2e2; color: #991b1b; }
+
+/* ══════════════════════════════════════════════════════════
+   11.6 ── GLASS NAV AVATAR (লগইন অবস্থায় শুধু ছবি + প্রগ্রেস রিং)
+   ══════════════════════════════════════════════════════════ */
+
+.kh-glassnav a.kh-gav-link { padding: 4px 8px !important; }
+
+.kh-gav-ring {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px; box-sizing: border-box;
+  /* conic-gradient inline-এ বসে: সবুজ = পূর্ণতার শতাংশ */
+}
+.kh-gav {
+  width: 100%; height: 100%; border-radius: 50%;
+  object-fit: cover; display: inline-flex;
+  align-items: center; justify-content: center;
+  background: #fff;
+}
+.kh-gav-ini {
+  background: linear-gradient(135deg, #7048e8, #4c2f78);
+  color: #fff; font-size: 13px; font-weight: 700;
+}
+
+/* পপ-আপ মেনু — গ্লাস নেভের ওপরে খোলে */
+.kh-gmenu {
+  display: none; position: absolute;
+  bottom: calc(100% + 12px); right: 0;
+  min-width: 210px; z-index: 320;
+  background: rgba(30, 17, 51, .97);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 14px; padding: 9px;
+  box-shadow: 0 -12px 40px rgba(0,0,0,.45);
+  flex-direction: column; gap: 2px;
+}
+.kh-gmenu.kh-open { display: flex; }
+.kh-gmenu a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 9px; text-decoration: none;
+  color: #e9defa; font-size: 13.5px; font-weight: 600;
+}
+.kh-gmenu a i { font-size: 15.5px; color: #c88ae0; }
+.kh-gmenu a:hover {
+  background: linear-gradient(112deg, rgba(214,51,108,.28), rgba(112,72,232,.28));
+  color: #fff;
+}
+.kh-gmenu-pct {
+  font-size: 11.5px; color: #cbbfdd; padding: 4px 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 5px;
+  display: flex; align-items: center; gap: 8px; white-space: nowrap;
+}
+.kh-gmenu-bar {
+  flex: 0 0 56px; height: 5px; border-radius: 99px;
+  background: rgba(255,255,255,.16); overflow: hidden; display: inline-block;
+}
+.kh-gmenu-bar i { display: block; height: 100%; border-radius: 99px; background: #22c55e; }
+
+html[data-theme="light"] .kh-gmenu {
+  background: #ffffff; border-color: #e8dcf0;
+  box-shadow: 0 -12px 40px rgba(112,72,232,.2);
+}
+html[data-theme="light"] .kh-gmenu a { color: #35204f; }
+html[data-theme="light"] .kh-gmenu a i { color: #8a3fb8; }
+html[data-theme="light"] .kh-gmenu a:hover {
+  background: linear-gradient(112deg, rgba(214,51,108,.1), rgba(112,72,232,.1));
+  color: #241539;
+}
+html[data-theme="light"] .kh-gmenu-pct { color: #5b5170; border-color: #eee4f5; }
+html[data-theme="light"] .kh-gmenu-bar { background: #e8e0f2; }
+html[data-theme="light"] .kh-gmenu-bar i { background: #16a34a; }
+
+/* বাধ্যতামূলক ফিল্ডের তারকা */
+.kh-req-star { color: #f43f5e; font-weight: 700; }
+html[data-theme="light"] .kh-req-star { color: #dc2626; }
+
+/* ══════════════════════════════════════════════════════════
    12 ── LIGHT THEME · AUTH PAGES (user-login, admin-login)
         These pages are built as dark glass cards with white
         text. In light mode the card turns solid white, so the

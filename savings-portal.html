@@ -898,6 +898,14 @@ async function doRegister() {
   const pass    = document.getElementById('regPass').value;
   const pass2   = document.getElementById('regPass2').value;
   showMsg('regMsg','','');
+  /* অ্যাডমিন-নির্ধারিত বাধ্যতামূলক ফিল্ড */
+  if (window.KHUI && KHUI.checkRequired) {
+    var missing = KHUI.checkRequired({ full_name:'regName', mobile:'regPhone', email:'regEmail', nid:'regNid' });
+    if (missing) {
+      document.getElementById(missing).focus();
+      return showMsg('regMsg','তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক','error');
+    }
+  }
   if(!name||!phone||!email||!pass||!account) return showMsg('regMsg','সব প্রয়োজনীয় তথ্য পূরণ করুন','error');
   if(pass !== pass2) return showMsg('regMsg','পাসওয়ার্ড দুটি মিলছে না','error');
   if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
@@ -1149,6 +1157,20 @@ async function loadHeroStats() {
 // Auto-fill the "new savings account" form from the member's profile
 function prefillRegister() {
   if (!window.KHUI || !KHUI.prefillFromProfile) return;
+
+  /* অ্যাডমিন সেটিংস: বাধ্যতামূলক ফিল্ডে * + প্রোডাক্ট চালু আছে কি না */
+  if (KHUI.applyRequiredFields) {
+    KHUI.applyRequiredFields('savings', { full_name:'regName', mobile:'regPhone', email:'regEmail', nid:'regNid' });
+  }
+  if (KHUI.productEnabled) {
+    KHUI.productEnabled('savings').then(function (on) {
+      if (!on) {
+        showMsg('regMsg','দুঃখিত — নতুন সঞ্চয় হিসাব খোলা এই মুহূর্তে সাময়িকভাবে বন্ধ আছে।','error');
+        var b = document.getElementById('regBtn') || document.querySelector('#registerPanel button[onclick*="doRegister"]');
+        if (b) b.disabled = true;
+      }
+    });
+  }
   KHUI.prefillFromProfile({
     full_name: 'regName',
     mobile:    'regPhone',

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আমার প্রোফাইল | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{
+      --pink:#d6336c; --orange:#e95420; --amber:#f08c28; --violet:#7048e8;
+      --ink:#241539; --muted:#6b6280;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      background:linear-gradient(160deg,#1d1030,#150c24 55%,#2a1040);
+      color:#f3edfb; min-height:100vh; padding-bottom:90px;
+    }
+    html[data-theme="light"] body{
+      background:linear-gradient(150deg,#fdf3f8,#faf5fd 45%,#fff5ee);
+      color:var(--ink);
+    }
+    .wrap{max-width:720px;margin:0 auto;padding:26px 18px 40px}
+
+    .phead{
+      display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;
+    }
+    .phead h1{font-size:21px;flex:1}
+    .backl{
+      display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+      font-size:13px;font-weight:700;color:#fff;
+      background:linear-gradient(112deg,var(--pink),#a021c9 55%,#e83e8c);
+      border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:9px 16px;
+      box-shadow:0 5px 16px rgba(160,33,201,.35);
+    }
+    .backl:hover{filter:brightness(1.1)}
+
+    .panel{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:18px;padding:24px 22px;backdrop-filter:blur(14px);
+      margin-bottom:18px;
+    }
+    html[data-theme="light"] .panel{
+      background:#fff;border-color:#ece2f4;
+      box-shadow:0 12px 34px rgba(112,72,232,.12);
+    }
+    .panel h2{font-size:15px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .panel h2 i{color:#e083b4}
+    html[data-theme="light"] .panel h2 i{color:#b02a80}
+
+    /* ছবি */
+    .avrow{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .bigav{
+      width:92px;height:92px;border-radius:50%;object-fit:cover;flex-shrink:0;
+      border:3px solid rgba(255,255,255,.4);
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,var(--pink),var(--orange));
+      font-size:34px;font-weight:700;color:#fff;
+    }
+    html[data-theme="light"] .bigav{border-color:#e8dcf0}
+
+    .upbtn{
+      display:inline-flex;align-items:center;gap:7px;cursor:pointer;
+      font-family:inherit;font-size:13px;font-weight:700;color:#fff;
+      background:linear-gradient(112deg,#7048e8,#a021c9);
+      border:none;border-radius:10px;padding:10px 16px;
+      box-shadow:0 5px 16px rgba(112,72,232,.35);transition:filter .2s;
+    }
+    .upbtn:hover{filter:brightness(1.1)}
+    .upnote{font-size:11.5px;color:#cbbfdd;margin-top:8px}
+    html[data-theme="light"] .upnote{color:var(--muted)}
+
+    /* ফর্ম */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:560px){.grid2{grid-template-columns:1fr}}
+    .fg{margin-bottom:14px}
+    .fg label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;color:#dcCfec;color:#dccfec}
+    html[data-theme="light"] .fg label{color:#4a3568}
+    .fg input,.fg textarea{
+      width:100%;padding:12px 14px;border-radius:11px;font-family:inherit;font-size:14px;
+      border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;
+      outline:none;transition:border-color .2s, box-shadow .2s;
+    }
+    .fg textarea{min-height:74px;resize:vertical}
+    .fg input:focus,.fg textarea:focus{border-color:#c88ae0;box-shadow:0 0 0 3px rgba(160,33,201,.2)}
+    .fg input[readonly]{opacity:.65;cursor:not-allowed}
+    html[data-theme="light"] .fg input,html[data-theme="light"] .fg textarea{
+      background:#faf7fd;border-color:#e3d8ee;color:var(--ink);
+    }
+    html[data-theme="light"] .fg input:focus,html[data-theme="light"] .fg textarea:focus{
+      background:#fff;border-color:#a021c9;box-shadow:0 0 0 3px rgba(160,33,201,.14);
+    }
+
+    /* NID */
+    .nidrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .nidst{font-size:12.5px;color:#cbbfdd}
+    html[data-theme="light"] .nidst{color:var(--muted)}
+    .nidst b{color:#7ee2a8}
+    html[data-theme="light"] .nidst b{color:#0d6e56}
+
+    .saveb{
+      width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;
+      background:linear-gradient(112deg,var(--pink),#a021c9 48%,#e83e8c);
+      color:#fff;font-family:inherit;font-size:15.5px;font-weight:700;
+      box-shadow:0 8px 24px rgba(160,33,201,.4);transition:filter .2s;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .saveb:hover{filter:brightness(1.08)}
+    .saveb:disabled{opacity:.6;cursor:not-allowed}
+
+    .msg{display:none;padding:11px 14px;border-radius:11px;font-size:13.5px;margin-bottom:14px;line-height:1.6}
+    .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
+    .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
+    html[data-theme="light"] .msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+    html[data-theme="light"] .msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+
+    /* প্রোফাইল পূর্ণতা */
+    .ppbar{height:10px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-bottom:9px}
+    html[data-theme="light"] .ppbar{background:#e8e0f2}
+    .ppbar i{display:block;height:100%;border-radius:99px;width:0;
+      background:linear-gradient(90deg,#16a34a,#22c55e);
+      transition:width .7s cubic-bezier(.4,0,.2,1)}
+    .pptxt{font-size:13px;color:#cbbfdd}
+    html[data-theme="light"] .pptxt{color:var(--muted)}
+    .pptxt b{color:#7ee2a8;font-size:14.5px}
+    html[data-theme="light"] .pptxt b{color:#0d6e56}
+
+    .gate{max-width:420px;margin:90px auto;text-align:center}
+    .gate .sp{font-size:38px;color:#c88ae0;animation:sp 1s linear infinite;display:inline-block}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .gate p{margin-top:12px;font-size:14.5px;color:#cbbfdd}
+    html[data-theme="light"] .gate p{color:var(--muted)}
+    .spin{animation:sp .9s linear infinite;display:inline-block}
+  </style>
+</head>
+<body>
+
+<div class="gate" id="gate"><i class="ti ti-loader-2 sp"></i><p>প্রোফাইল আনা হচ্ছে…</p></div>
+
+<div class="wrap" id="main" style="display:none">
+
+  <div class="phead">
+    <h1><i class="ti ti-user-edit"></i> আমার প্রোফাইল</h1>
+    <a class="backl" href="my-dashboard.html"><i class="ti ti-arrow-left"></i> ড্যাশবোর্ড</a>
+  </div>
+
+  <div class="msg" id="pmsg"></div>
+
+  <!-- প্রোফাইল পূর্ণতা -->
+  <div class="panel" id="progPanel">
+    <h2><i class="ti ti-progress-check"></i> প্রোফাইল পূর্ণতা</h2>
+    <div class="ppbar"><i id="ppFill" style="width:0%"></i></div>
+    <div class="pptxt"><b id="ppPct">০%</b> পূর্ণ · <span id="ppHint"></span></div>
+  </div>
+
+  <!-- ছবি -->
+  <div class="panel">
+    <h2><i class="ti ti-camera"></i> প্রোফাইল ছবি</h2>
+    <div class="avrow">
+      <span class="bigav" id="bigav">স</span>
+      <div>
+        <button class="upbtn" type="button" onclick="document.getElementById('photoFile').click()">
+          <i class="ti ti-upload"></i> ছবি বদলান
+        </button>
+        <input type="file" id="photoFile" accept="image/*" hidden>
+        <div class="upnote">JPG/PNG · সর্বোচ্চ ২ MB · সবাই দেখতে পাবে</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- মূল তথ্য -->
+  <div class="panel">
+    <h2><i class="ti ti-id"></i> ব্যক্তিগত তথ্য</h2>
+    <div class="grid2">
+      <div class="fg"><label>পূর্ণ নাম</label><input id="fName"></div>
+      <div class="fg"><label>পেশা</label><input id="fOcc" placeholder="যেমন: শিক্ষক, ব্যবসায়ী"></div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><label>মোবাইল (পরিবর্তনযোগ্য নয়)</label><input id="fMob" readonly></div>
+      <div class="fg"><label>ই-মেইল (পরিবর্তনযোগ্য নয়)</label><input id="fEml" readonly></div>
+    </div>
+    <div class="fg"><label>বর্তমান ঠিকানা</label><textarea id="fAddr"></textarea></div>
+    <div class="fg"><label>স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
+    <div class="grid2">
+      <div class="fg"><label>জেলা</label><input id="fDist"></div>
+      <div class="fg"><label>এনআইডি নম্বর</label><input id="fNid" inputmode="numeric"></div>
+    </div>
+  </div>
+
+  <!-- NID আপলোড -->
+  <div class="panel">
+    <h2><i class="ti ti-file-certificate"></i> এনআইডি কপি (গোপনীয়)</h2>
+    <div class="nidrow">
+      <button class="upbtn" type="button" onclick="document.getElementById('nidFile').click()">
+        <i class="ti ti-upload"></i> এনআইডি আপলোড
+      </button>
+      <input type="file" id="nidFile" accept="image/*,.pdf" hidden>
+      <button class="upbtn" type="button" id="nidView" style="display:none;background:linear-gradient(112deg,#0d6e56,#1d9e75)">
+        <i class="ti ti-eye"></i> দেখুন
+      </button>
+      <span class="nidst" id="nidSt">এখনও আপলোড হয়নি</span>
+    </div>
+    <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন</div>
+  </div>
+
+  <button class="saveb" id="saveBtn" type="button"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
+
+</div>
+
+<link rel="stylesheet" href="kh-ui.css">
+<script src="kh-ui.js"></script>
+<script>
+(function(){
+  'use strict';
+  var uid = null, prof = null;
+
+  function el(id){ return document.getElementById(id); }
+  function msg(kind, text){
+    var m = el('pmsg');
+    m.className = 'msg ' + kind; m.textContent = text;
+    window.scrollTo({top:0, behavior:'smooth'});
+    if(kind==='ok') setTimeout(function(){ m.className='msg'; }, 5000);
+  }
+  function extOf(f){
+    var m = (f.name||'').match(/\.([a-z0-9]+)$/i);
+    return m ? m[1].toLowerCase() : 'jpg';
+  }
+
+  var FIELD_BN = {
+    full_name:'নাম', mobile:'মোবাইল', email:'ই-মেইল', occupation:'পেশা',
+    address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
+    district:'জেলা', nid:'এনআইডি নম্বর', photo_url:'প্রোফাইল ছবি', nid_url:'এনআইডি কপি'
+  };
+  function paintProgress(){
+    if(!window.KHUI || !KHUI.profileProgress || !prof) return;
+    var pr = KHUI.profileProgress(prof);
+    el('ppFill').style.width = pr.pct + '%';
+    el('ppPct').textContent = KHUI.bn(pr.pct) + '%';
+    el('ppHint').textContent = pr.missing.length
+      ? 'বাকি: ' + pr.missing.map(function(f){ return FIELD_BN[f]||f; }).join(', ')
+      : 'আপনার প্রোফাইল সম্পূর্ণ! ✓';
+  }
+
+  async function upload(bucket, path, file){
+    var r = await _db.storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
+    if(r.error) throw r.error;
+    return path;
+  }
+
+  function setAvatar(url){
+    if(!url) return;
+    var old = el('bigav');
+    var img = document.createElement('img');
+    img.className='bigav'; img.id='bigav'; img.alt=''; img.src=url;
+    old.replaceWith(img);
+  }
+
+  async function init(){
+    if(!window._db){ location.replace('user-login.html'); return; }
+    var s = await _db.auth.getSession();
+    if(!s || !s.data || !s.data.session){ location.replace('user-login.html'); return; }
+    uid = s.data.session.user.id;
+
+    try { prof = await KHUI.getMyProfile(true); } catch(e){}
+    if(!prof){ location.replace('user-login.html'); return; }
+
+    el('fName').value = prof.full_name || '';
+    el('fOcc').value  = prof.occupation || '';
+    el('fMob').value  = prof.mobile || '';
+    el('fEml').value  = prof.email || '';
+    el('fAddr').value = prof.address || '';
+    el('fPAddr').value= prof.permanent_address || '';
+    el('fDist').value = prof.district || '';
+    el('fNid').value  = prof.nid || '';
+
+    if(prof.photo_url) setAvatar(prof.photo_url);
+    else el('bigav').textContent = (prof.full_name||'স').trim()[0] || 'স';
+
+    if(prof.nid_url){
+      el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
+      el('nidView').style.display='';
+    }
+
+    paintProgress();
+
+    /* ছবি আপলোড */
+    el('photoFile').addEventListener('change', async function(){
+      var f = this.files[0]; if(!f) return;
+      if(f.size > 2*1024*1024){ msg('err','ছবিটি ২ MB-এর বেশি। ছোট ছবি দিন।'); return; }
+      msg('ok','ছবি আপলোড হচ্ছে…');
+      try{
+        var path = uid + '/avatar.' + extOf(f);
+        await upload('avatars', path, f);
+        var pub = _db.storage.from('avatars').getPublicUrl(path);
+        var url = pub && pub.data ? pub.data.publicUrl + '?t=' + Date.now() : null;
+        var r = await _db.rpc('update_my_profile', { p_photo_url: url });
+        if(r && r.error) throw r.error;
+        setAvatar(url);
+        prof.photo_url = url;
+        paintProgress();
+        KHUI.clearProfileCache();
+        msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে।');
+      }catch(e){ msg('err','ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+    });
+
+    /* NID আপলোড (প্রাইভেট বাকেট — path সংরক্ষণ) */
+    el('nidFile').addEventListener('change', async function(){
+      var f = this.files[0]; if(!f) return;
+      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি।'); return; }
+      msg('ok','এনআইডি আপলোড হচ্ছে…');
+      try{
+        var path = uid + '/nid.' + extOf(f);
+        await upload('nid-docs', path, f);
+        var r = await _db.rpc('update_my_profile', { p_nid_url: path });
+        if(r && r.error) throw r.error;
+        el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
+        el('nidView').style.display='';
+        prof.nid_url = path;
+        paintProgress();
+        KHUI.clearProfileCache();
+        msg('ok','এনআইডি কপি সংরক্ষণ হয়েছে (গোপনীয়)।');
+      }catch(e){ msg('err','এনআইডি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+    });
+
+    /* NID দেখা — signed URL */
+    el('nidView').onclick = async function(){
+      try{
+        var r = await _db.storage.from('nid-docs').createSignedUrl(prof.nid_url, 120);
+        if(r && r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+        else msg('err','ফাইল খোলা যায়নি।');
+      }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
+    };
+
+    /* সংরক্ষণ */
+    el('saveBtn').onclick = async function(){
+      var b = this;
+      b.disabled = true;
+      b.innerHTML = '<i class="ti ti-loader-2 spin"></i> সংরক্ষণ হচ্ছে…';
+      try{
+        var r = await _db.rpc('update_my_profile', {
+          p_full_name:         el('fName').value.trim(),
+          p_occupation:        el('fOcc').value.trim(),
+          p_address:           el('fAddr').value.trim(),
+          p_permanent_address: el('fPAddr').value.trim(),
+          p_district:          el('fDist').value.trim(),
+          p_nid:               el('fNid').value.trim()
+        });
+        if(r && r.error) throw r.error;
+        prof.full_name = el('fName').value.trim();
+        prof.occupation = el('fOcc').value.trim();
+        prof.address = el('fAddr').value.trim();
+        prof.permanent_address = el('fPAddr').value.trim();
+        prof.district = el('fDist').value.trim();
+        prof.nid = el('fNid').value.trim();
+        paintProgress();
+        KHUI.clearProfileCache();
+        msg('ok','প্রোফাইল সংরক্ষণ হয়েছে।');
+      }catch(e){ msg('err','সংরক্ষণ ব্যর্থ। আবার চেষ্টা করুন।'); }
+      b.disabled = false;
+      b.innerHTML = '<i class="ti ti-device-floppy"></i> সংরক্ষণ করুন';
+    };
+
+    el('gate').style.display='none';
+    el('main').style.display='';
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else init();
+})();
+</script>
+</body>
+</html>

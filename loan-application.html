@@ -1821,6 +1821,16 @@ document.addEventListener('DOMContentLoaded', function() {
 // Runs after districts populate so the district <select> can be set.
 function prefillApplicant() {
   if (!window.KHUI || !KHUI.prefillFromProfile) return;
+
+  /* জেনারেল সেটিংস: ঋণ চালু আছে কি না */
+  if (KHUI.productEnabled) {
+    KHUI.productEnabled('loan').then(function (on) {
+      if (!on) {
+        var b = document.querySelector('.btn-submit');
+        if (b) { b.disabled = true; b.innerHTML = '<i class="ti ti-lock"></i> ঋণের নতুন আবেদন সাময়িকভাবে বন্ধ আছে'; }
+      }
+    });
+  }
   KHUI.prefillFromProfile({
     full_name: 'p_nameEn',
     nid:       'p_nid',

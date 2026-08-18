@@ -502,11 +502,6 @@ async function doLogin() {
 function destinationFor(prof) {
   if (!prof || !prof.id) return null;
 
-  var roles = [];
-  if (prof.is_depositor) roles.push('savings-portal.html');
-  if (prof.is_borrower)  roles.push('borrower-portal.html');
-  if (prof.is_donor)     roles.push('donation.html');
-
   try {
     sessionStorage.setItem('kh_user', JSON.stringify({
       name: prof.full_name, code: prof.user_code,
@@ -514,14 +509,13 @@ function destinationFor(prof) {
     }));
   } catch (e) {}
 
-  if (roles.length === 1) return roles[0];
-  if (roles.length > 1)   return 'index.html#portal';
-  return null;                       /* signed in but no role attached yet */
+  /* সবাই আগে নিজের ব্যক্তিগত ড্যাশবোর্ডে যায় */
+  return 'my-dashboard.html';
 }
 
 /* used after a deliberate login/signup — always lands somewhere */
 function route(prof) {
-  location.href = destinationFor(prof) || 'index.html';
+  location.href = destinationFor(prof) || 'my-dashboard.html';
 }
 
 /* ══════════════════════════════════════════════════════════

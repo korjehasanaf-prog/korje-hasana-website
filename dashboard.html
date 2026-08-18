@@ -145,6 +145,9 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 /* ── BUTTONS ── */
 .btn{border:none;cursor:pointer;border-radius:8px;font-weight:600;font-family:'Hind Siliguri','Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:linear-gradient(135deg,#7048e8,#241539);color:#fff;padding:10px 22px;font-size:14.5px;box-shadow:0 4px 14px rgba(112,72,232,.35)}
+.gs-checks{display:flex;gap:18px;flex-wrap:wrap}
+.gs-checks label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.gs-checks input{width:17px;height:17px;accent-color:#22c55e}
 .btn-primary:hover{box-shadow:0 6px 20px rgba(112,72,232,.55);transform:translateY(-1px)}
 .btn-gold{background:linear-gradient(135deg,#f08c28,#d4900a);color:#000;padding:10px 22px;font-size:14.5px;box-shadow:0 4px 14px rgba(240,140,40,.3)}
 .btn-gold:hover{box-shadow:0 6px 20px rgba(240,140,40,.5);transform:translateY(-1px)}
@@ -287,6 +290,17 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <i class="ti ti-layout-dashboard"></i> ড্যাশবোর্ড
       </div>
 
+      <div class="sb-section">প্রোডাক্ট ড্যাশবোর্ড</div>
+      <div class="sb-item" id="mi-prod-savings" onclick="switchPanel('prod-savings')">
+        <i class="ti ti-pig-money"></i> আমানত (সঞ্চয়)
+      </div>
+      <div class="sb-item" id="mi-prod-loans" onclick="switchPanel('prod-loans')">
+        <i class="ti ti-wallet"></i> ঋণ (কর্জে হাসানা)
+      </div>
+      <div class="sb-item" id="mi-prod-donations" onclick="switchPanel('prod-donations')">
+        <i class="ti ti-heart"></i> দান
+      </div>
+
       <div class="sb-section">আর্থিক এন্ট্রি</div>
       <div class="sb-item" id="mi-donation-cash" onclick="switchPanel('donation-cash')">
         <i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি
@@ -323,6 +337,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="sb-section super-only" id="sbSecAdmin">সুপার এডমিন</div>
       <div class="sb-item super-only" id="mi-admin-mgmt" onclick="switchPanel('admin-mgmt')">
         <i class="ti ti-users-group"></i> এডমিন ব্যবস্থাপনা
+      </div>
+      <div class="sb-item super-only" id="mi-settings" onclick="switchPanel('settings')">
+        <i class="ti ti-settings"></i> জেনারেল সেটিংস
       </div>
     </nav>
 
@@ -392,6 +409,54 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div class="card-title"><i class="ti ti-activity"></i> সাম্প্রতিক লেনদেন</div>
             <div id="recentTrx"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো তথ্য নেই</p></div></div>
           </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: PRODUCT · SAVINGS ══════════════ -->
+      <div class="panel" id="panel-prod-savings">
+        <div class="panel-title">🏦 আমানত (সঞ্চয়) ড্যাশবোর্ড</div>
+        <div class="panel-sub">সঞ্চয় প্রোডাক্টের সামগ্রিক চিত্র</div>
+        <div class="stat-grid">
+          <div class="stat-card sc-teal"><span class="stat-ico">👥</span><div class="stat-num" id="ps-depositors">—</div><div class="stat-lbl">মোট সঞ্চয়কারী</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">⬇️</span><div class="stat-num" id="ps-deposits">—</div><div class="stat-lbl">মোট জমা (৳)</div></div>
+          <div class="stat-card sc-orange"><span class="stat-ico">⬆️</span><div class="stat-num" id="ps-withdrawals">—</div><div class="stat-lbl">মোট উত্তোলন (৳)</div></div>
+          <div class="stat-card sc-purple"><span class="stat-ico">💰</span><div class="stat-num" id="ps-net">—</div><div class="stat-lbl">নিট স্থিতি (৳)</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">সঞ্চয়কারীভিত্তিক স্থিতি</div>
+          <div id="psTable"><div class="empty-state"><i class="ti ti-loader-2"></i><p>লোড হচ্ছে…</p></div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: PRODUCT · LOANS ══════════════ -->
+      <div class="panel" id="panel-prod-loans">
+        <div class="panel-title">💼 ঋণ (কর্জে হাসানা) ড্যাশবোর্ড</div>
+        <div class="panel-sub">ঋণ প্রোডাক্টের সামগ্রিক চিত্র</div>
+        <div class="stat-grid">
+          <div class="stat-card sc-blue"><span class="stat-ico">📋</span><div class="stat-num" id="pl-active">—</div><div class="stat-lbl">চলমান ঋণ</div></div>
+          <div class="stat-card sc-purple"><span class="stat-ico">💸</span><div class="stat-num" id="pl-disbursed">—</div><div class="stat-lbl">মোট বিতরণ (৳)</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">✅</span><div class="stat-num" id="pl-collected">—</div><div class="stat-lbl">মোট আদায় (৳)</div></div>
+          <div class="stat-card sc-orange"><span class="stat-ico">⏳</span><div class="stat-num" id="pl-outstanding">—</div><div class="stat-lbl">মোট বকেয়া (৳)</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">ঋণের তালিকা</div>
+          <div id="plTable"><div class="empty-state"><i class="ti ti-loader-2"></i><p>লোড হচ্ছে…</p></div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: PRODUCT · DONATIONS ══════════════ -->
+      <div class="panel" id="panel-prod-donations">
+        <div class="panel-title">💝 দান ড্যাশবোর্ড</div>
+        <div class="panel-sub">দান প্রোডাক্টের সামগ্রিক চিত্র</div>
+        <div class="stat-grid">
+          <div class="stat-card sc-gold"><span class="stat-ico">👥</span><div class="stat-num" id="pd-donors">—</div><div class="stat-lbl">মোট দাতা</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">💵</span><div class="stat-num" id="pd-total">—</div><div class="stat-lbl">মোট দান (৳)</div></div>
+          <div class="stat-card sc-blue"><span class="stat-ico">📅</span><div class="stat-num" id="pd-month">—</div><div class="stat-lbl">এ মাসের দান (৳)</div></div>
+          <div class="stat-card sc-purple"><span class="stat-ico">📊</span><div class="stat-num" id="pd-avg">—</div><div class="stat-lbl">গড় দান (৳)</div></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">সাম্প্রতিক দান</div>
+          <div id="pdTable"><div class="empty-state"><i class="ti ti-loader-2"></i><p>লোড হচ্ছে…</p></div></div>
         </div>
       </div>
 
@@ -615,6 +680,53 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
+      <!-- ══════════════ PANEL: GENERAL SETTINGS (super admin) ══════════════ -->
+      <div class="panel" id="panel-settings">
+        <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
+        <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-toggle-right"></i> প্রোডাক্ট চালু / বন্ধ</div>
+          <div style="display:flex;flex-direction:column;gap:10px" id="gsProducts">
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="gs-prod-savings" style="width:17px;height:17px;accent-color:#22c55e"> সঞ্চয় হিসাব (আমানত) — নতুন হিসাব খোলা
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="gs-prod-loan" style="width:17px;height:17px;accent-color:#22c55e"> কর্জে হাসানা ঋণ — নতুন আবেদন
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer">
+              <input type="checkbox" id="gs-prod-donation" style="width:17px;height:17px;accent-color:#22c55e"> দান গ্রহণ
+            </label>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — সঞ্চয় হিসাব খোলা</div>
+          <div class="gs-checks" id="gsReqSavings">
+            <label><input type="checkbox" value="full_name"> নাম</label>
+            <label><input type="checkbox" value="mobile"> মোবাইল</label>
+            <label><input type="checkbox" value="email"> ই-মেইল</label>
+            <label><input type="checkbox" value="nid"> এনআইডি</label>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — দান</div>
+          <div class="gs-checks" id="gsReqDonation">
+            <label><input type="checkbox" value="full_name"> নাম</label>
+            <label><input type="checkbox" value="mobile"> মোবাইল</label>
+            <label><input type="checkbox" value="email"> ই-মেইল</label>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn-primary" id="gsSave" onclick="saveGeneralSettings()">
+            <i class="ti ti-device-floppy"></i> সেটিংস সংরক্ষণ করুন
+          </button>
+          <span id="gsMsg" style="font-size:13px"></span>
+        </div>
+      </div>
+
       <!-- ══════════════ PANEL: ADMIN MANAGEMENT ══════════════ -->
       <div class="panel" id="panel-admin-mgmt">
         <div class="panel-title">👤 এডমিন ব্যবস্থাপনা</div>
@@ -765,7 +877,9 @@ const PANEL_TITLES = {
   'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
   'expense':'খরচ এন্ট্রি', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় উত্তোলন অনুমোদন',
-  'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা'
+  'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
+  'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
+  'settings':'জেনারেল সেটিংস'
 };
 function switchPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -784,6 +898,150 @@ function switchPanel(name) {
   if (name === 'admin-mgmt') loadAdminUsers();
   if (name === 'donation-cash') loadTodayDonations();
   if (name === 'expense') loadRecentExpenses();
+  if (name === 'prod-savings') loadProdSavings();
+  if (name === 'prod-loans') loadProdLoans();
+  if (name === 'prod-donations') loadProdDonations();
+  if (name === 'settings') loadGeneralSettings();
+}
+
+// ════════════════════════════════════════
+//  GENERAL SETTINGS (super admin)
+// ════════════════════════════════════════
+async function loadGeneralSettings() {
+  const { data } = await _db.from('app_settings').select('key,value');
+  const s = {};
+  (data||[]).forEach(r => s[r.key] = r.value);
+
+  const prod = s['products'] || {};
+  document.getElementById('gs-prod-savings').checked  = !prod.savings  || prod.savings.enabled  !== false;
+  document.getElementById('gs-prod-loan').checked     = !prod.loan     || prod.loan.enabled     !== false;
+  document.getElementById('gs-prod-donation').checked = !prod.donation || prod.donation.enabled !== false;
+
+  ['Savings','Donation'].forEach(k => {
+    const list = s['required_fields.' + k.toLowerCase()] || [];
+    document.querySelectorAll('#gsReq' + k + ' input').forEach(cb => {
+      cb.checked = list.indexOf(cb.value) !== -1;
+    });
+  });
+}
+
+async function saveGeneralSettings() {
+  const gsMsg = document.getElementById('gsMsg');
+  gsMsg.style.color = 'var(--muted)';
+  gsMsg.textContent = 'সংরক্ষণ হচ্ছে…';
+
+  const products = {
+    savings:  { enabled: document.getElementById('gs-prod-savings').checked,  label: 'সঞ্চয় হিসাব' },
+    loan:     { enabled: document.getElementById('gs-prod-loan').checked,     label: 'কর্জে হাসানা ঋণ' },
+    donation: { enabled: document.getElementById('gs-prod-donation').checked, label: 'দান' }
+  };
+  const reqSav = [...document.querySelectorAll('#gsReqSavings input:checked')].map(c => c.value);
+  const reqDon = [...document.querySelectorAll('#gsReqDonation input:checked')].map(c => c.value);
+
+  try {
+    for (const [k, v] of [
+      ['products', products],
+      ['required_fields.savings', reqSav],
+      ['required_fields.donation', reqDon]
+    ]) {
+      const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
+      if (r && r.error) throw r.error;
+    }
+    gsMsg.style.color = '#22c55e';
+    gsMsg.textContent = '✓ সংরক্ষণ হয়েছে — সাইটে এখনই কার্যকর';
+  } catch (e) {
+    gsMsg.style.color = '#f87171';
+    gsMsg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only' ? 'শুধুমাত্র সুপার অ্যাডমিন সেটিংস বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
+  }
+}
+
+// ════════════════════════════════════════
+//  PRODUCT DASHBOARDS (per-product view)
+// ════════════════════════════════════════
+async function loadProdSavings() {
+  const [deps, trx] = await Promise.all([
+    _db.from('depositors').select('id,full_name,status'),
+    _db.from('savings_transactions').select('depositor_id,type,amount,status')
+  ]);
+  const dl = deps.data || [], tl = (trx.data||[]).filter(t => t.status === 'approved');
+  let dep = 0, wd = 0;
+  const per = {};
+  tl.forEach(t => {
+    const a = parseFloat(t.amount||0);
+    const s = t.type === 'deposit' ? a : -a;
+    if (t.type === 'deposit') dep += a; else wd += a;
+    per[t.depositor_id] = (per[t.depositor_id]||0) + s;
+  });
+  setText('ps-depositors', dl.length);
+  setText('ps-deposits', fmt(dep));
+  setText('ps-withdrawals', fmt(wd));
+  setText('ps-net', fmt(dep - wd));
+
+  const c = document.getElementById('psTable');
+  if (!dl.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-users"></i><p>কোনো সঞ্চয়কারী নেই</p></div>'; return; }
+  const rows = dl.map(d => ({ name: d.full_name, st: d.status, bal: per[d.id]||0 }))
+                 .sort((a,b)=>b.bal-a.bal);
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>সঞ্চয়কারী</th><th>অবস্থা</th><th style="text-align:right">স্থিতি (৳)</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${esc(r.name)||'—'}</td><td>${r.st==='active'?'সক্রিয়':esc(r.st||'—')}</td><td style="text-align:right;font-weight:700">${fmt(r.bal)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+async function loadProdLoans() {
+  const { data: ls } = await _db.from('loans')
+    .select('loan_no,principal,paid_amount,status,disbursement_date,borrowers(name,name_bn,mobile)')
+    .order('created_at',{ascending:false});
+  const list = ls || [];
+  let disb = 0, coll = 0, out = 0, act = 0;
+  list.forEach(l => {
+    const p = parseFloat(l.principal||0), pd = parseFloat(l.paid_amount||0);
+    disb += p; coll += pd;
+    if (l.status === 'active') { act++; out += Math.max(p - pd, 0); }
+  });
+  setText('pl-active', act);
+  setText('pl-disbursed', fmt(disb));
+  setText('pl-collected', fmt(coll));
+  setText('pl-outstanding', fmt(out));
+
+  const c = document.getElementById('plTable');
+  if (!list.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো ঋণ নেই</p></div>'; return; }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>ঋণ নং</th><th>ঋণগ্রহীতা</th><th style="text-align:right">মূলধন</th><th style="text-align:right">পরিশোধ</th><th style="text-align:right">বকেয়া</th><th>অবস্থা</th></tr></thead><tbody>
+    ${list.map(l=>{
+      const p=parseFloat(l.principal||0), pd=parseFloat(l.paid_amount||0);
+      const nm = l.borrowers ? (l.borrowers.name_bn || l.borrowers.name) : '—';
+      return `<tr><td>${esc(l.loan_no)}</td><td>${esc(nm)}</td><td style="text-align:right">${fmt(p)}</td><td style="text-align:right">${fmt(pd)}</td><td style="text-align:right;font-weight:700">${fmt(Math.max(p-pd,0))}</td><td><span class="badge ${statusBadge(l.status)}">${statusBn(l.status)}</span></td></tr>`;
+    }).join('')}
+  </tbody></table></div>`;
+}
+
+async function loadProdDonations() {
+  const [donors, dons] = await Promise.all([
+    _db.from('donors').select('id',{count:'exact',head:true}),
+    _db.from('donations').select('donation_no,donor_name,amount,purpose,status,created_at').order('created_at',{ascending:false})
+  ]);
+  const list = (dons.data||[]).filter(d => d.status === 'confirmed');
+  const total = list.reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  const now = new Date();
+  const month = list.filter(r => {
+    const d = new Date(r.created_at);
+    return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  setText('pd-donors', donors.count || 0);
+  setText('pd-total', fmt(total));
+  setText('pd-month', fmt(month));
+  setText('pd-avg', fmt(list.length ? Math.round(total/list.length) : 0));
+
+  const c = document.getElementById('pdTable');
+  if (!list.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-heart-off"></i><p>কোনো দান নেই</p></div>'; return; }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>দান নং</th><th>দাতা</th><th style="text-align:right">পরিমাণ (৳)</th><th>উদ্দেশ্য</th><th>তারিখ</th></tr></thead><tbody>
+    ${list.slice(0,20).map(r=>`<tr><td>${esc(r.donation_no)}</td><td>${esc(r.donor_name)||'—'}</td><td style="text-align:right;font-weight:700">${fmt(r.amount)}</td><td>${esc(r.purpose)||'—'}</td><td>${fmtDate(r.created_at)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ছোট এসকেপ হেল্পার — টেবিলে নিরাপদ টেক্সট */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // ════════════════════════════════════════

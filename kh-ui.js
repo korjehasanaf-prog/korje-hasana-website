@@ -599,6 +599,248 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     LOGGED-IN USER — profile cache + navbar chip
+     ══════════════════════════════════════════════════════ */
+
+  var PROFILE_KEY = 'kh_profile_v1';
+
+  KHUI.getMyProfile = function (force) {
+    if (!window._db || !window._db.auth) return Promise.resolve(null);
+    return window._db.auth.getSession().then(function (s) {
+      var sess = s && s.data && s.data.session;
+      if (!sess) {
+        try { sessionStorage.removeItem(PROFILE_KEY); } catch (e) {}
+        return null;
+      }
+      if (!force) {
+        try {
+          var c = JSON.parse(sessionStorage.getItem(PROFILE_KEY) || 'null');
+          if (c && c.id === sess.user.id) return c;
+        } catch (e) {}
+      }
+      return Promise.resolve(window._db.rpc('get_my_profile')).then(function (r) {
+        var p = (r && !r.error) ? r.data : null;
+        if (p) { try { sessionStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch (e) {} }
+        return p;
+      });
+    }).catch(function () { return null; });
+  };
+
+  KHUI.clearProfileCache = function () {
+    try { sessionStorage.removeItem(PROFILE_KEY); } catch (e) {}
+  };
+
+  /* ফার্স্ট + মিডল/লাস্ট নেম */
+  KHUI.shortName = function (full) {
+    var parts = String(full || '').trim().split(/\s+/).filter(Boolean);
+    return parts.slice(0, 2).join(' ') || 'সদস্য';
+  };
+
+  /* ── প্রোফাইল কত শতাংশ পূর্ণ ── */
+  var PROFILE_FIELDS = [
+    'full_name', 'mobile', 'email', 'occupation', 'address',
+    'permanent_address', 'district', 'nid', 'photo_url', 'nid_url'
+  ];
+  KHUI.profileProgress = function (p) {
+    if (!p) return { pct: 0, filled: 0, total: PROFILE_FIELDS.length, missing: PROFILE_FIELDS.slice() };
+    var filled = 0, missing = [];
+    PROFILE_FIELDS.forEach(function (f) {
+      var v = p[f];
+      if (v !== null && v !== undefined && String(v).trim() !== '') filled++;
+      else missing.push(f);
+    });
+    return {
+      pct: Math.round(filled / PROFILE_FIELDS.length * 100),
+      filled: filled, total: PROFILE_FIELDS.length, missing: missing
+    };
+  };
+
+  /* ── ডায়নামিক জেনারেল সেটিংস (app_settings) ── */
+  var _settingsCache = null;
+  KHUI.getSettings = function (force) {
+    if (_settingsCache && !force) return Promise.resolve(_settingsCache);
+    if (!window._db || !window._db.from) return Promise.resolve({});
+    return new Promise(function (resolve) {
+      Promise.resolve(window._db.from('app_settings').select('key,value')).then(function (r) {
+        var out = {};
+        ((r && r.data) || []).forEach(function (row) { out[row.key] = row.value; });
+        _settingsCache = out;
+        resolve(out);
+      }, function () { resolve({}); });
+    });
+  };
+  KHUI.getSetting = function (key, fallback) {
+    return KHUI.getSettings().then(function (s) {
+      return (s && s[key] !== undefined) ? s[key] : (fallback !== undefined ? fallback : null);
+    });
+  };
+  KHUI.productEnabled = function (name) {
+    return KHUI.getSetting('products', {}).then(function (p) {
+      if (!p || !p[name]) return true;              /* সেটিং না থাকলে চালু ধরা হয় */
+      return p[name].enabled !== false;
+    });
+  };
+
+  /* ── ডায়নামিক বাধ্যতামূলক ফিল্ড ──
+     map: settingsField -> inputId । required হলে ইনপুটে data-kh-req
+     ও লেবেলে * বসে। ভ্যালিডেশন: KHUI.checkRequired(map) → null বা প্রথম খালি inputId */
+  KHUI.applyRequiredFields = function (product, map) {
+    return KHUI.getSetting('required_fields.' + product, []).then(function (list) {
+      list = Array.isArray(list) ? list : [];
+      Object.keys(map).forEach(function (field) {
+        var el = document.getElementById(map[field]);
+        if (!el) return;
+        var need = list.indexOf(field) !== -1;
+        el.toggleAttribute('data-kh-req', need);
+        if (need) el.setAttribute('aria-required', 'true');
+        /* লেবেল খুঁজে তারকা বসানো */
+        var label = null;
+        if (el.id) label = document.querySelector('label[for="' + el.id + '"]');
+        if (!label && el.parentElement) label = el.parentElement.querySelector('label');
+        if (label) {
+          var star = label.querySelector('.kh-req-star');
+          if (need && !star) {
+            star = document.createElement('span');
+            star.className = 'kh-req-star';
+            star.textContent = ' *';
+            label.appendChild(star);
+          } else if (!need && star) star.remove();
+        }
+      });
+      return list;
+    });
+  };
+  KHUI.checkRequired = function (map) {
+    var bad = null;
+    Object.keys(map).some(function (field) {
+      var el = document.getElementById(map[field]);
+      if (el && el.hasAttribute('data-kh-req') && String(el.value || '').trim() === '') {
+        bad = map[field];
+        return true;
+      }
+      return false;
+    });
+    return bad;
+  };
+
+  function buildAvatar(p, name) {
+    if (p.photo_url) {
+      var img = document.createElement('img');
+      img.className = 'kh-uchip-av';
+      img.alt = '';
+      img.src = p.photo_url;
+      return img;
+    }
+    var sp = document.createElement('span');
+    sp.className = 'kh-uchip-av kh-uchip-ini';
+    sp.textContent = (name && name[0]) || 'স';
+    return sp;
+  }
+
+  KHUI.mountUserChip = function () {
+    if (!window._db || !window._db.auth) return Promise.resolve(null);
+    return KHUI.getMyProfile().then(function (p) {
+      if (!p) return null;
+      var name = KHUI.shortName(p.full_name);
+
+      /* topbar-এর লগইন লিংকগুলো নাম-চিপে বদলে যায় */
+      document.querySelectorAll('.kh-login-link').forEach(function (a) {
+        var wrap = document.createElement('span');
+        wrap.className = 'kh-uwrap';
+
+        var chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'kh-uchip';
+        chip.setAttribute('aria-haspopup', 'true');
+        chip.appendChild(buildAvatar(p, name));
+        var nm = document.createElement('span');
+        nm.className = 'kh-uchip-nm';
+        nm.textContent = name;
+        chip.appendChild(nm);
+        var car = document.createElement('i');
+        car.className = 'ti ti-chevron-down';
+        car.setAttribute('aria-hidden', 'true');
+        chip.appendChild(car);
+
+        var menu = document.createElement('span');
+        menu.className = 'kh-umenu';
+        menu.innerHTML =
+          '<a href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> আমার ড্যাশবোর্ড</a>' +
+          '<a href="my-profile.html"><i class="ti ti-user-edit" aria-hidden="true"></i> প্রোফাইল আপডেট</a>' +
+          '<button type="button" class="kh-uout"><i class="ti ti-logout" aria-hidden="true"></i> সাইন আউট</button>';
+
+        wrap.appendChild(chip);
+        wrap.appendChild(menu);
+        a.replaceWith(wrap);
+
+        chip.onclick = function (e) {
+          e.stopPropagation();
+          document.querySelectorAll('.kh-uwrap.kh-open').forEach(function (w) {
+            if (w !== wrap) w.classList.remove('kh-open');
+          });
+          wrap.classList.toggle('kh-open');
+        };
+        menu.querySelector('.kh-uout').onclick = function () {
+          KHUI.clearProfileCache();
+          try { sessionStorage.removeItem('kh_user'); } catch (e) {}
+          window._db.auth.signOut().then(function () { location.href = 'index.html'; });
+        };
+      });
+
+      document.addEventListener('click', function () {
+        document.querySelectorAll('.kh-uwrap.kh-open').forEach(function (w) { w.classList.remove('kh-open'); });
+      });
+
+      /* glass nav: লগইন → শুধু ছবি + প্রোফাইল-পূর্ণতার সবুজ রিং */
+      var g = document.querySelector('.kh-glassnav a[href="user-login.html"]');
+      if (g) {
+        var prog = KHUI.profileProgress(p);
+        g.href = 'my-dashboard.html';
+        g.className = (g.className ? g.className + ' ' : '') + 'kh-gav-link';
+        g.setAttribute('aria-label', 'প্রোফাইল ' + prog.pct + '% পূর্ণ');
+        g.title = 'প্রোফাইল ' + prog.pct + '% পূর্ণ';
+        g.textContent = '';
+
+        var ring = document.createElement('span');
+        ring.className = 'kh-gav-ring';
+        ring.style.background =
+          'conic-gradient(#22c55e ' + prog.pct + '%, rgba(160,150,190,.35) ' + prog.pct + '% 100%)';
+
+        var av;
+        if (p.photo_url) {
+          av = document.createElement('img');
+          av.className = 'kh-gav';
+          av.alt = '';
+          av.src = p.photo_url;
+        } else {
+          av = document.createElement('span');
+          av.className = 'kh-gav kh-gav-ini';
+          av.textContent = (name && name[0]) || 'স';
+        }
+        ring.appendChild(av);
+        g.appendChild(ring);
+
+        /* ক্লিকে ছোট মেনু: প্রোফাইল ও ড্যাশবোর্ড */
+        var gm = document.createElement('div');
+        gm.className = 'kh-gmenu';
+        gm.innerHTML =
+          '<div class="kh-gmenu-pct"><span class="kh-gmenu-bar"><i style="width:' + prog.pct + '%"></i></span> প্রোফাইল ' + KHUI.bn(prog.pct) + '% পূর্ণ</div>' +
+          '<a href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> আমার ড্যাশবোর্ড</a>' +
+          '<a href="my-profile.html"><i class="ti ti-user-edit" aria-hidden="true"></i> প্রোফাইল আপডেট</a>';
+        g.parentElement.appendChild(gm);
+
+        g.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          gm.classList.toggle('kh-open');
+        });
+        document.addEventListener('click', function () { gm.classList.remove('kh-open'); });
+      }
+      return p;
+    });
+  };
+
+  /* ══════════════════════════════════════════════════════
      5 ── WHATSAPP CHAT WIDGET
      ══════════════════════════════════════════════════════ */
 
@@ -880,6 +1122,7 @@
       KHUI.mountThemeButton();
     }
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
+    if (document.body.dataset.khUser !== 'off') KHUI.mountUserChip();
     KHUI.enhancePasswords(document);
     KHUI.enhanceEmails(document);
   }
