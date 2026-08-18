@@ -468,6 +468,17 @@
           </div>
         </div>
 
+        <!-- মাসিক স্কিম বেছে নিলে জমার পরিমাণ ও তারিখ -->
+        <div id="monthlyBox" style="display:none">
+          <div class="kh-field">
+            <input type="number" id="regMonthly" placeholder=" " inputmode="numeric" min="0" step="50">
+            <label>প্রতি মাসে কত টাকা জমা দেবেন (৳)</label>
+            <i class="ti ti-cash kh-fi" aria-hidden="true"></i>
+          </div>
+          <p class="kh-hint" id="dueHint"><i class="ti ti-calendar-due" style="color:#f59e0b" aria-hidden="true"></i>
+            প্রতি মাসের <b id="dueDayTxt">২০</b> তারিখের মধ্যে জমা দিতে হবে। দেরি হলে ই-মেইলে স্বয়ংক্রিয় স্মরণ-বার্তা যাবে।</p>
+        </div>
+
         <div class="kh-sect">উত্তোলন হিসাব</div>
         <div class="kh-row2">
           <div class="kh-field">
@@ -499,13 +510,22 @@
           <label>ইমেইল ঠিকানা</label>
           <i class="ti ti-mail kh-fi" aria-hidden="true"></i>
         </div>
-        <div class="kh-field">
-          <input type="password" id="regPass" placeholder=" " data-kh-strength="1" autocomplete="new-password">
-          <label>পাসওয়ার্ড</label>
-        </div>
-        <div class="kh-field" style="margin-top:22px">
-          <input type="password" id="regPass2" placeholder=" " autocomplete="new-password">
-          <label>পাসওয়ার্ড নিশ্চিত করুন</label>
+
+        <!-- লগইন করা থাকলে পাসওয়ার্ড লাগে না — অ্যাকাউন্টের পাসওয়ার্ডই চলবে -->
+        <p class="kh-hint" id="passSkipNote" style="display:none">
+          <i class="ti ti-shield-check" style="color:#22c55e" aria-hidden="true"></i>
+          আপনি সাইন ইন করা আছেন — নতুন পাসওয়ার্ড দিতে হবে না, আপনার অ্যাকাউন্টের পাসওয়ার্ডই থাকবে।
+        </p>
+
+        <div id="passBox">
+          <div class="kh-field">
+            <input type="password" id="regPass" placeholder=" " data-kh-strength="1" autocomplete="new-password">
+            <label>পাসওয়ার্ড</label>
+          </div>
+          <div class="kh-field" style="margin-top:22px">
+            <input type="password" id="regPass2" placeholder=" " autocomplete="new-password">
+            <label>পাসওয়ার্ড নিশ্চিত করুন</label>
+          </div>
         </div>
 
         <button class="kh-btn" onclick="doRegister()"><i class="ti ti-user-plus" aria-hidden="true"></i> হিসাব খুলুন</button>
@@ -906,7 +926,26 @@ async function doRegister() {
       return showMsg('regMsg','তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক','error');
     }
   }
-  if(!name||!phone||!email||!pass||!account) return showMsg('regMsg','সব প্রয়োজনীয় তথ্য পূরণ করুন','error');
+  const monthly = parseFloat(document.getElementById('regMonthly').value || '0');
+
+  if(!name||!phone||!email||!account) return showMsg('regMsg','সব প্রয়োজনীয় তথ্য পূরণ করুন','error');
+
+  /* মাসিক স্কিম হলে জমার পরিমাণ আবশ্যক */
+  if (scheme === 'monthly') {
+    if (!(monthly > 0)) {
+      document.getElementById('regMonthly').focus();
+      return showMsg('regMsg','প্রতি মাসে কত টাকা জমা দেবেন তা লিখুন','error');
+    }
+    if (SAV_RULES.min_monthly && monthly < SAV_RULES.min_monthly) {
+      document.getElementById('regMonthly').focus();
+      return showMsg('regMsg','মাসিক জমা কমপক্ষে ৳' + bnNum(SAV_RULES.min_monthly) + ' হতে হবে','error');
+    }
+  }
+
+  /* ── ইতিমধ্যে সাইন ইন করা থাকলে পাসওয়ার্ড/OTP কিছুই লাগবে না ── */
+  if (currentUser) { finishRegister(); return; }
+
+  if(!pass) return showMsg('regMsg','পাসওয়ার্ড দিন','error');
   if(pass !== pass2) return showMsg('regMsg','পাসওয়ার্ড দুটি মিলছে না','error');
   if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
   if(window.KHUI && KHUI.score && KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
@@ -941,8 +980,12 @@ async function doRegister() {
 
   async function finishRegister() {
     showMsg('regMsg','হিসাব তৈরি হচ্ছে…','info');
-    // email OTP already signed us in — attach the chosen password
-    await _db.auth.updateUser({ password: pass });
+
+    /* নতুন সদস্য (OTP পথ) হলে পাসওয়ার্ড বসানো হয়;
+       আগে থেকে সাইন ইন থাকলে অ্যাকাউন্টের পাসওয়ার্ডই বহাল থাকে */
+    if (!currentUser && pass) {
+      await _db.auth.updateUser({ password: pass });
+    }
     const { data: { session } } = await _db.auth.getSession();
     if (!session || !session.user) { showMsg('regMsg','যাচাই সম্পন্ন হয়নি। আবার চেষ্টা করুন।','error'); return; }
 
@@ -957,6 +1000,12 @@ async function doRegister() {
       p_withdrawal_bank:    method === 'bank' ? bank : null
     });
     if(rpcErr) return showMsg('regMsg', rpcErr.message, 'error');
+
+    /* মাসিক স্কিমের জমার পরিমাণ সংরক্ষণ */
+    if (scheme === 'monthly' && monthly > 0) {
+      const { error: schemeErr } = await _db.rpc('set_my_savings_scheme', { p_monthly: monthly });
+      if (schemeErr) showMsg('regMsg','হিসাব খোলা হয়েছে, তবে মাসিক পরিমাণ সংরক্ষণ হয়নি: '+schemeErr.message,'info');
+    }
     await loadPortal(session.user);
   }
 }
@@ -1154,12 +1203,55 @@ async function loadHeroStats() {
   }
 })();
 
+/* মাসিক সঞ্চয়ের নিয়ম (অ্যাডমিন সেটিংস থেকে) */
+var SAV_RULES = { due_day: 20, grace_days: 3, min_monthly: 0 };
+var BN_D = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+function bnNum(v){ return String(v).replace(/[0-9]/g, function(d){ return BN_D[+d]; }); }
+
+/* মাসিক স্কিম বেছে নিলে জমার ঘর দেখাও */
+function syncMonthlyBox(){
+  var sel = document.getElementById('regScheme');
+  var box = document.getElementById('monthlyBox');
+  if(!sel || !box) return;
+  box.style.display = sel.value === 'monthly' ? '' : 'none';
+}
+
 // Auto-fill the "new savings account" form from the member's profile
 // kh-ui.js পেজের একদম শেষে লোড হয় — তাই KHUI না পাওয়া পর্যন্ত অপেক্ষা করে
 function prefillRegister(tries) {
   if (!window.KHUI || !KHUI.prefillFromProfile) {
     if ((tries || 0) < 30) setTimeout(function () { prefillRegister((tries || 0) + 1); }, 150);
     return;
+  }
+
+  /* সাইন ইন থাকলে পাসওয়ার্ডের ঘর লুকাও — অ্যাকাউন্টের পাসওয়ার্ডই থাকবে */
+  if (currentUser) {
+    var pb = document.getElementById('passBox');
+    if (pb) pb.style.display = 'none';
+    var pn = document.getElementById('passSkipNote');
+    if (pn) pn.style.display = '';
+  }
+
+  /* স্কিম অনুযায়ী মাসিক ঘর, ও জমার শেষ তারিখ দেখানো */
+  var schemeSel = document.getElementById('regScheme');
+  if (schemeSel && !schemeSel._khBound) {
+    schemeSel.addEventListener('change', syncMonthlyBox);
+    schemeSel._khBound = true;
+  }
+  syncMonthlyBox();
+
+  if (KHUI.getSetting) {
+    KHUI.getSetting('savings_rules', {}).then(function (r) {
+      if (r && typeof r === 'object') {
+        SAV_RULES.due_day     = r.due_day     != null ? r.due_day     : 20;
+        SAV_RULES.grace_days  = r.grace_days  != null ? r.grace_days  : 3;
+        SAV_RULES.min_monthly = r.min_monthly != null ? r.min_monthly : 0;
+      }
+      var t = document.getElementById('dueDayTxt');
+      if (t) t.textContent = bnNum(SAV_RULES.due_day);
+      var mi = document.getElementById('regMonthly');
+      if (mi && SAV_RULES.min_monthly) mi.placeholder = 'ন্যূনতম ৳' + SAV_RULES.min_monthly;
+    });
   }
 
   /* অ্যাডমিন সেটিংস: বাধ্যতামূলক ফিল্ডে * + প্রোডাক্ট চালু আছে কি না */

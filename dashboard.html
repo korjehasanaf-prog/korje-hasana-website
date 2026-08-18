@@ -329,6 +329,11 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <span class="sb-badge" id="badge-savings">0</span>
       </div>
 
+      <div class="sb-item" id="mi-reminders" onclick="switchPanel('reminders')">
+        <i class="ti ti-bell-ringing"></i> বকেয়া রিমাইন্ডার
+        <span class="sb-badge" id="badge-reminder">0</span>
+      </div>
+
       <div class="sb-section">রিপোর্ট</div>
       <div class="sb-item" id="mi-log" onclick="switchPanel('log')">
         <i class="ti ti-list-check"></i> অনুমোদন লগ
@@ -680,6 +685,29 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
+      <!-- ══════════════ PANEL: REMINDERS ══════════════ -->
+      <div class="panel" id="panel-reminders">
+        <div class="panel-title">🔔 বকেয়া রিমাইন্ডার</div>
+        <div class="panel-sub">মাসিক সঞ্চয় ও ঋণের কিস্তি — দেরি হলে সদস্যকে স্বয়ংক্রিয় ই-মেইল</div>
+
+        <div class="stat-grid">
+          <div class="stat-card sc-orange"><span class="stat-ico">⏳</span><div class="stat-num" id="rm-pending">—</div><div class="stat-lbl">পাঠানোর অপেক্ষায়</div></div>
+          <div class="stat-card sc-green"><span class="stat-ico">✅</span><div class="stat-num" id="rm-sent">—</div><div class="stat-lbl">পাঠানো হয়েছে</div></div>
+          <div class="stat-card sc-blue"><span class="stat-ico">🏦</span><div class="stat-num" id="rm-sav">—</div><div class="stat-lbl">সঞ্চয় বকেয়া</div></div>
+          <div class="stat-card sc-purple"><span class="stat-ico">💼</span><div class="stat-num" id="rm-loan">—</div><div class="stat-lbl">কিস্তি বকেয়া</div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-title"><i class="ti ti-list-check"></i> রিমাইন্ডার তালিকা</div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="btn-primary" onclick="runReminderScan()"><i class="ti ti-refresh"></i> বকেয়া হিসাব করুন</button>
+            <button class="btn-primary" style="background:linear-gradient(135deg,#0d6e56,#1d9e75)" onclick="sendReminders()"><i class="ti ti-send"></i> এখনই ই-মেইল পাঠান</button>
+            <span id="rmMsg" style="font-size:13px;align-self:center"></span>
+          </div>
+          <div id="rmTable"><div class="empty-state"><i class="ti ti-bell-off"></i><p>এখনো কিছু নেই</p></div></div>
+        </div>
+      </div>
+
       <!-- ══════════════ PANEL: GENERAL SETTINGS (super admin) ══════════════ -->
       <div class="panel" id="panel-settings">
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
@@ -697,6 +725,28 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer">
               <input type="checkbox" id="gs-prod-donation" style="width:17px;height:17px;accent-color:#22c55e"> দান গ্রহণ
             </label>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-calendar-dollar"></i> মাসিক সঞ্চয় ও কিস্তির নিয়ম</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px">
+            <label style="font-size:13px">প্রতি মাসের জমার শেষ তারিখ
+              <input type="number" id="gs-due-day" min="1" max="28" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+            <label style="font-size:13px">ন্যূনতম মাসিক জমা (৳)
+              <input type="number" id="gs-min-monthly" min="0" step="50" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+            <label style="font-size:13px">সঞ্চয়: কত দিন পর রিমাইন্ডার
+              <input type="number" id="gs-sav-grace" min="0" max="30" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+            <label style="font-size:13px">ঋণ: কত দিন পর রিমাইন্ডার
+              <input type="number" id="gs-loan-grace" min="0" max="30" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+          </div>
+          <div class="gs-checks" style="margin-top:14px">
+            <label><input type="checkbox" id="gs-sav-remind"> সঞ্চয়ের রিমাইন্ডার চালু</label>
+            <label><input type="checkbox" id="gs-loan-remind"> ঋণের রিমাইন্ডার চালু</label>
           </div>
         </div>
 
@@ -879,7 +929,7 @@ const PANEL_TITLES = {
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় উত্তোলন অনুমোদন',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
-  'settings':'জেনারেল সেটিংস'
+  'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার'
 };
 function switchPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -902,6 +952,81 @@ function switchPanel(name) {
   if (name === 'prod-loans') loadProdLoans();
   if (name === 'prod-donations') loadProdDonations();
   if (name === 'settings') loadGeneralSettings();
+  if (name === 'reminders') loadReminders();
+}
+
+// ════════════════════════════════════════
+//  REMINDERS
+// ════════════════════════════════════════
+const REMINDER_FN = 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1/send-reminders';
+
+function rmKindBn(k){ return k === 'savings_due' ? 'মাসিক সঞ্চয়' : 'ঋণের কিস্তি'; }
+function rmStatusBn(s){ return {pending:'অপেক্ষমাণ', sent:'পাঠানো হয়েছে', failed:'ব্যর্থ', skipped:'বাদ'}[s] || s; }
+function rmStatusCls(s){ return {pending:'b-pending', sent:'b-approved', failed:'b-rejected', skipped:'b-review'}[s] || 'b-pending'; }
+
+async function loadReminders() {
+  const { data } = await _db.from('reminders')
+    .select('kind,person_name,email,amount,due_date,days_late,status,sent_at,error,period')
+    .order('created_at', { ascending: false }).limit(200);
+  const rows = data || [];
+
+  setText('rm-pending', rows.filter(r => r.status === 'pending').length);
+  setText('rm-sent',    rows.filter(r => r.status === 'sent').length);
+  setText('rm-sav',     rows.filter(r => r.kind === 'savings_due' && r.status === 'pending').length);
+  setText('rm-loan',    rows.filter(r => r.kind === 'loan_emi'   && r.status === 'pending').length);
+  setBadge('badge-reminder', rows.filter(r => r.status === 'pending').length);
+
+  const c = document.getElementById('rmTable');
+  if (!rows.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-bell-off"></i><p>কোনো বকেয়া রিমাইন্ডার নেই</p></div>'; return; }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>ধরন</th><th>সদস্য</th><th>ই-মেইল</th><th style="text-align:right">পরিমাণ</th><th>শেষ তারিখ</th><th style="text-align:right">দেরি</th><th>অবস্থা</th></tr></thead><tbody>
+    ${rows.map(r => `<tr>
+      <td>${rmKindBn(r.kind)}</td>
+      <td>${esc(r.person_name) || '—'}</td>
+      <td style="font-size:12.5px">${esc(r.email) || '—'}</td>
+      <td style="text-align:right;font-weight:700">৳${fmt(r.amount)}</td>
+      <td>${fmtDate(r.due_date)}</td>
+      <td style="text-align:right">${fmt(r.days_late)} দিন</td>
+      <td><span class="badge ${rmStatusCls(r.status)}">${rmStatusBn(r.status)}</span>${r.error ? `<div style="font-size:11px;color:#f87171;margin-top:3px">${esc(r.error).slice(0,60)}</div>` : ''}</td>
+    </tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+async function runReminderScan() {
+  const m = document.getElementById('rmMsg');
+  m.style.color = 'var(--muted)'; m.textContent = 'বকেয়া হিসাব করা হচ্ছে…';
+  try {
+    const r = await _db.rpc('generate_due_reminders');
+    if (r && r.error) throw r.error;
+    const s = r.data || {};
+    m.style.color = '#22c55e';
+    m.textContent = `✓ হিসাব হয়েছে — সঞ্চয় ${fmt(s.savings_pending)} · কিস্তি ${fmt(s.loan_pending)}`;
+    loadReminders();
+  } catch (e) {
+    m.style.color = '#f87171';
+    m.textContent = 'ব্যর্থ: ' + (e.message || 'আবার চেষ্টা করুন');
+  }
+}
+
+async function sendReminders() {
+  const m = document.getElementById('rmMsg');
+  const secret = prompt('রিমাইন্ডার পাঠানোর গোপন কি (REMINDER_CRON_SECRET) দিন:');
+  if (!secret) return;
+  m.style.color = 'var(--muted)'; m.textContent = 'ই-মেইল পাঠানো হচ্ছে…';
+  try {
+    const res = await fetch(REMINDER_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-reminder-secret': secret },
+      body: JSON.stringify({})
+    });
+    const j = await res.json();
+    if (!res.ok) throw new Error(j.error || 'ব্যর্থ');
+    m.style.color = '#22c55e';
+    m.textContent = `✓ পাঠানো: ${fmt(j.sent)} · ব্যর্থ: ${fmt(j.failed)}`;
+    loadReminders();
+  } catch (e) {
+    m.style.color = '#f87171';
+    m.textContent = 'ব্যর্থ: ' + (e.message || 'আবার চেষ্টা করুন');
+  }
 }
 
 // ════════════════════════════════════════
@@ -923,6 +1048,14 @@ async function loadGeneralSettings() {
       cb.checked = list.indexOf(cb.value) !== -1;
     });
   });
+
+  const sav = s['savings_rules'] || {}, loan = s['loan_rules'] || {};
+  document.getElementById('gs-due-day').value     = sav.due_day     != null ? sav.due_day     : 20;
+  document.getElementById('gs-min-monthly').value = sav.min_monthly != null ? sav.min_monthly : 500;
+  document.getElementById('gs-sav-grace').value   = sav.grace_days  != null ? sav.grace_days  : 3;
+  document.getElementById('gs-loan-grace').value  = loan.grace_days != null ? loan.grace_days : 3;
+  document.getElementById('gs-sav-remind').checked  = sav.reminder_enabled !== false;
+  document.getElementById('gs-loan-remind').checked = loan.reminder_enabled !== false;
 }
 
 async function saveGeneralSettings() {
@@ -938,11 +1071,28 @@ async function saveGeneralSettings() {
   const reqSav = [...document.querySelectorAll('#gsReqSavings input:checked')].map(c => c.value);
   const reqDon = [...document.querySelectorAll('#gsReqDonation input:checked')].map(c => c.value);
 
+  const num = (id, dflt) => {
+    const v = parseInt(document.getElementById(id).value, 10);
+    return isNaN(v) ? dflt : v;
+  };
+  const savingsRules = {
+    due_day:          Math.min(28, Math.max(1, num('gs-due-day', 20))),
+    grace_days:       Math.max(0, num('gs-sav-grace', 3)),
+    min_monthly:      Math.max(0, num('gs-min-monthly', 500)),
+    reminder_enabled: document.getElementById('gs-sav-remind').checked
+  };
+  const loanRules = {
+    grace_days:       Math.max(0, num('gs-loan-grace', 3)),
+    reminder_enabled: document.getElementById('gs-loan-remind').checked
+  };
+
   try {
     for (const [k, v] of [
       ['products', products],
       ['required_fields.savings', reqSav],
-      ['required_fields.donation', reqDon]
+      ['required_fields.donation', reqDon],
+      ['savings_rules', savingsRules],
+      ['loan_rules', loanRules]
     ]) {
       const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
       if (r && r.error) throw r.error;

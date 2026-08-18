@@ -728,6 +728,52 @@
     return bad;
   };
 
+  /* ── প্রোফাইল ছবি জুম করে বড় দেখা ── */
+  KHUI.zoomPhoto = function (url, name, pct) {
+    if (document.querySelector('.kh-zoom')) return;
+
+    var back = document.createElement('div');
+    back.className = 'kh-zoom';
+    back.setAttribute('role', 'dialog');
+    back.setAttribute('aria-label', 'প্রোফাইল ছবি');
+
+    var box = document.createElement('div');
+    box.className = 'kh-zoom-box';
+
+    var inner = '';
+    if (url) {
+      inner += '<img class="kh-zoom-img" src="' + String(url).replace(/"/g, '&quot;') + '" alt="">';
+    } else {
+      inner += '<div class="kh-zoom-ini">' + ((name && name.trim()[0]) || 'স') + '</div>';
+    }
+    inner += '<div class="kh-zoom-name"></div>';
+    if (pct != null) inner += '<div class="kh-zoom-pct">প্রোফাইল ' + KHUI.bn(pct) + '% পূর্ণ</div>';
+    inner += '<div class="kh-zoom-acts">' +
+      '<a class="kh-zoom-btn" href="my-profile.html"><i class="ti ti-user-edit" aria-hidden="true"></i> প্রোফাইল আপডেট</a>' +
+      '<a class="kh-zoom-btn kh-zoom-alt" href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> ড্যাশবোর্ড</a>' +
+      '</div>' +
+      '<button class="kh-zoom-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>';
+
+    box.innerHTML = inner;
+    box.querySelector('.kh-zoom-name').textContent = name || 'সদস্য';
+    back.appendChild(box);
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { back.classList.add('kh-in'); });
+
+    function close() {
+      back.classList.remove('kh-in');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (back.parentNode) back.remove(); }, 220);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    back.addEventListener('click', function (e) { if (e.target === back) close(); });
+    box.querySelector('.kh-zoom-x').onclick = close;
+    document.addEventListener('keydown', onKey);
+    KHUI._closeZoom = close;
+  };
+
   function buildAvatar(p, name) {
     if (p.photo_url) {
       var img = document.createElement('img');
@@ -785,6 +831,28 @@
           });
           wrap.classList.toggle('kh-open');
         };
+        /* মেনুতে "ছবি বড় করে দেখুন" */
+        var zoomItem = document.createElement('button');
+        zoomItem.type = 'button';
+        zoomItem.className = 'kh-uzoom';
+        zoomItem.innerHTML = '<i class="ti ti-zoom-in" aria-hidden="true"></i> ছবি বড় করে দেখুন';
+        menu.insertBefore(zoomItem, menu.firstChild);
+        zoomItem.onclick = function () {
+          wrap.classList.remove('kh-open');
+          KHUI.zoomPhoto(p.photo_url, p.full_name, KHUI.profileProgress(p).pct);
+        };
+
+        /* ছবিতে সরাসরি ক্লিক করলেও জুম */
+        var avEl = chip.querySelector('.kh-uchip-av');
+        if (avEl) {
+          avEl.style.cursor = 'zoom-in';
+          avEl.addEventListener('click', function (e) {
+            e.stopPropagation();
+            wrap.classList.remove('kh-open');
+            KHUI.zoomPhoto(p.photo_url, p.full_name, KHUI.profileProgress(p).pct);
+          });
+        }
+
         menu.querySelector('.kh-uout').onclick = function () {
           KHUI.clearProfileCache();
           try { sessionStorage.removeItem('kh_user'); } catch (e) {}
@@ -830,9 +898,15 @@
         gm.className = 'kh-gmenu';
         gm.innerHTML =
           '<div class="kh-gmenu-pct"><span class="kh-gmenu-bar"><i style="width:' + prog.pct + '%"></i></span> প্রোফাইল ' + KHUI.bn(prog.pct) + '% পূর্ণ</div>' +
+          '<button type="button" class="kh-gzoom"><i class="ti ti-zoom-in" aria-hidden="true"></i> ছবি বড় করে দেখুন</button>' +
           '<a href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> আমার ড্যাশবোর্ড</a>' +
           '<a href="my-profile.html"><i class="ti ti-user-edit" aria-hidden="true"></i> প্রোফাইল আপডেট</a>';
         g.parentElement.appendChild(gm);
+        gm.querySelector('.kh-gzoom').onclick = function (e) {
+          e.stopPropagation();
+          gm.classList.remove('kh-open');
+          KHUI.zoomPhoto(p.photo_url, p.full_name, prog.pct);
+        };
 
         g.addEventListener('click', function (e) {
           e.preventDefault();
