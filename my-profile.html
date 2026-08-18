@@ -23,7 +23,24 @@
       background:linear-gradient(150deg,#fdf3f8,#faf5fd 45%,#fff5ee);
       color:var(--ink);
     }
-    .wrap{max-width:720px;margin:0 auto;padding:26px 18px 40px}
+    /* ── ইসলামিক ক্যালিগ্রাফি ব্যাকগ্রাউন্ড ── */
+    .bg{
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:url('images/auth-bg.jpg') center/cover no-repeat;
+    }
+    .bg::after{
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(155deg, rgba(18,7,31,.72) 0%, rgba(26,12,46,.6) 45%, rgba(18,7,31,.76) 100%);
+    }
+    html[data-theme="light"] .bg::after{
+      background:linear-gradient(155deg, rgba(255,252,248,.62) 0%, rgba(255,250,244,.5) 45%, rgba(253,243,247,.66) 100%);
+    }
+    @media(max-width:640px){
+      .bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}
+    }
+
+    .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:26px 18px 40px}
+    .gate{position:relative;z-index:1}
 
     .phead{
       display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;
@@ -39,14 +56,14 @@
     .backl:hover{filter:brightness(1.1)}
 
     .panel{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:18px;padding:24px 22px;backdrop-filter:blur(14px);
+      background:rgba(26,14,45,.84);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:18px;padding:24px 22px;backdrop-filter:blur(16px);
       margin-bottom:18px;
     }
     html[data-theme="light"] .panel{
-      background:#fff;border-color:#ece2f4;
-      box-shadow:0 12px 34px rgba(112,72,232,.12);
+      background:rgba(255,255,255,.94);border-color:#ece2f4;
+      box-shadow:0 12px 34px rgba(112,72,232,.16);
     }
     .panel h2{font-size:15px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
     .panel h2 i{color:#e083b4}
@@ -139,6 +156,8 @@
 </head>
 <body>
 
+<div class="bg"></div>
+
 <div class="gate" id="gate"><i class="ti ti-loader-2 sp"></i><p>প্রোফাইল আনা হচ্ছে…</p></div>
 
 <div class="wrap" id="main" style="display:none">
@@ -167,7 +186,7 @@
           <i class="ti ti-upload"></i> ছবি বদলান
         </button>
         <input type="file" id="photoFile" accept="image/*" hidden>
-        <div class="upnote">JPG/PNG · সর্বোচ্চ ২ MB · সবাই দেখতে পাবে</div>
+        <div class="upnote">যেকোনো সাইজের JPG/PNG দিন — স্বয়ংক্রিয়ভাবে ২ MB-র নিচে কমপ্রেস হবে · সবাই দেখতে পাবে</div>
       </div>
     </div>
   </div>
@@ -256,8 +275,49 @@
       : 'আপনার প্রোফাইল সম্পূর্ণ! ✓';
   }
 
+  /* ── যেকোনো সাইজের ছবি → রিসাইজ ও কমপ্রেস করে ২ MB-র নিচে ──
+     সর্বোচ্চ ১২০০px, প্রয়োজনে কোয়ালিটি ও মাপ ধাপে ধাপে কমানো হয়।  */
+  var MAX_BYTES = 2 * 1024 * 1024;
+  function loadImage(file){
+    return new Promise(function(res, rej){
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function(){ URL.revokeObjectURL(url); res(im); };
+      im.onerror = function(){ URL.revokeObjectURL(url); rej(new Error('ছবি পড়া যায়নি')); };
+      im.src = url;
+    });
+  }
+  function canvasBlob(cv, q){
+    return new Promise(function(res){ cv.toBlob(function(b){ res(b); }, 'image/jpeg', q); });
+  }
+  async function compressImage(file, onStep){
+    if(!/^image\//i.test(file.type)) throw new Error('এটি ছবি ফাইল নয়');
+    var im = await loadImage(file);
+    var maxDim = 1200;
+    var out = null;
+
+    for(var attempt = 0; attempt < 6; attempt++){
+      var scale = Math.min(1, maxDim / Math.max(im.width, im.height));
+      var w = Math.max(1, Math.round(im.width * scale));
+      var h = Math.max(1, Math.round(im.height * scale));
+      var cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      var ctx = cv.getContext('2d');
+      ctx.drawImage(im, 0, 0, w, h);
+
+      var quality = [0.9, 0.82, 0.72, 0.6, 0.5, 0.42][attempt];
+      out = await canvasBlob(cv, quality);
+      if(onStep) onStep(out, w, h);
+      if(out && out.size <= MAX_BYTES) break;
+      maxDim = Math.round(maxDim * 0.8);   /* এখনো বড় → মাপ ছোট করে আবার */
+    }
+    if(!out) throw new Error('ছবি প্রস্তুত করা যায়নি');
+    return out;
+  }
+  function mb(bytes){ return (bytes/1048576).toFixed(2); }
+
   async function upload(bucket, path, file){
-    var r = await _db.storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
+    var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
     if(r.error) throw r.error;
     return path;
   }
@@ -282,7 +342,7 @@
         '<p style="margin-top:12px">সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।</p>';
       return;
     }
-    var s = await _db.auth.getSession();
+    var s = await sb().auth.getSession();
     if(!s || !s.data || !s.data.session){ location.replace('user-login.html'); return; }
     uid = s.data.session.user.id;
 
@@ -290,7 +350,7 @@
       try { prof = await KHUI.getMyProfile(true); } catch(e){}
     }
     if(!prof){
-      try { var pr = await _db.rpc('get_my_profile'); if(pr && !pr.error) prof = pr.data; } catch(e){}
+      try { var pr = await sb().rpc('get_my_profile'); if(pr && !pr.error) prof = pr.data; } catch(e){}
     }
     if(!prof){
       el('gate').innerHTML='<i class="ti ti-alert-triangle" style="font-size:36px;color:#f0a"></i>'+
@@ -317,23 +377,27 @@
 
     paintProgress();
 
-    /* ছবি আপলোড */
+    /* ছবি আপলোড — যেকোনো সাইজ চলবে, ব্রাউজারেই ২ MB-র নিচে কমপ্রেস হয় */
     el('photoFile').addEventListener('change', async function(){
       var f = this.files[0]; if(!f) return;
-      if(f.size > 2*1024*1024){ msg('err','ছবিটি ২ MB-এর বেশি। ছোট ছবি দিন।'); return; }
-      msg('ok','ছবি আপলোড হচ্ছে…');
+      msg('ok','ছবি প্রস্তুত করা হচ্ছে…');
       try{
-        var path = uid + '/avatar.' + extOf(f);
-        await upload('avatars', path, f);
-        var pub = _db.storage.from('avatars').getPublicUrl(path);
+        var orig = f.size;
+        var blob = await compressImage(f);
+        if(blob.size > MAX_BYTES){ msg('err','ছবিটি ছোট করা যাচ্ছে না। অন্য ছবি দিন।'); return; }
+        msg('ok','আপলোড হচ্ছে… (' + mb(orig) + ' MB → ' + mb(blob.size) + ' MB)');
+
+        var path = uid + '/avatar.jpg';
+        await upload('avatars', path, blob);
+        var pub = sb().storage.from('avatars').getPublicUrl(path);
         var url = pub && pub.data ? pub.data.publicUrl + '?t=' + Date.now() : null;
-        var r = await _db.rpc('update_my_profile', { p_photo_url: url });
+        var r = await sb().rpc('update_my_profile', { p_photo_url: url });
         if(r && r.error) throw r.error;
         setAvatar(url);
         prof.photo_url = url;
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
-        msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে।');
+        msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে (' + mb(orig) + ' MB → ' + mb(blob.size) + ' MB)।');
       }catch(e){ msg('err','ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     });
 
@@ -345,7 +409,7 @@
       try{
         var path = uid + '/nid.' + extOf(f);
         await upload('nid-docs', path, f);
-        var r = await _db.rpc('update_my_profile', { p_nid_url: path });
+        var r = await sb().rpc('update_my_profile', { p_nid_url: path });
         if(r && r.error) throw r.error;
         el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
         el('nidView').style.display='';
@@ -359,7 +423,7 @@
     /* NID দেখা — signed URL */
     el('nidView').onclick = async function(){
       try{
-        var r = await _db.storage.from('nid-docs').createSignedUrl(prof.nid_url, 120);
+        var r = await sb().storage.from('nid-docs').createSignedUrl(prof.nid_url, 120);
         if(r && r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
         else msg('err','ফাইল খোলা যায়নি।');
       }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
@@ -371,7 +435,7 @@
       b.disabled = true;
       b.innerHTML = '<i class="ti ti-loader-2 spin"></i> সংরক্ষণ হচ্ছে…';
       try{
-        var r = await _db.rpc('update_my_profile', {
+        var r = await sb().rpc('update_my_profile', {
           p_full_name:         el('fName').value.trim(),
           p_occupation:        el('fOcc').value.trim(),
           p_address:           el('fAddr').value.trim(),

@@ -24,7 +24,25 @@
       color:var(--ink);
     }
 
-    .wrap{max-width:1040px;margin:0 auto;padding:26px 18px 40px}
+    /* ── ইসলামিক ক্যালিগ্রাফি ব্যাকগ্রাউন্ড ── */
+    .bg{
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:url('images/auth-bg.jpg') center/cover no-repeat;
+    }
+    /* ডার্ক থীমে ছবির ওপরে হালকা গাঢ় পর্দা — লেখা পড়ার জন্য */
+    .bg::after{
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(155deg, rgba(18,7,31,.72) 0%, rgba(26,12,46,.6) 45%, rgba(18,7,31,.76) 100%);
+    }
+    html[data-theme="light"] .bg::after{
+      background:linear-gradient(155deg, rgba(255,252,248,.62) 0%, rgba(255,250,244,.5) 45%, rgba(253,243,247,.66) 100%);
+    }
+    @media(max-width:640px){
+      .bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}
+    }
+
+    .wrap{position:relative;z-index:1;max-width:1040px;margin:0 auto;padding:26px 18px 40px}
+    .gate{position:relative;z-index:1}
 
     /* ── প্রোফাইল স্ট্রিপ ── */
     .pstrip{
@@ -77,13 +95,13 @@
     @media(max-width:820px){.cards{grid-template-columns:1fr}}
     .card{
       border-radius:18px;overflow:hidden;position:relative;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.14);
-      backdrop-filter:blur(14px);
+      background:rgba(26,14,45,.82);
+      border:1px solid rgba(255,255,255,.16);
+      backdrop-filter:blur(16px);
     }
     html[data-theme="light"] .card{
-      background:#fff;border-color:#ece2f4;
-      box-shadow:0 12px 34px rgba(112,72,232,.12);
+      background:rgba(255,255,255,.94);border-color:#ece2f4;
+      box-shadow:0 12px 34px rgba(112,72,232,.16);
     }
     .chead{padding:14px 18px;color:#fff;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px}
     .chead i{font-size:19px}
@@ -129,6 +147,50 @@
     .ob-loan{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
     .ob-don{background:linear-gradient(112deg,#7048e8,#a021c9)}
 
+    /* সদস্য প্রোফাইল তৈরির ছোট ফর্ম */
+    .panel-lite{
+      background:rgba(30,17,51,.9);border:1px solid rgba(255,255,255,.16);
+      border-radius:20px;padding:26px 24px;margin-top:26px;
+      box-shadow:0 18px 50px rgba(0,0,0,.4);
+    }
+    html[data-theme="light"] .panel-lite{
+      background:rgba(255,255,255,.94);border-color:#ece2f4;color:var(--ink);
+      box-shadow:0 18px 50px rgba(112,72,232,.18);
+    }
+    .panel-lite h2{font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:9px}
+    .panel-lite h2 i{color:#e083b4}
+    html[data-theme="light"] .panel-lite h2 i{color:#b02a80}
+    .mkNote{font-size:13px;line-height:1.75;color:#cbbfdd;margin-bottom:18px}
+    html[data-theme="light"] .mkNote{color:var(--muted)}
+    .fgx{margin-bottom:14px}
+    .fgx label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;color:#dccfec}
+    html[data-theme="light"] .fgx label{color:#4a3568}
+    .fgx input{
+      width:100%;padding:12px 14px;border-radius:11px;font-family:inherit;font-size:14px;
+      border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;outline:none;
+    }
+    .fgx input:focus{border-color:#c88ae0;box-shadow:0 0 0 3px rgba(160,33,201,.2)}
+    .fgx input[readonly]{opacity:.7}
+    html[data-theme="light"] .fgx input{background:#faf7fd;border-color:#e3d8ee;color:var(--ink)}
+    .mkBtn{
+      width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;margin-top:4px;
+      background:linear-gradient(112deg,var(--pink),#a021c9 48%,#e83e8c);
+      color:#fff;font-family:inherit;font-size:15.5px;font-weight:700;
+      box-shadow:0 8px 24px rgba(160,33,201,.4);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .mkBtn:hover{filter:brightness(1.08)}
+    .mkBtn:disabled{opacity:.6;cursor:not-allowed}
+    .mkAlt{text-align:center;margin-top:14px;font-size:13px;color:#cbbfdd}
+    html[data-theme="light"] .mkAlt{color:var(--muted)}
+    .mkAlt a{color:#e083b4;cursor:pointer;text-decoration:none}
+    html[data-theme="light"] .mkAlt a{color:#b02a80}
+    .msg{display:none;padding:11px 14px;border-radius:11px;font-size:13.5px;margin-bottom:14px;line-height:1.6}
+    .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
+    .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
+    html[data-theme="light"] .msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+    html[data-theme="light"] .msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+
     /* লোডিং / গেট */
     .gate{max-width:420px;margin:90px auto;text-align:center;padding:0 18px}
     .gate .sp{font-size:38px;color:#c88ae0;animation:sp 1s linear infinite;display:inline-block}
@@ -139,7 +201,24 @@
 </head>
 <body>
 
+<div class="bg"></div>
+
 <div class="gate" id="gate"><i class="ti ti-loader-2 sp"></i><p>আপনার তথ্য আনা হচ্ছে…</p></div>
+
+<!-- সদস্য প্রোফাইল নেই (যেমন অ্যাডমিন/কমিটি সদস্য প্রথমবার) → এখানেই তৈরি -->
+<div class="wrap" id="mkWrap" style="display:none;max-width:520px;position:relative;z-index:1">
+  <div class="panel-lite">
+    <h2><i class="ti ti-user-plus"></i> সদস্য প্রোফাইল তৈরি করুন</h2>
+    <p class="mkNote">আপনি সাইন ইন করা আছেন, তবে এখনো সদস্য হিসেবে প্রোফাইল খোলা হয়নি।
+      অ্যাডমিন, কমিটির সদস্য — সবাই এই একই অ্যাকাউন্ট দিয়েই নিয়মিত সদস্য হিসেবে আমানত, দান ও ঋণের হিসাব পরিচালনা করতে পারবেন।</p>
+    <div class="msg" id="mkMsg"></div>
+    <div class="fgx"><label for="mkName">পূর্ণ নাম *</label><input id="mkName" placeholder="আপনার নাম"></div>
+    <div class="fgx"><label for="mkMobile">মোবাইল নম্বর *</label><input id="mkMobile" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
+    <div class="fgx"><label for="mkEmail">ই-মেইল</label><input id="mkEmail" readonly></div>
+    <button class="mkBtn" id="mkBtn" type="button"><i class="ti ti-check"></i> প্রোফাইল তৈরি করুন</button>
+    <p class="mkAlt"><a href="index.html">হোমপেজ</a> · <a id="mkOut">সাইন আউট</a></p>
+  </div>
+</div>
 
 <div class="wrap" id="main" style="display:none">
 
@@ -230,17 +309,52 @@
     return a;
   }
 
-  /* লগইন পেজে ফেরত — কিন্তু কখনো লুপ নয় (একবারের বেশি নয়) */
-  function bounceToLogin(reason){
-    var KEY='kh_dash_bounce';
-    var n=0; try{ n=parseInt(sessionStorage.getItem(KEY)||'0',10)||0; }catch(e){}
-    if(n>=1){
-      try{ sessionStorage.removeItem(KEY); }catch(e){}
-      showFail('আপনার প্রোফাইল তথ্য আনা যাচ্ছে না। একবার সাইন আউট করে আবার লগইন করুন।', true);
-      return;
+  /* সদস্য প্রোফাইল নেই → এখানেই তৈরি করার ফর্ম (লগইন পেজে ফেরত পাঠানো নয়,
+     তাই কোনো রিডাইরেক্ট লুপও নয়)। অ্যাডমিন ও কমিটি সদস্যদের জন্যও একই পথ। */
+  function showMakeProfile(session){
+    el('gate').style.display='none';
+    el('main').style.display='none';
+    el('mkWrap').style.display='';
+
+    var authEmail = (session && session.user && session.user.email) || '';
+    var isAlias = /@user\.korjehasana\.org$/i.test(authEmail);
+    el('mkEmail').value = isAlias ? '' : authEmail;
+    if(isAlias){
+      var m = authEmail.split('@')[0];
+      if(/^01\d{9}$/.test(m)) el('mkMobile').value = m;
     }
-    try{ sessionStorage.setItem(KEY, String(n+1)); }catch(e){}
-    location.replace('user-login.html');
+    var meta = (session && session.user && session.user.user_metadata) || {};
+    if(meta.full_name) el('mkName').value = meta.full_name;
+
+    el('mkOut').onclick = function(){
+      try{ sessionStorage.clear(); }catch(e){}
+      sb().auth.signOut().then(function(){ location.href='user-login.html'; });
+    };
+
+    el('mkBtn').onclick = async function(){
+      var b=this, mm=el('mkMsg');
+      var name = el('mkName').value.trim();
+      var mob  = el('mkMobile').value.replace(/\D/g,'');
+      function say(k,t){ mm.className='msg '+k; mm.textContent=t; }
+
+      if(!name){ say('err','পূর্ণ নাম লিখুন।'); el('mkName').focus(); return; }
+      if(!/^01\d{9}$/.test(mob)){ say('err','১১ সংখ্যার সঠিক মোবাইল নম্বর দিন (01…)।'); el('mkMobile').focus(); return; }
+
+      b.disabled=true; b.innerHTML='<i class="ti ti-loader-2 sp" style="font-size:16px"></i> তৈরি হচ্ছে…';
+      try{
+        var r = await sb().rpc('create_user_profile', {
+          p_id: session.user.id, p_full_name: name, p_mobile: mob,
+          p_email: el('mkEmail').value.trim() || null
+        });
+        if(r && r.error) throw r.error;
+        if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
+        say('ok','প্রোফাইল তৈরি হয়েছে! ড্যাশবোর্ড আসছে…');
+        setTimeout(function(){ location.reload(); }, 900);
+      }catch(e){
+        say('err','তৈরি করা যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন'));
+        b.disabled=false; b.innerHTML='<i class="ti ti-check"></i> প্রোফাইল তৈরি করুন';
+      }
+    };
   }
   function showFail(text, offerSignout){
     var g=el('gate');
@@ -252,7 +366,7 @@
     var b=el('failOut');
     if(b) b.onclick=function(){
       try{ sessionStorage.clear(); }catch(e){}
-      if(window._db && _db.auth) _db.auth.signOut().then(function(){ location.href='user-login.html'; });
+      if(sb() && sb().auth) sb().auth.signOut().then(function(){ location.href='user-login.html'; });
       else location.href='user-login.html';
     };
   }
@@ -263,7 +377,7 @@
       try{ var p = await KHUI.getMyProfile(); if(p) return p; }catch(e){}
     }
     try{
-      var r = await _db.rpc('get_my_profile');
+      var r = await sb().rpc('get_my_profile');
       if(r && !r.error && r.data) return r.data;
     }catch(e){}
     return null;
@@ -280,11 +394,11 @@
     if(!sb()){ showFail('সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
 
     var s = null;
-    try { s = await _db.auth.getSession(); } catch(e){}
+    try { s = await sb().auth.getSession(); } catch(e){}
     if(!s || !s.data || !s.data.session){ location.replace('user-login.html'); return; }
 
     var prof = await fetchProfile();
-    if(!prof){ bounceToLogin('no-profile'); return; }
+    if(!prof){ showMakeProfile(s.data.session); return; }
     try{ sessionStorage.removeItem('kh_dash_bounce'); }catch(e){}
 
     /* প্রোফাইল স্ট্রিপ */
@@ -315,7 +429,7 @@
     el('soBtn').onclick = function(){
       if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
       try{ sessionStorage.clear(); }catch(e){}
-      _db.auth.signOut().then(function(){ location.href='index.html'; });
+      sb().auth.signOut().then(function(){ location.href='index.html'; });
     };
 
     /* কার্ড দেখানো শুরু — সারাংশ আনার আগেই পেজ দৃশ্যমান করি,
@@ -327,7 +441,7 @@
     var ov = null;
     try {
       var r = await Promise.race([
-        Promise.resolve(_db.rpc('get_my_overview')),
+        Promise.resolve(sb().rpc('get_my_overview')),
         new Promise(function(res){ setTimeout(function(){ res({ error:'timeout' }); }, 10000); })
       ]);
       if(r && !r.error) ov = r.data;
