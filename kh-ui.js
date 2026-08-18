@@ -82,19 +82,14 @@
       pill.style.width = on.offsetWidth + 'px';
     }
 
-    // hover preview of the pill
+    // hover preview of the pill — ফন্ট কালার সব বাটনে একই থাকে
     nav.querySelectorAll('a').forEach(function (a) {
       a.addEventListener('mouseenter', function () {
         pill.style.left = a.offsetLeft + 'px';
         pill.style.width = a.offsetWidth + 'px';
-        nav.querySelectorAll('a').forEach(function (x) { x.style.color = ''; });
-        a.style.color = '#a62a55';
       });
     });
-    nav.addEventListener('mouseleave', function () {
-      nav.querySelectorAll('a').forEach(function (x) { x.style.color = ''; });
-      place();
-    });
+    nav.addEventListener('mouseleave', function () { place(); });
 
     setTimeout(place, 90);
     window.addEventListener('resize', place);

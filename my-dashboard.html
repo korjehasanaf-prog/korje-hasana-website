@@ -146,7 +146,7 @@
   <!-- প্রোফাইল স্ট্রিপ -->
   <div class="pstrip">
     <span class="pring" id="pring"><span class="pav" id="pav">স</span></span>
-    <div class="pinfo">
+    <div class="pinfo" id="pinfo">
       <h1 id="pname">—</h1>
       <div class="pcode" id="pcode"></div>
     </div>
@@ -199,13 +199,24 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css">
-<script src="kh-ui.js"></script>
+<link rel="stylesheet" href="kh-ui.css?v=3">
+<script src="kh-ui.js?v=3"></script>
 <script>
 (function(){
   'use strict';
 
-  function bn(v){ return window.KHUI ? KHUI.bn(v) : String(v); }
+  var BN=['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  function bn(v){
+    return String(v).replace(/[0-9]/g, function(d){ return BN[+d]; });
+  }
+  /* KHUI না পাওয়া গেলে নিজেই প্রোফাইল-পূর্ণতা হিসাব করে */
+  var PF=['full_name','mobile','email','occupation','address','permanent_address','district','nid','photo_url','nid_url'];
+  function localProgress(p){
+    var f=0; PF.forEach(function(k){
+      if(p && p[k]!==null && p[k]!==undefined && String(p[k]).trim()!=='') f++;
+    });
+    return { pct: Math.round(f/PF.length*100), filled:f, total:PF.length, missing:[] };
+  }
   function taka(n){
     n = Number(n||0);
     return '৳' + bn(n.toLocaleString('en-IN'));
@@ -219,14 +230,55 @@
     return a;
   }
 
+  /* লগইন পেজে ফেরত — কিন্তু কখনো লুপ নয় (একবারের বেশি নয়) */
+  function bounceToLogin(reason){
+    var KEY='kh_dash_bounce';
+    var n=0; try{ n=parseInt(sessionStorage.getItem(KEY)||'0',10)||0; }catch(e){}
+    if(n>=1){
+      try{ sessionStorage.removeItem(KEY); }catch(e){}
+      showFail('আপনার প্রোফাইল তথ্য আনা যাচ্ছে না। একবার সাইন আউট করে আবার লগইন করুন।', true);
+      return;
+    }
+    try{ sessionStorage.setItem(KEY, String(n+1)); }catch(e){}
+    location.replace('user-login.html');
+  }
+  function showFail(text, offerSignout){
+    var g=el('gate');
+    g.innerHTML='<i class="ti ti-alert-triangle" style="font-size:38px;color:#f0a"></i>'+
+      '<p style="margin-top:12px">'+text+'</p>'+
+      (offerSignout?'<button type="button" id="failOut" style="margin-top:16px;padding:11px 22px;border:none;border-radius:11px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(112deg,#d6336c,#a021c9 55%,#e83e8c)">সাইন আউট করে আবার লগইন</button>':'')+
+      '<p style="margin-top:14px"><a href="index.html" style="color:#c88ae0">হোমপেজে ফিরে যান</a></p>';
+    g.style.display='';
+    var b=el('failOut');
+    if(b) b.onclick=function(){
+      try{ sessionStorage.clear(); }catch(e){}
+      if(window._db && _db.auth) _db.auth.signOut().then(function(){ location.href='user-login.html'; });
+      else location.href='user-login.html';
+    };
+  }
+
+  /* প্রোফাইল আনা — KHUI থাকলে তা দিয়ে, না থাকলে সরাসরি RPC (পুরনো ক্যাশ থেকে বাঁচতে) */
+  async function fetchProfile(){
+    if(window.KHUI && KHUI.getMyProfile){
+      try{ var p = await KHUI.getMyProfile(); if(p) return p; }catch(e){}
+    }
+    try{
+      var r = await _db.rpc('get_my_profile');
+      if(r && !r.error && r.data) return r.data;
+    }catch(e){}
+    return null;
+  }
+
   async function init(){
-    if(!window._db){ location.replace('user-login.html'); return; }
-    var s = await _db.auth.getSession();
+    if(!window._db){ showFail('সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
+
+    var s = null;
+    try { s = await _db.auth.getSession(); } catch(e){}
     if(!s || !s.data || !s.data.session){ location.replace('user-login.html'); return; }
 
-    var prof = null;
-    try { prof = await KHUI.getMyProfile(); } catch(e){}
-    if(!prof){ location.replace('user-login.html'); return; }
+    var prof = await fetchProfile();
+    if(!prof){ bounceToLogin('no-profile'); return; }
+    try{ sessionStorage.removeItem('kh_dash_bounce'); }catch(e){}
 
     /* প্রোফাইল স্ট্রিপ */
     el('pname').textContent = prof.full_name || 'সদস্য';
@@ -239,28 +291,38 @@
       el('pav').textContent = (prof.full_name||'স').trim()[0] || 'স';
     }
 
-    /* প্রোফাইল-পূর্ণতার রিং ও ব্যাজ */
-    if(KHUI.profileProgress){
-      var pr = KHUI.profileProgress(prof);
+    /* প্রোফাইল-পূর্ণতার রিং ও ব্যাজ (KHUI না থাকলেও নিজে হিসাব করে) */
+    try {
+      var pr = (window.KHUI && KHUI.profileProgress)
+        ? KHUI.profileProgress(prof)
+        : localProgress(prof);
       el('pring').style.background =
         'conic-gradient(#22c55e '+pr.pct+'%, rgba(255,255,255,.28) '+pr.pct+'% 100%)';
       el('pring').title = 'প্রোফাইল '+pr.pct+'% পূর্ণ';
       var badge = document.createElement('a');
       badge.className='ppct'; badge.href='my-profile.html';
-      badge.innerHTML='<i class="ti ti-progress-check"></i> প্রোফাইল '+KHUI.bn(pr.pct)+'% পূর্ণ';
-      el('pcode').after(badge);
-    }
+      badge.innerHTML='<i class="ti ti-progress-check"></i> প্রোফাইল '+bn(pr.pct)+'% পূর্ণ';
+      el('pinfo').appendChild(badge);
+    } catch(e){}
 
     el('soBtn').onclick = function(){
-      KHUI.clearProfileCache();
-      try{ sessionStorage.removeItem('kh_user'); }catch(e){}
+      if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
+      try{ sessionStorage.clear(); }catch(e){}
       _db.auth.signOut().then(function(){ location.href='index.html'; });
     };
 
-    /* ৩ প্রোডাক্টের সারাংশ */
+    /* কার্ড দেখানো শুরু — সারাংশ আনার আগেই পেজ দৃশ্যমান করি,
+       যাতে কোনো কারণে RPC আটকালেও ব্যবহারকারী খালি স্ক্রিন না দেখে */
+    el('gate').style.display='none';
+    el('main').style.display='';
+
+    /* ৩ প্রোডাক্টের সারাংশ (সর্বোচ্চ ১০ সেকেন্ড অপেক্ষা) */
     var ov = null;
     try {
-      var r = await _db.rpc('get_my_overview');
+      var r = await Promise.race([
+        Promise.resolve(_db.rpc('get_my_overview')),
+        new Promise(function(res){ setTimeout(function(){ res({ error:'timeout' }); }, 10000); })
+      ]);
       if(r && !r.error) ov = r.data;
     } catch(e){}
     ov = ov || {};
@@ -301,7 +363,7 @@
     }
 
     /* সেটিংস অনুযায়ী প্রোডাক্ট চালু/বন্ধ */
-    if (KHUI.getSetting) {
+    if (window.KHUI && KHUI.getSetting) {
       KHUI.getSetting('products', {}).then(function (pd) {
         function off(id){ var e=el(id); if(e){ e.style.opacity='.45'; e.style.pointerEvents='none';
           var s=e.querySelector('small'); if(s) s.textContent='সাময়িকভাবে বন্ধ আছে'; } }
@@ -311,13 +373,19 @@
       });
     }
 
-    el('gate').style.display='none';
-    el('main').style.display='';
+  }
+
+  function start(){
+    init().catch(function(){
+      /* যেকোনো অপ্রত্যাশিত সমস্যা হলেও খালি স্ক্রিন নয় */
+      if(el('main').style.display===''){ el('gate').style.display='none'; return; }
+      showFail('তথ্য আনতে সমস্যা হয়েছে। পেজটি রিফ্রেশ করুন।', true);
+    });
   }
 
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else init();
+    document.addEventListener('DOMContentLoaded', start);
+  } else start();
 })();
 </script>
 </body>

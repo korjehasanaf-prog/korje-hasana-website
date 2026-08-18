@@ -22,24 +22,14 @@
       padding:28px 16px; position:relative; overflow-x:hidden;
     }
 
-    /* ── ইসলামিক ক্যালিগ্রাফি ব্যাকগ্রাউন্ড (ডার্ক: গাঢ় প্লাম ওভারলে) ── */
+    /* ── ইসলামিক ক্যালিগ্রাফি ব্যাকগ্রাউন্ড — দুই থীমেই মূল ছবি হুবহু, কোনো ওভারলে নেই ── */
     .bg{
       position:fixed; inset:0; z-index:0; pointer-events:none;
-      background:
-        linear-gradient(155deg, rgba(18,7,31,.86) 0%, rgba(26,12,46,.74) 45%, rgba(18,7,31,.88) 100%),
-        url('images/auth-bg.jpg') center/cover no-repeat;
-    }
-    /* লাইট থীম: মূল ছবি হুবহু, কোনো ওভারলে নেই */
-    html[data-theme="light"] .bg{
       background:url('images/auth-bg.jpg') center/cover no-repeat;
     }
 
-    /* ── ambient background orbs (ছবির ওপরে হালকা আভা — শুধু ডার্ক থীমে) ── */
-    .orb{position:fixed;border-radius:50%;filter:blur(95px);pointer-events:none;z-index:0;animation:drift 18s ease-in-out infinite}
-    .o1{width:460px;height:460px;background:#d6336c;opacity:.22;top:-140px;left:-110px}
-    .o2{width:440px;height:440px;background:#7048e8;opacity:.26;bottom:-160px;right:-100px;animation-delay:-6s}
-    .o3{display:none}
-    html[data-theme="light"] .orb{display:none !important}
+    /* orbs বন্ধ — ছবি যেন ঝাপসা না হয় */
+    .orb{display:none}
     @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(36px,-28px) scale(1.09)}66%{transform:translate(-28px,24px) scale(.95)}}
 
     /* ── cursor-following spotlight ── */
@@ -66,7 +56,8 @@
     .face{
       position:absolute;top:0;left:0;right:0;
       backface-visibility:hidden;-webkit-backface-visibility:hidden;
-      background:rgba(255,255,255,.075);
+      /* উজ্জ্বল ছবির ওপরে পাঠযোগ্যতার জন্য ডার্ক থীমে কার্ড গাঢ় */
+      background:rgba(26,14,45,.88);
       backdrop-filter:blur(24px) saturate(155%);-webkit-backdrop-filter:blur(24px) saturate(155%);
       border:1px solid rgba(255,255,255,.17);border-radius:24px;
       padding:26px 24px;box-shadow:0 24px 70px rgba(0,0,0,.46)
@@ -175,11 +166,8 @@
 
     @media(max-width:640px){
       .orb,.spot{display:none}
-      /* মোবাইলে পোর্ট্রেট ক্যালিগ্রাফি ভার্সন */
-      .bg{background:
-        linear-gradient(155deg, rgba(18,7,31,.86) 0%, rgba(26,12,46,.74) 45%, rgba(18,7,31,.88) 100%),
-        url('images/auth-bg-mobile.jpg') center/cover no-repeat}
-      html[data-theme="light"] .bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}
+      /* মোবাইলে পোর্ট্রেট ক্যালিগ্রাফি ভার্সন — দুই থীমেই মূল ছবি */
+      .bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}
       body{background:linear-gradient(160deg,#2a1040,#150c24 55%,#3a1236);
            flex-direction:column;justify-content:flex-start;padding:16px 12px 28px}
       .home{position:static;margin-bottom:14px;align-self:flex-start}
@@ -634,6 +622,12 @@ function doGuest() {
    ══════════════════════════════════════════════════════════ */
 (async function () {
   if (location.search.indexOf('stay=1') !== -1) return;   // escape hatch
+
+  /* ড্যাশবোর্ড আমাদের ফেরত পাঠিয়েছে? তবে আর সেখানে পাঠাবো না —
+     নাহলে দুই পেজ একে অন্যকে পাঠাতে থাকবে (রিডাইরেক্ট লুপ) */
+  var bounced = false;
+  try { bounced = !!sessionStorage.getItem('kh_dash_bounce'); } catch (e) {}
+
   try {
     var s = await _db.auth.getSession();
     if (!s || !s.data || !s.data.session) return;         // nobody signed in
@@ -641,6 +635,13 @@ function doGuest() {
     var p = await _db.rpc('get_my_profile');
     var prof = (p && !p.error) ? p.data : null;
     var dest = destinationFor(prof);
+
+    if (bounced) {
+      msg('loginMsg',
+          'ড্যাশবোর্ড খুলতে সমস্যা হয়েছিল। নিচে সাইন আউট করে আবার লগইন করুন।', 'info');
+      showSignOut();
+      return;
+    }
 
     if (dest) { location.replace(dest); return; }
 
@@ -663,12 +664,13 @@ function showSignOut() {
   alt.parentNode.insertBefore(row, alt);
   document.getElementById('soLink').onclick = async function () {
     await _db.auth.signOut();
+    try { sessionStorage.clear(); } catch (e) {}   /* bounce গার্ড ও ক্যাশ পরিষ্কার */
     msg('loginMsg', 'সাইন আউট হয়েছে। এখন লগইন করুন।', 'ok');
     row.remove();
   };
 }
 </script>
-<link rel="stylesheet" href="kh-ui.css">
-<script src="kh-ui.js"></script>
+<link rel="stylesheet" href="kh-ui.css?v=3">
+<script src="kh-ui.js?v=3"></script>
 </body>
 </html>

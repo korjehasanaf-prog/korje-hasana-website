@@ -30,32 +30,17 @@
       position: relative;
       overflow-x: hidden;
     }
-    /* gradient glows like the video backdrop */
-    body::before, body::after {
-      content: '';
-      position: fixed;
-      width: 560px; height: 560px;
-      border-radius: 50%;
-      filter: blur(90px);
-      opacity: .55;
-      pointer-events: none;
-      z-index: 0;
+    /* ইসলামিক ক্যালিগ্রাফি ব্যাকগ্রাউন্ড — দুই থীমেই মূল ছবি হুবহু */
+    .bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: url('images/auth-bg.jpg') center/cover no-repeat;
     }
-    body::before { background: radial-gradient(circle, var(--g-pink), transparent 65%); top: -160px; left: -120px; }
-    body::after  { background: radial-gradient(circle, var(--g-purple), transparent 65%); bottom: -180px; right: -140px; }
-
-    .glow-mid {
-      position: fixed;
-      width: 480px; height: 480px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--g-amber), transparent 65%);
-      filter: blur(100px);
-      opacity: .4;
-      top: 50%; left: 55%;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 0;
+    @media (max-width: 640px) {
+      .bg { background: url('images/auth-bg-mobile.jpg') center/cover no-repeat; }
     }
+    /* আগের গ্র্যাডিয়েন্ট আভা বন্ধ — ছবি যেন পরিষ্কার থাকে */
+    body::before, body::after { content: none; }
+    .glow-mid { display: none; }
 
     /* ── Card ─────────────────────────────── */
     .login-shell {
@@ -269,11 +254,11 @@
       }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css">
+  <link rel="stylesheet" href="kh-ui.css?v=3">
 </head>
 <body data-kh-nav="off">
 
-<div class="glow-mid"></div>
+<div class="bg"></div>
 
 <div class="login-shell">
 
@@ -498,6 +483,6 @@ selectRole('super_admin');
   }
 })();
 </script>
-<script src="kh-ui.js"></script>
+<script src="kh-ui.js?v=3"></script>
 </body>
 </html>

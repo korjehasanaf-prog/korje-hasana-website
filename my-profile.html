@@ -211,8 +211,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css">
-<script src="kh-ui.js"></script>
+<link rel="stylesheet" href="kh-ui.css?v=3">
+<script src="kh-ui.js?v=3"></script>
 <script>
 (function(){
   'use strict';
@@ -235,11 +235,22 @@
     address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
     district:'জেলা', nid:'এনআইডি নম্বর', photo_url:'প্রোফাইল ছবি', nid_url:'এনআইডি কপি'
   };
+  var PF=['full_name','mobile','email','occupation','address','permanent_address','district','nid','photo_url','nid_url'];
+  function localProgress(p){
+    var f=0, miss=[];
+    PF.forEach(function(k){
+      if(p && p[k]!==null && p[k]!==undefined && String(p[k]).trim()!=='') f++; else miss.push(k);
+    });
+    return { pct: Math.round(f/PF.length*100), filled:f, total:PF.length, missing:miss };
+  }
+  var BN=['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  function bnNum(v){ return String(v).replace(/[0-9]/g,function(d){ return BN[+d]; }); }
+
   function paintProgress(){
-    if(!window.KHUI || !KHUI.profileProgress || !prof) return;
-    var pr = KHUI.profileProgress(prof);
+    if(!prof) return;
+    var pr = (window.KHUI && KHUI.profileProgress) ? KHUI.profileProgress(prof) : localProgress(prof);
     el('ppFill').style.width = pr.pct + '%';
-    el('ppPct').textContent = KHUI.bn(pr.pct) + '%';
+    el('ppPct').textContent = bnNum(pr.pct) + '%';
     el('ppHint').textContent = pr.missing.length
       ? 'বাকি: ' + pr.missing.map(function(f){ return FIELD_BN[f]||f; }).join(', ')
       : 'আপনার প্রোফাইল সম্পূর্ণ! ✓';
@@ -265,8 +276,17 @@
     if(!s || !s.data || !s.data.session){ location.replace('user-login.html'); return; }
     uid = s.data.session.user.id;
 
-    try { prof = await KHUI.getMyProfile(true); } catch(e){}
-    if(!prof){ location.replace('user-login.html'); return; }
+    if(window.KHUI && KHUI.getMyProfile){
+      try { prof = await KHUI.getMyProfile(true); } catch(e){}
+    }
+    if(!prof){
+      try { var pr = await _db.rpc('get_my_profile'); if(pr && !pr.error) prof = pr.data; } catch(e){}
+    }
+    if(!prof){
+      el('gate').innerHTML='<i class="ti ti-alert-triangle" style="font-size:36px;color:#f0a"></i>'+
+        '<p style="margin-top:12px">প্রোফাইল তথ্য আনা যাচ্ছে না। <a href="my-dashboard.html" style="color:#c88ae0">ড্যাশবোর্ডে ফিরুন</a></p>';
+      return;
+    }
 
     el('fName').value = prof.full_name || '';
     el('fOcc').value  = prof.occupation || '';
@@ -302,7 +322,7 @@
         setAvatar(url);
         prof.photo_url = url;
         paintProgress();
-        KHUI.clearProfileCache();
+        if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে।');
       }catch(e){ msg('err','ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     });
@@ -321,7 +341,7 @@
         el('nidView').style.display='';
         prof.nid_url = path;
         paintProgress();
-        KHUI.clearProfileCache();
+        if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডি কপি সংরক্ষণ হয়েছে (গোপনীয়)।');
       }catch(e){ msg('err','এনআইডি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     });
@@ -357,7 +377,7 @@
         prof.district = el('fDist').value.trim();
         prof.nid = el('fNid').value.trim();
         paintProgress();
-        KHUI.clearProfileCache();
+        if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল সংরক্ষণ হয়েছে।');
       }catch(e){ msg('err','সংরক্ষণ ব্যর্থ। আবার চেষ্টা করুন।'); }
       b.disabled = false;
