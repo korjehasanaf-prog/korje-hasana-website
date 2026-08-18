@@ -32,7 +32,9 @@
 
 2. **`const _db` window-এ যায় না।** `_supabase.js`-এ তাই স্পষ্টভাবে `window._db = _db;` আছে — সরানো যাবে না। শেয়ার্ড কোডে সবসময় `sb()` হেল্পার (`KHUI.db()`) ব্যবহার করতে হবে, সরাসরি `window._db` নয়।
 
-3. **supabase-js-এর `rpc()`/`from()`-এ `.catch()` নেই।** `await _db.rpc(x).catch(...)` লিখলে পেজ ক্র্যাশ করে (একবার লগইনে "সংযোগ ত্রুটি" দেখিয়েছিল)। `try { await ... } catch {}` ব্যবহার করতে হবে।
+3. **`insert().select()` করতে হলে SELECT policy লাগে।** `donations`-এ INSERT policy ছিল কিন্তু SELECT ছিল না — ফলে `insert().select().single()` পুরো লেনদেন রোলব্যাক করত এবং **দান নীরবে হারিয়ে যেত**। তাই লেনদেন লেখার কাজ SECURITY DEFINER RPC দিয়ে করতে হবে (`record_donation`, `record_loan_payment`), সরাসরি `from().insert()` নয়।
+
+4. **supabase-js-এর `rpc()`/`from()`-এ `.catch()` নেই।** `await _db.rpc(x).catch(...)` লিখলে পেজ ক্র্যাশ করে (একবার লগইনে "সংযোগ ত্রুটি" দেখিয়েছিল)। `try { await ... } catch {}` ব্যবহার করতে হবে।
 
 4. **রিডাইরেক্ট লুপ এড়ানো।** কোনো পেজ প্রোফাইল না পেলে লগইন পেজে পাঠাবে না — বরং সেখানেই ব্যবস্থা (যেমন `my-dashboard.html`-এর "সদস্য প্রোফাইল তৈরি করুন" ফর্ম) বা বার্তা দেখাবে। লোডিং গেট যেন কখনো আটকে না থাকে (টাইমআউট + `catch`-এ ফলব্যাক)।
 
@@ -55,6 +57,12 @@
 - **OCR:** `kh-ocr.js` → `KHOCR.readNID(file,{onProgress})`. সম্পূর্ণ ব্রাউজারে (Tesseract.js CDN), ছবি কোথাও আপলোড হয় না।
   ধাপ: স্মার্ট আপস্কেল ২২০০px → পার্সেন্টাইল স্ট্রেচ → আনশার্প → **Sauvola অভিযোজিত থ্রেশহোল্ড (সমতল-এলাকা গার্ডসহ)** → ৩ পাস (eng PSM6 · eng PSM4 · ben+eng PSM6) → স্কোর দিয়ে সেরা ফল।
   `KHOCR.extract(text)` NID (১০/১৩/১৭), জন্ম তারিখ (ইংরেজি ও বাংলা মাস), নাম, পিতা/মাতা, রক্তের গ্রুপ বের করে; OCR-এর সাধারণ ভুল (O→0, l→1) সংশোধন করে।
+
+## 🔑 পাসওয়ার্ড রিসেট
+
+- সদস্য: user-login → "পাসওয়ার্ড ভুলে গেছেন?" · অ্যাডমিন: admin-login → একই লিংক। ই-মেইল ঠিকানা আবশ্যক (মোবাইল alias-এ হয় না)।
+- `resetPasswordForEmail(email, {redirectTo: /reset-password.html})` — দুই পথ: **৬ সংখ্যার কোড** (`verifyOtp type:'recovery'`, টেমপ্লেটে `{{ .Token }}` থাকলে) অথবা **ই-মেইলের লিংক**।
+- `reset-password.html` নিজেই hash/query থেকে টোকেন নিয়ে `setSession()`/`exchangeCodeForSession()` করে (কারণ `_supabase.js`-এ `detectSessionInUrl:false`), তারপর `updateUser({password})`। মেয়াদোত্তীর্ণ লিংক ও সেশনহীন অবস্থাতেও বাংলা বার্তা দেখায়।
 
 ## 🗄️ গুরুত্বপূর্ণ DB ফাংশন
 

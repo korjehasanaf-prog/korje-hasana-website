@@ -134,6 +134,16 @@
     .dr-val.gold { color: var(--gold); }
     .dr-val.blue { color: var(--blue); }
 
+    /* কিস্তি পরিশোধের বাটন */
+    .pay-btn {
+      display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+      border: none; border-radius: 9px; padding: 7px 12px;
+      font-family: inherit; font-size: 12.5px; font-weight: 700; color: #fff;
+      background: linear-gradient(112deg, #0d6e56, #1d9e75);
+      box-shadow: 0 4px 12px rgba(13,110,86,.3); white-space: nowrap;
+    }
+    .pay-btn:hover { filter: brightness(1.08); }
+
     /* Repayment schedule */
     .schedule-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
     .schedule-card h3 { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
@@ -526,7 +536,7 @@
       <div style="overflow-x:auto">
         <table class="sched-table">
           <thead><tr>
-            <th>#</th><th>Due Date</th><th>Amount</th><th>Paid On</th><th>Balance After</th><th>Status</th>
+            <th>#</th><th>Due Date</th><th>Amount</th><th>Paid On</th><th>Balance After</th><th>Status</th><th>পরিশোধ</th>
           </tr></thead>
           <tbody id="scheduleBody"></tbody>
         </table>
@@ -628,6 +638,110 @@ function toast(msg, type='ok') {
 }
 
 /* ── Session management ──────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   সিস্টেমের মাধ্যমে কিস্তি পরিশোধ → ভাউচার ও স্বয়ংক্রিয় ই-মেইল
+   ══════════════════════════════════════════════════════════ */
+function openPayInstallment(btn) {
+  const repId = btn.dataset.rep;
+  const no    = btn.dataset.no;
+  const amt   = parseFloat(btn.dataset.amt || '0');
+
+  if (!repId) { alert('এই কিস্তির তথ্য পাওয়া যায়নি। অনুগ্রহ করে লগইন করে আবার চেষ্টা করুন।'); return; }
+  if (!window._db || !_db.rpc) { alert('সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
+
+  const old = document.getElementById('khPayBox');
+  if (old) old.remove();
+
+  const box = document.createElement('div');
+  box.id = 'khPayBox';
+  box.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(12,5,22,.8);backdrop-filter:blur(6px)';
+  box.innerHTML = `
+    <div style="width:100%;max-width:390px;background:#fff;border-radius:20px;padding:26px 24px;box-shadow:0 22px 60px rgba(0,0,0,.4);font-family:'Hind Siliguri',sans-serif">
+      <h3 style="font-size:18px;color:#241539;margin-bottom:6px">কিস্তি #${no} পরিশোধ</h3>
+      <p style="font-size:13px;color:#6B7280;line-height:1.7;margin-bottom:18px">
+        টাকা পাঠানোর পর নিচের তথ্য দিন। সাথে সাথেই ভাউচার তৈরি হয়ে আপনার ই-মেইলে চলে যাবে;
+        অ্যাডমিন টাকা যাচাই করে কিস্তিটি চূড়ান্ত করবেন।</p>
+      <div id="payMsg" style="display:none;padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
+      <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">পরিমাণ (৳)</label>
+      <input id="payAmt" type="number" value="${amt}" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:13px">
+      <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">পরিশোধের মাধ্যম</label>
+      <select id="payMethod" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:13px">
+        <option value="bkash">বিকাশ</option><option value="nagad">নগদ</option>
+        <option value="bank">ব্যাংক</option><option value="cash">নগদ টাকা</option><option value="other">অন্যান্য</option>
+      </select>
+      <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">ট্রানজেকশন আইডি</label>
+      <input id="payRef" placeholder="যেমন: 8A7B6C5D" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:18px">
+      <div style="display:flex;gap:9px">
+        <button id="payGo" style="flex:1;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(112deg,#0d6e56,#1d9e75);color:#fff;font-family:inherit;font-size:15px;font-weight:700">
+          <i class="ti ti-check"></i> জমা দিন</button>
+        <button id="payCancel" style="padding:13px 18px;border:1.5px solid #ece7f0;border-radius:12px;cursor:pointer;background:#fff;color:#6B7280;font-family:inherit;font-size:14.5px">বাতিল</button>
+      </div>
+    </div>`;
+  document.body.appendChild(box);
+
+  const say = (t, ok) => {
+    const m = box.querySelector('#payMsg');
+    m.style.display = 'block';
+    m.textContent = t;
+    m.style.background = ok ? '#dcfce7' : '#fee2e2';
+    m.style.color = ok ? '#14532d' : '#991b1b';
+  };
+  const close = () => box.remove();
+  box.querySelector('#payCancel').onclick = close;
+  box.addEventListener('click', e => { if (e.target === box) close(); });
+
+  box.querySelector('#payGo').onclick = async function () {
+    const b = this;
+    const val = parseFloat(box.querySelector('#payAmt').value);
+    const method = box.querySelector('#payMethod').value;
+    const ref = box.querySelector('#payRef').value.trim();
+    if (!val || val <= 0) { say('সঠিক পরিমাণ লিখুন।', false); return; }
+    if (!ref) { say('ট্রানজেকশন আইডি দিন।', false); return; }
+
+    b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> জমা হচ্ছে…';
+    try {
+      const r = await _db.rpc('record_loan_payment', {
+        p_repayment_id: repId, p_amount: val, p_method: method, p_ref: ref
+      });
+      if (r && r.error) throw r.error;
+      const d = r.data || {};
+      close();
+
+      /* ভাউচার — সাথে সাথে ই-মেইলও যাবে */
+      if (window.KHUI && KHUI.voucher) {
+        let prof = null;
+        try { prof = await KHUI.getMyProfile(); } catch (e) {}
+        const METHOD = { bkash:'বিকাশ', nagad:'নগদ', bank:'ব্যাংক', cash:'নগদ টাকা', other:'অন্যান্য' };
+        KHUI.voucher({
+          title: 'কিস্তি পরিশোধ রশিদ',
+          no: (d.loan_no || 'KH-L') + '-' + KHUI.bn(d.installment_no || no),
+          amount: val, status: 'যাচাই অপেক্ষমাণ',
+          name: (prof && prof.full_name) || '—',
+          code: prof && prof.user_code, mobile: prof && prof.mobile, photo: prof && prof.photo_url,
+          rows: [
+            ['লেনদেনের ধরন', 'ঋণের কিস্তি পরিশোধ'],
+            ['ঋণ নং', d.loan_no || '—'],
+            ['কিস্তি নং', KHUI.bn(d.installment_no || no)],
+            ['পরিশোধ মাধ্যম', METHOD[method] || method],
+            ['ট্রানজেকশন আইডি', ref],
+            ['অবস্থা', 'অ্যাডমিন যাচাইয়ের অপেক্ষায়']
+          ],
+          email: { kind: 'loan_repayment', id: repId },
+          note: 'ধন্যবাদ। অ্যাডমিন টাকা যাচাই করে কিস্তিটি চূড়ান্ত করবেন — তখন স্থিতি হালনাগাদ হবে।'
+        });
+      }
+      setTimeout(function () { location.reload(); }, 6000);
+    } catch (e) {
+      const t = (e && e.message) || '';
+      say(/no loan account/.test(t) ? 'আপনার নামে ঋণ হিসাব যুক্ত নেই।'
+        : /forbidden/.test(t) ? 'এই কিস্তি আপনার নয়।'
+        : /already paid/.test(t) ? 'এই কিস্তি ইতিমধ্যে পরিশোধিত।'
+        : ('জমা ব্যর্থ: ' + (t || 'আবার চেষ্টা করুন')), false);
+      b.disabled = false; b.innerHTML = '<i class="ti ti-check"></i> জমা দিন';
+    }
+  };
+}
+
 function saveSession(borrower, loan, schedule) {
   sessionStorage.setItem(SESSION_KEY, JSON.stringify({ borrower, loan, schedule, ts: Date.now() }));
 }
@@ -854,8 +968,13 @@ function renderPortal(borrower, loan, schedule, allLoans) {
       <td style="color:var(--muted);font-size:12.5px">${e.is_paid ? fmtDate(e.payment_date) : '—'}</td>
       <td style="font-weight:600">${e.is_paid ? fmtTk(runningBalance) : '—'}</td>
       <td><span class="inst-status ${stMap[st]}">${stLabel[st]}</span></td>
+      <td>${e.is_paid
+        ? '<span style="color:var(--muted);font-size:12.5px">✓</span>'
+        : `<button type="button" class="pay-btn" data-rep="${e.id || ''}" data-no="${e.installment_no}" data-amt="${amtDue}"
+             onclick="openPayInstallment(this)">
+             <i class="ti ti-cash"></i> পরিশোধ করুন</button>`}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">কোনো কিস্তির তথ্য নেই</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">কোনো কিস্তির তথ্য নেই</td></tr>';
 
   /* Transaction history */
   const txnRows = [];

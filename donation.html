@@ -1092,23 +1092,37 @@ function processDonation() {
 
   const processDonation = async () => {
     let ref = 'KH-DON-' + Math.floor(100000 + Math.random() * 900000);
+    let saveError = null;
+    lastDonationId = null; donationLinked = false;
 
     // Try saving to Supabase if configured
-    if (typeof KH !== 'undefined' && !SUPABASE_URL.includes('YOUR_PROJECT')) {
+    /* দান সংরক্ষণ — নিরাপদ RPC (RLS বাইপাস করে দাতা তৈরি ও প্রোফাইল লিংক করে) */
+    if (window._db && window._db.rpc) {
       const payMethod = selectedPay || 'bkash';
       const txRef = document.getElementById('mobilePayInput') ? document.getElementById('mobilePayInput').value.trim() : '';
       const isAnon = document.getElementById('anonCheck')?.checked || false;
-      const { data, error, donationNo } = await KH.submitDonation({
-        name:            isAnon ? 'Anonymous' : name,
-        mobile:          mobile,
-        email:           document.getElementById('donorEmail')?.value?.trim() || '',
-        amount:          amt,
-        payment_method:  payMethod,
-        transaction_ref: txRef,
-        purpose:         'general',
-        is_anonymous:    isAnon
-      });
-      if (!error && data) { ref = donationNo || ref; lastDonationId = data.id || null; }
+      try {
+        const r = await _db.rpc('record_donation', {
+          p_amount:          amt,
+          p_name:            isAnon ? null : name,
+          p_mobile:          mobile || null,
+          p_email:           document.getElementById('donorEmail')?.value?.trim() || null,
+          p_payment_method:  payMethod,
+          p_transaction_ref: txRef || null,
+          p_purpose:         'general',
+          p_is_anonymous:    isAnon
+        });
+        if (r && r.error) throw r.error;
+        const d = r && r.data ? r.data : null;
+        if (d) {
+          ref = d.donation_no || ref;
+          lastDonationId = d.id || null;
+          donationLinked  = !!d.linked;
+        }
+      } catch (e) {
+        console.error('দান সংরক্ষণ ব্যর্থ:', e);
+        saveError = (e && e.message) || 'সংরক্ষণ ব্যর্থ';
+      }
     }
 
     btn.innerHTML = '<i class="ti ti-heart"></i> Donate ৳' + selectedAmt.toLocaleString() + ' now';
@@ -1116,6 +1130,13 @@ function processDonation() {
     document.getElementById('donationRef').textContent = ref;
     document.getElementById('successOverlay').classList.add('show');
     addToFeed(name, amt);
+
+    if (saveError) {
+      console.warn('দান সংরক্ষণে সমস্যা:', saveError);
+    } else if (lastDonationId) {
+      /* সফল দান → ভাউচার নিজে থেকেই ই-মেইলে পাঠানো */
+      autoMailDonation();
+    }
   };
 
   setTimeout(processDonation, 2000);
@@ -1123,7 +1144,23 @@ function processDonation() {
 function closeSuccess() { document.getElementById('successOverlay').classList.remove('show'); }
 
 /* ── দানের ভাউচার ই-মেইলে পাঠানো ── */
-var lastDonationId = null;
+var lastDonationId = null, donationLinked = false, donationMailed = false;
+
+/* লেনদেন সফল হলেই স্বয়ংক্রিয়ভাবে ভাউচার ই-মেইল (অ্যাডমিন অনুমোদন লাগে না) */
+function autoMailDonation() {
+  if (donationMailed || !lastDonationId) return;
+  if (!(window.KHUI && KHUI.sendVoucherMail)) return;
+  KHUI.sendVoucherMail('donation', lastDonationId).then(function (r) {
+    donationMailed = true;
+    var box = document.getElementById('v_mailMsg');
+    if (box) {
+      box.style.display = 'block'; box.style.color = '#14532d';
+      box.textContent = '✓ ভাউচারটি ' + (r.sent_to || 'আপনার ই-মেইলে') + ' পাঠানো হয়েছে।';
+    }
+    var btn = document.getElementById('v_mailBtn');
+    if (btn) btn.innerHTML = '<i class="ti ti-mail-check"></i> আবার পাঠান';
+  }).catch(function () { /* নীরবে — ব্যবহারকারী চাইলে বাটনে চাপবেন */ });
+}
 
 function emailDonationVoucher() {
   var btn = document.getElementById('v_mailBtn');

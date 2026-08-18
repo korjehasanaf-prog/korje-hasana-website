@@ -1315,16 +1315,29 @@ async function submitCashDonation() {
   if (!name || !amount || amount <= 0) { showMsg('dn-msg','নাম ও পরিমাণ আবশ্যক','err'); return; }
 
   const donNo = 'DON-' + Date.now().toString().slice(-8);
-  const {error} = await _db.from('donations').insert({
+  const {data: don, error} = await _db.from('donations').insert({
     donation_no: donNo, donor_name: name, donor_mobile: mobile||null,
     amount, payment_method: 'cash', purpose, is_anonymous: anon,
     status: 'confirmed', confirmed_at: new Date(date).toISOString(),
     auth_confirmed_by: _currentUser.id,
     notes: notes||null, created_at: new Date(date).toISOString()
-  });
+  }).select('id').single();
 
   if (error) { showMsg('dn-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
   showMsg('dn-msg','✅ দান সফলভাবে নথিভুক্ত হয়েছে ('+donNo+')','ok');
+
+  /* ভাউচার + দাতার ই-মেইলে স্বয়ংক্রিয় পাঠানো */
+  if (don && don.id) {
+    showEntryVoucher({
+      title: 'দান ভাউচার', no: donNo, amount: amount, status: 'নিশ্চিত',
+      name: anon ? 'Anonymous' : name, mobile: mobile,
+      rows: [['লেনদেনের ধরন','নগদ দান (Cash)'],
+             ['উদ্দেশ্য', ({general:'সাধারণ দান',loan_fund:'ঋণ তহবিল',emergency:'জরুরি সহায়তা',zakat:'যাকাত',sadaqah:'সদকা'})[purpose] || purpose],
+             ['গ্রহণকারী', (_adminInfo && (_adminInfo.name_bn || _adminInfo.email)) || 'অ্যাডমিন'],
+             ['অবস্থা','নিশ্চিত হয়েছে']].concat(notes ? [['মন্তব্য', notes]] : []),
+      email: { kind: 'donation', id: don.id }
+    });
+  }
   resetDonationForm();
   loadTodayDonations();
   loadPendingBadges();
@@ -1385,7 +1398,7 @@ async function submitSavingsEntry() {
   if (!depId || !amount || amount<=0) { showMsg('se-msg','সঞ্চয়কারী ও পরিমাণ আবশ্যক','err'); return; }
 
   const desig = _adminInfo.designation_bn || _adminInfo.name_bn || _adminInfo.email;
-  const {error} = await _db.from('savings_transactions').insert({
+  const {data: trx, error} = await _db.from('savings_transactions').insert({
     depositor_id: depId, type: 'deposit', amount,
     status: 'approved', reference: ref||null,
     notes: `এডমিন এন্ট্রি`,
@@ -1394,9 +1407,24 @@ async function submitSavingsEntry() {
     approved_by: _currentUser.id,
     approved_at: new Date(date).toISOString(),
     created_at: new Date(date).toISOString()
-  });
+  }).select('id').single();
   if (error) { showMsg('se-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
   showMsg('se-msg','✅ সঞ্চয় জমা নথিভুক্ত হয়েছে','ok');
+
+  /* ভাউচার + সঞ্চয়কারীর ই-মেইলে স্বয়ংক্রিয় পাঠানো */
+  if (trx && trx.id) {
+    const depName = (document.getElementById('se-depositorName') || {}).textContent
+                 || (document.getElementById('se-search') || {}).value || 'সদস্য';
+    showEntryVoucher({
+      title: 'জমা ভাউচার', no: 'KH-SD-' + trx.id.replace(/-/g,'').slice(0,6).toUpperCase(),
+      amount: amount, status: 'অনুমোদিত', name: depName,
+      rows: [['লেনদেনের ধরন','সঞ্চয় জমা (Deposit)'],
+             ['রেফারেন্স', ref || '—'],
+             ['গ্রহণকারী', desig],
+             ['অবস্থা','অনুমোদিত']],
+      email: { kind: 'savings', id: trx.id }
+    });
+  }
   document.getElementById('se-amount').value='';
   document.getElementById('se-ref').value='';
   document.getElementById('se-formCard').style.display='none';
@@ -1464,9 +1492,36 @@ async function submitInstallment() {
   }).eq('id', loanId);
 
   showMsg('inst-msg','✅ কিস্তি সফলভাবে নথিভুক্ত হয়েছে','ok');
-  if (rep && rep.id) offerVoucherMail('inst-msg', 'loan_repayment', rep.id, 'কিস্তি আদায়ের রশিদ');
+
+  /* ভাউচার + ঋণগ্রহীতার ই-মেইলে স্বয়ংক্রিয় পাঠানো */
+  if (rep && rep.id) {
+    const bName = (document.getElementById('inst-borrowerName') || {}).textContent
+               || (document.getElementById('inst-search') || {}).value || 'সদস্য';
+    const METHOD = { cash:'নগদ', bkash:'বিকাশ', nagad:'নগদ (Nagad)', bank:'ব্যাংক', other:'অন্যান্য' };
+    showEntryVoucher({
+      title: 'কিস্তি আদায় রশিদ', no: 'KH-EMI-' + rep.id.replace(/-/g,'').slice(0,6).toUpperCase(),
+      amount: amount, status: 'আদায় হয়েছে', name: bName,
+      rows: [['লেনদেনের ধরন','ঋণের কিস্তি আদায়'],
+             ['কিস্তি নং', String(no)],
+             ['পরিশোধ মাধ্যম', METHOD[method] || method],
+             ['তারিখ', fmtDate(date)],
+             ['অবস্থা', late ? 'বিলম্বে আদায়' : 'সময়মতো আদায়']].concat(ref ? [['রেফারেন্স', ref]] : []),
+      email: { kind: 'loan_repayment', id: rep.id }
+    });
+  }
   cancelInstallment();
   loadDashboard();
+}
+
+/* অ্যাডমিন এন্ট্রির ভাউচার — দেখায় ও সাথে সাথে ই-মেইল পাঠায় */
+function showEntryVoucher(cfg) {
+  if (!(window.KHUI && KHUI.voucher)) return;
+  KHUI.voucher({
+    title: cfg.title, no: cfg.no, amount: cfg.amount, status: cfg.status,
+    name: cfg.name, mobile: cfg.mobile, rows: cfg.rows,
+    email: cfg.email,
+    note: 'অ্যাডমিন কর্তৃক নথিভুক্ত — এটি একটি ডিজিটাল ভাউচার, স্বাক্ষর ছাড়াই বৈধ।'
+  });
 }
 
 // ════════════════════════════════════════

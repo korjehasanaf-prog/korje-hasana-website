@@ -308,7 +308,13 @@
       <i class="ti ti-login"></i> লগইন করুন
     </button>
 
-    <div class="back-link">
+    <div class="back-link" style="margin-top:14px">
+      <a id="adminForgot" style="cursor:pointer;color:var(--g-pink);font-weight:600">
+        <i class="ti ti-key"></i> পাসওয়ার্ড ভুলে গেছেন?
+      </a>
+    </div>
+
+    <div class="back-link" style="margin-top:8px">
       <a href="index.html"><i class="ti ti-arrow-left"></i> হোমপেজে ফিরুন</a>
     </div>
   </div>
@@ -391,6 +397,42 @@ function showMsg(txt, type) {
   el.textContent = txt;
   el.className = 'msg-box ' + (type || '');
 }
+
+/* ── অ্যাডমিন পাসওয়ার্ড রিসেট — ই-মেইলে কোড ও লিংক ── */
+document.getElementById('adminForgot').onclick = async function () {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showMsg('উপরের ঘরে আপনার অ্যাডমিন ই-মেইল ঠিকানা লিখে আবার চাপুন।', 'error');
+    document.getElementById('loginEmail').focus();
+    return;
+  }
+  showMsg('ই-মেইল পাঠানো হচ্ছে…', 'success');
+
+  const r = await _db.auth.resetPasswordForEmail(email, {
+    redirectTo: location.origin + '/reset-password.html'
+  });
+  if (r && r.error) { showMsg('পাঠানো যায়নি: ' + r.error.message, 'error'); return; }
+
+  showMsg(email + ' — এ ই-মেইল পাঠানো হয়েছে। কোড থাকলে নিচে লিখুন, অথবা ই-মেইলের লিংকে ক্লিক করুন।', 'success');
+
+  if (!(window.KHUI && KHUI.otp)) return;
+  KHUI.otp({
+    length: 6, demo: false,
+    title: 'পাসওয়ার্ড রিসেট',
+    subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন। কোড না এলে ই-মেইলের লিংকে ক্লিক করুন।',
+    onVerify: async function (code, done) {
+      try {
+        const v = await _db.auth.verifyOtp({ email: email, token: code, type: 'recovery' });
+        done(!(v && v.error) && v.data && v.data.session);
+      } catch (e) { done(false); }
+    },
+    onCancel: function () { showMsg('ই-মেইলের লিংকে ক্লিক করেও পাসওয়ার্ড বদলাতে পারবেন।', 'success'); },
+    onSuccess: function () {
+      showMsg('যাচাই সম্পন্ন! নতুন পাসওয়ার্ড দেওয়ার পাতায় নিয়ে যাচ্ছি…', 'success');
+      setTimeout(function () { location.href = 'reset-password.html'; }, 700);
+    }
+  });
+};
 
 async function doAdminLogin() {
   const email = document.getElementById('loginEmail').value.trim();

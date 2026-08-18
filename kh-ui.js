@@ -1183,6 +1183,10 @@
     /* ই-মেইলে পাঠানো */
     var mailBtn = back.querySelector('.kh-vch-mail');
     if (mailBtn) {
+      /* লেনদেন সফল হলেই নিজে থেকে পাঠানো (autoEmail:false দিলে বন্ধ) */
+      if (cfg.email && cfg.autoEmail !== false) {
+        setTimeout(function () { mailBtn.click(); }, 400);
+      }
       mailBtn.onclick = function () {
         var msgEl = back.querySelector('.kh-vch-mailmsg');
         function say(t, ok) {

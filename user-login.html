@@ -598,14 +598,59 @@ async function finishSignup(name, mobile, email, pass) {
 /* ══════════════════════════════════════════════════════════
    Password reset + guest
    ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   পাসওয়ার্ড ভুলে গেছেন — ই-মেইলে ৬ সংখ্যার কোড (ও লিংক)
+   ══════════════════════════════════════════════════════════ */
 async function doReset() {
   var raw = document.getElementById('lu').value.trim();
-  if (!isEmail(raw)) {
-    msg('loginMsg', 'পাসওয়ার্ড রিসেট করতে উপরের ঘরে আপনার ই-মেইল ঠিকানা লিখুন, তারপর আবার চাপুন। ই-মেইল না থাকলে যোগাযোগ করুন: ০১৭১১-৫১৫৯৫২', 'info');
+
+  if (!raw) {
+    msg('loginMsg', 'উপরের ঘরে আপনার ই-মেইল ঠিকানা লিখে আবার চাপুন।', 'info');
+    document.getElementById('lu').focus();
     return;
   }
-  var r = await _db.auth.resetPasswordForEmail(raw, { redirectTo: location.origin + '/user-login.html' });
-  msg('loginMsg', r.error ? r.error.message : 'রিসেট লিংক পাঠানো হয়েছে। ই-মেইল দেখুন।', r.error ? 'err' : 'ok');
+  if (!isEmail(raw)) {
+    msg('loginMsg', 'পাসওয়ার্ড রিসেট করতে ই-মেইল ঠিকানা লাগবে (মোবাইল নম্বরে হবে না)। ' +
+                    'অ্যাকাউন্টে ই-মেইল না থাকলে যোগাযোগ করুন: ০১৭১১-৫১৫৯৫২', 'info');
+    document.getElementById('lu').focus();
+    return;
+  }
+
+  var email = raw.toLowerCase();
+  msg('loginMsg', 'ই-মেইল পাঠানো হচ্ছে…', 'info');
+
+  var r = await _db.auth.resetPasswordForEmail(email, {
+    redirectTo: location.origin + '/reset-password.html'
+  });
+  if (r && r.error) {
+    msg('loginMsg', 'পাঠানো যায়নি: ' + r.error.message, 'err');
+    return;
+  }
+
+  msg('loginMsg', email + ' — এ ই-মেইল পাঠানো হয়েছে। কোড থাকলে নিচে লিখুন, ' +
+                  'অথবা ই-মেইলের লিংকে ক্লিক করুন।', 'ok');
+
+  /* ই-মেইলে ৬ সংখ্যার কোড এলে এখানেই যাচাই — নাহলে লিংকে ক্লিক করলেও চলবে */
+  if (!(window.KHUI && KHUI.otp)) return;
+
+  KHUI.otp({
+    length: 6, demo: false,
+    title: 'পাসওয়ার্ড রিসেট',
+    subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন। কোড না এলে ই-মেইলের লিংকে ক্লিক করুন।',
+    onVerify: async function (code, done) {
+      try {
+        var v = await _db.auth.verifyOtp({ email: email, token: code, type: 'recovery' });
+        done(!(v && v.error) && v.data && v.data.session);
+      } catch (e) { done(false); }
+    },
+    onCancel: function () {
+      msg('loginMsg', 'ই-মেইলে পাঠানো লিংকে ক্লিক করেও পাসওয়ার্ড বদলাতে পারবেন।', 'info');
+    },
+    onSuccess: function () {
+      msg('loginMsg', 'যাচাই সম্পন্ন! নতুন পাসওয়ার্ড দেওয়ার পাতায় নিয়ে যাচ্ছি…', 'ok');
+      setTimeout(function () { location.href = 'reset-password.html'; }, 700);
+    }
+  });
 }
 
 function doGuest() {
