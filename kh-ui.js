@@ -8,6 +8,16 @@
 
   var KHUI = {};
 
+  /* ── Supabase ক্লায়েন্ট খুঁজে নেয় ──
+     _supabase.js-এ `const _db` থাকলে সেটি window-এ বসে না; তাই
+     window._db না পেলে গ্লোবাল লেক্সিক্যাল `_db`-ও দেখা হয়।     */
+  function sb() {
+    if (window._db) return window._db;
+    try { if (typeof _db !== 'undefined' && _db) { window._db = _db; return _db; } } catch (e) {}
+    return null;
+  }
+  KHUI.db = sb;
+
   /* ── Bengali digit helpers ───────────────────────────── */
   var BN = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
   KHUI.bn = function (v) {
@@ -567,11 +577,11 @@
      ══════════════════════════════════════════════════════ */
   KHUI.prefillFromProfile = function (map, opts) {
     opts = opts || {};
-    if (!window._db || !window._db.rpc) return Promise.resolve(null);
+    if (!sb() || !sb().rpc) return Promise.resolve(null);
 
-    return window._db.auth.getSession().then(function (s) {
+    return sb().auth.getSession().then(function (s) {
       if (!s || !s.data || !s.data.session) return null;
-      return window._db.rpc('get_my_profile').then(function (r) {
+      return sb().rpc('get_my_profile').then(function (r) {
         var p = (r && !r.error) ? r.data : null;
         if (!p) return null;
 
@@ -600,8 +610,8 @@
   var PROFILE_KEY = 'kh_profile_v1';
 
   KHUI.getMyProfile = function (force) {
-    if (!window._db || !window._db.auth) return Promise.resolve(null);
-    return window._db.auth.getSession().then(function (s) {
+    if (!sb() || !sb().auth) return Promise.resolve(null);
+    return sb().auth.getSession().then(function (s) {
       var sess = s && s.data && s.data.session;
       if (!sess) {
         try { sessionStorage.removeItem(PROFILE_KEY); } catch (e) {}
@@ -613,7 +623,7 @@
           if (c && c.id === sess.user.id) return c;
         } catch (e) {}
       }
-      return Promise.resolve(window._db.rpc('get_my_profile')).then(function (r) {
+      return Promise.resolve(sb().rpc('get_my_profile')).then(function (r) {
         var p = (r && !r.error) ? r.data : null;
         if (p) { try { sessionStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch (e) {} }
         return p;
@@ -654,9 +664,9 @@
   var _settingsCache = null;
   KHUI.getSettings = function (force) {
     if (_settingsCache && !force) return Promise.resolve(_settingsCache);
-    if (!window._db || !window._db.from) return Promise.resolve({});
+    if (!sb() || !sb().from) return Promise.resolve({});
     return new Promise(function (resolve) {
-      Promise.resolve(window._db.from('app_settings').select('key,value')).then(function (r) {
+      Promise.resolve(sb().from('app_settings').select('key,value')).then(function (r) {
         var out = {};
         ((r && r.data) || []).forEach(function (row) { out[row.key] = row.value; });
         _settingsCache = out;
@@ -733,7 +743,7 @@
   }
 
   KHUI.mountUserChip = function () {
-    if (!window._db || !window._db.auth) return Promise.resolve(null);
+    if (!sb() || !sb().auth) return Promise.resolve(null);
     return KHUI.getMyProfile().then(function (p) {
       if (!p) return null;
       var name = KHUI.shortName(p.full_name);
@@ -778,7 +788,7 @@
         menu.querySelector('.kh-uout').onclick = function () {
           KHUI.clearProfileCache();
           try { sessionStorage.removeItem('kh_user'); } catch (e) {}
-          window._db.auth.signOut().then(function () { location.href = 'index.html'; });
+          sb().auth.signOut().then(function () { location.href = 'index.html'; });
         };
       });
 

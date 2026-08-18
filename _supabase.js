@@ -30,6 +30,10 @@ const _db = createClient(SUPABASE_URL, SUPABASE_ANON, {
   }
 });
 
+// `const` টপ-লেভেলে window-এ যায় না — তাই স্পষ্টভাবে এক্সপোজ করা হচ্ছে,
+// যাতে kh-ui.js ও অন্য শেয়ার্ড স্ক্রিপ্ট window._db পায়।
+window._db = _db;
+
 // ── GLOBAL NAMESPACE ────────────────────────────────────────
 window.KH = {};
 

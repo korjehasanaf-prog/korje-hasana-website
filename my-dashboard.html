@@ -269,8 +269,15 @@
     return null;
   }
 
+  /* Supabase ক্লায়েন্ট: window._db অথবা গ্লোবাল const _db */
+  function sb(){
+    if(window._db) return window._db;
+    try{ if(typeof _db!=='undefined' && _db){ window._db=_db; return _db; } }catch(e){}
+    return null;
+  }
+
   async function init(){
-    if(!window._db){ showFail('সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
+    if(!sb()){ showFail('সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
 
     var s = null;
     try { s = await _db.auth.getSession(); } catch(e){}
