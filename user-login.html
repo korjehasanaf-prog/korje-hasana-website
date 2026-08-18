@@ -482,7 +482,7 @@ async function doLogin() {
       busy('loginBtn', false); shake(); return;
     }
 
-    await _db.rpc('touch_my_login').catch(function () {});
+    try { await _db.rpc('touch_my_login'); } catch (e) {}
 
     var p = await _db.rpc('get_my_profile');
     var prof = p && p.data ? p.data : null;

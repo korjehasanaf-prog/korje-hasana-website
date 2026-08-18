@@ -1126,7 +1126,8 @@ document.getElementById('regMethod').addEventListener('change', function() {
 
 // Load public hero stats
 async function loadHeroStats() {
-  const { data } = await _db.rpc('get_savings_overview').single().catch(()=>({data:null}));
+  let data = null;
+  try { ({ data } = await _db.rpc('get_savings_overview').single()); } catch (e) {}
   if(data) {
     document.getElementById('heroDepositors').textContent = (data.total_depositors||0) + ' জন';
     document.getElementById('heroDeposited').textContent  = '৳' + fmt(data.total_deposited||0);
