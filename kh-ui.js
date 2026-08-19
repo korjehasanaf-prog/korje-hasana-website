@@ -789,9 +789,9 @@
   }
 
   KHUI.mountUserChip = function () {
-    if (!sb() || !sb().auth) return Promise.resolve(null);
+    if (!sb() || !sb().auth) { KHUI._addNavLoginItem(); return Promise.resolve(null); }
     return KHUI.getMyProfile().then(function (p) {
-      if (!p) return null;
+      if (!p) { KHUI._addNavLoginItem(); return null; }
       var name = KHUI.shortName(p.full_name);
 
       /* topbar-এর লগইন লিংকগুলো নাম-চিপে বদলে যায় */
@@ -864,7 +864,70 @@
         document.querySelectorAll('.kh-uwrap.kh-open').forEach(function (w) { w.classList.remove('kh-open'); });
       });
 
-      /* glass nav: লগইন → শুধু ছবি + প্রোফাইল-পূর্ণতার সবুজ রিং */
+      /* ── মোবাইল: টপবার লুকানো থাকে, তাই হ্যামবার্গার মেনুতেও যোগ করা ── */
+      KHUI._addNavMenuItems(p, name);
+
+      /* glass nav ও বাকি কাজ */
+      KHUI._mountGlassAvatar(p, name);
+      return p;
+    });
+  };
+
+  /* হ্যামবার্গার মেনুতে (.nav-links) সদস্যের আইটেম বসায় */
+  KHUI._addNavMenuItems = function (p, name) {
+    var lists = document.querySelectorAll('.nav-links');
+    lists.forEach(function (list) {
+      if (list.querySelector('.kh-navme')) return;
+
+      var wrap = document.createElement('div');
+      wrap.className = 'kh-navme';
+
+      var head = document.createElement('div');
+      head.className = 'kh-navme-head';
+      var av;
+      if (p.photo_url) {
+        av = document.createElement('img');
+        av.src = p.photo_url; av.alt = '';
+      } else {
+        av = document.createElement('span');
+        av.textContent = (name && name[0]) || 'স';
+      }
+      av.className = 'kh-navme-av';
+      head.appendChild(av);
+      var t = document.createElement('div');
+      t.innerHTML = '<b>' + vEsc(name) + '</b><span>প্রোফাইল ' + KHUI.bn(KHUI.profileProgress(p).pct) + '% পূর্ণ</span>';
+      head.appendChild(t);
+      wrap.appendChild(head);
+
+      wrap.insertAdjacentHTML('beforeend',
+        '<a href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> আমার ড্যাশবোর্ড</a>' +
+        '<a href="my-profile.html"><i class="ti ti-user-edit" aria-hidden="true"></i> প্রোফাইল আপডেট</a>' +
+        '<button type="button" class="kh-navme-out"><i class="ti ti-logout" aria-hidden="true"></i> সাইন আউট</button>');
+
+      wrap.querySelector('.kh-navme-out').onclick = function () {
+        KHUI.clearProfileCache();
+        try { sessionStorage.clear(); } catch (e) {}
+        sb().auth.signOut().then(function () { location.href = 'index.html'; });
+      };
+      list.appendChild(wrap);
+    });
+  };
+
+  /* লগ-আউট অবস্থায় হ্যামবার্গার মেনুতে "লগইন" আইটেম */
+  KHUI._addNavLoginItem = function () {
+    document.querySelectorAll('.nav-links').forEach(function (list) {
+      if (list.querySelector('.kh-navlogin')) return;
+      var a = document.createElement('a');
+      a.className = 'kh-navlogin';
+      a.href = 'user-login.html';
+      a.innerHTML = '<i class="ti ti-user-circle" aria-hidden="true"></i> লগইন / সাইন আপ';
+      list.appendChild(a);
+    });
+  };
+
+  /* গ্লাস নেভে লগইন → শুধু ছবি + প্রোফাইল-পূর্ণতার সবুজ রিং */
+  KHUI._mountGlassAvatar = function (p, name) {
+    {
       var g = document.querySelector('.kh-glassnav a[href="user-login.html"]');
       if (g) {
         var prog = KHUI.profileProgress(p);
@@ -915,8 +978,8 @@
         });
         document.addEventListener('click', function () { gm.classList.remove('kh-open'); });
       }
-      return p;
-    });
+    }
+    return p;
   };
 
   /* ══════════════════════════════════════════════════════
@@ -1516,6 +1579,44 @@
     KHUI._syncThemeIcon();
   };
 
+  /* ══════════════════════════════════════════════════════
+     মোবাইল: চওড়া টেবিল/উপাদান নিজে থেকেই স্ক্রলযোগ্য করা
+     (parent selector CSS-এ নেই, তাই JS দিয়ে করা হয়)
+     ══════════════════════════════════════════════════════ */
+  KHUI.makeTablesScrollable = function (root) {
+    root = root || document;
+    if (!window.matchMedia || !window.matchMedia('(max-width: 820px)').matches) return;
+
+    root.querySelectorAll('table').forEach(function (t) {
+      var p = t.parentElement;
+      if (!p) return;
+      /* আগেই মোড়া আছে? */
+      if (p.classList.contains('kh-scrollx') || p.classList.contains('tbl-wrap') ||
+          p.classList.contains('table-wrap')) {
+        p.style.overflowX = 'auto';
+        p.style.webkitOverflowScrolling = 'touch';
+        return;
+      }
+      var wrap = document.createElement('div');
+      wrap.className = 'kh-scrollx';
+      p.insertBefore(wrap, t);
+      wrap.appendChild(t);
+    });
+  };
+
+  /* নতুন করে আঁকা টেবিলও ধরা পড়বে */
+  KHUI._watchTables = function () {
+    if (!window.MutationObserver) return;
+    if (!window.matchMedia || !window.matchMedia('(max-width: 820px)').matches) return;
+    var pending = null;
+    var mo = new MutationObserver(function () {
+      clearTimeout(pending);
+      pending = setTimeout(function () { KHUI.makeTablesScrollable(document); }, 220);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    KHUI._tableObserver = mo;
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -1527,6 +1628,8 @@
     if (document.body.dataset.khUser !== 'off') KHUI.mountUserChip();
     KHUI.enhancePasswords(document);
     KHUI.enhanceEmails(document);
+    KHUI.makeTablesScrollable(document);
+    KHUI._watchTables();
   }
 
   if (document.readyState === 'loading') {
