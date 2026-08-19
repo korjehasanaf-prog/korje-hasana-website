@@ -1554,18 +1554,79 @@ html[data-theme="light"] .kh-vch-back { background: rgba(60, 40, 90, .58); }
 .kh-vch-btn:hover { filter: brightness(1.08); }
 .kh-vch-btn.kh-vch-alt { background: linear-gradient(112deg, #4c2f78, #241539); box-shadow: none; }
 
-.kh-vch-mailmsg {
-  margin: -8px 24px 18px; padding: 10px 13px; border-radius: 10px;
+/* ══════════════════════════════════════════════════════════
+   11.85 ── সাইন-আপ গেট (অতিথি ঋণ/সঞ্চয়/দান নিতে চাইলে)
+   ══════════════════════════════════════════════════════════ */
+
+.kh-gate-back {
+  position: fixed; inset: 0; z-index: 10002;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(10, 4, 18, .86);
+  backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px);
+  opacity: 0; transition: opacity .22s;
+}
+.kh-gate-back.kh-in { opacity: 1; }
+html[data-theme="light"] .kh-gate-back { background: rgba(60, 40, 90, .6); }
+
+.kh-gate {
+  width: 100%; max-width: 400px; text-align: center;
+  background: rgba(30, 17, 51, .98);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 22px; padding: 28px 24px 22px;
+  color: #f3edfb;
+  box-shadow: 0 26px 70px rgba(0,0,0,.55);
+  transform: scale(.92); transition: transform .26s cubic-bezier(.34,1.3,.5,1);
+}
+.kh-gate-back.kh-in .kh-gate { transform: scale(1); }
+html[data-theme="light"] .kh-gate {
+  background: #ffffff; border-color: #ece2f4; color: #241539;
+  box-shadow: 0 26px 70px rgba(112,72,232,.3);
+}
+
+.kh-gate-ico {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #fff;
+  background: linear-gradient(135deg, #d6336c, #7048e8);
+  box-shadow: 0 8px 24px rgba(160,33,201,.4);
+}
+.kh-gate h3 { font-size: 19px; margin-bottom: 8px; }
+.kh-gate p { font-size: 13.5px; line-height: 1.8; color: #cbbfdd; margin-bottom: 20px; }
+html[data-theme="light"] .kh-gate p { color: #6b6280; }
+
+.kh-gate-acts { display: flex; gap: 9px; }
+.kh-gate-btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  text-decoration: none; font-family: inherit;
+  font-size: 14px; font-weight: 700; color: #fff !important;
+  border-radius: 12px; padding: 13px 12px; min-height: 46px;
+  background: linear-gradient(112deg, #d6336c, #a021c9 55%, #e83e8c);
+  box-shadow: 0 6px 18px rgba(160,33,201,.35);
+}
+.kh-gate-btn:hover { filter: brightness(1.08); }
+.kh-gate-btn.kh-gate-alt { background: linear-gradient(112deg, #4c2f78, #241539); box-shadow: none; }
+
+.kh-gate-x {
+  margin-top: 14px; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 12.5px; color: #a99cc4; text-decoration: underline;
+}
+html[data-theme="light"] .kh-gate-x { color: #6b6280; }
+
+/* ছোট নোটিশ — ভাউচারের কপি ই-মেইলে গেছে */
+.kh-vch-mailnote {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 24px 14px; padding: 10px 13px; border-radius: 10px;
   font-size: 12.5px; line-height: 1.6;
   background: #f4eefb; color: #4a3568; border: 1px solid #e3d8ee;
 }
-.kh-vch-mailmsg.kh-ok  { background: #dcfce7; color: #14532d; border-color: #86efac; }
-.kh-vch-mailmsg.kh-err { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+.kh-vch-mailnote i { font-size: 15px; flex-shrink: 0; }
+.kh-vch-mailnote.kh-ok  { background: #dcfce7; color: #14532d; border-color: #86efac; }
+.kh-vch-mailnote.kh-err { background: #fff4e6; color: #92400e; border-color: #fcd9a0; }
 .kh-spin { animation: kh-sp .9s linear infinite; display: inline-block; }
 @keyframes kh-sp { to { transform: rotate(360deg); } }
 
 @media print {
-  .kh-vch-acts, .kh-vch-mailmsg { display: none !important; }
+  .kh-vch-acts, .kh-vch-mailnote { display: none !important; }
   .kh-vch-back { position: static; background: none; padding: 0; }
 }
 

@@ -112,7 +112,14 @@
       background:#fff;border-color:#a021c9;box-shadow:0 0 0 3px rgba(160,33,201,.14);
     }
 
-    /* NID */
+    /* NID — দুই পাতা */
+    .nidside{padding:14px 0;border-top:1px dashed rgba(255,255,255,.16)}
+    .nidside:first-of-type{border-top:none;padding-top:0}
+    html[data-theme="light"] .nidside{border-color:#e8dcf0}
+    .nidside-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+      font-size:13px;font-weight:700;margin-bottom:10px}
+    .nidside-t i{color:#e083b4}
+    html[data-theme="light"] .nidside-t i{color:#b02a80}
     .nidrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .nidst{font-size:12.5px;color:#cbbfdd}
     html[data-theme="light"] .nidst{color:var(--muted)}
@@ -239,31 +246,45 @@
     <div class="fg"><label>বর্তমান ঠিকানা</label><textarea id="fAddr"></textarea></div>
     <div class="fg"><label>স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
     <div class="grid2">
-      <div class="fg"><label>জেলা</label><input id="fDist"></div>
-      <div class="fg"><label>এনআইডি নম্বর</label><input id="fNid" inputmode="numeric"></div>
+      <div class="fg"><label for="fDob">জন্ম তারিখ</label><input id="fDob" placeholder="১২ Mar ১৯৯০ বা 12-03-1990"></div>
+      <div class="fg"><label for="fNid">এনআইডি নম্বর</label><input id="fNid" inputmode="numeric"></div>
     </div>
+    <div class="grid2">
+      <div class="fg"><label for="fFather">পিতার নাম</label><input id="fFather"></div>
+      <div class="fg"><label for="fMother">মাতার নাম</label><input id="fMother"></div>
+    </div>
+    <div class="fg"><label for="fDist">জেলা</label><input id="fDist"></div>
   </div>
 
-  <!-- NID আপলোড -->
+  <!-- NID আপলোড — সামনে ও পিছনে দুই পাতা -->
   <div class="panel">
     <h2><i class="ti ti-file-certificate"></i> এনআইডি কপি (গোপনীয়)</h2>
-    <div class="nidrow">
-      <button class="upbtn" type="button" id="nidCamBtn">
-        <i class="ti ti-camera"></i> ক্যামেরায় ছবি তুলুন
-      </button>
-      <button class="upbtn ocralt" type="button" onclick="document.getElementById('nidFile').click()">
-        <i class="ti ti-photo"></i> গ্যালারি / ফাইল থেকে নিন
-      </button>
-      <!-- মোবাইলে সরাসরি ক্যামেরা খোলে -->
+
+    <!-- ▸ সামনের পাতা -->
+    <div class="nidside">
+      <div class="nidside-t"><i class="ti ti-id"></i> সামনের পাতা <span class="nidst" id="nidSt">এখনও আপলোড হয়নি</span></div>
+      <div class="nidrow">
+        <button class="upbtn" type="button" id="nidCamBtn"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+        <button class="upbtn ocralt" type="button" onclick="document.getElementById('nidFile').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+        <button class="upbtn" type="button" id="nidView" style="display:none;background:linear-gradient(112deg,#0d6e56,#1d9e75)"><i class="ti ti-eye"></i> দেখুন</button>
+      </div>
       <input type="file" id="nidCam" accept="image/*" capture="environment" hidden>
-      <!-- গ্যালারি, ডাউনলোড ফোল্ডার, কম্পিউটারের যেকোনো ছবি বা PDF -->
       <input type="file" id="nidFile" accept="image/*,application/pdf,.pdf" hidden>
-      <button class="upbtn" type="button" id="nidView" style="display:none;background:linear-gradient(112deg,#0d6e56,#1d9e75)">
-        <i class="ti ti-eye"></i> দেখুন
-      </button>
-      <span class="nidst" id="nidSt">এখনও আপলোড হয়নি</span>
     </div>
-    <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন</div>
+
+    <!-- ▸ পিছনের পাতা -->
+    <div class="nidside">
+      <div class="nidside-t"><i class="ti ti-id-off"></i> পিছনের পাতা <span class="nidst" id="nidBackSt">এখনও আপলোড হয়নি</span></div>
+      <div class="nidrow">
+        <button class="upbtn" type="button" id="nidBackCamBtn"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+        <button class="upbtn ocralt" type="button" onclick="document.getElementById('nidBackFile').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+        <button class="upbtn" type="button" id="nidBackView" style="display:none;background:linear-gradient(112deg,#0d6e56,#1d9e75)"><i class="ti ti-eye"></i> দেখুন</button>
+      </div>
+      <input type="file" id="nidBackCam" accept="image/*" capture="environment" hidden>
+      <input type="file" id="nidBackFile" accept="image/*,application/pdf,.pdf" hidden>
+    </div>
+
+    <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন · সামনের পাতা থেকে তথ্য পড়ে ফর্ম পূরণ করা যায়</div>
 
     <!-- OCR ফলাফল -->
     <div id="ocrBox" style="display:none;margin-top:16px">
@@ -289,9 +310,9 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=4">
-<script src="kh-ui.js?v=4"></script>
-<script src="kh-ocr.js?v=1"></script>
+<link rel="stylesheet" href="kh-ui.css?v=5">
+<script src="kh-ui.js?v=5"></script>
+<script src="kh-ocr.js?v=2"></script>
 <script>
 (function(){
   'use strict';
@@ -312,9 +333,12 @@
   var FIELD_BN = {
     full_name:'নাম', mobile:'মোবাইল', email:'ই-মেইল', occupation:'পেশা',
     address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
-    district:'জেলা', nid:'এনআইডি নম্বর', photo_url:'প্রোফাইল ছবি', nid_url:'এনআইডি কপি'
+    district:'জেলা', nid:'এনআইডি নম্বর', dob:'জন্ম তারিখ',
+    father_name:'পিতার নাম', mother_name:'মাতার নাম',
+    photo_url:'প্রোফাইল ছবি', nid_url:'এনআইডি (সামনে)', nid_back_url:'এনআইডি (পিছনে)'
   };
-  var PF=['full_name','mobile','email','occupation','address','permanent_address','district','nid','photo_url','nid_url'];
+  var PF=['full_name','mobile','email','occupation','address','permanent_address','district','nid',
+          'dob','father_name','mother_name','photo_url','nid_url','nid_back_url'];
   function localProgress(p){
     var f=0, miss=[];
     PF.forEach(function(k){
@@ -388,10 +412,11 @@
     name_bn: 'নাম (বাংলা)',
     father:  'পিতার নাম',
     mother:  'মাতার নাম',
-    blood:   'রক্তের গ্রুপ'
+    blood:   'রক্তের গ্রুপ',
+    address: 'ঠিকানা'
   };
 
-  async function runOCR(file){
+  async function runOCR(file, isBack){
     if(!window.KHOCR){ return; }
     var box = el('ocrBox'), res = el('ocrResult');
     box.style.display = ''; res.style.display = 'none';
@@ -445,9 +470,11 @@
       }
       var nm = vals.name_bn || vals.name_en;
       if(nm && !el('fName').value.trim()){ el('fName').value = nm; filled.push('নাম'); }
-      if(vals.dob){
-        var dobField = el('fDob');
-        if(dobField){ dobField.value = vals.dob; filled.push('জন্ম তারিখ'); }
+      if(vals.dob){    el('fDob').value    = vals.dob;    filled.push('জন্ম তারিখ'); }
+      if(vals.father){ el('fFather').value = vals.father; filled.push('পিতার নাম'); }
+      if(vals.mother){ el('fMother').value = vals.mother; filled.push('মাতার নাম'); }
+      if(vals.address && !el('fAddr').value.trim()){
+        el('fAddr').value = vals.address; filled.push('ঠিকানা');
       }
       msg('ok', filled.length ? (filled.join(', ') + ' ফর্মে বসানো হয়েছে — মিলিয়ে নিয়ে "সংরক্ষণ করুন" চাপুন।')
                               : 'বসানোর মতো নতুন কিছু পাওয়া যায়নি।');
@@ -518,6 +545,9 @@
     el('fPAddr').value= prof.permanent_address || '';
     el('fDist').value = prof.district || '';
     el('fNid').value  = prof.nid || '';
+    el('fDob').value    = prof.dob ? String(prof.dob).slice(0,10) : '';
+    el('fFather').value = prof.father_name || '';
+    el('fMother').value = prof.mother_name || '';
 
     if(prof.photo_url) setAvatar(prof.photo_url);
     else el('bigav').textContent = (prof.full_name||'স').trim()[0] || 'স';
@@ -525,6 +555,10 @@
     if(prof.nid_url){
       el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
       el('nidView').style.display='';
+    }
+    if(prof.nid_back_url){
+      el('nidBackSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
+      el('nidBackView').style.display='';
     }
 
     /* নতুন প্রোফাইল হলে মোবাইল ঘর খোলা রাখতে হবে (তৈরি করতে লাগে) */
@@ -620,6 +654,48 @@
       }
     };
 
+    /* ── এনআইডির পিছনের পাতা ── */
+    async function handleNidBack(f){
+      if(!f) return;
+      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
+      msg('ok','পিছনের পাতা আপলোড হচ্ছে…');
+      try{
+        var path = uid + '/nid-back.' + extOf(f);
+        await upload('nid-docs', path, f);
+        var r = await sb().rpc('update_my_profile', { p_nid_back_url: path });
+        if(r && r.error) throw r.error;
+        el('nidBackSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
+        el('nidBackView').style.display='';
+        prof.nid_back_url = path;
+        paintProgress();
+        if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
+        msg('ok','এনআইডির পিছনের পাতা সংরক্ষণ হয়েছে (গোপনীয়)।');
+        /* পিছনের পাতায় সাধারণত ঠিকানা থাকে — পড়ার চেষ্টা */
+        if(/^image\//i.test(f.type)) runOCR(f, true);
+      }catch(e){ msg('err','পিছনের পাতা আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+    }
+
+    el('nidBackFile').addEventListener('change', function(){ handleNidBack(this.files[0]); this.value=''; });
+    el('nidBackCam').addEventListener('change',  function(){ handleNidBack(this.files[0]); this.value=''; });
+    el('nidBackCamBtn').onclick = function(){
+      if(window.KHUI && KHUI.camera){
+        KHUI.camera({
+          facing:'environment', title:'এনআইডির পিছনের পাতা',
+          guide:'কার্ডের পিছনের দিকটি সোজা করে পুরো ফ্রেমে রাখুন',
+          onShot:function(file){ handleNidBack(file); },
+          onError:function(){ el('nidBackCam').click(); }
+        });
+      } else el('nidBackCam').click();
+    };
+
+    el('nidBackView').onclick = async function(){
+      try{
+        var r = await sb().storage.from('nid-docs').createSignedUrl(prof.nid_back_url, 120);
+        if(r && r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+        else msg('err','ফাইল খোলা যায়নি।');
+      }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
+    };
+
     /* NID দেখা — signed URL */
     el('nidView').onclick = async function(){
       try{
@@ -642,7 +718,10 @@
           p_permanent_address: el('fPAddr').value.trim(),
           p_district:          el('fDist').value.trim(),
           p_nid:               el('fNid').value.trim(),
-          p_mobile:            el('fMob').value.replace(/\D/g,'')   /* প্রোফাইল না থাকলে তৈরি করতে লাগে */
+          p_mobile:            el('fMob').value.replace(/\D/g,''),  /* প্রোফাইল না থাকলে তৈরি করতে লাগে */
+          p_dob:               el('fDob').value.trim(),
+          p_father_name:       el('fFather').value.trim(),
+          p_mother_name:       el('fMother').value.trim()
         });
         if(r && r.error) throw r.error;
         prof.full_name = el('fName').value.trim();
@@ -651,6 +730,9 @@
         prof.permanent_address = el('fPAddr').value.trim();
         prof.district = el('fDist').value.trim();
         prof.nid = el('fNid').value.trim();
+        prof.dob = el('fDob').value.trim();
+        prof.father_name = el('fFather').value.trim();
+        prof.mother_name = el('fMother').value.trim();
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল সংরক্ষণ হয়েছে।');

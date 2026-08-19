@@ -349,6 +349,15 @@ function flipTo(on) {
   syncFlipHeight();
 }
 
+/* ?signup=1 দিয়ে এলে (পণ্যের পাতা থেকে) সরাসরি সাইন-আপ ফেস দেখানো */
+(function () {
+  try {
+    if (new URLSearchParams(location.search).get('signup') === '1') {
+      setTimeout(function () { flipTo(true); }, 250);
+    }
+  } catch (e) {}
+})();
+
 /* re-measure whenever anything changes the content height */
 (function () {
   var run = function () { syncFlipHeight(); };
@@ -497,7 +506,19 @@ function destinationFor(prof) {
     }));
   } catch (e) {}
 
-  /* সবাই আগে নিজের ব্যক্তিগত ড্যাশবোর্ডে যায় */
+  /* কোনো পণ্যের পাতা থেকে এসে থাকলে সেখানেই ফিরে যাওয়া */
+  var next = null;
+  try {
+    var q = new URLSearchParams(location.search).get('next');
+    next = q || sessionStorage.getItem('kh_after_login');
+    sessionStorage.removeItem('kh_after_login');
+  } catch (e) {}
+  /* শুধু নিজের সাইটের ভেতরের পাতা — বাইরের লিংকে পাঠানো হবে না */
+  if (next && /^[A-Za-z0-9._#?=&%-]+\.html([?#].*)?$/.test(next) && next.indexOf('user-login') !== 0) {
+    return next;
+  }
+
+  /* নাহলে সবাই আগে নিজের ব্যক্তিগত ড্যাশবোর্ডে যায় */
   return 'my-dashboard.html';
 }
 
@@ -715,7 +736,7 @@ function showSignOut() {
   };
 }
 </script>
-<link rel="stylesheet" href="kh-ui.css?v=4">
-<script src="kh-ui.js?v=4"></script>
+<link rel="stylesheet" href="kh-ui.css?v=5">
+<script src="kh-ui.js?v=5"></script>
 </body>
 </html>

@@ -681,10 +681,12 @@
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .topbar-left { display: none; }
       /* Hamburger + dropdown nav */
-      .nav-center { display: none; }
+      .nav-center { display: none; height: auto !important; }
       .nav-hamburger { display: flex; }
       .nav-links { display: none !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--dkgreen); padding: 8px 0; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,.3); border-top: 2px solid var(--gold); width: 100%; }
-      .nav-links.open { display: flex !important; }
+      /* height:auto — নাহলে মেনু ৬৮px-এ আটকে গিয়ে আইটেমগুলো
+         হিরো সেকশনের লেখার ওপরে ব্যাকগ্রাউন্ড ছাড়া ভেসে উঠত */
+      .nav-links.open { display: flex !important; height: auto !important; align-items: stretch !important; }
       .nav-link { padding: 13px 20px !important; border-bottom: 1px solid rgba(255,255,255,.07); width: 100%; height: auto; }
       .nav-indicator { display: none; }
       .cta-band { flex-direction: column; gap: 16px; text-align: center; }
@@ -702,8 +704,9 @@
 @media (max-width:768px) {
   .topbar { display:none !important; }
   .navbar { padding:0 16px !important; }
+  .nav-center { height:auto !important; }
   .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); width:100%; }
-  .nav-links.open { display:flex !important; }
+  .nav-links.open { display:flex !important; height:auto !important; align-items:stretch !important; }
   .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
   .nav-hover-bar { display:none !important; }
   .nav-cta { display:none !important; }
@@ -836,7 +839,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=4">
+  <link rel="stylesheet" href="kh-ui.css?v=5">
 </head>
 <body data-kh-nav="on">
 
@@ -2185,6 +2188,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=4"></script>
+<script src="kh-ui.js?v=5"></script>
 </body>
 </html>

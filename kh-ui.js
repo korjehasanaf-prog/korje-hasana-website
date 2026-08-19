@@ -1173,12 +1173,14 @@
           '</div>' +
         '</div>' +
 
+        (cfg.email ? '<div class="kh-vch-mailnote" id="khVchNote">' +
+            '<i class="ti ti-loader-2 kh-spin"></i> ভাউচারের একটি কপি ই-মেইলে পাঠানো হচ্ছে…' +
+          '</div>' : '') +
         '<div class="kh-vch-acts">' +
           '<button type="button" class="kh-vch-btn kh-vch-print"><i class="ti ti-printer"></i> প্রিন্ট / PDF</button>' +
-          (cfg.email ? '<button type="button" class="kh-vch-btn kh-vch-mail"><i class="ti ti-mail"></i> ই-মেইলে পাঠান</button>' : '') +
+          '<button type="button" class="kh-vch-btn kh-vch-alt kh-vch-png"><i class="ti ti-download"></i> ছবি সেভ</button>' +
           '<button type="button" class="kh-vch-btn kh-vch-alt kh-vch-close"><i class="ti ti-x"></i> বন্ধ করুন</button>' +
         '</div>' +
-        '<div class="kh-vch-mailmsg" style="display:none"></div>' +
       '</div>';
 
     document.body.appendChild(back);
@@ -1243,45 +1245,105 @@
       w.document.close();
     };
 
-    /* ই-মেইলে পাঠানো */
-    var mailBtn = back.querySelector('.kh-vch-mail');
-    if (mailBtn) {
-      /* লেনদেন সফল হলেই নিজে থেকে পাঠানো (autoEmail:false দিলে বন্ধ) */
-      if (cfg.email && cfg.autoEmail !== false) {
-        setTimeout(function () { mailBtn.click(); }, 400);
-      }
-      mailBtn.onclick = function () {
-        var msgEl = back.querySelector('.kh-vch-mailmsg');
-        function say(t, ok) {
-          msgEl.style.display = 'block';
-          msgEl.textContent = t;
-          msgEl.className = 'kh-vch-mailmsg' + (ok === true ? ' kh-ok' : (ok === false ? ' kh-err' : ''));
-        }
-        mailBtn.disabled = true;
-        mailBtn.innerHTML = '<i class="ti ti-loader-2 kh-spin"></i> পাঠানো হচ্ছে…';
-        say('ই-মেইল পাঠানো হচ্ছে…');
-        KHUI.sendVoucherMail(cfg.email.kind, cfg.email.id).then(function (r) {
-          say('✓ ভাউচারটি ' + (r.sent_to || 'আপনার ই-মেইলে') + ' পাঠানো হয়েছে।', true);
-          mailBtn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
-        }).catch(function (e) {
-          say('পাঠানো যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন'), false);
-          mailBtn.disabled = false;
-          mailBtn.innerHTML = '<i class="ti ti-mail"></i> ই-মেইলে পাঠান';
+    /* ভাউচার ছবি হিসেবে সেভ */
+    var pngBtn = back.querySelector('.kh-vch-png');
+    if (pngBtn) {
+      pngBtn.onclick = function () {
+        var b = pngBtn;
+        b.disabled = true;
+        b.innerHTML = '<i class="ti ti-loader-2 kh-spin"></i> তৈরি হচ্ছে…';
+        KHUI.voucherToPng(back.querySelector('.kh-vch')).then(function (b64) {
+          b.disabled = false;
+          b.innerHTML = '<i class="ti ti-download"></i> ছবি সেভ';
+          if (!b64) return;
+          var a = document.createElement('a');
+          a.href = 'data:image/png;base64,' + b64;
+          a.download = (cfg.no || 'voucher') + '.png';
+          document.body.appendChild(a); a.click(); a.remove();
         });
       };
+    }
+
+    /* ── ই-মেইল সম্পূর্ণ স্বয়ংক্রিয় — নিচে শুধু ছোট নোটিশ ── */
+    var noteEl = back.querySelector('#khVchNote');
+    if (cfg.email && noteEl && cfg.autoEmail !== false) {
+      function note(html, kind) {
+        noteEl.className = 'kh-vch-mailnote' + (kind ? ' kh-' + kind : '');
+        noteEl.innerHTML = html;
+      }
+      /* ভাউচারটি পর্দায় বসার পর ছবি বানিয়ে পাঠানো হয় */
+      setTimeout(function () {
+        KHUI.sendVoucherMail(cfg.email.kind, cfg.email.id, { node: back.querySelector('.kh-vch') })
+          .then(function (r) {
+            note('<i class="ti ti-mail-check"></i> এই ভাউচারের একটি কপি ' +
+                 (r.sent_to || 'আপনার ই-মেইলে') + ' পাঠানো হয়েছে' + (r.image ? ' (ছবিসহ)' : '') + '।', 'ok');
+          })
+          .catch(function (e) {
+            var m = (e && e.message) || '';
+            note('<i class="ti ti-mail-off"></i> ' +
+                 (/লগইন/.test(m) ? 'ই-মেইল পাঠানো যায়নি — লগইন করা থাকলে ভাউচার নিজে থেকেই ই-মেইলে চলে যায়।'
+                                 : 'ই-মেইল পাঠানো যায়নি: ' + (m || 'পরে আবার চেষ্টা করা হবে')) +
+                 ' ভাউচারটি "ছবি সেভ" দিয়ে রেখে দিতে পারেন।', 'err');
+          });
+      }, 500);
     }
 
     KHUI._closeVoucher = close;
     return back;
   };
 
-  /* ভাউচার ই-মেইল — Edge Function কল (লগইন আবশ্যক) */
-  KHUI.sendVoucherMail = function (kind, id) {
+  /* ── html2canvas দরকারে লোড করা ── */
+  var _h2cPromise = null;
+  function loadHtml2Canvas() {
+    if (window.html2canvas) return Promise.resolve(window.html2canvas);
+    if (_h2cPromise) return _h2cPromise;
+    _h2cPromise = new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = function () { res(window.html2canvas); };
+      s.onerror = function () { rej(new Error('ছবি তৈরির টুল লোড হয়নি')); };
+      document.head.appendChild(s);
+    });
+    return _h2cPromise;
+  }
+
+  /* খোলা ভাউচারটিকে ছবি (PNG) বানানো — ই-মেইলে পাঠানোর জন্য */
+  KHUI.voucherToPng = function (node) {
+    node = node || document.querySelector('.kh-vch') || document.getElementById('voucherDoc');
+    if (!node) return Promise.resolve(null);
+    return loadHtml2Canvas().then(function (h2c) {
+      return h2c(node, {
+        scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+        onclone: function (doc) {
+          /* বাটন ও বার্তা ছবিতে থাকবে না */
+          doc.querySelectorAll('.kh-vch-acts, .kh-vch-mailnote, .v-actions').forEach(function (x) {
+            x.style.display = 'none';
+          });
+        }
+      });
+    }).then(function (cv) {
+      if (!cv) return null;
+      var data = cv.toDataURL('image/png');
+      return data.split(',')[1] || null;          /* base64 অংশটুকু */
+    }).catch(function () { return null; });        /* ছবি না হলেও ই-মেইল যাবে */
+  };
+
+  /* ভাউচার ই-মেইল — Edge Function কল (লগইন আবশ্যক)
+     ভাউচারটি ছবি হিসেবেও পাঠানো হয় যাতে যেকোনো ই-মেইল অ্যাপে পড়া যায় */
+  KHUI.sendVoucherMail = function (kind, id, opts) {
+    opts = opts || {};
     var db = sb();
     if (!db || !db.auth) return Promise.reject(new Error('সংযোগ নেই'));
+
     return db.auth.getSession().then(function (s) {
       var sess = s && s.data && s.data.session;
       if (!sess) throw new Error('আগে লগইন করুন');
+
+      var pngPromise = (opts.png === false)
+        ? Promise.resolve(null)
+        : KHUI.voucherToPng(opts.node);
+
+      return pngPromise.then(function (png) {
       var url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-voucher';
       return fetch(url, {
         method: 'POST',
@@ -1289,7 +1351,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + sess.access_token
         },
-        body: JSON.stringify({ kind: kind, id: id })
+        body: JSON.stringify({ kind: kind, id: id, image_base64: png })
       }).then(function (res) {
         return res.json().catch(function () { return {}; }).then(function (j) {
           if (!res.ok) {
@@ -1301,6 +1363,7 @@
           }
           return j;
         });
+      });
       });
     });
   };
@@ -1580,6 +1643,72 @@
   };
 
   /* ══════════════════════════════════════════════════════
+     সাইন-আপ গেট — লগইন ছাড়া ঋণ/সঞ্চয়/দান নেওয়া যাবে না।
+     পেজে `data-kh-requires="signup"` দিলে নিজে থেকেই কাজ করে;
+     অথবা KHUI.requireAccount('savings') হাতে ডাকা যায়।
+     ══════════════════════════════════════════════════════ */
+
+  var GATE_LABEL = {
+    savings:  'সঞ্চয় হিসাব খুলতে',
+    loan:     'ঋণের আবেদন করতে',
+    donation: 'দান করতে',
+    generic:  'এই সেবা নিতে'
+  };
+
+  KHUI.requireAccount = function (what, opts) {
+    opts = opts || {};
+    var db = sb();
+    if (!db || !db.auth) return Promise.resolve(true);   /* সংযোগ নেই — আটকাবো না */
+
+    return db.auth.getSession().then(function (s) {
+      if (s && s.data && s.data.session) return true;    /* লগইন আছে */
+
+      /* ফিরে আসার পথ মনে রাখা */
+      var back = location.pathname.split('/').pop() + location.search + location.hash;
+      try { sessionStorage.setItem('kh_after_login', back); } catch (e) {}
+
+      if (opts.silent) return false;
+      KHUI.signupGate(what, back);
+      return false;
+    }).catch(function () { return true; });
+  };
+
+  /* সুন্দর বাংলা পর্দা — "অ্যাকাউন্ট খুলুন" */
+  KHUI.signupGate = function (what, back) {
+    if (document.querySelector('.kh-gate-back')) return;
+    var label = GATE_LABEL[what] || GATE_LABEL.generic;
+    var url = 'user-login.html?signup=1&next=' + encodeURIComponent(back || '');
+
+    var el = document.createElement('div');
+    el.className = 'kh-gate-back';
+    el.innerHTML =
+      '<div class="kh-gate">' +
+        '<div class="kh-gate-ico"><i class="ti ti-user-plus"></i></div>' +
+        '<h3>প্রথমে অ্যাকাউন্ট খুলুন</h3>' +
+        '<p>' + vEsc(label) + ' একটি সদস্য অ্যাকাউন্ট প্রয়োজন। একবার খুললে আপনার তথ্য ' +
+          'সব ফর্মে নিজে থেকেই বসবে, ভাউচার ই-মেইলে যাবে এবং ড্যাশবোর্ডে সব হিসাব দেখতে পাবেন।</p>' +
+        '<div class="kh-gate-acts">' +
+          '<a class="kh-gate-btn" href="' + url + '"><i class="ti ti-user-plus"></i> সাইন আপ করুন</a>' +
+          '<a class="kh-gate-btn kh-gate-alt" href="user-login.html?next=' + encodeURIComponent(back || '') + '"><i class="ti ti-login"></i> লগইন</a>' +
+        '</div>' +
+        '<button type="button" class="kh-gate-x">শুধু দেখে যাই</button>' +
+      '</div>';
+
+    document.body.appendChild(el);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { el.classList.add('kh-in'); });
+
+    function close() {
+      el.classList.remove('kh-in');
+      document.body.style.overflow = '';
+      setTimeout(function () { if (el.parentNode) el.remove(); }, 200);
+    }
+    el.querySelector('.kh-gate-x').onclick = close;
+    el.addEventListener('click', function (e) { if (e.target === el) close(); });
+    KHUI._closeGate = close;
+  };
+
+  /* ══════════════════════════════════════════════════════
      মোবাইল: চওড়া টেবিল/উপাদান নিজে থেকেই স্ক্রলযোগ্য করা
      (parent selector CSS-এ নেই, তাই JS দিয়ে করা হয়)
      ══════════════════════════════════════════════════════ */
@@ -1630,6 +1759,10 @@
     KHUI.enhanceEmails(document);
     KHUI.makeTablesScrollable(document);
     KHUI._watchTables();
+
+    /* পেজে data-kh-requires থাকলে অতিথিকে সাইন আপে পাঠানো */
+    var need = document.body.dataset.khRequires;
+    if (need) setTimeout(function () { KHUI.requireAccount(need); }, 700);
   }
 
   if (document.readyState === 'loading') {
