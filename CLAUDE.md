@@ -66,7 +66,8 @@
 
 ## 🗄️ গুরুত্বপূর্ণ DB ফাংশন
 
-`create_user_profile`, `get_my_profile`, `update_my_profile`, `get_my_overview`, `touch_my_login`,
+`create_user_profile`, `get_my_profile`, `update_my_profile` (প্রোফাইল না থাকলে নিজেই তৈরি করে — `p_mobile` লাগে),
+`get_my_overview`, `touch_my_login`, `record_donation`, `record_loan_payment`, `get_my_loan_schedule`,
 `create_depositor`, `set_my_savings_scheme`, `get_savings_overview`,
 `set_app_setting` (super_admin only), `generate_due_reminders`,
 `adjust_account_balance`, `get_balance_summary`, `verify_borrower*`, `approve_identity_claim`।

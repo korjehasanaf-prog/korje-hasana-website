@@ -233,7 +233,7 @@
       <div class="fg"><label>পেশা</label><input id="fOcc" placeholder="যেমন: শিক্ষক, ব্যবসায়ী"></div>
     </div>
     <div class="grid2">
-      <div class="fg"><label>মোবাইল (পরিবর্তনযোগ্য নয়)</label><input id="fMob" readonly></div>
+      <div class="fg"><label for="fMob">মোবাইল (পরিবর্তনযোগ্য নয়)</label><input id="fMob" inputmode="numeric" readonly></div>
       <div class="fg"><label>ই-মেইল (পরিবর্তনযোগ্য নয়)</label><input id="fEml" readonly></div>
     </div>
     <div class="fg"><label>বর্তমান ঠিকানা</label><textarea id="fAddr"></textarea></div>
@@ -494,10 +494,20 @@
     if(!prof){
       try { var pr = await sb().rpc('get_my_profile'); if(pr && !pr.error) prof = pr.data; } catch(e){}
     }
+    /* প্রোফাইল না থাকলে (অ্যাডমিন/কমিটি সদস্য প্রথমবার) — এখানেই তৈরি করা যাবে */
+    var isNew = false;
     if(!prof){
-      el('gate').innerHTML='<i class="ti ti-alert-triangle" style="font-size:36px;color:#f0a"></i>'+
-        '<p style="margin-top:12px">প্রোফাইল তথ্য আনা যাচ্ছে না। <a href="my-dashboard.html" style="color:#c88ae0">ড্যাশবোর্ডে ফিরুন</a></p>';
-      return;
+      isNew = true;
+      var au = s.data.session.user;
+      var alias = /@user\.korjehasana\.org$/i.test(au.email || '');
+      prof = {
+        id: uid,
+        full_name: (au.user_metadata && au.user_metadata.full_name) || '',
+        mobile: alias ? (au.email || '').split('@')[0] : '',
+        email: alias ? '' : (au.email || ''),
+        occupation:null, address:null, permanent_address:null, district:null,
+        nid:null, photo_url:null, nid_url:null, user_code:null
+      };
     }
 
     el('fName').value = prof.full_name || '';
@@ -515,6 +525,15 @@
     if(prof.nid_url){
       el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
       el('nidView').style.display='';
+    }
+
+    /* নতুন প্রোফাইল হলে মোবাইল ঘর খোলা রাখতে হবে (তৈরি করতে লাগে) */
+    if (isNew) {
+      el('fMob').removeAttribute('readonly');
+      el('fMob').placeholder = '01XXXXXXXXX';
+      msg('ok','আপনার সদস্য প্রোফাইল এখনো তৈরি হয়নি। নাম ও মোবাইল নম্বর দিয়ে "সংরক্ষণ করুন" চাপলেই তৈরি হয়ে যাবে।');
+      var lbl = document.querySelector('label[for="fMob"]');
+      if (lbl) lbl.textContent = 'মোবাইল নম্বর *';
     }
 
     paintProgress();
@@ -622,7 +641,8 @@
           p_address:           el('fAddr').value.trim(),
           p_permanent_address: el('fPAddr').value.trim(),
           p_district:          el('fDist').value.trim(),
-          p_nid:               el('fNid').value.trim()
+          p_nid:               el('fNid').value.trim(),
+          p_mobile:            el('fMob').value.replace(/\D/g,'')   /* প্রোফাইল না থাকলে তৈরি করতে লাগে */
         });
         if(r && r.error) throw r.error;
         prof.full_name = el('fName').value.trim();
@@ -634,7 +654,17 @@
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল সংরক্ষণ হয়েছে।');
-      }catch(e){ msg('err','সংরক্ষণ ব্যর্থ। আবার চেষ্টা করুন।'); }
+      }catch(e){
+        var t = (e && e.message) || '';
+        msg('err',
+          /mobile required/.test(t)
+            ? 'মোবাইল নম্বর ছাড়া প্রোফাইল তৈরি করা যায় না। ড্যাশবোর্ড থেকে "সদস্য প্রোফাইল তৈরি করুন" ফর্মটি পূরণ করুন।'
+          : /not signed in/.test(t)
+            ? 'সেশন শেষ হয়ে গেছে। আবার লগইন করুন।'
+          : /duplicate|unique/i.test(t)
+            ? 'এই তথ্য (এনআইডি/মোবাইল) অন্য একটি অ্যাকাউন্টে আছে।'
+            : ('সংরক্ষণ ব্যর্থ: ' + (t || 'আবার চেষ্টা করুন')));
+      }
       b.disabled = false;
       b.innerHTML = '<i class="ti ti-device-floppy"></i> সংরক্ষণ করুন';
     };
