@@ -289,7 +289,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=5">
+  <link rel="stylesheet" href="kh-ui.css?v=7">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1134,8 +1134,12 @@ function processDonation() {
     if (saveError) {
       console.warn('দান সংরক্ষণে সমস্যা:', saveError);
     } else if (lastDonationId) {
-      /* সফল দান → ভাউচার নিজে থেকেই ই-মেইলে পাঠানো */
-      autoMailDonation();
+      /* সফল দান → ভাউচার নিজে থেকেই তৈরি ও দেখানো, তারপর ছবি তুলে ই-মেইল
+         (আগে ভাউচার তৈরির আগেই মেইল করা হত — তাই ছবি ফাঁকা/ব্যর্থ হত) */
+      setTimeout(function () {
+        openVoucher();
+        setTimeout(autoMailDonation, 900);   /* QR ও প্রোফাইল ছবি বসার সময় */
+      }, 1200);
     }
   };
 
@@ -1417,7 +1421,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=5"></script>
+<script src="kh-ui.js?v=7"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

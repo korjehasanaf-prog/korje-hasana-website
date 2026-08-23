@@ -252,7 +252,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=5">
+  <link rel="stylesheet" href="kh-ui.css?v=7">
 </head>
 <body data-kh-nav="off">
 
@@ -1164,22 +1164,57 @@ async function loadProdLoans() {
   </tbody></table></div>`;
 }
 
-/* ঋণ বিতরণের ভাউচার সদস্যের ই-মেইলে */
-function mailLoanVoucher(btn) {
+/* ঋণ বিতরণের ভাউচার — পর্দায় দেখানো হয়, আর সেই ছবিটিই সদস্যের ই-মেইলে যায়
+   (আগে শুধু sendVoucherMail ডাকা হত — পর্দায় ভাউচার না থাকায় ছবি তৈরি হত না) */
+async function mailLoanVoucher(btn) {
   const id = btn.dataset.loan;
-  if (!(window.KHUI && KHUI.sendVoucherMail)) return;
+  if (!(window.KHUI && KHUI.voucher)) return;
   const old = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
-  KHUI.sendVoucherMail('loan_disburse', id).then(function (r) {
-    btn.innerHTML = '<i class="ti ti-mail-check"></i> পাঠানো হয়েছে';
-    btn.title = r.sent_to || '';
-  }).catch(function (e) {
+  btn.innerHTML = '<i class="ti ti-loader-2"></i> তৈরি হচ্ছে…';
+  try {
+    const r = await _db.from('loans')
+      .select('id,loan_no,borrower_id,principal,tenure_months,monthly_emi,disbursement_date,first_emi_date,item_description,borrowers(name,name_bn,mobile)')
+      .eq('id', id).single();
+    if (r.error) throw r.error;
+    const l = r.data, b = l.borrowers || {};
+    let prof = null;
+    try {
+      const pr = await _db.from('user_profiles')
+        .select('full_name,user_code,mobile,photo_url').eq('borrower_id', l.borrower_id).maybeSingle();
+      prof = pr.data || null;
+    } catch (e) { /* প্রোফাইল না থাকলেও ভাউচার হবে */ }
+
+    const rows = [
+      ['লেনদেনের ধরন', 'সুদমুক্ত ঋণ বিতরণ'],
+      ['ঋণ নং', l.loan_no || '—'],
+      ['কিস্তির সংখ্যা', (l.tenure_months || '—') + ' মাস'],
+      ['মাসিক কিস্তি', '৳' + Number(l.monthly_emi || 0).toLocaleString('en-IN')]
+    ];
+    if (l.first_emi_date) rows.push(['প্রথম কিস্তির তারিখ', new Date(l.first_emi_date).toLocaleDateString('en-GB')]);
+    if (l.item_description) rows.push(['বিবরণ', l.item_description]);
+
+    KHUI.voucher({
+      title: 'ঋণ বিতরণ ভাউচার',
+      no: l.loan_no || '—',
+      amount: Number(l.principal || 0),
+      date: l.disbursement_date,
+      status: 'বিতরণ সম্পন্ন',
+      name: (prof && prof.full_name) || b.name_bn || b.name || 'সদস্য',
+      code: prof && prof.user_code,
+      mobile: (prof && prof.mobile) || b.mobile,
+      photo: prof && prof.photo_url,
+      rows: rows,
+      email: { kind: 'loan_disburse', id: l.id },
+      note: 'এই ঋণে কোনো সুদ নেই। এটি একটি ডিজিটাল ভাউচার — স্বাক্ষর ছাড়াই বৈধ।'
+    });
+    btn.innerHTML = '<i class="ti ti-mail-check"></i> ভাউচার ও ই-মেইল';
+    btn.disabled = false;
+  } catch (e) {
     btn.disabled = false;
     btn.innerHTML = old;
-    btn.title = (e && e.message) || 'ব্যর্থ';
-    alert('ভাউচার পাঠানো যায়নি: ' + ((e && e.message) || 'আবার চেষ্টা করুন'));
-  });
+    alert('ভাউচার তৈরি করা যায়নি: ' + ((e && e.message) || 'আবার চেষ্টা করুন'));
+  }
 }
 
 async function loadProdDonations() {
@@ -2018,6 +2053,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=5"></script>
+<script src="kh-ui.js?v=7"></script>
 </body>
 </html>

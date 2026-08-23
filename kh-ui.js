@@ -1285,7 +1285,7 @@
                                  : 'ই-মেইল পাঠানো যায়নি: ' + (m || 'পরে আবার চেষ্টা করা হবে')) +
                  ' ভাউচারটি "ছবি সেভ" দিয়ে রেখে দিতে পারেন।', 'err');
           });
-      }, 500);
+      }, 900);
     }
 
     KHUI._closeVoucher = close;
@@ -1311,9 +1311,15 @@
   KHUI.voucherToPng = function (node) {
     node = node || document.querySelector('.kh-vch') || document.getElementById('voucherDoc');
     if (!node) return Promise.resolve(null);
-    return loadHtml2Canvas().then(function (h2c) {
+    /* ভাউচারটি পর্দায় না থাকলে (লুকানো/০ মাপ) ছবি তোলা যায় না — ফাঁকা ছবি পাঠানোর
+       চেয়ে ছবি ছাড়া পাঠানোই ভালো */
+    var r = node.getBoundingClientRect();
+    if (r.width < 40 || r.height < 40) return Promise.resolve(null);
+
+    var shot = loadHtml2Canvas().then(function (h2c) {
       return h2c(node, {
         scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+        imageTimeout: 6000,
         onclone: function (doc) {
           /* বাটন ও বার্তা ছবিতে থাকবে না */
           doc.querySelectorAll('.kh-vch-acts, .kh-vch-mailnote, .v-actions').forEach(function (x) {
@@ -1322,10 +1328,15 @@
         }
       });
     }).then(function (cv) {
-      if (!cv) return null;
+      if (!cv || !cv.width || !cv.height) return null;
       var data = cv.toDataURL('image/png');
-      return data.split(',')[1] || null;          /* base64 অংশটুকু */
-    }).catch(function () { return null; });        /* ছবি না হলেও ই-মেইল যাবে */
+      var b64 = data.split(',')[1] || null;
+      return (b64 && b64.length > 2000) ? b64 : null;   /* base64 অংশটুকু */
+    });
+
+    /* html2canvas কখনো আটকে গেলেও ই-মেইল যেন থেমে না থাকে */
+    var guard = new Promise(function (res) { setTimeout(function () { res(null); }, 12000); });
+    return Promise.race([shot, guard]).catch(function () { return null; });
   };
 
   /* ভাউচার ই-মেইল — Edge Function কল (লগইন আবশ্যক)
