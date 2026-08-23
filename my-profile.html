@@ -153,33 +153,7 @@
     .pptxt b{color:#7ee2a8;font-size:14.5px}
     html[data-theme="light"] .pptxt b{color:#0d6e56}
 
-    /* OCR */
-    .ocrbar{height:8px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-bottom:8px}
-    html[data-theme="light"] .ocrbar{background:#e8e0f2}
-    .ocrbar i{display:block;height:100%;width:0;border-radius:99px;
-      background:linear-gradient(90deg,#7048e8,#e83e8c);transition:width .35s}
-    .ocrst{font-size:12.5px;color:#cbbfdd;margin-bottom:12px}
-    html[data-theme="light"] .ocrst{color:var(--muted)}
-    .ocrhead{display:flex;align-items:center;justify-content:space-between;gap:10px;
-      font-size:13.5px;font-weight:700;margin-bottom:10px;flex-wrap:wrap}
-    .ocrhead i{color:#e083b4}
-    html[data-theme="light"] .ocrhead i{color:#b02a80}
-    .ocrconf{font-size:11.5px;font-weight:700;color:#fff;border-radius:20px;padding:3px 11px;
-      background:linear-gradient(112deg,#0d6e56,#1d9e75)}
-    .ocrconf.mid{background:linear-gradient(112deg,#b45309,#f08c28)}
-    .ocrconf.low{background:linear-gradient(112deg,#b3123c,#d6336c)}
-    .ocrgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    @media(max-width:560px){.ocrgrid{grid-template-columns:1fr}}
-    .ocrcell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
-      border-radius:11px;padding:10px 12px}
-    html[data-theme="light"] .ocrcell{background:#faf7fd;border-color:#e3d8ee}
-    .ocrcell label{display:block;font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;
-      color:#a99cc4;margin-bottom:5px}
-    html[data-theme="light"] .ocrcell label{color:#6b6280}
-    .ocrcell input{width:100%;background:none;border:none;outline:none;font-family:inherit;
-      font-size:14px;font-weight:700;color:#fff;border-bottom:1px dashed rgba(255,255,255,.25);padding-bottom:3px}
-    html[data-theme="light"] .ocrcell input{color:var(--ink);border-bottom-color:#d9cfe8}
-    .ocracts{display:flex;gap:9px;flex-wrap:wrap}
+    /* গ্যালারি/ক্যামেরা বিকল্প বাটন */
     .upbtn.ocralt{background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none}
 
     .gate{max-width:420px;margin:90px auto;text-align:center}
@@ -284,35 +258,16 @@
       <input type="file" id="nidBackFile" accept="image/*,application/pdf,.pdf" hidden>
     </div>
 
-    <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন · সামনের পাতা থেকে তথ্য পড়ে ফর্ম পূরণ করা যায়</div>
+    <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন · এনআইডির তথ্য (নাম, জন্ম তারিখ, পিতা/মাতার নাম, নম্বর) উপরের ঘরে নিজে লিখুন</div>
 
-    <!-- OCR ফলাফল -->
-    <div id="ocrBox" style="display:none;margin-top:16px">
-      <div class="ocrbar"><i id="ocrFill" style="width:0%"></i></div>
-      <div class="ocrst" id="ocrStatus">প্রস্তুত হচ্ছে…</div>
-
-      <div id="ocrResult" style="display:none">
-        <div class="ocrhead">
-          <span><i class="ti ti-scan"></i> কার্ড থেকে পড়া তথ্য</span>
-          <span class="ocrconf" id="ocrConf">—</span>
-        </div>
-        <div class="ocrgrid" id="ocrFields"></div>
-        <div class="ocracts">
-          <button type="button" class="upbtn" id="ocrApply"><i class="ti ti-arrow-down-to-arc"></i> ফর্মে বসান</button>
-          <button type="button" class="upbtn ocralt" id="ocrRetry"><i class="ti ti-refresh"></i> আবার পড়ুন</button>
-        </div>
-        <div class="upnote" style="margin-top:10px">যন্ত্র পড়া তথ্যে ভুল থাকতে পারে — বসানোর পর নিজে মিলিয়ে নিন।</div>
-      </div>
-    </div>
   </div>
 
   <button class="saveb" id="saveBtn" type="button"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=5">
-<script src="kh-ui.js?v=5"></script>
-<script src="kh-ocr.js?v=3"></script>
+<link rel="stylesheet" href="kh-ui.css?v=6">
+<script src="kh-ui.js?v=6"></script>
 <script>
 (function(){
   'use strict';
@@ -400,110 +355,7 @@
   }
   function mb(bytes){ return (bytes/1048576).toFixed(2); }
 
-  /* ══════════════════════════════════════════════════
-     NID OCR — কার্ডের ছবি থেকে তথ্য পড়া (ডিভাইসেই, গোপন)
-     ══════════════════════════════════════════════════ */
-  var lastNidFile = null, ocrFields = null;
-
-  var OCR_LABEL = {
-    nid:        'এনআইডি নম্বর',
-    dob:        'জন্ম তারিখ',
-    name_en:    'নাম (ইংরেজি)',
-    name_bn:    'নাম (বাংলা)',
-    father:     'পিতার নাম',
-    mother:     'মাতার নাম',
-    blood:      'রক্তের গ্রুপ',
-    address:    'ঠিকানা (স্থায়ী)',
-    birthplace: 'জন্মস্থান'
-  };
-
-  async function runOCR(file, isBack){
-    if(!window.KHOCR){ return; }
-    var box = el('ocrBox'), res = el('ocrResult');
-    box.style.display = ''; res.style.display = 'none';
-    el('ocrFill').style.width = '0%';
-    el('ocrStatus').textContent = (isBack ? 'পিছনের পাতা' : 'সামনের পাতা') + ' পড়া শুরু হচ্ছে…';
-
-    try{
-      var r = await KHOCR.readNID(file, {
-        back: !!isBack,
-        onProgress: function(pct, m){
-          el('ocrFill').style.width = pct + '%';
-          if(m) el('ocrStatus').textContent = m + '  (' + bnNum(Math.round(pct)) + '%)';
-        }
-      });
-
-      /* পিছনের পাতা কেবল ঠিকানা-জাতীয় তথ্য দেয় — আগের ভালো তথ্য মুছবে না */
-      var got = r.fields || {};
-      if (isBack) {
-        ocrFields = ocrFields || {};
-        ['address','blood','birthplace'].forEach(function(k){ if(got[k]) ocrFields[k] = got[k]; });
-        /* NID/জন্ম তারিখ শুধু তখনই, যখন সামনের পাতা থেকে পাওয়া যায়নি */
-        ['nid','dob'].forEach(function(k){ if(got[k] && !ocrFields[k]) ocrFields[k] = got[k]; });
-      } else {
-        ocrFields = got;
-      }
-      var keys = Object.keys(ocrFields).filter(function(k){ return OCR_LABEL[k]; });
-
-      if(!keys.length){
-        el('ocrStatus').textContent = 'কার্ড থেকে তথ্য পড়া যায়নি। আলো ভালো রেখে, কার্ডটি সোজা ও পুরো ফ্রেমে রেখে আবার ছবি তুলুন।';
-        el('ocrFill').style.width = '100%';
-        res.style.display = 'none';
-        return;
-      }
-
-      el('ocrStatus').textContent = isBack
-        ? 'পিছনের পাতা পড়া সম্পন্ন — ঠিকানা মিলিয়ে নিন।'
-        : 'পড়া সম্পন্ন — নিচের তথ্য মিলিয়ে নিন।';
-      var conf = el('ocrConf');
-      conf.textContent = 'নির্ভরযোগ্যতা ' + bnNum(r.confidence) + '%';
-      conf.className = 'ocrconf' + (r.confidence >= 70 ? '' : (r.confidence >= 45 ? ' mid' : ' low'));
-
-      el('ocrFields').innerHTML = keys.map(function(k){
-        return '<div class="ocrcell"><label>' + OCR_LABEL[k] + '</label>' +
-               '<input data-k="' + k + '" value="' + String(ocrFields[k]).replace(/"/g,'&quot;') + '"></div>';
-      }).join('');
-      res.style.display = '';
-    }catch(e){
-      el('ocrStatus').textContent = 'কার্ড পড়া যায়নি: ' + (e && e.message ? e.message : 'আবার চেষ্টা করুন');
-      el('ocrFill').style.width = '100%';
-    }
-  }
-
-  function bindOcrButtons(){
-    var apply = el('ocrApply'), retry = el('ocrRetry');
-    if(apply) apply.onclick = function(){
-      var vals = {};
-      el('ocrFields').querySelectorAll('input[data-k]').forEach(function(i){
-        vals[i.dataset.k] = i.value.trim();
-      });
-      var filled = [];
-      if(vals.nid){
-        var d = (window.KHOCR ? KHOCR.enDigits(vals.nid) : vals.nid).replace(/\D/g,'');
-        el('fNid').value = d; filled.push('এনআইডি নম্বর');
-      }
-      var nm = vals.name_bn || vals.name_en;
-      if(nm && !el('fName').value.trim()){ el('fName').value = nm; filled.push('নাম'); }
-      if(vals.dob){    el('fDob').value    = vals.dob;    filled.push('জন্ম তারিখ'); }
-      if(vals.father){ el('fFather').value = vals.father; filled.push('পিতার নাম'); }
-      if(vals.mother){ el('fMother').value = vals.mother; filled.push('মাতার নাম'); }
-      /* কার্ডের পিছনের ঠিকানা = স্থায়ী ঠিকানা */
-      if(vals.address){
-        el('fPAddr').value = vals.address; filled.push('স্থায়ী ঠিকানা');
-        if(!el('fAddr').value.trim()) el('fAddr').value = vals.address;
-      }
-      /* জন্মস্থান থেকে জেলা অনুমান (খালি থাকলে) */
-      if(vals.birthplace && !el('fDist').value.trim()){
-        el('fDist').value = vals.birthplace; filled.push('জেলা');
-      }
-      msg('ok', filled.length ? (filled.join(', ') + ' ফর্মে বসানো হয়েছে — মিলিয়ে নিয়ে "সংরক্ষণ করুন" চাপুন।')
-                              : 'বসানোর মতো নতুন কিছু পাওয়া যায়নি।');
-    };
-    if(retry) retry.onclick = function(){
-      if(lastNidFile) runOCR(lastNidFile);
-      else msg('err','আগে এনআইডির ছবি আপলোড করুন।');
-    };
-  }
+  var lastNidFile = null;
 
   async function upload(bucket, path, file){
     var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
@@ -591,7 +443,6 @@
     }
 
     paintProgress();
-    bindOcrButtons();
 
     /* লাইভ সেলফি — ডিভাইসের ক্যামেরা (ডেস্কটপেও চলে) */
     el('selfieBtn').onclick = function(){
@@ -640,7 +491,6 @@
       if(!f) return;
       if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
       lastNidFile = f;
-      if(/^image\//i.test(f.type)) runOCR(f);      /* ছবি হলে কার্ড পড়ার চেষ্টা */
       msg('ok','এনআইডি আপলোড হচ্ছে…');
       try{
         var path = uid + '/nid.' + extOf(f);
@@ -690,8 +540,6 @@
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডির পিছনের পাতা সংরক্ষণ হয়েছে (গোপনীয়)।');
-        /* পিছনের পাতায় সাধারণত ঠিকানা থাকে — পড়ার চেষ্টা */
-        if(/^image\//i.test(f.type)) runOCR(f, true);
       }catch(e){ msg('err','পিছনের পাতা আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     }
 
