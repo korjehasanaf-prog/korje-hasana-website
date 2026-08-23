@@ -312,7 +312,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=5">
 <script src="kh-ui.js?v=5"></script>
-<script src="kh-ocr.js?v=2"></script>
+<script src="kh-ocr.js?v=3"></script>
 <script>
 (function(){
   'use strict';
@@ -406,14 +406,15 @@
   var lastNidFile = null, ocrFields = null;
 
   var OCR_LABEL = {
-    nid:     'এনআইডি নম্বর',
-    dob:     'জন্ম তারিখ',
-    name_en: 'নাম (ইংরেজি)',
-    name_bn: 'নাম (বাংলা)',
-    father:  'পিতার নাম',
-    mother:  'মাতার নাম',
-    blood:   'রক্তের গ্রুপ',
-    address: 'ঠিকানা'
+    nid:        'এনআইডি নম্বর',
+    dob:        'জন্ম তারিখ',
+    name_en:    'নাম (ইংরেজি)',
+    name_bn:    'নাম (বাংলা)',
+    father:     'পিতার নাম',
+    mother:     'মাতার নাম',
+    blood:      'রক্তের গ্রুপ',
+    address:    'ঠিকানা (স্থায়ী)',
+    birthplace: 'জন্মস্থান'
   };
 
   async function runOCR(file, isBack){
@@ -421,16 +422,27 @@
     var box = el('ocrBox'), res = el('ocrResult');
     box.style.display = ''; res.style.display = 'none';
     el('ocrFill').style.width = '0%';
-    el('ocrStatus').textContent = 'কার্ড পড়া শুরু হচ্ছে…';
+    el('ocrStatus').textContent = (isBack ? 'পিছনের পাতা' : 'সামনের পাতা') + ' পড়া শুরু হচ্ছে…';
 
     try{
       var r = await KHOCR.readNID(file, {
+        back: !!isBack,
         onProgress: function(pct, m){
           el('ocrFill').style.width = pct + '%';
           if(m) el('ocrStatus').textContent = m + '  (' + bnNum(Math.round(pct)) + '%)';
         }
       });
-      ocrFields = r.fields || {};
+
+      /* পিছনের পাতা কেবল ঠিকানা-জাতীয় তথ্য দেয় — আগের ভালো তথ্য মুছবে না */
+      var got = r.fields || {};
+      if (isBack) {
+        ocrFields = ocrFields || {};
+        ['address','blood','birthplace'].forEach(function(k){ if(got[k]) ocrFields[k] = got[k]; });
+        /* NID/জন্ম তারিখ শুধু তখনই, যখন সামনের পাতা থেকে পাওয়া যায়নি */
+        ['nid','dob'].forEach(function(k){ if(got[k] && !ocrFields[k]) ocrFields[k] = got[k]; });
+      } else {
+        ocrFields = got;
+      }
       var keys = Object.keys(ocrFields).filter(function(k){ return OCR_LABEL[k]; });
 
       if(!keys.length){
@@ -440,7 +452,9 @@
         return;
       }
 
-      el('ocrStatus').textContent = 'পড়া সম্পন্ন — নিচের তথ্য মিলিয়ে নিন।';
+      el('ocrStatus').textContent = isBack
+        ? 'পিছনের পাতা পড়া সম্পন্ন — ঠিকানা মিলিয়ে নিন।'
+        : 'পড়া সম্পন্ন — নিচের তথ্য মিলিয়ে নিন।';
       var conf = el('ocrConf');
       conf.textContent = 'নির্ভরযোগ্যতা ' + bnNum(r.confidence) + '%';
       conf.className = 'ocrconf' + (r.confidence >= 70 ? '' : (r.confidence >= 45 ? ' mid' : ' low'));
@@ -473,8 +487,14 @@
       if(vals.dob){    el('fDob').value    = vals.dob;    filled.push('জন্ম তারিখ'); }
       if(vals.father){ el('fFather').value = vals.father; filled.push('পিতার নাম'); }
       if(vals.mother){ el('fMother').value = vals.mother; filled.push('মাতার নাম'); }
-      if(vals.address && !el('fAddr').value.trim()){
-        el('fAddr').value = vals.address; filled.push('ঠিকানা');
+      /* কার্ডের পিছনের ঠিকানা = স্থায়ী ঠিকানা */
+      if(vals.address){
+        el('fPAddr').value = vals.address; filled.push('স্থায়ী ঠিকানা');
+        if(!el('fAddr').value.trim()) el('fAddr').value = vals.address;
+      }
+      /* জন্মস্থান থেকে জেলা অনুমান (খালি থাকলে) */
+      if(vals.birthplace && !el('fDist').value.trim()){
+        el('fDist').value = vals.birthplace; filled.push('জেলা');
       }
       msg('ok', filled.length ? (filled.join(', ') + ' ফর্মে বসানো হয়েছে — মিলিয়ে নিয়ে "সংরক্ষণ করুন" চাপুন।')
                               : 'বসানোর মতো নতুন কিছু পাওয়া যায়নি।');

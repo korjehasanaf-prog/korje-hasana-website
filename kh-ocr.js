@@ -243,16 +243,32 @@
   }
 
   /* বাংলা নাম পরিষ্কার — লেবেলের অবশিষ্ট, ইংরেজি, চিহ্ন বাদ */
-  var BN_STOP = /(পিতা|মাতা|জন্ম|তারিখ|নাম|ঠিকানা|রক্ত|গ্রুপ|স্বাক্ষর|নম্বর|পরিচয়|Name|Father|Mother|Date|Birth|ID|NO|Blood)/g;
+  /* লেবেল শব্দগুলো — ইংরেজি অংশে \b সীমানা দেওয়া, নাহলে
+     "TOUHIDUJJAMAN"-এর ভেতরের "ID" কেটে যায়                        */
+  var BN_STOP = /(পিতা|মাতা|জন্ম|তারিখ|নাম|ঠিকানা|রক্ত|গ্রুপ|স্বাক্ষর|নম্বর|পরিচয়|\bName\b|\bFather\b|\bMother\b|\bDate\b|\bBirth\b|\bID\b|\bNO\b|\bBlood\b)/g;
   function cleanBn(s) {
     var t = String(s || '').split(/[\r\n]/)[0];
     t = t.replace(/[:;.,\-–—()\[\]{}<>=+/\\"'`|]/g, ' ');
     t = t.replace(BN_STOP, ' ');
     t = t.replace(/[^ঀ-৿\s]/g, ' ');         /* শুধু বাংলা অক্ষর */
     t = t.replace(/\s+/g, ' ').trim();
-    /* একক অক্ষর/মাত্রা-চিহ্নের আবর্জনা ছাঁটা */
-    t = t.split(' ').filter(function (w) { return w.length >= 2; }).join(' ');
+    /* "এ,কে,এম আসাদুজ্জামান" — একক অক্ষরও নামের অংশ হতে পারে, তাই
+       শুধু বিচ্ছিন্ন মাত্রা/কার-চিহ্ন বাদ দেওয়া হয়, অক্ষর নয়।       */
+    t = t.split(' ').filter(function (w) {
+      if (!w) return false;
+      if (/^[া-্ৗঁ-ঃ]+$/.test(w)) return false;  /* শুধু কার/চন্দ্রবিন্দু */
+      return true;
+    }).join(' ');
     return t;
+  }
+
+  /* নাম-সদৃশ লাইন? (লেবেল নয়, ইংরেজি নয়, যথেষ্ট বাংলা অক্ষর) */
+  function looksLikeName(line) {
+    if (!line || isJunkLine(line)) return false;
+    if (/[A-Za-z]{3,}/.test(line)) return false;
+    if (/\d{4,}/.test(line)) return false;
+    var c = cleanBn(line);
+    return c.length >= 2;
   }
   function cleanEn(s) {
     var t = String(s || '').split(/[\r\n]/)[0];
@@ -282,8 +298,9 @@
     /* শেষের বিসর্গ/কোলন লেবেলের অংশ নয় — "পিতাঃ" = "পিতা" */
     var w = String(word || '').replace(/[ঃ:।\s]+$/, '').replace(/[^ঀ-৿A-Za-z]/g, '');
     if (!w) return 0;
-    /* লেবেল ছোট শব্দ — অনেক লম্বা হলে সেটি লেবেল নয় */
-    if (w.length > target.length + 3) return 0;
+    /* লেবেল ছোট শব্দ — একটু লম্বা হলেই সেটি লেবেল নয়, নাম।
+       (আগে ঢিলে ছিল, তাই "মমতাজ"-কে "মাতা" লেবেল ভাবত)           */
+    if (w.length > target.length + 1) return 0;
     var d = editDist(w, target);
     return 1 - d / Math.max(w.length, target.length);
   }
@@ -316,7 +333,9 @@
         for (var take = 1; take <= Math.min(2, parts.length); take++) {
           var head = parts.slice(0, take).join('');
           var sc = labelScore(head, target);
-          if (sc >= 0.6 && (!best || sc > best.score)) {
+          /* ০.৭৫ — "পিভা/মাভা" (১ অক্ষর ভুল) ধরা পড়ে, কিন্তু
+             "মমতাজ"-এর মতো নাম আর লেবেল বলে ভুল হয় না            */
+          if (sc >= 0.75 && (!best || sc > best.score)) {
             best = { key: key, score: sc, take: take, rest: parts.slice(take).join(' ') };
           }
         }
@@ -325,7 +344,8 @@
     return best;
   }
 
-  KHOCR.extract = function (rawText) {
+  KHOCR.extract = function (rawText, opts) {
+    opts = opts || {};
     var text = String(rawText || '');
     var en = enDigits(text);
     var lines = text.split(/\r?\n/).map(tidy).filter(function (l) { return l.length > 1; });
@@ -388,10 +408,21 @@
       var lab = labelOfLine(lines[li]);
       if (!lab) continue;
 
-      var val = cleanBn(lab.rest);
-      if ((!val || val.length < 3) && lines[li + 1] && !labelOfLine(lines[li + 1])) {
-        val = cleanBn(lines[li + 1]);          /* লেবেল একা লাইনে → পরের লাইন */
+      /* মান = লেবেলের পরের অংশ + পরের যেসব লাইন নাম-সদৃশ (নতুন লেবেল
+         আসার আগ পর্যন্ত) — OCR প্রায়ই এক নামকে দুই লাইনে ভেঙে দেয়,
+         যেমন "মমতাজ" / "বেগম" বা "এ,কে,এম" / "আসাদুজ্জামান"।        */
+      var parts = [];
+      var head = cleanBn(lab.rest);
+      if (head) parts.push(head);
+
+      for (var k = li + 1; k < Math.min(lines.length, li + 3); k++) {
+        if (labelOfLine(lines[k])) break;         /* পরের লেবেল — থামা */
+        if (!looksLikeName(lines[k])) break;
+        parts.push(cleanBn(lines[k]));
+        if (parts.join(' ').length >= 24) break;  /* নাম যথেষ্ট লম্বা */
       }
+
+      var val = parts.join(' ').replace(/\s+/g, ' ').trim();
       if (!val || val.length < 3) continue;
 
       if (lab.key === 'father' && !out.father) out.father = val;
@@ -421,18 +452,110 @@
     if (out.father && out.father === out.name_bn) delete out.father;
     if (out.mother && (out.mother === out.name_bn || out.mother === out.father)) delete out.mother;
 
+    /* ── পিছনের পাতা: নাম/পিতা/মাতা এখানে থাকেই না, তাই বাদ ──
+       (আগে ঠিকানার লাইনগুলো নাম হিসেবে ঢুকে ভালো তথ্য মুছে দিত)     */
+    if (opts.back || KHOCR.looksLikeBackPage(text)) {
+      delete out.name_bn; delete out.father; delete out.mother;
+    }
+
     /* ── রক্তের গ্রুপ ── */
     var mB = text.match(/(?:Blood(?:\s*Group)?|রক্তের\s*গ্রুপ)\s*[:.\-]?\s*(AB|A|B|O)\s*([+\-]|POS|NEG|পজিটিভ|নেগেটিভ)?/i);
     if (mB) out.blood = mB[1].toUpperCase() + (/-|NEG|নেগেটিভ/i.test(mB[2] || '') ? '-' : '+');
 
-    /* ── ঠিকানা (পিছনের পাতায় থাকে) ── */
-    var mA = text.match(/(?:ঠিকানা|Address)\s*[:.\-]?\s*([^\r\n]{6,120})/);
-    if (mA) {
-      var ad = tidy(mA[1]).replace(/[|]/g, ' ');
+    /* ── ঠিকানা (পিছনের পাতায়, প্রায়ই ২-৩ লাইনে) ── */
+    for (var ai = 0; ai < lines.length; ai++) {
+      var am = lines[ai].match(/(?:ঠিকানা|Address)\s*[:.\-]?\s*(.*)$/);
+      if (!am) continue;
+      var chunks = [];
+      if (am[1] && tidy(am[1]).length >= 2) chunks.push(tidy(am[1]));
+      /* পরের লাইনগুলো — Blood Group / MRZ / ইংরেজি লেবেল আসার আগ পর্যন্ত */
+      for (var aj = ai + 1; aj < Math.min(lines.length, ai + 4); aj++) {
+        var nx = lines[aj];
+        if (/Blood|Place\s*of\s*Birth|Issue|Signature|^[A-Z0-9<]{10,}$/i.test(nx)) break;
+        if (/^[ঀ-৿\s\d,।\-\/]+$/.test(nx) && tidy(nx).length >= 3) chunks.push(tidy(nx));
+        else break;
+      }
+      var ad = chunks.join(', ').replace(/[|]/g, ' ').replace(/\s*,\s*,+/g, ', ').replace(/\s+/g, ' ').trim();
       if (ad.length >= 6) out.address = ad;
+      break;
+    }
+
+    /* ── জন্মস্থান ও ইস্যু তারিখ (পিছনের পাতা) ── */
+    var mPb = text.match(/Place\s*of\s*Birth\s*[:.\-]?\s*([A-Za-zঀ-৿\s]{3,30})/i);
+    if (mPb) {
+      /* পরের লেবেল শুরু হলে সেখানেই থামা */
+      var bp = tidy(mPb[1]).replace(/\s*(Issue|Date|Blood|Group|Signature|ঠিকানা).*$/i, '').trim();
+      if (bp.length >= 3) out.birthplace = bp;
+    }
+
+    /* ══ MRZ (পিছনের পাতার নিচের মেশিন-পাঠযোগ্য লাইন) ══
+       এটি OCR-এ সবচেয়ে নির্ভরযোগ্য — এখান থেকে NID ও জন্ম তারিখ নিশ্চিত।
+         I<BGD5051320991<11<<<<...      → ডকুমেন্ট নম্বর
+         8512257M3303296BGD<<<<2        → YYMMDD জন্ম · লিঙ্গ · মেয়াদ    */
+    var mrz = KHOCR.parseMRZ(text);
+    if (mrz) {
+      if (mrz.nid) out.nid = mrz.nid;              /* MRZ-কে অগ্রাধিকার */
+      if (mrz.dob) out.dob = mrz.dob;
+      if (mrz.name_en && !out.name_en) out.name_en = mrz.name_en;
+      out._mrz = true;
     }
 
     return out;
+  };
+
+  /* পাতাটি কার্ডের পিছনের দিক? (MRZ / ঠিকানা / রক্তের গ্রুপ থাকলে) */
+  KHOCR.looksLikeBackPage = function (rawText) {
+    var t = String(rawText || '');
+    var hasMrz  = /[A-Z0-9<]{15,}<{3,}/.test(t.toUpperCase());
+    var hasAddr = /ঠিকানা|গ্রাম\s*\/?\s*রাস্তা|ডাকঘর|Address/i.test(t);
+    var hasBack = /Blood\s*Group|Place\s*of\s*Birth|Issue\s*Date/i.test(t);
+    var hasFront = /(পিতা|মাতা|Father|Mother)/.test(t);
+    return (hasMrz || (hasAddr && hasBack)) && !hasFront;
+  };
+
+  /* MRZ পার্সার — TD1 ধাঁচের তিন লাইন */
+  KHOCR.parseMRZ = function (rawText) {
+    var t = String(rawText || '').toUpperCase().replace(/[«»]/g, '<').replace(/[ \t]/g, '');
+    var lines = t.split(/\r?\n/).filter(function (l) { return /^[A-Z0-9<]{18,}$/.test(l); });
+    if (!lines.length) return null;
+
+    var out = {};
+    /* লাইন ১: I<BGD + ডকুমেন্ট নম্বর */
+    var l1 = lines.find(function (l) { return /^[IAC][A-Z0-9<]/.test(l) && l.indexOf('BGD') !== -1; });
+    if (l1) {
+      var after = l1.slice(l1.indexOf('BGD') + 3);
+      var digits = (after.match(/^([0-9OIlSB]{9,17})/) || [])[1];
+      if (digits) {
+        var d = digits.replace(/[OoQ]/g, '0').replace(/[IlL]/g, '1').replace(/[Ss]/g, '5').replace(/[Bb]/g, '8').replace(/\D/g, '');
+        if (d.length >= 10) out.nid = d.slice(0, d.length >= 17 ? 17 : (d.length >= 13 ? 13 : 10));
+      }
+    }
+    /* লাইন ২: YYMMDD + চেক + লিঙ্গ */
+    var l2 = lines.find(function (l) { return /^\d{6}\d?[MF<]/.test(l.replace(/[OoQ]/g, '0')); });
+    if (l2) {
+      var s = l2.replace(/[OoQ]/g, '0');
+      var yy = +s.slice(0, 2), mm = +s.slice(2, 4), dd = +s.slice(4, 6);
+      if (mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31) {
+        /* NID-এ জন্মসাল সাধারণত ১৯০০-২০২৯ */
+        var year = yy > 29 ? 1900 + yy : 2000 + yy;
+        var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        out.dob = dd + ' ' + MON[mm - 1] + ' ' + year;
+      }
+      var g = s.match(/^\d{6,7}([MF])/);
+      if (g) out.sex = g[1];
+    }
+    /* লাইন ৩: SURNAME<<GIVEN */
+    var l3 = lines.find(function (l) { return /^[A-Z<]{8,}$/.test(l) && l.indexOf('<<') !== -1; });
+    if (l3) {
+      var pieces = l3.split('<<').map(function (p) { return p.replace(/</g, ' ').trim(); }).filter(Boolean);
+      if (pieces.length) {
+        /* বাংলাদেশি কার্ডে: TOUHIDUJJAMAN<<MD → "MD TOUHIDUJJAMAN" */
+        var nm = (pieces[1] ? pieces[1] + ' ' : '') + pieces[0];
+        nm = nm.replace(/\s+/g, ' ').trim();
+        if (nm.length >= 4) out.name_en = nm;
+      }
+    }
+    return (out.nid || out.dob || out.name_en) ? out : null;
   };
 
   /* একই ফিল্ডের নানা পাসের ফল থেকে সেরাটি বাছাই (ভোটিং) */
@@ -467,8 +590,13 @@
      মূল ফাংশন — বহু পাস, তারপর ভোটিং
      ══════════════════════════════════════════════════════ */
 
+  /* পিছনের পাতা থেকে যেসব ফিল্ড নেওয়া হয় — নাম/পিতা/মাতা এখানে নেই,
+     কারণ ঐ তথ্য পিছনের পাতায় থাকেই না (আগে আবর্জনা ঢুকে ভালো তথ্য মুছে দিত) */
+  var BACK_FIELDS = ['address', 'blood', 'birthplace', 'nid', 'dob'];
+
   KHOCR.readNID = async function (file, opts) {
     opts = opts || {};
+    var isBack = !!opts.back;               /* পিছনের পাতা? */
     var report = function (pct, msg) {
       if (typeof opts.onProgress === 'function') opts.onProgress(Math.max(0, Math.min(100, pct)), msg);
     };
@@ -481,7 +609,14 @@
     var T = await loadTesseract();
 
     /* বাংলার জন্য আলাদা পাস (ben একা) — মিশ্রণে বাংলা খারাপ আসে */
-    var passes = [
+    /* পিছনের পাতা: ঠিকানা (বাংলা) ও MRZ/রক্তের গ্রুপ (ইংরেজি) —
+       সামনের পাতার মতো নাম/পিতা/মাতা খোঁজা হয় না।                   */
+    var passes = isBack ? [
+      { key: 'back-ben',  canvas: prep.fullV.gray, lang: 'ben', psm: '6', label: 'ঠিকানা (বাংলা)' },
+      { key: 'back-ben2', canvas: prep.fullV.bin,  lang: 'ben', psm: '4', label: 'ঠিকানা (বাইনারি)' },
+      { key: 'back-eng',  canvas: prep.fullV.bin,  lang: 'eng', psm: '6', label: 'MRZ ও রক্তের গ্রুপ' },
+      { key: 'back-eng2', canvas: prep.fullV.hard, lang: 'eng', psm: '4', label: 'MRZ (কড়া)' }
+    ] : [
       { key: 'ben-roiR', canvas: prep.roiR.gray, lang: 'ben', psm: '6', label: 'বাংলা (তথ্য এলাকা)' },
       { key: 'ben-roiR2', canvas: prep.roiR.bin, lang: 'ben', psm: '4', label: 'বাংলা (বাইনারি)' },
       { key: 'ben-roiL', canvas: prep.roiL.gray, lang: 'ben', psm: '6', label: 'বাংলা (বিকল্প এলাকা)' },
@@ -536,20 +671,29 @@
 
     /* ভোটিং — প্রতিটি ফিল্ডে সবচেয়ে বিশ্বাসযোগ্য মান */
     var merged = {};
-    ['nid', 'dob', 'name_en', 'name_bn', 'father', 'mother', 'blood', 'address'].forEach(function (k) {
+    var WANT = isBack ? BACK_FIELDS
+                      : ['nid', 'dob', 'name_en', 'name_bn', 'father', 'mother', 'blood', 'birthplace'];
+    WANT.forEach(function (k) {
       var vals = all.map(function (f) { return f[k]; });
       var v = vote(vals);
       if (v) merged[k] = v;
     });
 
-    /* NID সবচেয়ে লম্বা/বৈধটাই রাখা */
-    var nids = all.map(function (f) { return f.nid; }).filter(Boolean);
-    if (nids.length) {
-      nids.sort(function (a, b) { return b.length - a.length; });
-      merged.nid = nids[0];
+    /* NID: MRZ থেকে পেলে সেটিই সেরা; নাহলে সবচেয়ে লম্বা বৈধটি */
+    var mrzNid = null, mrzDob = null;
+    all.forEach(function (f) { if (f._mrz) { if (f.nid) mrzNid = f.nid; if (f.dob) mrzDob = f.dob; } });
+    if (mrzNid) merged.nid = mrzNid;
+    else {
+      var nids = all.map(function (f) { return f.nid; }).filter(Boolean);
+      if (nids.length) {
+        nids.sort(function (a, b) { return b.length - a.length; });
+        merged.nid = nids[0];
+      }
     }
+    if (mrzDob) merged.dob = mrzDob;
 
-    var got = ['nid', 'dob', 'name_bn', 'father', 'mother'].filter(function (k) { return !!merged[k]; }).length;
+    var got = (isBack ? ['address', 'nid', 'dob'] : ['nid', 'dob', 'name_bn', 'father', 'mother'])
+      .filter(function (k) { return !!merged[k]; }).length;
     var confidence = Math.round(Math.min(99, (done ? totalConf / done : 0) * 0.5 + got * 10));
 
     report(100, 'সম্পন্ন');
