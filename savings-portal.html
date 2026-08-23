@@ -202,6 +202,10 @@
     .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
     .filter-pill { padding: 5px 14px; border-radius: 20px; font-size: 13.5px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); color: var(--muted); background: #fff; transition: all .2s; font-family: inherit; }
     .filter-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+    .filter-pill.stmt-pill { background: linear-gradient(112deg,#0d6e56,#1d9e75); color:#fff; border-color:#0d6e56;
+      display:inline-flex; align-items:center; gap:5px; }
+    .filter-pill.stmt-pill:hover { filter: brightness(1.1); }
+    .filter-pill.stmt-pill.active { background: linear-gradient(112deg,#0d6e56,#1d9e75); color:#fff; }
 
     .trx-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
     .trx-table th { background: #f4f7f5; color: var(--muted); font-weight: 600; padding: 10px 12px; text-align: left; font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; }
@@ -734,6 +738,7 @@
             <button class="filter-pill" onclick="filterTrx2('deposit',this)">জমা</button>
             <button class="filter-pill" onclick="filterTrx2('withdrawal',this)">উত্তোলন</button>
             <button class="filter-pill" onclick="filterTrx2('pending',this)">অপেক্ষামান</button>
+            <button class="filter-pill stmt-pill" onclick="printStatement()"><i class="ti ti-file-text"></i> স্টেটমেন্ট</button>
           </div>
         </div>
         <div id="trxContainer2">
@@ -1200,6 +1205,8 @@ async function loadHeroStats() {
     await loadPortal(session.user);
     // logged-in member opening the register tab → prefill from their profile
     prefillRegister();
+    /* ড্যাশবোর্ড থেকে সরাসরি জমা/স্টেটমেন্টে আসার লিংক: savings-portal.html#deposit */
+    openPanelFromHash();
   }
 })();
 
@@ -1279,6 +1286,17 @@ function prefillRegister(tries) {
   });
 }
 
+/* URL-এর হ্যাশ (#deposit · #withdraw · #history · #account) থেকে প্যানেল খোলা */
+function openPanelFromHash() {
+  var h = (location.hash || '').replace('#', '');
+  if (!h) return;
+  var ok = ['dashboard', 'deposit', 'withdraw', 'history', 'account'];
+  if (ok.indexOf(h) === -1) return;
+  if (!currentDepositor) return;      /* হিসাব না থাকলে নয় */
+  showPanel(h);
+}
+window.addEventListener('hashchange', openPanelFromHash);
+
 // ─── Sidebar panel navigation ─────────────────────────────────────
 function showPanel(name) {
   // Hide all panels
@@ -1330,6 +1348,124 @@ function renderTrx2(list) {
         <td><span class="status-badge ${t.status}">${{pending:'অপেক্ষামান',approved:'অনুমোদিত',rejected:'বাতিল'}[t.status]||t.status}</span></td>
       </tr>`).join('')}
     </tbody></table>`;
+}
+
+/* ── আমানত হিসাবের স্টেটমেন্ট (প্রিন্ট / PDF) ──
+   চলমান স্থিতিসহ পূর্ণ বিবরণ; নতুন উইন্ডোতে HTML হিসেবে খোলে তাই লেখা ঝকঝকে থাকে
+   এবং ব্রাউজারের "Save as PDF" দিয়ে সংরক্ষণ করা যায়। */
+function printStatement() {
+  if (!currentDepositor) { alert('হিসাব লোড হয়নি — পৃষ্ঠাটি একবার রিফ্রেশ করুন।'); return; }
+  var list = (allTrx || []).slice().sort(function (a, b) {
+    return new Date(a.created_at) - new Date(b.created_at);
+  });
+
+  var esc = function (v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var bnD = function (d) {
+    return new Date(d).toLocaleDateString('bn-BD', { day: '2-digit', month: 'short', year: 'numeric' });
+  };
+
+  var bal = 0, dep = 0, wd = 0, pend = 0, rows = '';
+  list.forEach(function (t, i) {
+    var amt = parseFloat(t.amount) || 0;
+    var isDep = t.type === 'deposit';
+    var ok = t.status === 'approved';
+    if (ok) {
+      if (isDep) { bal += amt; dep += amt; } else { bal -= amt; wd += amt; }
+    } else if (t.status === 'pending' && isDep) pend += amt;
+
+    var stat = { pending: 'অপেক্ষমাণ', approved: 'অনুমোদিত', rejected: 'বাতিল' }[t.status] || t.status;
+    rows += '<tr>' +
+      '<td class="c">' + (i + 1) + '</td>' +
+      '<td>' + bnD(t.created_at) + '</td>' +
+      '<td>' + (isDep ? 'জমা' : 'উত্তোলন') + '</td>' +
+      '<td class="m">' + esc(t.reference || '—') + '</td>' +
+      '<td class="r">' + (isDep && ok ? '৳' + fmt(amt) : '') + '</td>' +
+      '<td class="r">' + (!isDep && ok ? '৳' + fmt(amt) : '') + '</td>' +
+      '<td class="r b">' + (ok ? '৳' + fmt(bal) : '—') + '</td>' +
+      '<td class="c s' + esc(t.status) + '">' + stat + '</td>' +
+      '</tr>';
+  });
+  if (!rows) rows = '<tr><td colspan="8" class="c" style="padding:22px;color:#6B7280">এই হিসাবে এখনো কোনো লেনদেন নেই।</td></tr>';
+
+  var d = currentDepositor;
+  var scheme = SCHEME_LABELS[d.scheme_type] || '—';
+  var no = 'KH-STMT-' + String(d.id).replace(/-/g, '').slice(0, 6).toUpperCase();
+  var now = new Date().toLocaleString('bn-BD', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  var html =
+  '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8">' +
+  '<title>আমানত স্টেটমেন্ট · ' + esc(no) + '</title>' +
+  '<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+  '<style>' +
+  '*{box-sizing:border-box;margin:0;padding:0}' +
+  'body{font-family:"Hind Siliguri",Arial,sans-serif;background:#fff;color:#1a1a1a;padding:26px}' +
+  '.wrap{max-width:820px;margin:0 auto}' +
+  '.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:3px solid #0d6e56;padding-bottom:12px;margin-bottom:6px}' +
+  '.hd h1{font-size:19px;color:#241539}.hd p{font-size:12px;color:#6B7280;margin-top:2px}' +
+  '.hd .rt{text-align:right}.hd .rt b{font-size:13px;color:#0d6e56}' +
+  '.ttl{font-size:15px;font-weight:700;color:#0d6e56;margin:14px 0 10px}' +
+  '.info{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12.5px}' +
+  '.info td{padding:6px 8px;border:1px solid #e5e7eb}' +
+  '.info td.k{background:#f7f7fb;color:#6B7280;width:19%}' +
+  '.sum{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}' +
+  '.sum div{flex:1;min-width:140px;border:1px solid #e5e7eb;border-radius:8px;padding:9px 12px}' +
+  '.sum span{display:block;font-size:11px;color:#6B7280}' +
+  '.sum b{font-size:16px;color:#241539}' +
+  '.sum .g b{color:#0d6e56}.sum .o b{color:#b45309}' +
+  'table.tx{width:100%;border-collapse:collapse;font-size:12px}' +
+  'table.tx th{background:#241539;color:#fff;padding:8px 6px;text-align:left;font-size:11.5px}' +
+  'table.tx td{padding:7px 6px;border-bottom:1px solid #eee}' +
+  'table.tx .c{text-align:center}table.tx .r{text-align:right}table.tx .b{font-weight:700}' +
+  'table.tx .m{color:#6B7280;font-size:11px}' +
+  'table.tx .spending{color:#b45309}table.tx .srejected{color:#b3123c}table.tx .sapproved{color:#0d6e56}' +
+  'tfoot td{background:#f7f7fb;font-weight:700;padding:9px 6px;border-top:2px solid #241539}' +
+  '.ft{margin-top:18px;padding-top:10px;border-top:1px dashed #cbd5e1;font-size:11px;color:#6B7280;line-height:1.8}' +
+  '@media print{body{padding:0}.noprint{display:none}}' +
+  '</style></head><body><div class="wrap">' +
+
+  '<div class="hd"><div><h1>কর্জে হাসানা ফাউন্ডেশন</h1>' +
+  '<p>সুদমুক্ত ঋণ ও আমানত · korje-hasana-website.vercel.app</p></div>' +
+  '<div class="rt"><b>আমানত স্টেটমেন্ট</b><p>' + esc(no) + '<br>প্রস্তুত: ' + esc(now) + '</p></div></div>' +
+
+  '<div class="ttl">হিসাবের পরিচিতি</div>' +
+  '<table class="info">' +
+  '<tr><td class="k">নাম</td><td>' + esc(d.full_name || '—') + '</td>' +
+  '<td class="k">মোবাইল</td><td>' + esc(d.phone || '—') + '</td></tr>' +
+  '<tr><td class="k">আমানত স্কীম</td><td>' + esc(scheme) + '</td>' +
+  '<td class="k">মাসিক জমা</td><td>' + (d.monthly_amount ? '৳' + fmt(d.monthly_amount) : '—') + '</td></tr>' +
+  '<tr><td class="k">হিসাব খোলার তারিখ</td><td>' + (d.created_at ? bnD(d.created_at) : '—') + '</td>' +
+  '<td class="k">ই-মেইল</td><td>' + esc((currentUser && currentUser.email) || '—') + '</td></tr>' +
+  '</table>' +
+
+  '<div class="sum">' +
+  '<div class="g"><span>মোট জমা (অনুমোদিত)</span><b>৳' + fmt(dep) + '</b></div>' +
+  '<div><span>মোট উত্তোলন</span><b>৳' + fmt(wd) + '</b></div>' +
+  '<div class="g"><span>বর্তমান স্থিতি</span><b>৳' + fmt(bal) + '</b></div>' +
+  (pend > 0 ? '<div class="o"><span>অনুমোদনের অপেক্ষায়</span><b>৳' + fmt(pend) + '</b></div>' : '') +
+  '</div>' +
+
+  '<div class="ttl">লেনদেনের বিবরণ</div>' +
+  '<table class="tx"><thead><tr>' +
+  '<th class="c">ক্রম</th><th>তারিখ</th><th>ধরন</th><th>রেফারেন্স</th>' +
+  '<th class="r">জমা</th><th class="r">উত্তোলন</th><th class="r">স্থিতি</th><th class="c">অবস্থা</th>' +
+  '</tr></thead><tbody>' + rows + '</tbody>' +
+  '<tfoot><tr><td colspan="4">সর্বমোট</td><td class="r">৳' + fmt(dep) + '</td>' +
+  '<td class="r">৳' + fmt(wd) + '</td><td class="r">৳' + fmt(bal) + '</td><td></td></tr></tfoot></table>' +
+
+  '<div class="ft">এটি সিস্টেম-জেনারেটেড স্টেটমেন্ট — স্বাক্ষর ছাড়াই বৈধ। শুধুমাত্র <b>অনুমোদিত</b> লেনদেন স্থিতিতে ধরা হয়েছে; ' +
+  'অপেক্ষমাণ জমা অনুমোদনের পর স্থিতিতে যোগ হবে।<br>কোনো অসঙ্গতি চোখে পড়লে ৭ দিনের মধ্যে ফাউন্ডেশনকে জানান।</div>' +
+
+  '<div class="noprint" style="text-align:center;margin-top:18px">' +
+  '<button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">প্রিন্ট / PDF সংরক্ষণ</button></div>' +
+
+  '</div></body></html>';
+
+  var w = window.open('', '_blank');
+  if (!w) { alert('পপ-আপ বন্ধ আছে — স্টেটমেন্ট খোলার অনুমতি দিন।'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
 }
 
 // ─── Panel deposit submit ─────────────────────────────────────────

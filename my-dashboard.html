@@ -453,7 +453,9 @@
     if(ov.has_depositor){
       el('savSub').innerHTML = 'বর্তমান স্থিতি' +
         (Number(ov.deposit_pending)>0 ? ' · অনুমোদনের অপেক্ষায় '+taka(ov.deposit_pending) : '');
-      el('savFoot').appendChild(cbtn('savings-portal.html','পোর্টালে যান','ti-arrow-right'));
+      /* পূর্বের খোলা হিসাবেই সরাসরি জমা ও স্টেটমেন্ট */
+      el('savFoot').appendChild(cbtn('savings-portal.html#deposit','টাকা জমা করুন','ti-plus'));
+      el('savFoot').appendChild(cbtn('savings-portal.html#history','স্টেটমেন্ট','ti-file-text'));
     } else {
       el('savSub').innerHTML = 'এখনও কোনো সঞ্চয় হিসাব খোলা হয়নি। <span class="badge0">ব্যালেন্স ৳০</span>';
       el('savFoot').appendChild(cbtn('savings-portal.html','হিসাব খুলুন','ti-circle-plus'));

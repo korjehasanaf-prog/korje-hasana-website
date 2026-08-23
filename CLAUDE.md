@@ -53,7 +53,14 @@
 - **ভাউচার:** `KHUI.voucher({title,no,amount,name,code,mobile,photo,rows,status,note})` — kh-ui.js-এ। সঞ্চয় জমা/উত্তোলনে স্বয়ংক্রিয়ভাবে দেখায়; দানের ভাউচার donation.html-এ আলাদা (সেখানে ছবি `paintVoucherMember()` বসায়)। সব ইনপুট `vEsc()` দিয়ে এসকেপ হয় — XSS পরীক্ষিত।
 - ভাউচারের ভেতরটা সবসময় সাদা কাগজের মতো (দুই থীমে এক), কারণ এটি প্রিন্ট হয়। প্রিন্ট নতুন উইন্ডোতে HTML হিসেবে — টেক্সট ঝকঝকে থাকে।
 - **ভাউচার ই-মেইল:** Edge Function `send-voucher` (verify_jwt চালু)। `KHUI.sendVoucherMail(kind, id, {node})` — kind: `donation` · `savings` · `loan_disburse` · `loan_repayment`। ই-মেইল ঠিকানা **কখনো request body থেকে নেওয়া হয় না** (spam রোধ); সদস্য শুধু নিজের লেনদেন পাঠাতে পারেন, অ্যাডমিন সংশ্লিষ্ট ব্যক্তির ঠিকানায়। ভাউচারে `email:{kind,id}` দিলে ই-মেইল স্বয়ংক্রিয়ভাবে যায় ও নিচে নোটিশ দেখায়।
-- **ছবি কীভাবে যায় (সংশোধন: ২৩ আগস্ট ২০২৬)।** ক্লায়েন্ট html2canvas দিয়ে PNG বানায় → Edge Function সেটি **`vouchers` পাবলিক বাকেটে** রাখে → ই-মেইলে `<img src="…public URL…">` + "ছবি ডাউনলোড" বাটন।
+- **⚠️ denomailer ব্যবহার নিষিদ্ধ (সিদ্ধান্ত: ২৩ আগস্ট ২০২৬)।** denomailer বাংলা (non-ASCII) হেডার ও multipart গঠন ভেঙে ফেলত — Gmail-এ সাবজেক্টে কাঁচা `=?utf-8?Q?…` আর বডিতে `From:`/`To:`/`Content-Type: multipart/mixed; boundary=attachment100` লাইনগুলো টেক্সট হিসেবে দেখা যেত (এটাই "আবোল-তাবোল টেক্সট"-এর আসল কারণ; অ্যাটাচমেন্ট বাদ দিয়েও সারেনি)।
+  এখন `mailer.ts` — নিজের হাতে লেখা SMTP + MIME, `send-voucher` ও `send-reminders` দুটোতেই কপি আছে:
+  • হেডার RFC 2047 Base64 encoded-word, ৪২ বাইটের চাঙ্কে ভাঙা (৭৫ অক্ষরের সীমা) — UTF-8 অক্ষর কখনো মাঝখানে ভাঙে না
+  • text ও html দুটোই Base64, ৭৬ অক্ষরে মোড়া — quoted-printable-এর কোনো ফাঁদ নেই
+  • ছবি থাকলে গঠন `multipart/related` → [ `multipart/alternative` (text+html), `image/png` + `Content-ID: <voucher>` ]; HTML-এ `<img src="cid:voucher">`
+  • `Deno.connectTls` → EHLO · AUTH PLAIN · MAIL FROM · RCPT TO · DATA · QUIT; `Smtp` ক্লাসে একই সংযোগে অনেক মেইল (রিমাইন্ডার)
+  যাচাই: pg_net দিয়ে ফাংশন কল করে Gmail-এর `235 Accepted` ও `250 OK` লগ মিলিয়ে দেখা হয়েছে। নতুন মেইল কোড লিখলে **অবশ্যই** এভাবে সত্যিকারের মেইল পাঠিয়ে যাচাই করতে হবে — অনুমানে নয়।
+- **ছবি কীভাবে যায় (সংশোধন: ২৩ আগস্ট ২০২৬)।** ক্লায়েন্ট html2canvas দিয়ে PNG বানায় → Edge Function সেটি (ক) ই-মেইলের ভেতরেই inline `cid:voucher` হিসেবে বসায়, (খ) `vouchers` পাবলিক বাকেটে রেখে "ছবি ডাউনলোড" বাটনের লিংক দেয়।
   ⚠️ **SMTP attachment/`cid:` আর ব্যবহার করা যাবে না।** denomailer-এর multipart অ্যাটাচমেন্ট গঠনে ই-মেইল ভেঙে যেত এবং base64 আবোল-তাবোল টেক্সট হিসেবে দেখাত। এখন MIME শুধু text+html — সব অ্যাপে ঠিক দেখায়।
 - **ছবি তোলার শর্ত: ভাউচার অবশ্যই পর্দায় থাকতে হবে।** `KHUI.voucherToPng()` নোডের মাপ ৪০px-এর কম হলে (লুকানো/`display:none`) `null` দেয়, আর html2canvas আটকে গেলে ১২ সেকেন্ডে টাইমআউট হয় — তাই ই-মেইল কখনো ঝুলে থাকে না।
   তাই দানে (`donation.html`) সফল লেনদেনের পর আগে `openVoucher()` চলে (ভাউচার পূরণ ও দেখানো), তার ~০.৯ সেকেন্ড পর `autoMailDonation()` — আগে উল্টো ছিল, ফলে ভাউচার ফাঁকা/লুকানো থাকায় দানের ই-মেইল যেতই না। অ্যাডমিনের ঋণ-বিতরণ বাটনও (`mailLoanVoucher`) এখন `KHUI.voucher()` দিয়ে ভাউচার দেখিয়ে তারপর মেইল করে।
@@ -61,6 +68,12 @@
 - **OCR বন্ধ (সিদ্ধান্ত: ২৩ আগস্ট ২০২৬)।** NID-এর ছবি শুধু সংরক্ষণ হয় (`nid-docs` বাকেট); নাম, জন্ম তারিখ, পিতা/মাতার নাম, NID নম্বর — সব সদস্য/অ্যাডমিন নিজে হাতে লেখেন।
   কারণ: Tesseract.js-এর বাংলা মডেল আসল NID কার্ডের বাংলা লেখা পড়তে পারে না (বারবার চেষ্টা করেও আউটপুট অর্থহীন ছিল)। সমস্যা এক্সট্র্যাকশন কোডে নয়, OCR ইঞ্জিনে।
   `kh-ocr.js` ফাইলটি রিপোতে আর কপি হয় না এবং `my-profile.html` থেকে সব OCR কোড/UI/CSS সরানো হয়েছে। ভবিষ্যতে দরকার হলে সার্ভার-সাইড OCR (Google Vision / Azure Read) লাগবে — ব্রাউজার OCR দিয়ে আর চেষ্টা করা যাবে না।
+
+## 💰 আমানত পোর্টাল (savings-portal.html)
+
+- লগইন থাকলে পেজ লোডেই `loadPortal(session.user)` চলে (`depositors.id = auth uid`), তাই দ্বিতীয়বার লগইন লাগে না।
+- `openPanelFromHash()` — `savings-portal.html#deposit` / `#history` / `#withdraw` / `#account` দিয়ে সরাসরি সেই প্যানেল খোলে; `my-dashboard.html`-এর আমানত কার্ডে "টাকা জমা করুন" ও "স্টেটমেন্ট" বাটন এই লিংক ব্যবহার করে।
+- **স্টেটমেন্ট:** ইতিহাস প্যানেলের `printStatement()` — চলমান স্থিতিসহ পূর্ণ বিবরণ, নতুন উইন্ডোতে HTML (ব্রাউজারের "Save as PDF")। শুধু `approved` লেনদেন স্থিতিতে ধরা হয়; `pending` জমা আলাদা দেখানো হয়।
 
 ## 📱 মোবাইল রেসপনসিভ (kh-ui.css সেকশন ১১.৯৫)
 
