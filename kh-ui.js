@@ -1318,7 +1318,7 @@
 
     var shot = loadHtml2Canvas().then(function (h2c) {
       return h2c(node, {
-        scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false,
+        scale: 1.7, useCORS: true, backgroundColor: '#ffffff', logging: false,
         imageTimeout: 6000,
         onclone: function (doc) {
           /* বাটন ও বার্তা ছবিতে থাকবে না */
@@ -1356,13 +1356,25 @@
 
       return pngPromise.then(function (png) {
       var url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-voucher';
+      /* উত্তর না এলে যেন "পাঠানো হচ্ছে…" চিরকাল ঘুরতে না থাকে */
+      var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      var killer = ac ? setTimeout(function () { ac.abort(); }, 75000) : null;
       return fetch(url, {
         method: 'POST',
+        signal: ac ? ac.signal : undefined,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + sess.access_token
         },
         body: JSON.stringify({ kind: kind, id: id, image_base64: png })
+      }).catch(function (e) {
+        if (killer) clearTimeout(killer);
+        throw new Error((e && e.name === 'AbortError')
+          ? 'সময় শেষ — ই-মেইল সার্ভার সাড়া দেয়নি'
+          : 'সংযোগ সমস্যা — ই-মেইল পাঠানো যায়নি');
+      }).then(function (res) {
+        if (killer) clearTimeout(killer);
+        return res;
       }).then(function (res) {
         return res.json().catch(function () { return {}; }).then(function (j) {
           if (!res.ok) {
