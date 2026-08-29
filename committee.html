@@ -217,139 +217,6 @@
     </div>
   </div>
 
-  <!-- ══ সম্মতিপত্র ফর্ম ══ -->
-  <div class="panel hidden" id="formPanel">
-    <h2><i class="ti ti-writing-sign"></i> প্রার্থীর সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span></h2>
-    <div class="msg" id="fmMsg"></div>
-
-    <!-- লগইন / অ্যাকাউন্ট তৈরি -->
-    <div id="authStep">
-      <div class="msg info" style="display:block">
-        <b>প্রথম ধাপ — পরিচয় নিশ্চিতকরণ।</b><br>
-        আপনার ই-মেইল ঠিকানা দিন। একটি ৬ সংখ্যার কোড পাঠানো হবে। কোড দিলে অ্যাকাউন্ট
-        না থাকলে নিজে থেকেই তৈরি হয়ে যাবে।
-      </div>
-      <div class="fg">
-        <label for="auEmail">ই-মেইল ঠিকানা <span class="req">*</span></label>
-        <div class="otpbox">
-          <input id="auEmail" type="email" inputmode="email" placeholder="your@email.com" autocomplete="email">
-          <button class="upbtn" type="button" id="auSend"><i class="ti ti-send"></i> কোড পাঠান</button>
-        </div>
-      </div>
-      <div class="fg hidden" id="auCodeBox">
-        <label for="auCode">ই-মেইলে পাঠানো ৬ সংখ্যার কোড <span class="req">*</span></label>
-        <div class="otpbox">
-          <input id="auCode" inputmode="numeric" maxlength="6" placeholder="৬ সংখ্যার কোড">
-          <button class="upbtn gn" type="button" id="auVerify"><i class="ti ti-check"></i> যাচাই করুন</button>
-        </div>
-        <div class="upnote">কোড না পেলে স্প্যাম/জাঙ্ক ফোল্ডার দেখুন, অথবা এক মিনিট পর আবার চেষ্টা করুন।</div>
-      </div>
-    </div>
-
-    <!-- মূল ফর্ম -->
-    <div id="formStep" class="hidden">
-
-      <div class="whobox hidden" id="whoBox">
-        <i class="ti ti-user-check"></i>
-        <div style="flex:1;min-width:170px">
-          <div id="whoTxt"></div>
-          <div class="upnote" style="margin-top:2px">প্রোফাইলে থাকা তথ্য নিচে বসানো হয়েছে। কোনো ঘর ভুল থাকলে এখানেই ঠিক করে দিন।</div>
-        </div>
-        <button class="upbtn alt" type="button" id="btnRefill"><i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন</button>
-      </div>
-
-      <div class="grid2">
-        <div class="fg">
-          <label for="fCom">কমিটি <span class="req">*</span></label>
-          <select id="fCom"></select>
-        </div>
-        <div class="fg">
-          <label for="fPos">পদবি <span class="req">*</span></label>
-          <select id="fPos"></select>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="fg"><label for="fNameBn">নাম (বাংলায়) <span class="req">*</span></label><input id="fNameBn"></div>
-        <div class="fg"><label for="fNameEn">নাম (ইংরেজিতে)</label><input id="fNameEn"></div>
-      </div>
-      <div class="grid2">
-        <div class="fg"><label for="fFather">পিতা / স্বামীর নাম <span class="req">*</span></label><input id="fFather"></div>
-        <div class="fg"><label for="fNid">জাতীয় পরিচয়পত্র নম্বর <span class="req">*</span></label><input id="fNid" inputmode="numeric"></div>
-      </div>
-      <div class="grid2">
-        <div class="fg"><label for="fDob">জন্ম তারিখ</label><input id="fDob" type="date"></div>
-        <div class="fg"><label for="fOcc">পেশা</label><input id="fOcc" placeholder="যেমন: শিক্ষক, ব্যবসায়ী"></div>
-      </div>
-      <div class="grid2">
-        <div class="fg"><label for="fMob">মোবাইল নম্বর <span class="req">*</span></label><input id="fMob" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
-        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা</label><input id="fEml" type="email" readonly></div>
-      </div>
-      <div class="fg"><label for="fAddr">বর্তমান ঠিকানা <span class="req">*</span></label><textarea id="fAddr"></textarea></div>
-      <div class="fg"><label for="fPAddr">স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
-      <div class="grid2">
-        <div class="fg"><label for="fProp">প্রস্তাবকারীর নাম</label><input id="fProp"></div>
-        <div class="fg"><label for="fSec">সমর্থনকারীর নাম</label><input id="fSec"></div>
-      </div>
-
-      <h2 style="margin-top:20px"><i class="ti ti-paperclip"></i> সংযুক্তি</h2>
-
-      <div class="docside">
-        <div class="docside-t"><i class="ti ti-user-circle"></i> প্রার্থীর ছবি <span class="upst" id="stPhoto">এখনও দেওয়া হয়নি</span></div>
-        <div class="uprow">
-          <button class="upbtn" type="button" id="btnPhotoCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
-          <button class="upbtn alt" type="button" onclick="document.getElementById('flPhoto').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
-          <button class="upbtn gn hidden" type="button" id="btnPhotoView"><i class="ti ti-eye"></i> দেখুন</button>
-        </div>
-        <input type="file" id="flPhoto" accept="image/*" hidden>
-        <div class="upnote">যেকোনো সাইজের ছবি দিন — স্বয়ংক্রিয়ভাবে ছোট করে সংরক্ষিত হবে।</div>
-      </div>
-
-      <div class="docside">
-        <div class="docside-t"><i class="ti ti-id"></i> এনআইডি — সামনের পাতা <span class="upst" id="stNidF">এখনও দেওয়া হয়নি</span></div>
-        <div class="uprow">
-          <button class="upbtn" type="button" id="btnNidFCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
-          <button class="upbtn alt" type="button" onclick="document.getElementById('flNidF').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
-          <button class="upbtn gn hidden" type="button" id="btnNidFView"><i class="ti ti-eye"></i> দেখুন</button>
-        </div>
-        <input type="file" id="flNidF" accept="image/*,application/pdf" hidden>
-      </div>
-
-      <div class="docside">
-        <div class="docside-t"><i class="ti ti-id-off"></i> এনআইডি — পিছনের পাতা <span class="upst" id="stNidB">এখনও দেওয়া হয়নি</span></div>
-        <div class="uprow">
-          <button class="upbtn" type="button" id="btnNidBCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
-          <button class="upbtn alt" type="button" onclick="document.getElementById('flNidB').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
-          <button class="upbtn gn hidden" type="button" id="btnNidBView"><i class="ti ti-eye"></i> দেখুন</button>
-        </div>
-        <input type="file" id="flNidB" accept="image/*,application/pdf" hidden>
-        <div class="upnote">এনআইডির ছবি গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারবেন।</div>
-      </div>
-
-      <div class="docside">
-        <div class="docside-t"><i class="ti ti-file-text"></i> পূরণকৃত সম্মতিপত্রের স্ক্যান কপি <span class="upst" id="stScan">এখনও দেওয়া হয়নি</span></div>
-        <div class="uprow">
-          <button class="upbtn" type="button" id="btnScanCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
-          <button class="upbtn alt" type="button" onclick="document.getElementById('flScan').click()"><i class="ti ti-file-upload"></i> ফাইল বাছুন</button>
-          <button class="upbtn gn hidden" type="button" id="btnScanView"><i class="ti ti-eye"></i> দেখুন</button>
-        </div>
-        <input type="file" id="flScan" accept="image/*,application/pdf" hidden>
-        <div class="upnote">
-          কাগজে ছাপানো সম্মতিপত্রে স্বাক্ষর করে থাকলে সেটির ছবি বা PDF এখানে দিন — ঐচ্ছিক, তবে
-          থাকলে যাচাই দ্রুত হয়। ছাপানো ফর্মটি ফাউন্ডেশনের কার্যালয় থেকে সংগ্রহ করা যাবে।
-        </div>
-      </div>
-
-      <label class="chk" style="margin-top:16px">
-        <input type="checkbox" id="fDecl">
-        <span><b>ঘোষণা:</b> আমি কর্জে হাসানা ফাউন্ডেশনের গঠনতন্ত্র (সংস্করণ ৩.০) পড়ে বুঝেছি এবং
-        উপরে উল্লিখিত পদে দায়িত্ব পালনে সম্মতি প্রদান করছি। আমি কোনো ফৌজদারি মামলায় দণ্ডিত নই এবং
-        প্রদত্ত সকল তথ্য সত্য।</span>
-      </label>
-
-      <button class="saveb" type="button" id="btnSubmit"><i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন</button>
-    </div>
-  </div>
-
 </div>
 
 <link rel="stylesheet" href="kh-ui.css?v=9">
@@ -362,20 +229,12 @@
   function el(id){ return document.getElementById(id); }
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  var BN=['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  var BN=['\u09e6','\u09e7','\u09e8','\u09e9','\u09ea','\u09eb','\u09ec','\u09ed','\u09ee','\u09ef'];
   function bn(v){ return String(v==null?'':v).replace(/[0-9]/g,function(d){return BN[+d];}); }
 
-  function msg(box, kind, text){
-    var m = el(box); if(!m) return;
-    m.className = 'msg ' + kind; m.innerHTML = text;
-    if(kind) window.scrollTo({top: m.offsetTop - 90, behavior:'smooth'});
-  }
-  function clearMsg(box){ var m=el(box); if(m) m.className='msg'; }
+  var STRUCT = [], ME = null, MYAPPS = [];
 
-  var STRUCT = [], ME = null, MYAPPS = [], PICK = { committee:null, position:null };
-  var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'' };
-
-  /* ───────── কাঠামো লোড ও আঁকা ───────── */
+  /* ───────── কাঠামো ───────── */
   async function loadStructure(){
     var db = sb();
     if(!db){ el('cgrid').innerHTML = '<p class="cdesc">সংযোগ তৈরি হয়নি — পৃষ্ঠাটি রিফ্রেশ করুন।</p>'; return; }
@@ -388,7 +247,6 @@
       return;
     }
     paintStructure();
-    fillCommitteeSelect();
   }
 
   function paintStructure(){
@@ -401,6 +259,7 @@
       var rows = (c.positions||[]).map(function(p){
         var full = (p.filled||0) >= (p.seats||1);
         var held = (p.holders||[]).filter(Boolean);
+        var href = 'committee-form.html?c=' + encodeURIComponent(c.id) + '&p=' + encodeURIComponent(p.id);
         return '<div class="prow"><div class="pinfo">' +
           '<div class="pname">' + esc(p.title_bn) + (p.seats>1 ? ' <span class="pen">(' + bn(p.seats) + ' জন)</span>' : '') + '</div>' +
           (p.title_en ? '<div class="pen">' + esc(p.title_en) + '</div>' : '') +
@@ -409,8 +268,9 @@
           '</div>' +
           (full
             ? '<span class="pfull"><i class="ti ti-check"></i> পূর্ণ</span>'
-            : '<button class="pbtn" data-c="' + esc(c.id) + '" data-p="' + esc(p.id) + '"' +
-              (closed ? ' disabled' : '') + '><i class="ti ti-writing-sign"></i> আবেদন</button>') +
+            : (closed
+                ? '<button class="pbtn" disabled><i class="ti ti-lock"></i> বন্ধ</button>'
+                : '<a class="pbtn" href="' + href + '"><i class="ti ti-writing-sign"></i> আবেদন</a>')) +
           '</div>';
       }).join('');
       return '<div class="ccard">' +
@@ -423,333 +283,14 @@
           ' · <b>অপেক্ষমাণ:</b> ' + bn(c.pending_count) + '</div>' +
         rows + '</div></div>';
     }).join('');
-
-    Array.prototype.forEach.call(g.querySelectorAll('.pbtn'), function(b){
-      b.onclick = function(){ startApply(b.dataset.c, b.dataset.p); };
-    });
   }
-
-  /* ───────── আবেদন শুরু ───────── */
-  async function startApply(cid, pid){
-    PICK.committee = cid; PICK.position = pid;
-    var c = STRUCT.filter(function(x){ return x.id === cid; })[0] || {};
-    var p = ((c.positions)||[]).filter(function(x){ return x.id === pid; })[0] || {};
-    el('fmFor').textContent = '— ' + (c.name_bn||'') + ' · ' + (p.title_bn||'');
-    el('formPanel').classList.remove('hidden');
-    el('formPanel').scrollIntoView({ behavior:'smooth', block:'start' });
-
-    /* পেজ লোডের সেশন পড়া শেষ না হলেও যেন লগইন করা ব্যবহারকারীকে
-       অযথা আবার কোড চাইতে না হয় — ক্লিকের সময়ই যাচাই করা হয় */
-    var wasLoggedIn = !!ME;
-    if(!ME) await refreshSession();
-    if(ME){ if(!wasLoggedIn) await afterLogin(); showForm(); }
-    else { el('authStep').classList.remove('hidden'); el('formStep').classList.add('hidden'); }
-  }
-
-  async function refreshSession(){
-    var db = sb();
-    if(!db || !db.auth) return null;
-    try{
-      var s = await db.auth.getSession();
-      ME = (s && s.data && s.data.session && s.data.session.user) || null;
-      if(ME){ try { await db.rpc('link_my_committee_applications'); } catch(e){} }
-    }catch(e){ ME = null; }
-    return ME;
-  }
-
-  function fillCommitteeSelect(){
-    var s = el('fCom');
-    s.innerHTML = STRUCT.map(function(c){
-      return '<option value="' + esc(c.id) + '">' + esc(c.name_bn) + '</option>';
-    }).join('');
-    s.onchange = function(){
-      fillPositionSelect();
-      PICK.committee = s.value; PICK.position = null;
-      if(ME) prefill(false);
-    };
-    fillPositionSelect();
-  }
-  function fillPositionSelect(){
-    var cid = el('fCom').value;
-    var c = STRUCT.filter(function(x){ return x.id === cid; })[0];
-    var ps = (c && c.positions) || [];
-    el('fPos').innerHTML = ps.map(function(p){
-      var full = (p.filled||0) >= (p.seats||1);
-      return '<option value="' + esc(p.id) + '"' + (full ? ' disabled' : '') + '>' +
-             esc(p.title_bn) + (full ? ' — পূর্ণ' : '') + '</option>';
-    }).join('');
-  }
-
-  /* ───────── ই-মেইল OTP — অ্যাকাউন্ট না থাকলে নিজেই তৈরি ───────── */
-  el('auSend').onclick = async function(){
-    var email = (el('auEmail').value||'').trim().toLowerCase();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg('fmMsg','err','সঠিক ই-মেইল ঠিকানা দিন।'); return; }
-    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
-    try{
-      var r = await sb().auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } });
-      if(r.error) throw r.error;
-      el('auCodeBox').classList.remove('hidden');
-      el('auCode').focus();
-      msg('fmMsg','ok','কোড পাঠানো হয়েছে <b>' + esc(email) + '</b> ঠিকানায়। ই-মেইল দেখে ৬ সংখ্যার কোডটি দিন।');
-    }catch(e){
-      msg('fmMsg','err','কোড পাঠানো যায়নি: ' + esc(e.message||'আবার চেষ্টা করুন'));
-    }
-    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> কোড পাঠান';
-  };
-
-  el('auVerify').onclick = async function(){
-    var email = (el('auEmail').value||'').trim().toLowerCase();
-    var code  = (el('auCode').value||'').replace(/\D/g,'');
-    if(code.length !== 6){ msg('fmMsg','err','৬ সংখ্যার কোডটি দিন।'); return; }
-    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> যাচাই হচ্ছে…';
-    try{
-      var r = await sb().auth.verifyOtp({ email: email, token: code, type: 'email' });
-      if(r.error) throw r.error;
-      ME = r.data && r.data.user;
-      try { await sb().rpc('link_my_committee_applications'); } catch(e2) {}
-      clearMsg('fmMsg');
-      await afterLogin();
-      showForm();
-    }catch(e){
-      msg('fmMsg','err','কোড মেলেনি: ' + esc(e.message||'আবার চেষ্টা করুন'));
-    }
-    b.disabled = false; b.innerHTML = '<i class="ti ti-check"></i> যাচাই করুন';
-  };
-
-  /* ───────── ফর্ম দেখানো ও পূরণ ───────── */
-  function showForm(){
-    el('authStep').classList.add('hidden');
-    el('formStep').classList.remove('hidden');
-    if(PICK.committee) el('fCom').value = PICK.committee;
-    fillPositionSelect();
-    if(PICK.position) el('fPos').value = PICK.position;
-    var who = el('whoBox');
-    if(who && ME){
-      who.classList.remove('hidden');
-      el('whoTxt').innerHTML = '<b>' + esc(ME.email || '') + '</b> হিসেবে লগইন করা আছে।';
-    }
-    prefill(false);
-  }
-
-  async function prefill(force){
-    if(!ME) return;
-    clearMsg('fmMsg');                 /* আগের কমিটির বার্তা যেন থেকে না যায় */
-    el('fEml').value = ME.email || '';
-    var filled = [];
-    var prof = null;
-    try{
-      var r = await sb().rpc('get_my_profile');
-      prof = r && r.data ? (Array.isArray(r.data) ? r.data[0] : r.data) : null;
-    }catch(e){}
-    /* আগের আবেদন থাকলে সেটিই ভরাট হবে */
-    var cid = el('fCom').value;
-    var app = MYAPPS.filter(function(a){ return a.committee_id === cid; })[0];
-
-    /* একই ব্যক্তি একাধিক কমিটিতে আবেদন করতে পারেন — তাই আগের কমিটির
-       আবেদন-নির্দিষ্ট অবস্থা (লক করা বাটন, সম্মতি, স্বাক্ষরিত কপি) মুছে
-       নতুন কমিটির জন্য পরিষ্কার অবস্থায় শুরু করতে হয় */
-    el('btnSubmit').disabled = false;
-    el('btnSubmit').innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
-    if(!app){
-      el('fDecl').checked = false;
-      el('fProp').value = ''; el('fSec').value = '';
-      DOCS.scan = '';
-      el('stScan').textContent = 'এখনও দেওয়া হয়নি';
-      el('btnScanView').classList.add('hidden');
-    }
-    function put(id, v, label){
-      if(!v) return;
-      if(!force && el(id).value) return;
-      el(id).value = v;
-      if(label) filled.push(label);
-    }
-    if(prof){
-      put('fNameBn', prof.full_name_bn || prof.full_name, 'নাম');
-      put('fNameEn', prof.full_name, null);
-      put('fFather', prof.father_name, 'পিতার নাম');
-      put('fNid',    prof.nid, 'এনআইডি নম্বর');
-      put('fOcc',    prof.occupation, 'পেশা');
-      put('fMob',    prof.mobile, 'মোবাইল');
-      put('fAddr',   prof.address, 'বর্তমান ঠিকানা');
-      put('fPAddr',  prof.permanent_address, 'স্থায়ী ঠিকানা');
-      if(prof.dob && (force || !el('fDob').value)){
-        el('fDob').value = String(prof.dob).slice(0,10); filled.push('জন্ম তারিখ');
-      }
-      if(prof.photo_url){ DOCS.photo = prof.photo_url; mark('stPhoto','btnPhotoView', prof.photo_url); }
-      if(prof.nid_url){ DOCS.nid_front = prof.nid_url; mark('stNidF','btnNidFView', prof.nid_url); }
-      if(prof.nid_back_url){ DOCS.nid_back = prof.nid_back_url; mark('stNidB','btnNidBView', prof.nid_back_url); }
-    }
-    if(app){
-      ['fNameBn:name_bn','fNameEn:name_en','fFather:father_name','fNid:nid_no','fOcc:occupation',
-       'fMob:mobile','fAddr:present_address','fPAddr:permanent_address','fProp:proposed_by',
-       'fSec:seconded_by'].forEach(function(pair){
-        var a = pair.split(':');
-        if(app[a[1]]) el(a[0]).value = app[a[1]];
-      });
-      if(app.dob) el('fDob').value = String(app.dob).slice(0,10);
-      if(app.position_id) el('fPos').value = app.position_id;
-      el('fDecl').checked = !!app.declaration_accepted;
-      if(app.photo_url){ DOCS.photo = app.photo_url; mark('stPhoto','btnPhotoView', app.photo_url); }
-      if(app.nid_front_url){ DOCS.nid_front = app.nid_front_url; mark('stNidF','btnNidFView', app.nid_front_url); }
-      if(app.nid_back_url){ DOCS.nid_back = app.nid_back_url; mark('stNidB','btnNidBView', app.nid_back_url); }
-      if(app.consent_scan_url){ DOCS.scan = app.consent_scan_url; mark('stScan','btnScanView', app.consent_scan_url); }
-      if(app.status === 'approved'){
-        el('btnSubmit').disabled = true;
-        el('btnSubmit').innerHTML = '<i class="ti ti-lock"></i> এই কমিটিতে অনুমোদিত — পরিবর্তন নয়';
-        msg('fmMsg','ok','<b>' + esc(app.committee_name || 'এই কমিটি') + '</b>-তে আপনার আবেদন অনুমোদিত হয়েছে।');
-      } else {
-        msg('fmMsg','info','<b>' + esc(app.committee_name || 'এই কমিটি') +
-            '</b>-তে আপনার দাখিলকৃত সম্মতিপত্রটি খোলা হয়েছে — প্রয়োজনে সংশোধন করে আবার দাখিল করুন।');
-      }
-      return;
-    }
-
-    var comName = (STRUCT.filter(function(c){ return c.id === cid; })[0] || {}).name_bn || 'এই কমিটি';
-    if(!prof){
-      msg('fmMsg','info','আপনার প্রোফাইলে এখনো তথ্য নেই — ঘরগুলো নিজে পূরণ করুন। এখানে যা দেবেন তা প্রোফাইলেও সংরক্ষিত হয়ে যাবে।');
-    } else if(filled.length){
-      msg('fmMsg','ok','প্রোফাইল থেকে <b>' + esc(filled.join(', ')) + '</b> বসানো হয়েছে — মিলিয়ে নিন।');
-    } else {
-      msg('fmMsg','info','<b>' + esc(comName) + '</b>-এর সম্মতিপত্র — তথ্য মিলিয়ে নিয়ে দাখিল করুন।');
-    }
-  }
-
-  function mark(stId, btnId, path){
-    el(stId).innerHTML = '<b>সংরক্ষিত</b>';
-    var b = el(btnId); if(!b) return;
-    b.classList.remove('hidden');
-    b.onclick = function(){ openDoc(path); };
-  }
-
-  async function openDoc(path){
-    if(!path) return;
-    if(/^https?:/i.test(path)){ window.open(path, '_blank'); return; }
-    var bucket = path.indexOf('committee/') === 0 || path.indexOf('consent') > -1 ? 'committee-docs' : 'nid-docs';
-    if(DOCS.scan === path) bucket = 'committee-docs';
-    try{
-      var r = await sb().storage.from(bucket).createSignedUrl(path, 300);
-      if(r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
-      else throw (r.error || new Error('লিংক তৈরি হয়নি'));
-    }catch(e){ alert('ফাইলটি খোলা যায়নি: ' + (e.message||'')); }
-  }
-
-  /* ───────── আপলোড ───────── */
-  async function shrink(file, maxDim, maxBytes){
-    if(!/^image\//i.test(file.type)) return file;
-    if(window.KHUI && KHUI.compressImage){
-      try { return await KHUI.compressImage(file, { maxDim: maxDim, maxBytes: maxBytes }); } catch(e){}
-    }
-    return file;
-  }
-
-  async function upload(bucket, folder, name, file){
-    if(!ME) throw new Error('আগে পরিচয় নিশ্চিত করুন');
-    var ext = (file.name||'').match(/\.([a-z0-9]+)$/i);
-    ext = ext ? ext[1].toLowerCase() : (file.type === 'application/pdf' ? 'pdf' : 'jpg');
-    var path = ME.id + '/' + folder + name + '-' + Date.now() + '.' + ext;
-    var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
-    if(r.error) throw r.error;
-    if(bucket === 'avatars'){
-      var pub = sb().storage.from('avatars').getPublicUrl(path);
-      return (pub && pub.data && pub.data.publicUrl) || path;
-    }
-    return path;
-  }
-
-  function wireUpload(inputId, stId, viewId, bucket, folder, key, camBtnId, facing){
-    async function handle(file){
-      if(!file) return;
-      if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
-      el(stId).innerHTML = 'আপলোড হচ্ছে…';
-      try{
-        var f = await shrink(file, key === 'photo' ? 900 : 1800, 2 * 1024 * 1024);
-        var path = await upload(bucket, folder, key, f);
-        DOCS[key] = path;
-        mark(stId, viewId, path);
-        /* ছবি ও NID প্রোফাইলেও বসিয়ে রাখা */
-        try{
-          await sb().rpc('set_my_doc_urls', {
-            p_photo:     key === 'photo' ? path : null,
-            p_nid_front: key === 'nid_front' ? path : null,
-            p_nid_back:  key === 'nid_back' ? path : null
-          });
-        }catch(e2){}
-      }catch(e){
-        el(stId).textContent = 'আপলোড ব্যর্থ';
-        msg('fmMsg','err','আপলোড ব্যর্থ: ' + esc(e.message||''));
-      }
-    }
-    el(inputId).onchange = function(){ handle(this.files && this.files[0]); this.value=''; };
-    var cb = el(camBtnId);
-    if(cb) cb.onclick = function(){
-      if(window.KHUI && KHUI.camera){
-        KHUI.camera({
-          facing: facing || 'environment',
-          title: key === 'photo' ? 'নিজের ছবি তুলুন' : 'কাগজটি ফ্রেমে রাখুন',
-          onShot: function(blob){ handle(new File([blob], key + '.jpg', { type:'image/jpeg' })); }
-        });
-      } else { el(inputId).click(); }
-    };
-  }
-
-  wireUpload('flPhoto','stPhoto','btnPhotoView','avatars','', 'photo','btnPhotoCam','user');
-  wireUpload('flNidF','stNidF','btnNidFView','nid-docs','', 'nid_front','btnNidFCam','environment');
-  wireUpload('flNidB','stNidB','btnNidBView','nid-docs','', 'nid_back','btnNidBCam','environment');
-  wireUpload('flScan','stScan','btnScanView','committee-docs','consent/','scan','btnScanCam','environment');
-
-  /* ───────── দাখিল ───────── */
-  el('btnSubmit').onclick = async function(){
-    if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
-    var need = [['fNameBn','নাম (বাংলায়)'],['fFather','পিতা / স্বামীর নাম'],
-                ['fNid','জাতীয় পরিচয়পত্র নম্বর'],['fMob','মোবাইল নম্বর'],['fAddr','বর্তমান ঠিকানা']];
-    var miss = need.filter(function(n){ return !(el(n[0]).value||'').trim(); });
-    if(miss.length){ msg('fmMsg','err','পূরণ করুন: ' + miss.map(function(n){return n[1];}).join(', ')); return; }
-    if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
-    if(!el('fPos').value){ msg('fmMsg','err','পদবি বেছে নিন।'); return; }
-
-    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> দাখিল হচ্ছে…';
-    try{
-      var payload = {
-        committee_id: el('fCom').value,
-        position_id:  el('fPos').value,
-        name_bn: el('fNameBn').value.trim(),
-        name_en: el('fNameEn').value.trim(),
-        father_name: el('fFather').value.trim(),
-        nid_no: el('fNid').value.trim(),
-        dob: el('fDob').value || null,
-        occupation: el('fOcc').value.trim(),
-        mobile: el('fMob').value.trim(),
-        email: ME.email || el('fEml').value.trim(),
-        present_address: el('fAddr').value.trim(),
-        permanent_address: el('fPAddr').value.trim(),
-        proposed_by: el('fProp').value.trim(),
-        seconded_by: el('fSec').value.trim(),
-        declaration_accepted: true,
-        photo_url: DOCS.photo, nid_front_url: DOCS.nid_front,
-        nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan
-      };
-      var r = await sb().rpc('submit_committee_application', { p: payload });
-      if(r.error) throw r.error;
-      msg('fmMsg','ok','<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন — অবস্থা এই পৃষ্ঠায় দেখা যাবে।');
-      await loadMyApps();
-      await loadStructure();
-    }catch(e){
-      var t = (e && e.message) || '';
-      msg('fmMsg','err',
-        /applications closed/.test(t) ? 'এই কমিটির আবেদন গ্রহণ বন্ধ হয়ে গেছে।'
-      : /already approved/.test(t)    ? 'আপনার আবেদন ইতিমধ্যে অনুমোদিত — আর পরিবর্তন করা যাবে না।'
-      : /duplicate|unique/i.test(t)   ? 'এই কমিটিতে আপনার একটি আবেদন আগে থেকেই আছে।'
-      : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
-    }
-    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
-  };
 
   /* ───────── নিজের আবেদন ───────── */
   var ST = {
     pending:  ['si-pending','ti-hourglass','যাচাইয়ের অপেক্ষায়','অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ততক্ষণ তথ্য সংশোধন করা যাবে।'],
     approved: ['si-approved','ti-circle-check','অনুমোদিত','আপনি এই পদে দায়িত্বপ্রাপ্ত হয়েছেন।'],
     rejected: ['si-rejected','ti-circle-x','গৃহীত হয়নি',''],
-    returned: ['si-returned','ti-rotate','সংশোধনের জন্য ফেরত','নিচের ফর্মে তথ্য ঠিক করে আবার দাখিল করুন।']
+    returned: ['si-returned','ti-rotate','সংশোধনের জন্য ফেরত','সম্মতিপত্রে তথ্য ঠিক করে আবার দাখিল করুন।']
   };
   async function loadMyApps(){
     if(!ME){ el('myAppsPanel').classList.add('hidden'); return; }
@@ -761,33 +302,31 @@
     el('myAppsPanel').classList.remove('hidden');
     el('myApps').innerHTML = MYAPPS.map(function(a){
       var s = ST[a.status] || ST.pending;
+      var href = 'committee-form.html?c=' + encodeURIComponent(a.committee_id) +
+                 (a.position_id ? '&p=' + encodeURIComponent(a.position_id) : '');
       return '<div class="stat-card">' +
         '<div class="stat-ico ' + s[0] + '"><i class="ti ' + s[1] + '"></i></div>' +
-        '<div><div class="stat-b">' + esc(a.committee_name||'') + ' · ' + esc(a.position_title||'—') + '</div>' +
+        '<div style="flex:1;min-width:0"><div class="stat-b">' + esc(a.committee_name||'') + ' · ' +
+        esc(a.position_title||'—') + '</div>' +
         '<div class="stat-s"><b>' + s[2] + '</b> — ' + esc(s[3]) +
-        (a.admin_note ? '<br><b>অ্যাডমিনের মন্তব্য:</b> ' + esc(a.admin_note) : '') + '</div></div></div>';
+        (a.admin_note ? '<br><b>অ্যাডমিনের মন্তব্য:</b> ' + esc(a.admin_note) : '') + '</div></div>' +
+        (a.status === 'approved' ? '' :
+          '<a class="pbtn" href="' + href + '" style="align-self:center"><i class="ti ti-edit"></i> খুলুন</a>') +
+        '</div>';
     }).join('');
-  }
-
-  var _refill = document.getElementById('btnRefill');
-  if(_refill) _refill.onclick = async function(){
-    var b = this; b.disabled = true;
-    b.innerHTML = '<i class="ti ti-loader-2"></i> আনা হচ্ছে…';
-    await prefill(true);
-    b.disabled = false;
-    b.innerHTML = '<i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন';
-  };
-
-  async function afterLogin(){
-    await loadMyApps();
   }
 
   /* ───────── শুরু ───────── */
   (async function init(){
-    /* সেশন আগে পড়া হয় — তাহলে "আবেদন" চাপার সাথে সাথেই ফর্ম খুলবে,
-       লগইন করা ব্যবহারকারীকে আর কোড চাওয়া হবে না */
-    await refreshSession();
-    if(ME) await afterLogin();
+    var db = sb();
+    if(db && db.auth){
+      try{
+        var s = await db.auth.getSession();
+        ME = (s && s.data && s.data.session && s.data.session.user) || null;
+      }catch(e){}
+      if(ME){ try { await db.rpc('link_my_committee_applications'); } catch(e){} }
+    }
+    if(ME) await loadMyApps();
     await loadStructure();
   })();
 })();
