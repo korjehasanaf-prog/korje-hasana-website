@@ -124,6 +124,15 @@
     .nidst{font-size:12.5px;color:#cbbfdd}
     html[data-theme="light"] .nidst{color:var(--muted)}
     .nidst b{color:#7ee2a8}
+    .nidprev{margin-top:10px}
+    .nidprev img{max-width:100%;width:270px;border-radius:12px;display:block;cursor:zoom-in;
+      border:1px solid rgba(255,255,255,.22);background:#fff}
+    html[data-theme="light"] .nidprev img{border-color:#e3d8ee;box-shadow:0 6px 18px rgba(36,21,57,.12)}
+    .nidprev .pdfbox{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
+      color:#fff;background:linear-gradient(112deg,#4c2f78,#241539);border-radius:10px;padding:10px 14px}
+    .nidprev .warn{font-size:11.5px;color:#cbbfdd;margin-top:6px}
+    html[data-theme="light"] .nidprev .warn{color:var(--muted)}
+
     html[data-theme="light"] .nidst b{color:#0d6e56}
 
     .saveb{
@@ -244,6 +253,7 @@
       </div>
       <input type="file" id="nidCam" accept="image/*" capture="environment" hidden>
       <input type="file" id="nidFile" accept="image/*,application/pdf,.pdf" hidden>
+      <div class="nidprev" id="nidPrev"></div>
     </div>
 
     <!-- ▸ পিছনের পাতা -->
@@ -256,6 +266,7 @@
       </div>
       <input type="file" id="nidBackCam" accept="image/*" capture="environment" hidden>
       <input type="file" id="nidBackFile" accept="image/*,application/pdf,.pdf" hidden>
+      <div class="nidprev" id="nidBackPrev"></div>
     </div>
 
     <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন · এনআইডির তথ্য (নাম, জন্ম তারিখ, পিতা/মাতার নাম, নম্বর) উপরের ঘরে নিজে লিখুন</div>
@@ -266,8 +277,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=8">
-<script src="kh-ui.js?v=8"></script>
+<link rel="stylesheet" href="kh-ui.css?v=9">
+<script src="kh-ui.js?v=9"></script>
 <script>
 (function(){
   'use strict';
@@ -363,6 +374,39 @@
     return path;
   }
 
+  /* এনআইডির কপি প্রোফাইলেই দেখানো — signed URL (১ ঘণ্টা), ছবিতে ক্লিক করলে জুম */
+  async function showNidPreview(boxId, path){
+    var box = el(boxId);
+    if(!box) return;
+    if(!path){ box.innerHTML = ''; return; }
+    box.innerHTML = '<div class="warn">ছবি আনা হচ্ছে…</div>';
+    try{
+      var r = await sb().storage.from('nid-docs').createSignedUrl(path, 3600);
+      var url = r && r.data && r.data.signedUrl;
+      if(!url) throw (r && r.error) || new Error('লিংক তৈরি হয়নি');
+      if(/\.pdf($|\?)/i.test(path)){
+        box.innerHTML = '<a class="pdfbox" href="' + url + '" target="_blank" rel="noopener">' +
+                        '<i class="ti ti-file-type-pdf"></i> PDF খুলুন</a>' +
+                        '<div class="warn">গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারেন।</div>';
+      } else {
+        var img = document.createElement('img');
+        img.src = url; img.alt = 'এনআইডির কপি';
+        img.onclick = function(){
+          if(window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(url);
+          else window.open(url, '_blank');
+        };
+        box.innerHTML = '';
+        box.appendChild(img);
+        var w = document.createElement('div');
+        w.className = 'warn';
+        w.textContent = 'গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারেন। বড় করে দেখতে ছবিতে ক্লিক করুন।';
+        box.appendChild(w);
+      }
+    }catch(e){
+      box.innerHTML = '<div class="warn">ছবিটি দেখানো যায়নি — "দেখুন" বাটন দিয়ে খুলুন।</div>';
+    }
+  }
+
   function setAvatar(url){
     if(!url) return;
     var old = el('bigav');
@@ -427,10 +471,12 @@
     if(prof.nid_url){
       el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
       el('nidView').style.display='';
+      showNidPreview('nidPrev', prof.nid_url);
     }
     if(prof.nid_back_url){
       el('nidBackSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
       el('nidBackView').style.display='';
+      showNidPreview('nidBackPrev', prof.nid_back_url);
     }
 
     /* নতুন প্রোফাইল হলে মোবাইল ঘর খোলা রাখতে হবে (তৈরি করতে লাগে) */
@@ -499,6 +545,7 @@
         if(r && r.error) throw r.error;
         el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
         el('nidView').style.display='';
+        showNidPreview('nidPrev', prof.nid_url);
         prof.nid_url = path;
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
@@ -536,6 +583,7 @@
         if(r && r.error) throw r.error;
         el('nidBackSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
         el('nidBackView').style.display='';
+        showNidPreview('nidBackPrev', prof.nid_back_url);
         prof.nid_back_url = path;
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();

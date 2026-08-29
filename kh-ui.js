@@ -1292,6 +1292,49 @@
     return back;
   };
 
+  /* ══════════════════════════════════════════════════════
+     ছবি ছোট করা — যেকোনো আকারের ছবি নির্ধারিত সীমার নিচে নামায়
+     KHUI.compressImage(file, {maxDim, maxBytes}) → Blob (image/jpeg)
+     ══════════════════════════════════════════════════════ */
+  function _loadImg(file) {
+    return new Promise(function (res, rej) {
+      var url = URL.createObjectURL(file);
+      var im = new Image();
+      im.onload = function () { URL.revokeObjectURL(url); res(im); };
+      im.onerror = function () { URL.revokeObjectURL(url); rej(new Error('ছবি পড়া যায়নি')); };
+      im.src = url;
+    });
+  }
+  function _canvasBlob(cv, q) {
+    return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/jpeg', q); });
+  }
+  KHUI.compressImage = function (file, opt) {
+    opt = opt || {};
+    var maxBytes = opt.maxBytes || 2 * 1024 * 1024;
+    var maxDim = opt.maxDim || 1200;
+    if (!/^image\//i.test(file.type)) return Promise.resolve(file);   /* PDF ইত্যাদি অপরিবর্তিত */
+    return _loadImg(file).then(function (im) {
+      var Q = [0.9, 0.82, 0.72, 0.6, 0.5, 0.42];
+      function step(i, dim) {
+        if (i >= Q.length) return Promise.resolve(null);
+        var scale = Math.min(1, dim / Math.max(im.width, im.height));
+        var w = Math.max(1, Math.round(im.width * scale));
+        var h = Math.max(1, Math.round(im.height * scale));
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(im, 0, 0, w, h);
+        return _canvasBlob(cv, Q[i]).then(function (b) {
+          if (b && b.size <= maxBytes) return b;
+          return step(i + 1, Math.round(dim * 0.8));
+        });
+      }
+      return step(0, maxDim);
+    }).then(function (b) {
+      if (!b) throw new Error('ছবি প্রস্তুত করা যায়নি');
+      return b;
+    });
+  };
+
   /* ── html2canvas দরকারে লোড করা ── */
   var _h2cPromise = null;
   function loadHtml2Canvas() {

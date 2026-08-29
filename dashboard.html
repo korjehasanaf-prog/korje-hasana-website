@@ -252,7 +252,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=8">
+  <link rel="stylesheet" href="kh-ui.css?v=9">
 </head>
 <body data-kh-nav="off">
 
@@ -332,6 +332,18 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="sb-item" id="mi-reminders" onclick="switchPanel('reminders')">
         <i class="ti ti-bell-ringing"></i> বকেয়া রিমাইন্ডার
         <span class="sb-badge" id="badge-reminder">0</span>
+      </div>
+
+      <div class="sb-section">কমিটি</div>
+      <div class="sb-item" id="mi-committee-apps" onclick="switchPanel('committee-apps')">
+        <i class="ti ti-writing-sign"></i> সম্মতিপত্র আবেদন
+        <span class="sb-badge" id="badge-committee">0</span>
+      </div>
+      <div class="sb-item" id="mi-committee-mgmt" onclick="switchPanel('committee-mgmt')">
+        <i class="ti ti-sitemap"></i> কমিটি ব্যবস্থাপনা
+      </div>
+      <div class="sb-item" id="mi-users" onclick="switchPanel('users')">
+        <i class="ti ti-address-book"></i> ব্যবহারকারী ও প্রোফাইল
       </div>
 
       <div class="sb-section">রিপোর্ট</div>
@@ -832,6 +844,43 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
+      <!-- ══════ কমিটি: সম্মতিপত্র আবেদন ══════ -->
+      <div class="panel" id="panel-committee-apps">
+        <div class="panel-title">✍️ কমিটির সম্মতিপত্র আবেদন</div>
+        <div class="panel-sub">প্রার্থীদের দাখিলকৃত সম্মতিপত্র যাচাই, অনুমোদন ও সংযুক্তি পরীক্ষা</div>
+        <div class="filter-pills" style="margin-bottom:14px">
+          <button class="filter-pill active" onclick="loadCommitteeApps('pending',this)">অপেক্ষমাণ</button>
+          <button class="filter-pill" onclick="loadCommitteeApps('approved',this)">অনুমোদিত</button>
+          <button class="filter-pill" onclick="loadCommitteeApps('returned',this)">ফেরত</button>
+          <button class="filter-pill" onclick="loadCommitteeApps('rejected',this)">বাতিল</button>
+          <button class="filter-pill" onclick="loadCommitteeApps('',this)">সব</button>
+        </div>
+        <div id="capps">লোড হচ্ছে…</div>
+      </div>
+
+      <!-- ══════ কমিটি ব্যবস্থাপনা ══════ -->
+      <div class="panel" id="panel-committee-mgmt">
+        <div class="panel-title">🗂️ কমিটি ব্যবস্থাপনা</div>
+        <div class="panel-sub">কমিটি ও পদ যোগ, সম্পাদনা, মুছে ফেলা; আবেদন গ্রহণ চালু বা বন্ধ করা</div>
+        <button class="btn btn-primary" onclick="editCommittee(null)" style="margin-bottom:14px">
+          <i class="ti ti-plus"></i> নতুন কমিটি যোগ করুন
+        </button>
+        <div id="cmgmt">লোড হচ্ছে…</div>
+      </div>
+
+      <!-- ══════ ব্যবহারকারী ও প্রোফাইল ══════ -->
+      <div class="panel" id="panel-users">
+        <div class="panel-title">📇 ব্যবহারকারী ও প্রোফাইল</div>
+        <div class="panel-sub">সকল অ্যাকাউন্টধারীর তথ্য, ছবি ও এনআইডির কপি</div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px">
+          <input id="uq" placeholder="নাম, মোবাইল, ই-মেইল, সদস্য কোড বা এনআইডি" style="flex:1;min-width:220px">
+          <button class="btn btn-primary" onclick="loadUsersList(document.getElementById('uq').value)">
+            <i class="ti ti-search"></i> খুঁজুন
+          </button>
+        </div>
+        <div id="ulist">লোড হচ্ছে…</div>
+      </div>
+
     </main><!-- /panelWrap -->
   </div><!-- /mainWrap -->
 </div><!-- /adminLayout -->
@@ -929,7 +978,9 @@ const PANEL_TITLES = {
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় উত্তোলন অনুমোদন',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
-  'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার'
+  'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
+  'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
+  'users':'ব্যবহারকারী ও প্রোফাইল'
 };
 function switchPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -953,6 +1004,9 @@ function switchPanel(name) {
   if (name === 'prod-donations') loadProdDonations();
   if (name === 'settings') loadGeneralSettings();
   if (name === 'reminders') loadReminders();
+  if (name === 'committee-apps') loadCommitteeApps('pending');
+  if (name === 'committee-mgmt') loadCommitteeMgmt();
+  if (name === 'users') loadUsersList('');
 }
 
 // ════════════════════════════════════════
@@ -1252,14 +1306,16 @@ function esc(v) {
 //  PENDING BADGES
 // ════════════════════════════════════════
 async function loadPendingBadges() {
-  const [loanRes, donRes, savRes] = await Promise.all([
+  const [loanRes, donRes, savRes, cRes] = await Promise.all([
     _db.from('loan_applications').select('id',{count:'exact',head:true}).in('status',['pending','review']),
     _db.from('donations').select('id',{count:'exact',head:true}).eq('status','pending'),
     _db.from('savings_transactions').select('id',{count:'exact',head:true}).eq('status','pending').eq('type','withdrawal'),
+    _db.from('committee_applications').select('id',{count:'exact',head:true}).eq('status','pending'),
   ]);
   setBadge('badge-loan', loanRes.count);
   setBadge('badge-donation', donRes.count);
   setBadge('badge-savings', savRes.count);
+  setBadge('badge-committee', cRes.count);
 }
 function setBadge(id, count) {
   const el = document.getElementById(id);
@@ -1796,12 +1852,18 @@ async function approveSavings(id, status) {
   const note = noteEl ? noteEl.value.trim() : '';
   const desig = _adminInfo.designation_bn||_adminInfo.name_bn||_adminInfo.email;
   const now = new Date().toISOString();
-  const {error} = await _db.from('savings_transactions').update({
+  /* .select() ছাড়া RLS-এ আটকে গেলে ০ সারি আপডেট হয় অথচ কোনো ত্রুটি আসে না —
+     তাই ফেরত সারি গুনে নিশ্চিত হওয়া হয় */
+  const {data: upd, error} = await _db.from('savings_transactions').update({
     status, approved_by: _currentUser.id, approved_at: now,
     admin_note: (note?note+' ':'') + `[${statusBn(status)}: ${desig}]`,
     processed_by: desig, processed_at: now
-  }).eq('id',id);
+  }).eq('id',id).select('id,status');
   if (error){alert('ত্রুটি: '+error.message);return;}
+  if (!upd || !upd.length){
+    alert('অনুমোদন সংরক্ষণ হয়নি — আপনার অ্যাকাউন্টে অ্যাডমিন অনুমতি আছে কিনা যাচাই করুন।');
+    return;
+  }
   loadSavingsApprovals();
   loadPendingBadges();
 }
@@ -2036,6 +2098,350 @@ function fmt(n) { return parseFloat(n||0).toLocaleString('bn-BD',{minimumFractio
 function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('bn-BD',{year:'numeric',month:'short',day:'numeric'}); }
 function setText(id, v) { const el=document.getElementById(id); if(el) el.textContent=v; }
 function escQ(s){return(s||'').replace(/'/g,"\\'")}
+// ════════════════════════════════════════
+//  কমিটি — সম্মতিপত্র আবেদন
+// ════════════════════════════════════════
+const CSTAT = {
+  pending:  ['অপেক্ষমাণ','b-pending'], approved:['অনুমোদিত','b-approved'],
+  returned: ['ফেরত','b-review'],       rejected:['বাতিল','b-rejected']
+};
+let _cappFilter = 'pending';
+
+async function openStoredDoc(path, bucket) {
+  if (!path) return;
+  if (/^https?:/i.test(path)) { window.open(path, '_blank'); return; }
+  try {
+    const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
+    if (r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+    else throw (r.error || new Error('লিংক তৈরি হয়নি'));
+  } catch (e) { alert('ফাইলটি খোলা যায়নি: ' + (e.message || '')); }
+}
+
+async function loadCommitteeApps(status, btn) {
+  _cappFilter = status || '';
+  if (btn) {
+    document.querySelectorAll('#panel-committee-apps .filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const c = document.getElementById('capps');
+  c.innerHTML = 'লোড হচ্ছে…';
+  let list = [];
+  try {
+    const r = await _db.rpc('admin_committee_applications', { p_status: _cappFilter || null });
+    if (r.error) throw r.error;
+    list = r.data || [];
+  } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+
+  if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো আবেদন নেই।</div>'; return; }
+
+  c.innerHTML = list.map(a => {
+    const st = CSTAT[a.status] || CSTAT.pending;
+    const doc = (label, path, bucket, icon) => path
+      ? `<button class="btn btn-sm" onclick="openStoredDoc('${esc(path)}','${bucket}')"
+           style="background:rgba(13,110,86,.18);color:#6ee7b7;border:1px solid rgba(13,110,86,.4)">
+           <i class="ti ${icon}"></i> ${label}</button>`
+      : `<span style="font-size:12px;color:var(--muted)">${label}: নেই</span>`;
+    const row = (k, v) => v ? `<div><span style="color:var(--muted)">${k}:</span> <b>${esc(v)}</b></div>` : '';
+    return `<div class="section-card" style="margin-bottom:14px">
+      <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px">
+        <div style="flex:1;min-width:220px">
+          <div style="font-size:16px;font-weight:700">${esc(a.name_bn || a.name_en || '—')}</div>
+          <div style="font-size:13px;color:var(--muted)">${esc(a.committee_name || '')} · ${esc(a.position_title || '—')}</div>
+        </div>
+        <span class="badge ${st[1]}">${st[0]}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px;font-size:13px;margin-bottom:12px">
+        ${row('পিতা / স্বামী', a.father_name)}
+        ${row('এনআইডি', a.nid_no)}
+        ${row('জন্ম তারিখ', a.dob)}
+        ${row('পেশা', a.occupation)}
+        ${row('মোবাইল', a.mobile)}
+        ${row('ই-মেইল', a.email)}
+        ${row('সদস্য কোড', a.user_code)}
+        ${row('প্রস্তাবকারী', a.proposed_by)}
+        ${row('সমর্থনকারী', a.seconded_by)}
+        ${row('বর্তমান ঠিকানা', a.present_address)}
+        ${row('স্থায়ী ঠিকানা', a.permanent_address)}
+        ${row('দাখিল', a.submitted_at ? new Date(a.submitted_at).toLocaleString('bn-BD') : '')}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        ${doc('ছবি', a.photo_url || a.profile_photo, 'avatars', 'ti-user-circle')}
+        ${doc('এনআইডি সামনে', a.nid_front_url, 'nid-docs', 'ti-id')}
+        ${doc('এনআইডি পিছনে', a.nid_back_url, 'nid-docs', 'ti-id-off')}
+        ${doc('স্বাক্ষরিত কপি', a.consent_scan_url, 'committee-docs', 'ti-file-text')}
+      </div>
+      ${a.declaration_accepted ? '<div style="font-size:12.5px;color:#6ee7b7;margin-bottom:10px"><i class="ti ti-check"></i> ঘোষণায় সম্মতি দেওয়া হয়েছে</div>'
+                              : '<div style="font-size:12.5px;color:#fca5a5;margin-bottom:10px"><i class="ti ti-alert-triangle"></i> ঘোষণায় সম্মতি নেই</div>'}
+      ${a.admin_note ? `<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">মন্তব্য: ${esc(a.admin_note)}</div>` : ''}
+      <input id="cnote-${a.id}" placeholder="মন্তব্য (ঐচ্ছিক)" style="width:100%;margin-bottom:9px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-success" onclick="reviewCApp('${a.id}','approved')"><i class="ti ti-check"></i> অনুমোদন</button>
+        <button class="btn" onclick="reviewCApp('${a.id}','returned')" style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"><i class="ti ti-rotate"></i> সংশোধনে ফেরত</button>
+        <button class="btn btn-danger" onclick="reviewCApp('${a.id}','rejected')"><i class="ti ti-x"></i> বাতিল</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function reviewCApp(id, status) {
+  const n = document.getElementById('cnote-' + id);
+  const note = n ? n.value.trim() : '';
+  if (status !== 'approved' && !note) {
+    if (!confirm('মন্তব্য ছাড়াই এগোবেন? প্রার্থী কারণ জানতে পারবেন না।')) return;
+  }
+  try {
+    const r = await _db.rpc('review_committee_application', { p_id: id, p_status: status, p_note: note || null });
+    if (r.error) throw r.error;
+    loadCommitteeApps(_cappFilter);
+    loadPendingBadges();
+  } catch (e) { alert('সংরক্ষণ ব্যর্থ: ' + (e.message || '')); }
+}
+
+// ════════════════════════════════════════
+//  কমিটি ব্যবস্থাপনা (ডায়নামিক)
+// ════════════════════════════════════════
+let _cstruct = [];
+
+async function loadCommitteeMgmt() {
+  const c = document.getElementById('cmgmt');
+  c.innerHTML = 'লোড হচ্ছে…';
+  try {
+    const r = await _db.rpc('get_committee_structure');
+    if (r.error) throw r.error;
+    _cstruct = r.data || [];
+  } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+
+  c.innerHTML = _cstruct.map(k => {
+    const rows = (k.positions || []).map(p => `<tr>
+      <td>${esc(p.title_bn)}${p.title_en ? '<br><span style="font-size:11.5px;color:var(--muted)">' + esc(p.title_en) + '</span>' : ''}</td>
+      <td style="text-align:center">${p.seats}</td>
+      <td style="text-align:center">${p.filled || 0}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(p.duties_bn || '')}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm" onclick='editPosition("${k.id}", ${JSON.stringify(p).replace(/'/g, "&#39;")})'><i class="ti ti-edit"></i></button>
+        <button class="btn btn-sm btn-danger" onclick="deletePosition('${p.id}')"><i class="ti ti-trash"></i></button>
+      </td></tr>`).join('');
+    return `<div class="section-card" style="margin-bottom:16px">
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px">
+        <div style="flex:1;min-width:220px">
+          <div style="font-size:16px;font-weight:700">${esc(k.name_bn)}</div>
+          <div style="font-size:12.5px;color:var(--muted)">${esc(k.name_en || '')} · পদ ${k.seats} · অনুমোদিত ${k.approved_count} · অপেক্ষমাণ ${k.pending_count}</div>
+        </div>
+        <span class="badge ${k.is_approved ? 'b-approved' : (k.applications_open ? 'b-pending' : 'b-rejected')}">
+          ${k.is_approved ? 'চূড়ান্ত অনুমোদিত' : (k.applications_open ? 'আবেদন চালু' : 'আবেদন বন্ধ')}</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="btn btn-sm btn-primary" onclick='editCommittee(${JSON.stringify(k).replace(/'/g, "&#39;")})'><i class="ti ti-edit"></i> সম্পাদনা</button>
+        <button class="btn btn-sm" onclick="setCommitteeState('${k.id}', ${!k.applications_open}, null)" style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)">
+          <i class="ti ti-lock-open"></i> আবেদন ${k.applications_open ? 'বন্ধ করুন' : 'চালু করুন'}</button>
+        <button class="btn btn-sm ${k.is_approved ? 'btn-danger' : 'btn-success'}" onclick="setCommitteeState('${k.id}', null, ${!k.is_approved})">
+          <i class="ti ti-gavel"></i> ${k.is_approved ? 'অনুমোদন প্রত্যাহার' : 'কমিটি চূড়ান্ত অনুমোদন'}</button>
+        <button class="btn btn-sm" onclick="editPosition('${k.id}', null)" style="background:rgba(13,110,86,.2);color:#6ee7b7;border:1px solid rgba(13,110,86,.45)"><i class="ti ti-plus"></i> নতুন পদ</button>
+        <button class="btn btn-sm btn-danger super-only" onclick="deleteCommittee('${k.id}')"><i class="ti ti-trash"></i> কমিটি মুছুন</button>
+      </div>
+      <div id="cform-${k.id}"></div>
+      <div class="kh-scrollx"><table class="trx-table">
+        <thead><tr><th>পদবি</th><th style="text-align:center">পদ</th><th style="text-align:center">পূরণ</th><th>দায়িত্ব</th><th></th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" style="color:var(--muted)">কোনো পদ যোগ করা হয়নি</td></tr>'}</tbody>
+      </table></div>
+    </div>`;
+  }).join('') || '<div class="empty-state">কোনো কমিটি নেই — উপরের বাটন দিয়ে যোগ করুন।</div>';
+
+  if (_adminInfo && _adminInfo.role !== 'super_admin') {
+    document.querySelectorAll('#cmgmt .super-only').forEach(el => el.style.display = 'none');
+  }
+}
+
+function fieldHtml(id, label, val, type) {
+  const v = (val == null ? '' : String(val)).replace(/"/g, '&quot;');
+  return type === 'area'
+    ? `<div class="fg"><label>${label}</label><textarea id="${id}" style="width:100%;min-height:64px">${esc(val || '')}</textarea></div>`
+    : `<div class="fg"><label>${label}</label><input id="${id}" value="${v}" style="width:100%"></div>`;
+}
+
+function editCommittee(k) {
+  k = k || {};
+  const box = k.id ? document.getElementById('cform-' + k.id) : document.getElementById('cmgmt');
+  const html = `<div class="section-card" id="cedit" style="margin-bottom:14px;border:1px solid rgba(112,72,232,.5)">
+    <div style="font-weight:700;margin-bottom:10px">${k.id ? 'কমিটি সম্পাদনা' : 'নতুন কমিটি'}</div>
+    ${fieldHtml('ce_bn', 'কমিটির নাম (বাংলা)', k.name_bn)}
+    ${fieldHtml('ce_en', 'Committee name (English)', k.name_en)}
+    ${fieldHtml('ce_dbn', 'বিবরণ (বাংলা)', k.description_bn, 'area')}
+    ${fieldHtml('ce_ord', 'ক্রম (ছোট সংখ্যা আগে দেখাবে)', k.sort_order == null ? 99 : k.sort_order)}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn btn-primary" onclick="saveCommittee('${k.id || ''}')"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
+      <button class="btn" onclick="loadCommitteeMgmt()">বাতিল</button>
+    </div></div>`;
+  if (k.id) box.innerHTML = html;
+  else box.insertAdjacentHTML('afterbegin', html);
+  document.getElementById('ce_bn').focus();
+}
+
+async function saveCommittee(id) {
+  const p = {
+    id: id || null,
+    name_bn: document.getElementById('ce_bn').value.trim(),
+    name_en: document.getElementById('ce_en').value.trim(),
+    description_bn: document.getElementById('ce_dbn').value.trim(),
+    sort_order: parseInt(document.getElementById('ce_ord').value, 10) || 99
+  };
+  if (!p.name_bn) { alert('কমিটির বাংলা নাম দিন।'); return; }
+  try {
+    const r = await _db.rpc('admin_save_committee', { p });
+    if (r.error) throw r.error;
+    loadCommitteeMgmt();
+  } catch (e) { alert('সংরক্ষণ ব্যর্থ: ' + (e.message || '')); }
+}
+
+async function deleteCommittee(id) {
+  if (!confirm('এই কমিটি ও তার সব পদ মুছে যাবে। নিশ্চিত?')) return;
+  try {
+    const r = await _db.rpc('admin_delete_committee', { p_id: id });
+    if (r.error) throw r.error;
+    loadCommitteeMgmt();
+  } catch (e) {
+    alert(/application/.test(e.message || '') ? 'এই কমিটিতে আবেদন জমা আছে — আগে আবেদনগুলো নিষ্পত্তি করুন।'
+                                              : 'মুছে ফেলা যায়নি: ' + (e.message || ''));
+  }
+}
+
+async function setCommitteeState(id, open, approved) {
+  try {
+    const r = await _db.rpc('admin_set_committee_state', { p_id: id, p_open: open, p_approved: approved });
+    if (r.error) throw r.error;
+    loadCommitteeMgmt();
+  } catch (e) { alert('পরিবর্তন ব্যর্থ: ' + (e.message || '')); }
+}
+
+function editPosition(cid, p) {
+  p = p || {};
+  const box = document.getElementById('cform-' + cid);
+  box.innerHTML = `<div class="section-card" style="margin-bottom:14px;border:1px solid rgba(13,110,86,.5)">
+    <div style="font-weight:700;margin-bottom:10px">${p.id ? 'পদ সম্পাদনা' : 'নতুন পদ'}</div>
+    ${fieldHtml('pe_bn', 'পদবি (বাংলা)', p.title_bn)}
+    ${fieldHtml('pe_en', 'Position (English)', p.title_en)}
+    ${fieldHtml('pe_du', 'মূল দায়িত্ব', p.duties_bn, 'area')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${fieldHtml('pe_seats', 'পদের সংখ্যা', p.seats == null ? 1 : p.seats)}
+      ${fieldHtml('pe_ord', 'ক্রম', p.sort_order == null ? 99 : p.sort_order)}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <button class="btn btn-primary" onclick="savePosition('${cid}','${p.id || ''}')"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
+      <button class="btn" onclick="loadCommitteeMgmt()">বাতিল</button>
+    </div></div>`;
+  document.getElementById('pe_bn').focus();
+}
+
+async function savePosition(cid, id) {
+  const p = {
+    id: id || null, committee_id: cid,
+    title_bn: document.getElementById('pe_bn').value.trim(),
+    title_en: document.getElementById('pe_en').value.trim(),
+    duties_bn: document.getElementById('pe_du').value.trim(),
+    seats: parseInt(document.getElementById('pe_seats').value, 10) || 1,
+    sort_order: parseInt(document.getElementById('pe_ord').value, 10) || 99
+  };
+  if (!p.title_bn) { alert('পদবির বাংলা নাম দিন।'); return; }
+  try {
+    const r = await _db.rpc('admin_save_position', { p });
+    if (r.error) throw r.error;
+    loadCommitteeMgmt();
+  } catch (e) { alert('সংরক্ষণ ব্যর্থ: ' + (e.message || '')); }
+}
+
+async function deletePosition(id) {
+  if (!confirm('এই পদটি মুছে ফেলবেন?')) return;
+  try {
+    const r = await _db.rpc('admin_delete_position', { p_id: id });
+    if (r.error) throw r.error;
+    loadCommitteeMgmt();
+  } catch (e) {
+    alert(/application/.test(e.message || '') ? 'এই পদে আবেদন জমা আছে — আগে সেটি নিষ্পত্তি করুন।'
+                                              : 'মুছে ফেলা যায়নি: ' + (e.message || ''));
+  }
+}
+
+// ════════════════════════════════════════
+//  ব্যবহারকারী ও প্রোফাইল (এনআইডিসহ)
+// ════════════════════════════════════════
+async function loadUsersList(q) {
+  const c = document.getElementById('ulist');
+  c.innerHTML = 'লোড হচ্ছে…';
+  let list = [];
+  try {
+    const r = await _db.rpc('admin_list_users', { p_q: q || null, p_limit: 200 });
+    if (r.error) throw r.error;
+    list = r.data || [];
+  } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+  if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো ব্যবহারকারী পাওয়া যায়নি।</div>'; return; }
+
+  c.innerHTML = `<div class="kh-scrollx"><table class="trx-table">
+    <thead><tr><th>নাম</th><th>সদস্য কোড</th><th>মোবাইল</th><th>ই-মেইল</th><th>এনআইডি</th><th>নথি</th></tr></thead>
+    <tbody>${list.map(u => `<tr>
+      <td>${esc(u.full_name || '—')}</td>
+      <td>${esc(u.user_code || '—')}</td>
+      <td>${esc(u.mobile || '—')}</td>
+      <td style="font-size:12.5px">${esc(u.email || '—')}</td>
+      <td>${esc(u.nid || '—')}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-primary" onclick="openUserProfile('${u.id}')"><i class="ti ti-eye"></i> প্রোফাইল</button>
+      </td></tr>`).join('')}</tbody></table></div>
+    <div id="uprof" style="margin-top:16px"></div>`;
+}
+
+async function openUserProfile(id) {
+  const box = document.getElementById('uprof');
+  box.innerHTML = 'লোড হচ্ছে…';
+  let u = null;
+  try {
+    const r = await _db.rpc('admin_get_profile', { p_id: id });
+    if (r.error) throw r.error;
+    u = r.data || null;
+  } catch (e) { box.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+  if (!u || !u.id) { box.innerHTML = '<div class="empty-state">প্রোফাইল পাওয়া যায়নি।</div>'; return; }
+
+  const row = (k, v) => `<div><span style="color:var(--muted)">${k}:</span> <b>${esc(v || '—')}</b></div>`;
+  const av = u.photo_url
+    ? `<img src="${esc(u.photo_url)}" alt="" style="width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.25)">`
+    : `<div style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#d6336c,#e95420);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff">${esc((u.full_name || 'স').trim()[0])}</div>`;
+  const nidBtn = (label, path, icon) => path
+    ? `<button class="btn btn-sm" onclick="openStoredDoc('${esc(path)}','nid-docs')"
+         style="background:rgba(13,110,86,.18);color:#6ee7b7;border:1px solid rgba(13,110,86,.4)">
+         <i class="ti ${icon}"></i> ${label} দেখুন</button>`
+    : `<span style="font-size:12.5px;color:var(--muted)">${label}: আপলোড হয়নি</span>`;
+
+  box.innerHTML = `<div class="section-card" style="border:1px solid rgba(112,72,232,.5)">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+      ${av}
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:18px;font-weight:700">${esc(u.full_name || '—')}</div>
+        <div style="font-size:13px;color:var(--muted)">${esc(u.user_code || '')} ${u.mobile ? '· ' + esc(u.mobile) : ''}</div>
+      </div>
+      <button class="btn btn-sm" onclick="document.getElementById('uprof').innerHTML=''"><i class="ti ti-x"></i> বন্ধ</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;font-size:13.5px;margin-bottom:14px">
+      ${row('নাম (বাংলা)', u.full_name_bn)}
+      ${row('পিতার নাম', u.father_name)}
+      ${row('মাতার নাম', u.mother_name)}
+      ${row('জন্ম তারিখ', u.dob)}
+      ${row('এনআইডি নম্বর', u.nid)}
+      ${row('পেশা', u.occupation)}
+      ${row('ই-মেইল', u.email)}
+      ${row('জেলা', u.district)}
+      ${row('বর্তমান ঠিকানা', u.address)}
+      ${row('স্থায়ী ঠিকানা', u.permanent_address)}
+    </div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      ${nidBtn('এনআইডি সামনের পাতা', u.nid_url, 'ti-id')}
+      ${nidBtn('এনআইডি পিছনের পাতা', u.nid_back_url, 'ti-id-off')}
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:10px">
+      এনআইডির কপি গোপনীয় — কেবল সংশ্লিষ্ট ব্যক্তি ও অ্যাডমিন দেখতে পারেন (গঠনতন্ত্র ধারা ১৪.২)।
+    </div>
+  </div>`;
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 function showMsg(id, txt, type) {
   const el=document.getElementById(id);
   if(!el)return;
@@ -2053,6 +2459,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=8"></script>
+<script src="kh-ui.js?v=9"></script>
 </body>
 </html>

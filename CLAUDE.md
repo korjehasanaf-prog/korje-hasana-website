@@ -40,6 +40,24 @@
 
 5. **ক্যাশ-বাস্টিং।** `kh-ui.css`/`kh-ui.js`-এ বড় পরিবর্তনের পর সব পেজে `?v=` সংখ্যা বাড়াতে হবে, নাহলে ব্রাউজার পুরনো ফাইল ধরে রাখে।
 
+## 👥 কমিটি ও প্রার্থীর সম্মতিপত্র (committee.html)
+
+- **ডায়নামিক কাঠামো:** `committees` ও `committee_positions` টেবিল। অ্যাডমিন dashboard → "কমিটি ব্যবস্থাপনা" থেকে কমিটি/পদ যোগ, সম্পাদনা, মুছে ফেলা, ক্রম বদল, পদের সংখ্যা নির্ধারণ করতে পারেন। কোড হার্ডকোড করা নেই।
+- **আবেদন:** `committee_applications` — সম্মতিপত্রের ১৩টি ঘর + `consent_scan_url` (স্বাক্ষরিত হার্ডকপি, `committee-docs` প্রাইভেট বাকেট) + `nid_front_url`/`nid_back_url` (`nid-docs`) + `photo_url` (`avatars`)। `unique (user_id, committee_id)` — এক কমিটিতে একজন একবার।
+- **অ্যাকাউন্ট নিজে থেকেই তৈরি:** committee.html-এ `signInWithOtp({shouldCreateUser:true})` → ৬ সংখ্যার কোড → `verifyOtp` → অ্যাকাউন্ট তৈরি ও লগইন। আলাদা সাইন-আপ পেজে পাঠানো হয় না।
+- **অ্যাডমিন পক্ষে পূরণ:** `user_id` nullable — যাঁর অ্যাকাউন্ট নেই তাঁর পক্ষেও ফর্ম ভরা যায়। ঐ ব্যক্তি পরে একই ই-মেইলে লগইন করলে `link_my_committee_applications()` আবেদনটি তাঁর সাথে জুড়ে দেয়।
+- **কমিটি চূড়ান্ত অনুমোদিত হলে (`is_approved`) নতুন আবেদন বন্ধ** — `submit_committee_application()` তখন `applications closed` ছুড়ে দেয় (অ্যাডমিন ছাড়া)।
+- **অটো-ফিল:** লগইন থাকলে `prefill()` `get_my_profile` থেকে নাম, পিতার নাম, NID, জন্ম তারিখ, পেশা, মোবাইল, ঠিকানা ও সংরক্ষিত ছবি/NID বসিয়ে দেয় এবং কী কী বসল তা বার্তায় জানায়। "প্রোফাইল থেকে আবার আনুন" বাটন `prefill(true)` — পূরণ করা ঘরও নতুন করে বসায়। পেজ লোডে সেশন **আগে** পড়া হয় (`refreshSession()`), তাই লগইন করা ব্যবহারকারীকে আর কোড চাওয়া হয় না; ক্লিকের সময়ও একবার যাচাই হয়।
+- **একাধিক কমিটি:** `unique (user_id, committee_id)` — একজন প্রতি কমিটিতে একটি আবেদন, কিন্তু **যত খুশি কমিটিতে**। একই কমিটিতে আবার দাখিল করলে পদ বদলে হালনাগাদ হয়। ⚠️ `prefill()`-এ প্রতিবার `btnSubmit` রিসেট করতে হয় — নাহলে এক কমিটিতে অনুমোদিত হলে বাটন লক থেকে যেত এবং অন্য কমিটিতে আবেদন করা যেত না।
+- **প্রোফাইল সিঙ্ক:** `trg_sync_profile_from_capp` ট্রিগার সম্মতিপত্রের তথ্য দিয়ে `user_profiles`-এর ফাঁকা ঘর ভরে দেয় ও প্রোফাইল না থাকলে তৈরি করে। ছবি/NID আপলোডে `set_my_doc_urls()`।
+- **RPC:** `get_committee_structure` (পাবলিক) · `submit_committee_application` · `get_my_committee_applications` · `review_committee_application` · `admin_committee_applications` · `admin_save_committee` / `admin_delete_committee` / `admin_set_committee_state` / `admin_save_position` / `admin_delete_position` · `admin_list_users` / `admin_get_profile`।
+- **NID দেখা:** `my-profile.html`-এ নিজের NID-এর দুই পাতা signed URL দিয়ে ছবি হিসেবেই দেখা যায় (ক্লিকে জুম)। অ্যাডমিন dashboard → "ব্যবহারকারী ও প্রোফাইল" থেকে যেকোনো সদস্যের প্রোফাইল ও NID দেখতে পারেন। storage policy: মালিক অথবা `is_admin()`।
+
+## ⚠️ `is_admin()` দুই টেবিল দেখে (সংশোধন: ২৫ আগস্ট ২০২৬)
+
+`is_admin()` আগে শুধু `admin_users` (auth_id) দেখত, কিন্তু বাস্তবে অ্যাডমিনরা আছেন `admin_roles`-এ (user_id)। ফলে **১৪টি পলিসিতে** অ্যাডমিনের লেখা নীরবে আটকে যেত — `savings_transactions` অনুমোদন ০ সারি আপডেট করত, কোনো ত্রুটি বার্তা ছাড়াই ("সঞ্চয় জমা এপ্রুভ করতে পারছি না"-র আসল কারণ)। এখন দুটো টেবিলই দেখে, সাথে `is_super_admin()` যোগ হয়েছে।
+**নিয়ম:** RLS-নির্ভর `update`/`delete`-এ সবসময় `.select()` যোগ করে ফেরত সারি গুনতে হবে — নাহলে ব্যর্থতা অদৃশ্য থাকে।
+
 ## 🔔 রিমাইন্ডার সিস্টেম (মাসিক সঞ্চয় ও ঋণের কিস্তি)
 
 - **নিয়ম:** `app_settings` → `savings_rules` (`due_day`, `grace_days`, `min_monthly`, `reminder_enabled`) ও `loan_rules`। সুপার অ্যাডমিন → জেনারেল সেটিংস থেকে বদলায়।

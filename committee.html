@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>কমিটি ও সম্মতিপত্র | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{
+      --pink:#d6336c; --orange:#e95420; --amber:#f08c28; --violet:#7048e8;
+      --green:#0d6e56; --ink:#241539; --muted:#6b6280;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      background:linear-gradient(160deg,#1d1030,#150c24 55%,#2a1040);
+      color:#f3edfb; min-height:100vh; padding-bottom:90px;
+    }
+    html[data-theme="light"] body{
+      background:linear-gradient(150deg,#fdf3f8,#faf5fd 45%,#fff5ee); color:var(--ink);
+    }
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:url('images/auth-bg.jpg') center/cover no-repeat}
+    .bg::after{content:'';position:absolute;inset:0;
+      background:linear-gradient(155deg,rgba(18,7,31,.74) 0%,rgba(26,12,46,.62) 45%,rgba(18,7,31,.78) 100%)}
+    html[data-theme="light"] .bg::after{
+      background:linear-gradient(155deg,rgba(255,252,248,.66) 0%,rgba(255,250,244,.54) 45%,rgba(253,243,247,.7) 100%)}
+    @media(max-width:640px){.bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}}
+
+    .wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:26px 18px 40px}
+
+    /* হেডার */
+    .chead-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+    .chead-top h1{font-size:23px;flex:1;min-width:200px}
+    .backl{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+      font-size:13px;font-weight:700;color:#fff;
+      background:linear-gradient(112deg,var(--pink),#a021c9 55%,#e83e8c);
+      border:1px solid rgba(255,255,255,.35);border-radius:20px;padding:9px 16px;
+      box-shadow:0 5px 16px rgba(160,33,201,.35)}
+    .backl:hover{filter:brightness(1.1)}
+    .lede{font-size:13.5px;color:#cbbfdd;line-height:1.8;margin-bottom:20px;max-width:760px}
+    html[data-theme="light"] .lede{color:var(--muted)}
+
+    .panel{background:rgba(26,14,45,.84);border:1px solid rgba(255,255,255,.16);
+      border-radius:18px;padding:22px 20px;backdrop-filter:blur(16px);margin-bottom:18px}
+    html[data-theme="light"] .panel{background:rgba(255,255,255,.94);border-color:#ece2f4;
+      box-shadow:0 12px 34px rgba(112,72,232,.16)}
+    .panel h2{font-size:15.5px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .panel h2 i{color:#e083b4}
+    html[data-theme="light"] .panel h2 i{color:#b02a80}
+
+    /* কমিটি কার্ড */
+    .cgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    @media(max-width:820px){.cgrid{grid-template-columns:1fr}}
+    .ccard{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.16);
+      background:rgba(26,14,45,.8)}
+    html[data-theme="light"] .ccard{background:#fff;border-color:#ece2f4;
+      box-shadow:0 10px 28px rgba(112,72,232,.13)}
+    .ctop{padding:13px 16px;color:#fff;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+    .ctop b{font-size:14.5px;flex:1}
+    .cc0{background:linear-gradient(112deg,#d6336c,#e95420)}
+    .cc1{background:linear-gradient(112deg,#7048e8,#a021c9)}
+    .cc2{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
+    .cc3{background:linear-gradient(112deg,#b45309,#f08c28)}
+    .cstat{font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 10px;
+      background:rgba(255,255,255,.22);color:#fff;white-space:nowrap}
+    .cbody{padding:14px 16px}
+    .cdesc{font-size:12.5px;color:#cbbfdd;line-height:1.75;margin-bottom:12px}
+    html[data-theme="light"] .cdesc{color:var(--muted)}
+    .prow{display:flex;align-items:flex-start;gap:10px;padding:9px 0;
+      border-top:1px dashed rgba(255,255,255,.14)}
+    html[data-theme="light"] .prow{border-color:#ece2f4}
+    .prow:first-of-type{border-top:none}
+    .pinfo{flex:1;min-width:0}
+    .pname{font-size:13px;font-weight:700}
+    .pen{font-size:11px;color:#b3a6c9}
+    html[data-theme="light"] .pen{color:var(--muted)}
+    .pduty{font-size:11px;color:#a698bd;line-height:1.65;margin-top:3px}
+    html[data-theme="light"] .pduty{color:#7c7290}
+    .pheld{font-size:11.5px;color:#7ee2a8;margin-top:3px;font-weight:600}
+    html[data-theme="light"] .pheld{color:#0d6e56}
+    .pbtn{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;cursor:pointer;
+      font-family:inherit;font-size:11.5px;font-weight:700;color:#fff;border:none;
+      border-radius:9px;padding:8px 12px;white-space:nowrap;
+      background:linear-gradient(112deg,#7048e8,#a021c9);
+      box-shadow:0 4px 12px rgba(112,72,232,.35)}
+    .pbtn:hover{filter:brightness(1.1)}
+    .pbtn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+    .pfull{font-size:11px;font-weight:700;color:#fff;border-radius:20px;padding:5px 11px;
+      background:linear-gradient(112deg,#0d6e56,#1d9e75);white-space:nowrap;flex-shrink:0}
+
+    /* ফর্ম */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+    .fg{margin-bottom:13px}
+    .fg label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;color:#dccfec}
+    html[data-theme="light"] .fg label{color:#4a3568}
+    .fg .req{color:#ff9db6}
+    html[data-theme="light"] .fg .req{color:#c2185b}
+    .fg input,.fg textarea,.fg select{
+      width:100%;padding:12px 14px;border-radius:11px;font-family:inherit;font-size:14px;
+      border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;
+      outline:none;transition:border-color .2s,box-shadow .2s}
+    .fg textarea{min-height:70px;resize:vertical}
+    .fg select option{background:#241539;color:#fff}
+    html[data-theme="light"] .fg select option{background:#fff;color:var(--ink)}
+    .fg input:focus,.fg textarea:focus,.fg select:focus{
+      border-color:#c88ae0;box-shadow:0 0 0 3px rgba(160,33,201,.2)}
+    html[data-theme="light"] .fg input,html[data-theme="light"] .fg textarea,
+    html[data-theme="light"] .fg select{background:#faf7fd;border-color:#e3d8ee;color:var(--ink)}
+    html[data-theme="light"] .fg input:focus,html[data-theme="light"] .fg textarea:focus,
+    html[data-theme="light"] .fg select:focus{background:#fff;border-color:#a021c9;
+      box-shadow:0 0 0 3px rgba(160,33,201,.14)}
+
+    .upbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-family:inherit;
+      font-size:12.5px;font-weight:700;color:#fff;border:none;border-radius:10px;padding:10px 15px;
+      background:linear-gradient(112deg,#7048e8,#a021c9);box-shadow:0 5px 14px rgba(112,72,232,.35)}
+    .upbtn:hover{filter:brightness(1.1)}
+    .upbtn.alt{background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none}
+    .upbtn.gn{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
+    .uprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+    .upst{font-size:12px;color:#cbbfdd}
+    html[data-theme="light"] .upst{color:var(--muted)}
+    .upst b{color:#7ee2a8}
+    html[data-theme="light"] .upst b{color:#0d6e56}
+    .upnote{font-size:11.5px;color:#a698bd;line-height:1.7;margin-top:4px}
+    html[data-theme="light"] .upnote{color:#7c7290}
+    .docside{padding:13px 0;border-top:1px dashed rgba(255,255,255,.16)}
+    .docside:first-of-type{border-top:none;padding-top:0}
+    html[data-theme="light"] .docside{border-color:#e8dcf0}
+    .docside-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+      font-size:13px;font-weight:700;margin-bottom:9px}
+    .docside-t i{color:#e083b4}
+    html[data-theme="light"] .docside-t i{color:#b02a80}
+
+    .whobox{display:flex;gap:11px;align-items:center;flex-wrap:wrap;font-size:12.5px;line-height:1.7;
+      background:rgba(13,110,86,.16);border:1px solid rgba(13,110,86,.42);
+      border-radius:12px;padding:12px 15px;margin-bottom:16px}
+    html[data-theme="light"] .whobox{background:#e9f7f1;border-color:#a8ddc9;color:#0b4a3a}
+    .whobox > i{font-size:20px;color:#7ee2a8}
+    html[data-theme="light"] .whobox > i{color:#0d6e56}
+    .chk{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.8;
+      background:rgba(112,72,232,.14);border:1px solid rgba(112,72,232,.3);
+      border-radius:12px;padding:13px 15px;margin-bottom:14px}
+    html[data-theme="light"] .chk{background:#f6f1fd;border-color:#ddd0f5}
+    .chk input{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#7048e8}
+
+    .saveb{width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;
+      background:linear-gradient(112deg,var(--pink),#a021c9 48%,#e83e8c);
+      color:#fff;font-family:inherit;font-size:15.5px;font-weight:700;
+      box-shadow:0 8px 24px rgba(160,33,201,.4);
+      display:flex;align-items:center;justify-content:center;gap:8px}
+    .saveb:hover{filter:brightness(1.08)}
+    .saveb:disabled{opacity:.6;cursor:not-allowed}
+
+    .msg{display:none;padding:11px 14px;border-radius:11px;font-size:13.5px;
+      margin-bottom:14px;line-height:1.7}
+    .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
+    .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
+    .msg.info{display:block;background:rgba(112,72,232,.18);border:1px solid rgba(112,72,232,.4);color:#ddd0ff}
+    html[data-theme="light"] .msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+    html[data-theme="light"] .msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+    html[data-theme="light"] .msg.info{background:#eee7fd;border-color:#c9b5f5;color:#3b2568}
+
+    /* অবস্থা কার্ড */
+    .stat-card{display:flex;gap:12px;align-items:flex-start;border-radius:14px;padding:14px 16px;
+      margin-bottom:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05)}
+    html[data-theme="light"] .stat-card{background:#faf7fd;border-color:#ece2f4}
+    .stat-ico{width:38px;height:38px;border-radius:11px;flex-shrink:0;color:#fff;font-size:19px;
+      display:flex;align-items:center;justify-content:center}
+    .si-pending{background:linear-gradient(112deg,#b45309,#f08c28)}
+    .si-approved{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
+    .si-rejected{background:linear-gradient(112deg,#b3123c,#d6336c)}
+    .si-returned{background:linear-gradient(112deg,#4c2f78,#7048e8)}
+    .stat-b{font-size:13.5px;font-weight:700}
+    .stat-s{font-size:12px;color:#cbbfdd;line-height:1.7;margin-top:2px}
+    html[data-theme="light"] .stat-s{color:var(--muted)}
+
+    /* OTP */
+    .otpbox{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+    .otpbox input{flex:1;min-width:170px}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body>
+<div class="bg"></div>
+
+<div class="wrap">
+
+  <div class="chead-top">
+    <h1><i class="ti ti-users-group" style="color:#e083b4"></i> কমিটি ও প্রার্থীর সম্মতিপত্র</h1>
+    <a class="backl" href="index.html"><i class="ti ti-home"></i> হোম</a>
+    <a class="backl" href="my-dashboard.html" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);box-shadow:0 5px 16px rgba(13,110,86,.35)"><i class="ti ti-layout-dashboard"></i> ড্যাশবোর্ড</a>
+  </div>
+  <p class="lede">
+    কর্জে হাসানা ফাউন্ডেশনের কমিটিতে দায়িত্ব নিতে আগ্রহী হলে নিচ থেকে পদ বেছে নিয়ে সম্মতিপত্র পূরণ করুন।
+    অ্যাকাউন্ট না থাকলে ই-মেইল দিলেই স্বয়ংক্রিয়ভাবে অ্যাকাউন্ট তৈরি হয়ে যাবে — আলাদা করে নিবন্ধনের দরকার নেই।
+    দাখিলের পর অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন।
+  </p>
+
+  <div class="msg" id="topMsg"></div>
+
+  <!-- ══ নিজের আবেদনের অবস্থা ══ -->
+  <div class="panel hidden" id="myAppsPanel">
+    <h2><i class="ti ti-file-check"></i> আমার আবেদন</h2>
+    <div id="myApps"></div>
+  </div>
+
+  <!-- ══ কমিটির কাঠামো ══ -->
+  <div class="panel">
+    <h2><i class="ti ti-sitemap"></i> কমিটির কাঠামো ও শূন্য পদ</h2>
+    <div class="cgrid" id="cgrid">
+      <p class="cdesc">লোড হচ্ছে…</p>
+    </div>
+  </div>
+
+  <!-- ══ সম্মতিপত্র ফর্ম ══ -->
+  <div class="panel hidden" id="formPanel">
+    <h2><i class="ti ti-writing-sign"></i> প্রার্থীর সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span></h2>
+    <div class="msg" id="fmMsg"></div>
+
+    <!-- লগইন / অ্যাকাউন্ট তৈরি -->
+    <div id="authStep">
+      <div class="msg info" style="display:block">
+        <b>প্রথম ধাপ — পরিচয় নিশ্চিতকরণ।</b><br>
+        আপনার ই-মেইল ঠিকানা দিন। একটি ৬ সংখ্যার কোড পাঠানো হবে। কোড দিলে অ্যাকাউন্ট
+        না থাকলে নিজে থেকেই তৈরি হয়ে যাবে।
+      </div>
+      <div class="fg">
+        <label for="auEmail">ই-মেইল ঠিকানা <span class="req">*</span></label>
+        <div class="otpbox">
+          <input id="auEmail" type="email" inputmode="email" placeholder="your@email.com" autocomplete="email">
+          <button class="upbtn" type="button" id="auSend"><i class="ti ti-send"></i> কোড পাঠান</button>
+        </div>
+      </div>
+      <div class="fg hidden" id="auCodeBox">
+        <label for="auCode">ই-মেইলে পাঠানো ৬ সংখ্যার কোড <span class="req">*</span></label>
+        <div class="otpbox">
+          <input id="auCode" inputmode="numeric" maxlength="6" placeholder="৬ সংখ্যার কোড">
+          <button class="upbtn gn" type="button" id="auVerify"><i class="ti ti-check"></i> যাচাই করুন</button>
+        </div>
+        <div class="upnote">কোড না পেলে স্প্যাম/জাঙ্ক ফোল্ডার দেখুন, অথবা এক মিনিট পর আবার চেষ্টা করুন।</div>
+      </div>
+    </div>
+
+    <!-- মূল ফর্ম -->
+    <div id="formStep" class="hidden">
+
+      <div class="whobox hidden" id="whoBox">
+        <i class="ti ti-user-check"></i>
+        <div style="flex:1;min-width:170px">
+          <div id="whoTxt"></div>
+          <div class="upnote" style="margin-top:2px">প্রোফাইলে থাকা তথ্য নিচে বসানো হয়েছে। কোনো ঘর ভুল থাকলে এখানেই ঠিক করে দিন।</div>
+        </div>
+        <button class="upbtn alt" type="button" id="btnRefill"><i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন</button>
+      </div>
+
+      <div class="grid2">
+        <div class="fg">
+          <label for="fCom">কমিটি <span class="req">*</span></label>
+          <select id="fCom"></select>
+        </div>
+        <div class="fg">
+          <label for="fPos">পদবি <span class="req">*</span></label>
+          <select id="fPos"></select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label for="fNameBn">নাম (বাংলায়) <span class="req">*</span></label><input id="fNameBn"></div>
+        <div class="fg"><label for="fNameEn">নাম (ইংরেজিতে)</label><input id="fNameEn"></div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label for="fFather">পিতা / স্বামীর নাম <span class="req">*</span></label><input id="fFather"></div>
+        <div class="fg"><label for="fNid">জাতীয় পরিচয়পত্র নম্বর <span class="req">*</span></label><input id="fNid" inputmode="numeric"></div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label for="fDob">জন্ম তারিখ</label><input id="fDob" type="date"></div>
+        <div class="fg"><label for="fOcc">পেশা</label><input id="fOcc" placeholder="যেমন: শিক্ষক, ব্যবসায়ী"></div>
+      </div>
+      <div class="grid2">
+        <div class="fg"><label for="fMob">মোবাইল নম্বর <span class="req">*</span></label><input id="fMob" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
+        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা</label><input id="fEml" type="email" readonly></div>
+      </div>
+      <div class="fg"><label for="fAddr">বর্তমান ঠিকানা <span class="req">*</span></label><textarea id="fAddr"></textarea></div>
+      <div class="fg"><label for="fPAddr">স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
+      <div class="grid2">
+        <div class="fg"><label for="fProp">প্রস্তাবকারীর নাম</label><input id="fProp"></div>
+        <div class="fg"><label for="fSec">সমর্থনকারীর নাম</label><input id="fSec"></div>
+      </div>
+
+      <h2 style="margin-top:20px"><i class="ti ti-paperclip"></i> সংযুক্তি</h2>
+
+      <div class="docside">
+        <div class="docside-t"><i class="ti ti-user-circle"></i> প্রার্থীর ছবি <span class="upst" id="stPhoto">এখনও দেওয়া হয়নি</span></div>
+        <div class="uprow">
+          <button class="upbtn" type="button" id="btnPhotoCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+          <button class="upbtn alt" type="button" onclick="document.getElementById('flPhoto').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          <button class="upbtn gn hidden" type="button" id="btnPhotoView"><i class="ti ti-eye"></i> দেখুন</button>
+        </div>
+        <input type="file" id="flPhoto" accept="image/*" hidden>
+        <div class="upnote">যেকোনো সাইজের ছবি দিন — স্বয়ংক্রিয়ভাবে ছোট করে সংরক্ষিত হবে।</div>
+      </div>
+
+      <div class="docside">
+        <div class="docside-t"><i class="ti ti-id"></i> এনআইডি — সামনের পাতা <span class="upst" id="stNidF">এখনও দেওয়া হয়নি</span></div>
+        <div class="uprow">
+          <button class="upbtn" type="button" id="btnNidFCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+          <button class="upbtn alt" type="button" onclick="document.getElementById('flNidF').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          <button class="upbtn gn hidden" type="button" id="btnNidFView"><i class="ti ti-eye"></i> দেখুন</button>
+        </div>
+        <input type="file" id="flNidF" accept="image/*,application/pdf" hidden>
+      </div>
+
+      <div class="docside">
+        <div class="docside-t"><i class="ti ti-id-off"></i> এনআইডি — পিছনের পাতা <span class="upst" id="stNidB">এখনও দেওয়া হয়নি</span></div>
+        <div class="uprow">
+          <button class="upbtn" type="button" id="btnNidBCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+          <button class="upbtn alt" type="button" onclick="document.getElementById('flNidB').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          <button class="upbtn gn hidden" type="button" id="btnNidBView"><i class="ti ti-eye"></i> দেখুন</button>
+        </div>
+        <input type="file" id="flNidB" accept="image/*,application/pdf" hidden>
+        <div class="upnote">এনআইডির ছবি গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারবেন।</div>
+      </div>
+
+      <div class="docside">
+        <div class="docside-t"><i class="ti ti-file-text"></i> পূরণকৃত সম্মতিপত্রের স্ক্যান কপি <span class="upst" id="stScan">এখনও দেওয়া হয়নি</span></div>
+        <div class="uprow">
+          <button class="upbtn" type="button" id="btnScanCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+          <button class="upbtn alt" type="button" onclick="document.getElementById('flScan').click()"><i class="ti ti-file-upload"></i> ফাইল বাছুন</button>
+          <button class="upbtn gn hidden" type="button" id="btnScanView"><i class="ti ti-eye"></i> দেখুন</button>
+        </div>
+        <input type="file" id="flScan" accept="image/*,application/pdf" hidden>
+        <div class="upnote">
+          কাগজে ছাপানো সম্মতিপত্রে স্বাক্ষর করে থাকলে সেটির ছবি বা PDF এখানে দিন — ঐচ্ছিক, তবে
+          থাকলে যাচাই দ্রুত হয়। ছাপানো ফর্মটি ফাউন্ডেশনের কার্যালয় থেকে সংগ্রহ করা যাবে।
+        </div>
+      </div>
+
+      <label class="chk" style="margin-top:16px">
+        <input type="checkbox" id="fDecl">
+        <span><b>ঘোষণা:</b> আমি কর্জে হাসানা ফাউন্ডেশনের গঠনতন্ত্র (সংস্করণ ৩.০) পড়ে বুঝেছি এবং
+        উপরে উল্লিখিত পদে দায়িত্ব পালনে সম্মতি প্রদান করছি। আমি কোনো ফৌজদারি মামলায় দণ্ডিত নই এবং
+        প্রদত্ত সকল তথ্য সত্য।</span>
+      </label>
+
+      <button class="saveb" type="button" id="btnSubmit"><i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন</button>
+    </div>
+  </div>
+
+</div>
+
+<link rel="stylesheet" href="kh-ui.css?v=9">
+<script src="kh-ui.js?v=9"></script>
+<script>
+(function(){
+  'use strict';
+
+  function sb(){ return (window.KHUI && KHUI.db && KHUI.db()) || window._db || null; }
+  function el(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var BN=['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  function bn(v){ return String(v==null?'':v).replace(/[0-9]/g,function(d){return BN[+d];}); }
+
+  function msg(box, kind, text){
+    var m = el(box); if(!m) return;
+    m.className = 'msg ' + kind; m.innerHTML = text;
+    if(kind) window.scrollTo({top: m.offsetTop - 90, behavior:'smooth'});
+  }
+  function clearMsg(box){ var m=el(box); if(m) m.className='msg'; }
+
+  var STRUCT = [], ME = null, MYAPPS = [], PICK = { committee:null, position:null };
+  var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'' };
+
+  /* ───────── কাঠামো লোড ও আঁকা ───────── */
+  async function loadStructure(){
+    var db = sb();
+    if(!db){ el('cgrid').innerHTML = '<p class="cdesc">সংযোগ তৈরি হয়নি — পৃষ্ঠাটি রিফ্রেশ করুন।</p>'; return; }
+    try{
+      var r = await db.rpc('get_committee_structure');
+      if(r.error) throw r.error;
+      STRUCT = r.data || [];
+    }catch(e){
+      el('cgrid').innerHTML = '<p class="cdesc">কাঠামো লোড করা যায়নি: ' + esc(e.message||'') + '</p>';
+      return;
+    }
+    paintStructure();
+    fillCommitteeSelect();
+  }
+
+  function paintStructure(){
+    var g = el('cgrid');
+    if(!STRUCT.length){ g.innerHTML = '<p class="cdesc">এখনো কোনো কমিটি যোগ করা হয়নি।</p>'; return; }
+    g.innerHTML = STRUCT.map(function(c, i){
+      var closed = c.is_approved || !c.applications_open;
+      var badge  = c.is_approved ? 'অনুমোদিত — আবেদন বন্ধ'
+                 : (!c.applications_open ? 'আবেদন সাময়িক বন্ধ' : 'আবেদন চলছে');
+      var rows = (c.positions||[]).map(function(p){
+        var full = (p.filled||0) >= (p.seats||1);
+        var held = (p.holders||[]).filter(Boolean);
+        return '<div class="prow"><div class="pinfo">' +
+          '<div class="pname">' + esc(p.title_bn) + (p.seats>1 ? ' <span class="pen">(' + bn(p.seats) + ' জন)</span>' : '') + '</div>' +
+          (p.title_en ? '<div class="pen">' + esc(p.title_en) + '</div>' : '') +
+          (p.duties_bn ? '<div class="pduty">' + esc(p.duties_bn) + '</div>' : '') +
+          (held.length ? '<div class="pheld"><i class="ti ti-user-check"></i> ' + esc(held.join(', ')) + '</div>' : '') +
+          '</div>' +
+          (full
+            ? '<span class="pfull"><i class="ti ti-check"></i> পূর্ণ</span>'
+            : '<button class="pbtn" data-c="' + esc(c.id) + '" data-p="' + esc(p.id) + '"' +
+              (closed ? ' disabled' : '') + '><i class="ti ti-writing-sign"></i> আবেদন</button>') +
+          '</div>';
+      }).join('');
+      return '<div class="ccard">' +
+        '<div class="ctop cc' + (i % 4) + '"><i class="ti ti-users"></i><b>' + esc(c.name_bn) + '</b>' +
+        '<span class="cstat">' + badge + '</span></div>' +
+        '<div class="cbody">' +
+        (c.description_bn ? '<div class="cdesc">' + esc(c.description_bn) + '</div>' : '') +
+        '<div class="cdesc" style="margin-bottom:8px"><b>নির্ধারিত পদ:</b> ' + bn(c.seats) +
+          ' · <b>পূরণ হয়েছে:</b> ' + bn(c.approved_count) +
+          ' · <b>অপেক্ষমাণ:</b> ' + bn(c.pending_count) + '</div>' +
+        rows + '</div></div>';
+    }).join('');
+
+    Array.prototype.forEach.call(g.querySelectorAll('.pbtn'), function(b){
+      b.onclick = function(){ startApply(b.dataset.c, b.dataset.p); };
+    });
+  }
+
+  /* ───────── আবেদন শুরু ───────── */
+  async function startApply(cid, pid){
+    PICK.committee = cid; PICK.position = pid;
+    var c = STRUCT.filter(function(x){ return x.id === cid; })[0] || {};
+    var p = ((c.positions)||[]).filter(function(x){ return x.id === pid; })[0] || {};
+    el('fmFor').textContent = '— ' + (c.name_bn||'') + ' · ' + (p.title_bn||'');
+    el('formPanel').classList.remove('hidden');
+    el('formPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    /* পেজ লোডের সেশন পড়া শেষ না হলেও যেন লগইন করা ব্যবহারকারীকে
+       অযথা আবার কোড চাইতে না হয় — ক্লিকের সময়ই যাচাই করা হয় */
+    var wasLoggedIn = !!ME;
+    if(!ME) await refreshSession();
+    if(ME){ if(!wasLoggedIn) await afterLogin(); showForm(); }
+    else { el('authStep').classList.remove('hidden'); el('formStep').classList.add('hidden'); }
+  }
+
+  async function refreshSession(){
+    var db = sb();
+    if(!db || !db.auth) return null;
+    try{
+      var s = await db.auth.getSession();
+      ME = (s && s.data && s.data.session && s.data.session.user) || null;
+      if(ME){ try { await db.rpc('link_my_committee_applications'); } catch(e){} }
+    }catch(e){ ME = null; }
+    return ME;
+  }
+
+  function fillCommitteeSelect(){
+    var s = el('fCom');
+    s.innerHTML = STRUCT.map(function(c){
+      return '<option value="' + esc(c.id) + '">' + esc(c.name_bn) + '</option>';
+    }).join('');
+    s.onchange = function(){
+      fillPositionSelect();
+      PICK.committee = s.value; PICK.position = null;
+      if(ME) prefill(false);
+    };
+    fillPositionSelect();
+  }
+  function fillPositionSelect(){
+    var cid = el('fCom').value;
+    var c = STRUCT.filter(function(x){ return x.id === cid; })[0];
+    var ps = (c && c.positions) || [];
+    el('fPos').innerHTML = ps.map(function(p){
+      var full = (p.filled||0) >= (p.seats||1);
+      return '<option value="' + esc(p.id) + '"' + (full ? ' disabled' : '') + '>' +
+             esc(p.title_bn) + (full ? ' — পূর্ণ' : '') + '</option>';
+    }).join('');
+  }
+
+  /* ───────── ই-মেইল OTP — অ্যাকাউন্ট না থাকলে নিজেই তৈরি ───────── */
+  el('auSend').onclick = async function(){
+    var email = (el('auEmail').value||'').trim().toLowerCase();
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg('fmMsg','err','সঠিক ই-মেইল ঠিকানা দিন।'); return; }
+    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
+    try{
+      var r = await sb().auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } });
+      if(r.error) throw r.error;
+      el('auCodeBox').classList.remove('hidden');
+      el('auCode').focus();
+      msg('fmMsg','ok','কোড পাঠানো হয়েছে <b>' + esc(email) + '</b> ঠিকানায়। ই-মেইল দেখে ৬ সংখ্যার কোডটি দিন।');
+    }catch(e){
+      msg('fmMsg','err','কোড পাঠানো যায়নি: ' + esc(e.message||'আবার চেষ্টা করুন'));
+    }
+    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> কোড পাঠান';
+  };
+
+  el('auVerify').onclick = async function(){
+    var email = (el('auEmail').value||'').trim().toLowerCase();
+    var code  = (el('auCode').value||'').replace(/\D/g,'');
+    if(code.length !== 6){ msg('fmMsg','err','৬ সংখ্যার কোডটি দিন।'); return; }
+    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> যাচাই হচ্ছে…';
+    try{
+      var r = await sb().auth.verifyOtp({ email: email, token: code, type: 'email' });
+      if(r.error) throw r.error;
+      ME = r.data && r.data.user;
+      try { await sb().rpc('link_my_committee_applications'); } catch(e2) {}
+      clearMsg('fmMsg');
+      await afterLogin();
+      showForm();
+    }catch(e){
+      msg('fmMsg','err','কোড মেলেনি: ' + esc(e.message||'আবার চেষ্টা করুন'));
+    }
+    b.disabled = false; b.innerHTML = '<i class="ti ti-check"></i> যাচাই করুন';
+  };
+
+  /* ───────── ফর্ম দেখানো ও পূরণ ───────── */
+  function showForm(){
+    el('authStep').classList.add('hidden');
+    el('formStep').classList.remove('hidden');
+    if(PICK.committee) el('fCom').value = PICK.committee;
+    fillPositionSelect();
+    if(PICK.position) el('fPos').value = PICK.position;
+    var who = el('whoBox');
+    if(who && ME){
+      who.classList.remove('hidden');
+      el('whoTxt').innerHTML = '<b>' + esc(ME.email || '') + '</b> হিসেবে লগইন করা আছে।';
+    }
+    prefill(false);
+  }
+
+  async function prefill(force){
+    if(!ME) return;
+    clearMsg('fmMsg');                 /* আগের কমিটির বার্তা যেন থেকে না যায় */
+    el('fEml').value = ME.email || '';
+    var filled = [];
+    var prof = null;
+    try{
+      var r = await sb().rpc('get_my_profile');
+      prof = r && r.data ? (Array.isArray(r.data) ? r.data[0] : r.data) : null;
+    }catch(e){}
+    /* আগের আবেদন থাকলে সেটিই ভরাট হবে */
+    var cid = el('fCom').value;
+    var app = MYAPPS.filter(function(a){ return a.committee_id === cid; })[0];
+
+    /* একই ব্যক্তি একাধিক কমিটিতে আবেদন করতে পারেন — তাই আগের কমিটির
+       আবেদন-নির্দিষ্ট অবস্থা (লক করা বাটন, সম্মতি, স্বাক্ষরিত কপি) মুছে
+       নতুন কমিটির জন্য পরিষ্কার অবস্থায় শুরু করতে হয় */
+    el('btnSubmit').disabled = false;
+    el('btnSubmit').innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
+    if(!app){
+      el('fDecl').checked = false;
+      el('fProp').value = ''; el('fSec').value = '';
+      DOCS.scan = '';
+      el('stScan').textContent = 'এখনও দেওয়া হয়নি';
+      el('btnScanView').classList.add('hidden');
+    }
+    function put(id, v, label){
+      if(!v) return;
+      if(!force && el(id).value) return;
+      el(id).value = v;
+      if(label) filled.push(label);
+    }
+    if(prof){
+      put('fNameBn', prof.full_name_bn || prof.full_name, 'নাম');
+      put('fNameEn', prof.full_name, null);
+      put('fFather', prof.father_name, 'পিতার নাম');
+      put('fNid',    prof.nid, 'এনআইডি নম্বর');
+      put('fOcc',    prof.occupation, 'পেশা');
+      put('fMob',    prof.mobile, 'মোবাইল');
+      put('fAddr',   prof.address, 'বর্তমান ঠিকানা');
+      put('fPAddr',  prof.permanent_address, 'স্থায়ী ঠিকানা');
+      if(prof.dob && (force || !el('fDob').value)){
+        el('fDob').value = String(prof.dob).slice(0,10); filled.push('জন্ম তারিখ');
+      }
+      if(prof.photo_url){ DOCS.photo = prof.photo_url; mark('stPhoto','btnPhotoView', prof.photo_url); }
+      if(prof.nid_url){ DOCS.nid_front = prof.nid_url; mark('stNidF','btnNidFView', prof.nid_url); }
+      if(prof.nid_back_url){ DOCS.nid_back = prof.nid_back_url; mark('stNidB','btnNidBView', prof.nid_back_url); }
+    }
+    if(app){
+      ['fNameBn:name_bn','fNameEn:name_en','fFather:father_name','fNid:nid_no','fOcc:occupation',
+       'fMob:mobile','fAddr:present_address','fPAddr:permanent_address','fProp:proposed_by',
+       'fSec:seconded_by'].forEach(function(pair){
+        var a = pair.split(':');
+        if(app[a[1]]) el(a[0]).value = app[a[1]];
+      });
+      if(app.dob) el('fDob').value = String(app.dob).slice(0,10);
+      if(app.position_id) el('fPos').value = app.position_id;
+      el('fDecl').checked = !!app.declaration_accepted;
+      if(app.photo_url){ DOCS.photo = app.photo_url; mark('stPhoto','btnPhotoView', app.photo_url); }
+      if(app.nid_front_url){ DOCS.nid_front = app.nid_front_url; mark('stNidF','btnNidFView', app.nid_front_url); }
+      if(app.nid_back_url){ DOCS.nid_back = app.nid_back_url; mark('stNidB','btnNidBView', app.nid_back_url); }
+      if(app.consent_scan_url){ DOCS.scan = app.consent_scan_url; mark('stScan','btnScanView', app.consent_scan_url); }
+      if(app.status === 'approved'){
+        el('btnSubmit').disabled = true;
+        el('btnSubmit').innerHTML = '<i class="ti ti-lock"></i> এই কমিটিতে অনুমোদিত — পরিবর্তন নয়';
+        msg('fmMsg','ok','<b>' + esc(app.committee_name || 'এই কমিটি') + '</b>-তে আপনার আবেদন অনুমোদিত হয়েছে।');
+      } else {
+        msg('fmMsg','info','<b>' + esc(app.committee_name || 'এই কমিটি') +
+            '</b>-তে আপনার দাখিলকৃত সম্মতিপত্রটি খোলা হয়েছে — প্রয়োজনে সংশোধন করে আবার দাখিল করুন।');
+      }
+      return;
+    }
+
+    var comName = (STRUCT.filter(function(c){ return c.id === cid; })[0] || {}).name_bn || 'এই কমিটি';
+    if(!prof){
+      msg('fmMsg','info','আপনার প্রোফাইলে এখনো তথ্য নেই — ঘরগুলো নিজে পূরণ করুন। এখানে যা দেবেন তা প্রোফাইলেও সংরক্ষিত হয়ে যাবে।');
+    } else if(filled.length){
+      msg('fmMsg','ok','প্রোফাইল থেকে <b>' + esc(filled.join(', ')) + '</b> বসানো হয়েছে — মিলিয়ে নিন।');
+    } else {
+      msg('fmMsg','info','<b>' + esc(comName) + '</b>-এর সম্মতিপত্র — তথ্য মিলিয়ে নিয়ে দাখিল করুন।');
+    }
+  }
+
+  function mark(stId, btnId, path){
+    el(stId).innerHTML = '<b>সংরক্ষিত</b>';
+    var b = el(btnId); if(!b) return;
+    b.classList.remove('hidden');
+    b.onclick = function(){ openDoc(path); };
+  }
+
+  async function openDoc(path){
+    if(!path) return;
+    if(/^https?:/i.test(path)){ window.open(path, '_blank'); return; }
+    var bucket = path.indexOf('committee/') === 0 || path.indexOf('consent') > -1 ? 'committee-docs' : 'nid-docs';
+    if(DOCS.scan === path) bucket = 'committee-docs';
+    try{
+      var r = await sb().storage.from(bucket).createSignedUrl(path, 300);
+      if(r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+      else throw (r.error || new Error('লিংক তৈরি হয়নি'));
+    }catch(e){ alert('ফাইলটি খোলা যায়নি: ' + (e.message||'')); }
+  }
+
+  /* ───────── আপলোড ───────── */
+  async function shrink(file, maxDim, maxBytes){
+    if(!/^image\//i.test(file.type)) return file;
+    if(window.KHUI && KHUI.compressImage){
+      try { return await KHUI.compressImage(file, { maxDim: maxDim, maxBytes: maxBytes }); } catch(e){}
+    }
+    return file;
+  }
+
+  async function upload(bucket, folder, name, file){
+    if(!ME) throw new Error('আগে পরিচয় নিশ্চিত করুন');
+    var ext = (file.name||'').match(/\.([a-z0-9]+)$/i);
+    ext = ext ? ext[1].toLowerCase() : (file.type === 'application/pdf' ? 'pdf' : 'jpg');
+    var path = ME.id + '/' + folder + name + '-' + Date.now() + '.' + ext;
+    var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
+    if(r.error) throw r.error;
+    if(bucket === 'avatars'){
+      var pub = sb().storage.from('avatars').getPublicUrl(path);
+      return (pub && pub.data && pub.data.publicUrl) || path;
+    }
+    return path;
+  }
+
+  function wireUpload(inputId, stId, viewId, bucket, folder, key, camBtnId, facing){
+    async function handle(file){
+      if(!file) return;
+      if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
+      el(stId).innerHTML = 'আপলোড হচ্ছে…';
+      try{
+        var f = await shrink(file, key === 'photo' ? 900 : 1800, 2 * 1024 * 1024);
+        var path = await upload(bucket, folder, key, f);
+        DOCS[key] = path;
+        mark(stId, viewId, path);
+        /* ছবি ও NID প্রোফাইলেও বসিয়ে রাখা */
+        try{
+          await sb().rpc('set_my_doc_urls', {
+            p_photo:     key === 'photo' ? path : null,
+            p_nid_front: key === 'nid_front' ? path : null,
+            p_nid_back:  key === 'nid_back' ? path : null
+          });
+        }catch(e2){}
+      }catch(e){
+        el(stId).textContent = 'আপলোড ব্যর্থ';
+        msg('fmMsg','err','আপলোড ব্যর্থ: ' + esc(e.message||''));
+      }
+    }
+    el(inputId).onchange = function(){ handle(this.files && this.files[0]); this.value=''; };
+    var cb = el(camBtnId);
+    if(cb) cb.onclick = function(){
+      if(window.KHUI && KHUI.camera){
+        KHUI.camera({
+          facing: facing || 'environment',
+          title: key === 'photo' ? 'নিজের ছবি তুলুন' : 'কাগজটি ফ্রেমে রাখুন',
+          onShot: function(blob){ handle(new File([blob], key + '.jpg', { type:'image/jpeg' })); }
+        });
+      } else { el(inputId).click(); }
+    };
+  }
+
+  wireUpload('flPhoto','stPhoto','btnPhotoView','avatars','', 'photo','btnPhotoCam','user');
+  wireUpload('flNidF','stNidF','btnNidFView','nid-docs','', 'nid_front','btnNidFCam','environment');
+  wireUpload('flNidB','stNidB','btnNidBView','nid-docs','', 'nid_back','btnNidBCam','environment');
+  wireUpload('flScan','stScan','btnScanView','committee-docs','consent/','scan','btnScanCam','environment');
+
+  /* ───────── দাখিল ───────── */
+  el('btnSubmit').onclick = async function(){
+    if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
+    var need = [['fNameBn','নাম (বাংলায়)'],['fFather','পিতা / স্বামীর নাম'],
+                ['fNid','জাতীয় পরিচয়পত্র নম্বর'],['fMob','মোবাইল নম্বর'],['fAddr','বর্তমান ঠিকানা']];
+    var miss = need.filter(function(n){ return !(el(n[0]).value||'').trim(); });
+    if(miss.length){ msg('fmMsg','err','পূরণ করুন: ' + miss.map(function(n){return n[1];}).join(', ')); return; }
+    if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
+    if(!el('fPos').value){ msg('fmMsg','err','পদবি বেছে নিন।'); return; }
+
+    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> দাখিল হচ্ছে…';
+    try{
+      var payload = {
+        committee_id: el('fCom').value,
+        position_id:  el('fPos').value,
+        name_bn: el('fNameBn').value.trim(),
+        name_en: el('fNameEn').value.trim(),
+        father_name: el('fFather').value.trim(),
+        nid_no: el('fNid').value.trim(),
+        dob: el('fDob').value || null,
+        occupation: el('fOcc').value.trim(),
+        mobile: el('fMob').value.trim(),
+        email: ME.email || el('fEml').value.trim(),
+        present_address: el('fAddr').value.trim(),
+        permanent_address: el('fPAddr').value.trim(),
+        proposed_by: el('fProp').value.trim(),
+        seconded_by: el('fSec').value.trim(),
+        declaration_accepted: true,
+        photo_url: DOCS.photo, nid_front_url: DOCS.nid_front,
+        nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan
+      };
+      var r = await sb().rpc('submit_committee_application', { p: payload });
+      if(r.error) throw r.error;
+      msg('fmMsg','ok','<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন — অবস্থা এই পৃষ্ঠায় দেখা যাবে।');
+      await loadMyApps();
+      await loadStructure();
+    }catch(e){
+      var t = (e && e.message) || '';
+      msg('fmMsg','err',
+        /applications closed/.test(t) ? 'এই কমিটির আবেদন গ্রহণ বন্ধ হয়ে গেছে।'
+      : /already approved/.test(t)    ? 'আপনার আবেদন ইতিমধ্যে অনুমোদিত — আর পরিবর্তন করা যাবে না।'
+      : /duplicate|unique/i.test(t)   ? 'এই কমিটিতে আপনার একটি আবেদন আগে থেকেই আছে।'
+      : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
+    }
+    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
+  };
+
+  /* ───────── নিজের আবেদন ───────── */
+  var ST = {
+    pending:  ['si-pending','ti-hourglass','যাচাইয়ের অপেক্ষায়','অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ততক্ষণ তথ্য সংশোধন করা যাবে।'],
+    approved: ['si-approved','ti-circle-check','অনুমোদিত','আপনি এই পদে দায়িত্বপ্রাপ্ত হয়েছেন।'],
+    rejected: ['si-rejected','ti-circle-x','গৃহীত হয়নি',''],
+    returned: ['si-returned','ti-rotate','সংশোধনের জন্য ফেরত','নিচের ফর্মে তথ্য ঠিক করে আবার দাখিল করুন।']
+  };
+  async function loadMyApps(){
+    if(!ME){ el('myAppsPanel').classList.add('hidden'); return; }
+    try{
+      var r = await sb().rpc('get_my_committee_applications');
+      MYAPPS = (r && r.data) || [];
+    }catch(e){ MYAPPS = []; }
+    if(!MYAPPS.length){ el('myAppsPanel').classList.add('hidden'); return; }
+    el('myAppsPanel').classList.remove('hidden');
+    el('myApps').innerHTML = MYAPPS.map(function(a){
+      var s = ST[a.status] || ST.pending;
+      return '<div class="stat-card">' +
+        '<div class="stat-ico ' + s[0] + '"><i class="ti ' + s[1] + '"></i></div>' +
+        '<div><div class="stat-b">' + esc(a.committee_name||'') + ' · ' + esc(a.position_title||'—') + '</div>' +
+        '<div class="stat-s"><b>' + s[2] + '</b> — ' + esc(s[3]) +
+        (a.admin_note ? '<br><b>অ্যাডমিনের মন্তব্য:</b> ' + esc(a.admin_note) : '') + '</div></div></div>';
+    }).join('');
+  }
+
+  var _refill = document.getElementById('btnRefill');
+  if(_refill) _refill.onclick = async function(){
+    var b = this; b.disabled = true;
+    b.innerHTML = '<i class="ti ti-loader-2"></i> আনা হচ্ছে…';
+    await prefill(true);
+    b.disabled = false;
+    b.innerHTML = '<i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন';
+  };
+
+  async function afterLogin(){
+    await loadMyApps();
+  }
+
+  /* ───────── শুরু ───────── */
+  (async function init(){
+    /* সেশন আগে পড়া হয় — তাহলে "আবেদন" চাপার সাথে সাথেই ফর্ম খুলবে,
+       লগইন করা ব্যবহারকারীকে আর কোড চাওয়া হবে না */
+    await refreshSession();
+    if(ME) await afterLogin();
+    await loadStructure();
+  })();
+})();
+</script>
+</body>
+</html>
