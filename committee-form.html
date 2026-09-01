@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>প্রার্থীর সম্মতিপত্র | কর্জে হাসানা ফাউন্ডেশন</title>
+  <title>সম্মতিপত্র | কর্জে হাসানা ফাউন্ডেশন</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -201,7 +201,7 @@
 <div class="wrap">
 
   <div class="chead-top">
-    <h1><i class="ti ti-writing-sign" style="color:#e083b4"></i> প্রার্থীর সম্মতিপত্র</h1>
+    <h1><i class="ti ti-writing-sign" style="color:#e083b4"></i> সম্মতিপত্র</h1>
     <a class="backl" href="committee.html"
        style="background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none">
       <i class="ti ti-arrow-left"></i> কমিটির তালিকা
@@ -215,30 +215,24 @@
 
   <!-- ══ সম্মতিপত্র ফর্ম ══ -->
   <div class="panel" id="formPanel">
-    <h2><i class="ti ti-writing-sign"></i> প্রার্থীর সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span></h2>
+    <h2><i class="ti ti-writing-sign"></i> সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span></h2>
     <div class="msg" id="fmMsg"></div>
 
-    <!-- লগইন / অ্যাকাউন্ট তৈরি -->
-    <div id="authStep">
+    <div class="whobox hidden" id="invBox" style="background:rgba(112,72,232,.16);border-color:rgba(112,72,232,.45)">
+      <i class="ti ti-mail-opened" style="color:#c9b5f5"></i>
+      <div style="flex:1;min-width:170px" id="invTxt"></div>
+    </div>
+
+    <!-- লগইন প্রয়োজন (আমন্ত্রণ লিংক ছাড়া) -->
+    <div id="authStep" class="hidden">
       <div class="msg info" style="display:block">
-        <b>প্রথম ধাপ — পরিচয় নিশ্চিতকরণ।</b><br>
-        আপনার ই-মেইল ঠিকানা দিন। একটি ৬ সংখ্যার কোড পাঠানো হবে। কোড দিলে অ্যাকাউন্ট
-        না থাকলে নিজে থেকেই তৈরি হয়ে যাবে।
+        <b>আবেদন করতে হলে আগে লগইন করুন।</b><br>
+        আপনি যদি অ্যাডমিনের পাঠানো আমন্ত্রণ লিংক পেয়ে থাকেন, তবে সেই লিংকটি দিয়েই সরাসরি
+        সম্মতিপত্র পূরণ করতে পারবেন — লগইনের প্রয়োজন হবে না।
       </div>
-      <div class="fg">
-        <label for="auEmail">ই-মেইল ঠিকানা <span class="req">*</span></label>
-        <div class="otpbox">
-          <input id="auEmail" type="email" inputmode="email" placeholder="your@email.com" autocomplete="email">
-          <button class="upbtn" type="button" id="auSend"><i class="ti ti-send"></i> কোড পাঠান</button>
-        </div>
-      </div>
-      <div class="fg hidden" id="auCodeBox">
-        <label for="auCode">ই-মেইলে পাঠানো ৬ সংখ্যার কোড <span class="req">*</span></label>
-        <div class="otpbox">
-          <input id="auCode" inputmode="numeric" maxlength="6" placeholder="৬ সংখ্যার কোড">
-          <button class="upbtn gn" type="button" id="auVerify"><i class="ti ti-check"></i> যাচাই করুন</button>
-        </div>
-        <div class="upnote">কোড না পেলে স্প্যাম/জাঙ্ক ফোল্ডার দেখুন, অথবা এক মিনিট পর আবার চেষ্টা করুন।</div>
+      <div class="uprow">
+        <a class="upbtn" href="user-login.html?next=committee.html"><i class="ti ti-login"></i> লগইন করুন</a>
+        <a class="upbtn alt" href="committee.html"><i class="ti ti-arrow-left"></i> কমিটির তালিকা</a>
       </div>
     </div>
 
@@ -270,7 +264,11 @@
       </div>
       <div class="grid2">
         <div class="fg"><label for="fFather">পিতা / স্বামীর নাম <span class="req">*</span></label><input id="fFather"></div>
+        <div class="fg"><label for="fMother">মাতার নাম</label><input id="fMother"></div>
+      </div>
+      <div class="grid2">
         <div class="fg"><label for="fNid">জাতীয় পরিচয়পত্র নম্বর <span class="req">*</span></label><input id="fNid" inputmode="numeric"></div>
+        <div class="fg"><label for="fDist">জেলা</label><input id="fDist"></div>
       </div>
       <div class="grid2">
         <div class="fg"><label for="fDob">জন্ম তারিখ</label><input id="fDob" type="date"></div>
@@ -278,7 +276,7 @@
       </div>
       <div class="grid2">
         <div class="fg"><label for="fMob">মোবাইল নম্বর <span class="req">*</span></label><input id="fMob" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
-        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা</label><input id="fEml" type="email" readonly></div>
+        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা</label><input id="fEml" type="email" placeholder="থাকলে দিন (ঐচ্ছিক)"></div>
       </div>
       <div class="fg"><label for="fAddr">বর্তমান ঠিকানা <span class="req">*</span></label><textarea id="fAddr"></textarea></div>
       <div class="fg"><label for="fPAddr">স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
@@ -328,17 +326,21 @@
           <button class="upbtn alt" type="button" onclick="document.getElementById('flScan').click()"><i class="ti ti-file-upload"></i> ফাইল বাছুন</button>
         </div>
         <input type="file" id="flScan" accept="image/*,application/pdf" hidden>
+        <div class="uprow" style="margin-top:8px">
+          <button class="upbtn gn" type="button" id="btnPrint">
+            <i class="ti ti-printer"></i> A4 কাগজে ছাপান
+          </button>
+        </div>
         <div class="docprev" id="scanPrev"></div>
         <div class="upnote">
           কাগজে ছাপানো সম্মতিপত্রে স্বাক্ষর করে থাকলে সেটির ছবি বা PDF এখানে দিন — ঐচ্ছিক, তবে
-          থাকলে যাচাই দ্রুত হয়। ছাপানো ফর্মটি ফাউন্ডেশনের কার্যালয় থেকে সংগ্রহ করা যাবে।
+          থাকলে যাচাই দ্রুত হয়। নিচের বাটন দিয়ে A4 কাগজে ছাপিয়ে নিতে পারেন।
         </div>
       </div>
 
       <label class="chk" style="margin-top:16px">
         <input type="checkbox" id="fDecl">
-        <span><b>ঘোষণা:</b> আমি কর্জে হাসানা ফাউন্ডেশনের গঠনতন্ত্র (সংস্করণ ৩.০) পড়ে বুঝেছি এবং
-        উপরে উল্লিখিত পদে দায়িত্ব পালনে সম্মতি প্রদান করছি। আমি কোনো ফৌজদারি মামলায় দণ্ডিত নই এবং
+        <span>উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং
         প্রদত্ত সকল তথ্য সত্য।</span>
       </label>
 
@@ -349,8 +351,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=9">
-<script src="kh-ui.js?v=9"></script>
+<link rel="stylesheet" href="kh-ui.css?v=10">
+<script src="kh-ui.js?v=10"></script>
 <script>
 (function(){
   'use strict';
@@ -369,6 +371,8 @@
   var Q = new URLSearchParams(location.search);
   var STRUCT = [], ME = null, MYAPPS = [];
   var PICK = { committee: Q.get('c') || '', position: Q.get('p') || '' };
+  var INV_TOKEN = Q.get('inv') || '';   /* অ্যাডমিনের পাঠানো আমন্ত্রণের টোকেন */
+  var INVITE = null;
   var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'' };
   var BUCKET = { photo:'avatars', nid_front:'nid-docs', nid_back:'nid-docs', scan:'committee-docs' };
 
@@ -382,6 +386,50 @@
       if(ME){ try { await db.rpc('link_my_committee_applications'); } catch(e){} }
     }catch(e){ ME = null; }
     return ME;
+  }
+
+  /* ───────── আমন্ত্রণ (লিংকে টোকেন থাকলে) ───────── */
+  async function loadInvite(){
+    if(!INV_TOKEN) return;
+    try{
+      var r = await sb().rpc('get_committee_invite', { p_token: INV_TOKEN });
+      var d = r && r.data;
+      if(!d || !d.ok){
+        var why = d && d.reason;
+        msg('fmMsg','err', why === 'expired'   ? 'এই আমন্ত্রণ লিংকের মেয়াদ শেষ হয়ে গেছে — ফাউন্ডেশনের সাথে যোগাযোগ করুন।'
+                        : why === 'cancelled' ? 'এই আমন্ত্রণটি বাতিল করা হয়েছে।'
+                        : 'আমন্ত্রণ লিংকটি সঠিক নয়।');
+        return;
+      }
+      INVITE = d;
+      PICK.committee = d.committee_id || PICK.committee;
+      PICK.position  = d.position_id  || PICK.position;
+      var box = el('invBox');
+      if(box){
+        box.classList.remove('hidden');
+        el('invTxt').innerHTML =
+          'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '—') +
+          '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে। কমিটি ও পদবি নিচে বসানো আছে।' +
+          (d.note ? '<br><span class="upnote">মন্তব্য: ' + esc(d.note) + '</span>' : '');
+      }
+      /* আমন্ত্রণে দেওয়া ই-মেইল ও নাম আগেই বসিয়ে রাখা */
+      if(d.email && el('fEml') && !el('fEml').value) el('fEml').value = d.email;
+      if(d.mobile && el('fMob') && !el('fMob').value) el('fMob').value = d.mobile;
+      if(d.full_name && el('fNameBn') && !el('fNameBn').value) el('fNameBn').value = d.full_name;
+      el('lede').textContent = 'আমন্ত্রণ অনুযায়ী কমিটি ও পদবি বসানো আছে। বাকি তথ্য পূরণ করে দাখিল করুন।';
+    }catch(e){}
+  }
+
+  /* আমন্ত্রণ থাকলে কমিটি ও পদবি বদলানো যাবে না */
+  function lockPick(){
+    if(!INVITE) return;
+    ['fCom','fPos'].forEach(function(id){
+      var sel = el(id);
+      if(!sel) return;
+      sel.disabled = true;
+      sel.style.opacity = '.75';
+      sel.style.cursor = 'not-allowed';
+    });
   }
 
   /* ───────── কাঠামো ও ড্রপডাউন ───────── */
@@ -431,38 +479,6 @@
   }
   el('fPos').onchange = paintHeading;
 
-  /* ───────── OTP — অ্যাকাউন্ট না থাকলে নিজেই তৈরি ───────── */
-  el('auSend').onclick = async function(){
-    var email = (el('auEmail').value||'').trim().toLowerCase();
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg('fmMsg','err','সঠিক ই-মেইল ঠিকানা দিন।'); return; }
-    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…';
-    try{
-      var r = await sb().auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } });
-      if(r.error) throw r.error;
-      el('auCodeBox').classList.remove('hidden');
-      el('auCode').focus();
-      msg('fmMsg','ok','কোড পাঠানো হয়েছে <b>' + esc(email) + '</b> ঠিকানায়।');
-    }catch(e){ msg('fmMsg','err','কোড পাঠানো যায়নি: ' + esc(e.message||'আবার চেষ্টা করুন')); }
-    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> কোড পাঠান';
-  };
-
-  el('auVerify').onclick = async function(){
-    var email = (el('auEmail').value||'').trim().toLowerCase();
-    var code  = (el('auCode').value||'').replace(/\D/g,'');
-    if(code.length !== 6){ msg('fmMsg','err','৬ সংখ্যার কোডটি দিন।'); return; }
-    var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> যাচাই হচ্ছে…';
-    try{
-      var r = await sb().auth.verifyOtp({ email: email, token: code, type: 'email' });
-      if(r.error) throw r.error;
-      ME = r.data && r.data.user;
-      try { await sb().rpc('link_my_committee_applications'); } catch(e2) {}
-      clearMsg('fmMsg');
-      await loadMyApps();
-      showForm();
-    }catch(e){ msg('fmMsg','err','কোড মেলেনি: ' + esc(e.message||'আবার চেষ্টা করুন')); }
-    b.disabled = false; b.innerHTML = '<i class="ti ti-check"></i> যাচাই করুন';
-  };
-
   /* ───────── ফর্ম ও অটো-ফিল ───────── */
   function showForm(){
     el('authStep').classList.add('hidden');
@@ -470,15 +486,24 @@
     if(ME){
       el('whoBox').classList.remove('hidden');
       el('whoTxt').innerHTML = '<b>' + esc(ME.email || '') + '</b> হিসেবে লগইন করা আছে।';
+      el('btnRefill').classList.remove('hidden');
+    } else if(INVITE){
+      el('whoBox').classList.remove('hidden');
+      el('whoTxt').innerHTML = 'আমন্ত্রণ লিংক দিয়ে ফর্মটি খোলা হয়েছে — লগইনের প্রয়োজন নেই।';
+      el('btnRefill').classList.add('hidden');
     }
     fillPositionSelect();
     if(PICK.position) el('fPos').value = PICK.position;
+    lockPick();
     paintHeading();
     prefill(false);
   }
 
   async function prefill(force){
-    if(!ME) return;
+    if(!ME){
+      if(INVITE) msg('fmMsg','info','আমন্ত্রণ অনুযায়ী কমিটি ও পদবি বসানো আছে — বাকি তথ্য পূরণ করে দাখিল করুন।');
+      return;
+    }
     clearMsg('fmMsg');
     el('fEml').value = ME.email || '';
     var filled = [], docFilled = [];
@@ -519,6 +544,8 @@
       put('fNameBn', prof.full_name_bn || prof.full_name, 'নাম');
       put('fNameEn', prof.full_name, null);
       put('fFather', prof.father_name, 'পিতার নাম');
+      put('fMother', prof.mother_name, 'মাতার নাম');
+      put('fDist',   prof.district, 'জেলা');
       put('fNid',    prof.nid, 'এনআইডি নম্বর');
       put('fOcc',    prof.occupation, 'পেশা');
       put('fMob',    prof.mobile, 'মোবাইল');
@@ -533,8 +560,9 @@
     }
 
     if(app){
-      ['fNameBn:name_bn','fNameEn:name_en','fFather:father_name','fNid:nid_no','fOcc:occupation',
-       'fMob:mobile','fAddr:present_address','fPAddr:permanent_address','fProp:proposed_by',
+      ['fNameBn:name_bn','fNameEn:name_en','fFather:father_name','fMother:mother_name',
+       'fNid:nid_no','fOcc:occupation','fMob:mobile','fDist:district',
+       'fAddr:present_address','fPAddr:permanent_address','fProp:proposed_by',
        'fSec:seconded_by'].forEach(function(pair){
         var a = pair.split(':');
         if(app[a[1]]) el(a[0]).value = app[a[1]];
@@ -613,9 +641,18 @@
   }
 
   async function upload(bucket, folder, name, file){
-    if(!ME) throw new Error('আগে পরিচয় নিশ্চিত করুন');
     var m = (file.name||'').match(/\.([a-z0-9]+)$/i);
     var ext = m ? m[1].toLowerCase() : (file.type === 'application/pdf' ? 'pdf' : 'jpg');
+
+    /* লগইন না থাকলে (আমন্ত্রণ লিংক) সব নথি committee-docs/invite/<token>/ ঘরে যায় */
+    if(!ME){
+      if(!INV_TOKEN) throw new Error('আগে লগইন করুন');
+      var ip = 'invite/' + INV_TOKEN + '/' + name + '-' + Date.now() + '.' + ext;
+      var ir = await sb().storage.from('committee-docs').upload(ip, file, { upsert:true, cacheControl:'3600' });
+      if(ir.error) throw ir.error;
+      return ip;
+    }
+
     var path = ME.id + '/' + folder + name + '-' + Date.now() + '.' + ext;
     var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
     if(r.error) throw r.error;
@@ -635,9 +672,10 @@
         var f = await shrink(file, key === 'photo' ? 900 : 1800);
         var path = await upload(BUCKET[key], folder, key, f);
         DOCS[key] = path;
+        if(!ME) BUCKET[key] = 'committee-docs';      /* প্রিভিউ ঠিক বাকেট থেকে আসবে */
         await showDoc(stId, prevId, key, path);
         try{
-          if(key !== 'scan'){
+          if(ME && key !== 'scan'){
             await sb().rpc('set_my_doc_urls', {
               p_photo:     key === 'photo' ? path : null,
               p_nid_front: key === 'nid_front' ? path : null,
@@ -668,9 +706,121 @@
   wireUpload('flNidB','stNidB','nidBPrev','', 'nid_back','btnNidBCam','environment');
   wireUpload('flScan','stScan','scanPrev','consent/','scan','btnScanCam','environment');
 
+  /* ───────── A4 কাগজে ছাপানো (ফর্ম নং KHF-CC-01) ───────── */
+  function v(id){ return (el(id).value || '').trim(); }
+  function comName(){
+    var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
+    return c.name_bn || '';
+  }
+  function posName(){
+    var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
+    var p = ((c.positions)||[]).filter(function(x){ return x.id === el('fPos').value; })[0] || {};
+    return p.title_bn || '';
+  }
+
+  el('btnPrint').onclick = function(){
+    function cell(bn_, en_, val){
+      return '<td class="k"><b>' + esc(bn_) + '</b><br><span class="en">' + esc(en_) +
+             '</span></td><td class="v">' + esc(val) + '</td>';
+    }
+    var pairs = [
+      [['নাম (বাংলায়)','Name in Bengali', v('fNameBn')], ['নাম (ইংরেজিতে)','Name in English', v('fNameEn')]],
+      [['পিতা / স্বামীর নাম',"Father's / Husband's", v('fFather')], ['মাতার নাম',"Mother's Name", v('fMother')]],
+      [['এনআইডি নম্বর','National ID No.', v('fNid')], ['জন্ম তারিখ','Date of Birth', v('fDob')]],
+      [['পেশা','Occupation', v('fOcc')], ['মোবাইল নম্বর','Mobile Number', v('fMob')]],
+      [['ই-মেইল ঠিকানা','E-mail Address', v('fEml')], ['জেলা','District', v('fDist')]]
+    ];
+    var body = pairs.map(function(r){
+      return '<tr>' + cell(r[0][0], r[0][1], r[0][2]) + cell(r[1][0], r[1][1], r[1][2]) + '</tr>';
+    }).join('');
+
+    var html =
+    '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8">' +
+    '<title>সম্মতিপত্র · KHF-CC-01</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+    '<style>' +
+    '@page{size:A4;margin:11mm 14mm 9mm}' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:"Hind Siliguri",Arial,sans-serif;color:#1a1a1a;background:#fff;font-size:11px}' +
+    '.hd{display:flex;justify-content:space-between;align-items:stretch;border:1px solid #241539}' +
+    '.hd .l{padding:8px 10px}.hd h1{font-size:16px;color:#241539}' +
+    '.hd .en{font-size:9px;color:#b02a50;font-weight:700}' +
+    '.hd p{font-size:8.5px;color:#6B7280;margin-top:2px}' +
+    '.photo{width:100px;border-left:1px solid #241539;display:flex;flex-direction:column;' +
+      'justify-content:center;text-align:center;font-size:8.5px;color:#6B7280;line-height:1.6}' +
+    '.ttl{text-align:center;margin:8px 0 2px;font-size:15px;font-weight:700;color:#241539}' +
+    '.ttl small{display:block;font-size:8.5px;color:#5b34c4;letter-spacing:.5px;font-weight:700}' +
+    'hr{border:none;border-top:2px solid #b02a50;margin:4px 0 8px}' +
+    '.sec{font-size:11.5px;font-weight:700;color:#0d6e56;margin:8px 0 4px}' +
+    'table{width:100%;border-collapse:collapse}' +
+    'td{border:1px solid #bbb;padding:5px 7px;vertical-align:top;height:26px}' +
+    'td.k{width:17%;background:#f7f5fb}td.k .en{font-size:7.5px;color:#5b34c4;font-weight:400}' +
+    'td.v{width:33%}' +
+    'td.addr{height:42px}' +
+    '.two td{width:50%;text-align:center}' +
+    '.two td.blank{height:56px}' +
+    '.cons{margin:10px 0 5px;font-size:10.5px;font-weight:600;text-align:justify}' +
+    '.cons span{display:block;font-size:8px;color:#6B7280;font-weight:400;font-style:italic;margin-top:2px}' +
+    '.sig td.blank{height:60px}' +
+    '.att{font-size:9.5px;margin-top:9px}' +
+    '.ft{margin-top:8px;padding-top:5px;border-top:1px solid #d0c8de;text-align:center;' +
+      'font-size:8px;color:#6B7280}' +
+    '.noprint{text-align:center;margin-top:10px}' +
+    '@media print{.noprint{display:none}}' +
+    '</style></head><body>' +
+
+    '<div class="hd"><div class="l"><h1>কর্জে হাসানা ফাউন্ডেশন</h1>' +
+    '<div class="en">KORJE HASANA FOUNDATION</div>' +
+    '<p>প্রিয়জনের প্রয়োজনে · ঢাকা বিভাগ, বাংলাদেশ</p></div>' +
+    '<div class="photo">পাসপোর্ট সাইজ<br><b>ছবি</b></div></div>' +
+
+    '<div class="ttl">সম্মতিপত্র<small>CONSENT FORM · ফর্ম নং KHF-CC-01</small></div><hr>' +
+
+    '<table><tr>' +
+      cell('কমিটির নাম','Committee', comName()) + cell('পদবি','Position', posName()) +
+    '</tr></table>' +
+
+    '<div class="sec">প্রার্থীর তথ্য</div>' +
+    '<table>' + body + '</table>' +
+
+    '<table style="margin-top:8px">' +
+    '<tr><td class="k"><b>বর্তমান ঠিকানা</b><br><span class="en">Present Address</span></td>' +
+    '<td class="addr" colspan="3">' + esc(v('fAddr')) + '</td></tr>' +
+    '<tr><td class="k"><b>স্থায়ী ঠিকানা</b><br><span class="en">Permanent Address</span></td>' +
+    '<td class="addr" colspan="3">' + esc(v('fPAddr')) + '</td></tr></table>' +
+
+    '<div class="sec">প্রস্তাবক ও সমর্থক</div>' +
+    '<table class="two"><tr>' +
+    '<td class="k"><b>প্রস্তাবকারীর নাম ও স্বাক্ষর</b><br><span class="en">Proposed by</span></td>' +
+    '<td class="k"><b>সমর্থনকারীর নাম ও স্বাক্ষর</b><br><span class="en">Seconded by</span></td></tr>' +
+    '<tr><td class="blank">' + esc(v('fProp')) + '</td><td class="blank">' + esc(v('fSec')) + '</td></tr></table>' +
+
+    '<div class="cons">উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং প্রদত্ত সকল তথ্য সত্য।' +
+    '<span>I consent to serve in the committee and position stated above, and all information given is true.</span></div>' +
+
+    '<table class="sig"><tr>' +
+    '<td class="k" style="width:37%;text-align:center"><b>প্রার্থীর স্বাক্ষর</b><br><span class="en">Signature of Nominee</span></td>' +
+    '<td class="k" style="width:22%;text-align:center"><b>তারিখ</b><br><span class="en">Date</span></td>' +
+    '<td class="k" style="width:41%;text-align:center"><b>সভাপতি / সহ-সভাপতির স্বাক্ষর</b><br><span class="en">President / Vice-President</span></td></tr>' +
+    '<tr><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr></table>' +
+
+    '<div class="att"><b>সংযুক্তি:</b> &nbsp; ☐ এনআইডির সামনের পাতা &nbsp;&nbsp; ☐ এনআইডির পিছনের পাতা' +
+    ' &nbsp;&nbsp; ☐ পাসপোর্ট সাইজ ছবি ২ কপি</div>' +
+
+    '<div class="ft">কর্জে হাসানা ফাউন্ডেশন · ফর্ম নং KHF-CC-01 · অনলাইনেও পূরণ করা যায়: committee.html</div>' +
+    '<div class="noprint"><button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);' +
+    'color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;' +
+    'font-weight:700;cursor:pointer">প্রিন্ট / PDF সংরক্ষণ</button></div>' +
+    '</body></html>';
+
+    var w = window.open('', '_blank');
+    if(!w){ alert('পপ-আপ বন্ধ আছে — ছাপানোর পৃষ্ঠা খোলার অনুমতি দিন।'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+  };
+
   /* ───────── দাখিল ───────── */
   el('btnSubmit').onclick = async function(){
-    if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
+    if(!ME && !INV_TOKEN){ msg('fmMsg','err','আবেদন করতে আগে লগইন করুন।'); return; }
     var need = [['fNameBn','নাম (বাংলায়)'],['fFather','পিতা / স্বামীর নাম'],
                 ['fNid','জাতীয় পরিচয়পত্র নম্বর'],['fMob','মোবাইল নম্বর'],['fAddr','বর্তমান ঠিকানা']];
     var miss = need.filter(function(n){ return !(el(n[0]).value||'').trim(); });
@@ -680,17 +830,19 @@
 
     var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> দাখিল হচ্ছে…';
     try{
-      var r = await sb().rpc('submit_committee_application', { p: {
+      var payload = {
         committee_id: el('fCom').value,
         position_id:  el('fPos').value,
         name_bn: el('fNameBn').value.trim(),
         name_en: el('fNameEn').value.trim(),
         father_name: el('fFather').value.trim(),
+        mother_name: el('fMother').value.trim(),
         nid_no: el('fNid').value.trim(),
+        district: el('fDist').value.trim(),
         dob: el('fDob').value || null,
         occupation: el('fOcc').value.trim(),
         mobile: el('fMob').value.trim(),
-        email: ME.email || el('fEml').value.trim(),
+        email: (ME && ME.email) || el('fEml').value.trim(),
         present_address: el('fAddr').value.trim(),
         permanent_address: el('fPAddr').value.trim(),
         proposed_by: el('fProp').value.trim(),
@@ -698,8 +850,12 @@
         declaration_accepted: true,
         photo_url: DOCS.photo, nid_front_url: DOCS.nid_front,
         nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan
-      }});
+      };
+      var r = ME
+        ? await sb().rpc('submit_committee_application', { p: payload })
+        : await sb().rpc('submit_application_by_invite', { p_token: INV_TOKEN, p: payload });
       if(r.error) throw r.error;
+      if(ME && INV_TOKEN){ try { await sb().rpc('mark_invite_submitted', { p_token: INV_TOKEN }); } catch(e2){} }
       msg('fmMsg','ok','<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
           '<a href="committee.html" style="color:inherit;text-decoration:underline">কমিটির তালিকায় ফিরে যান</a>');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -727,8 +883,10 @@
   (async function init(){
     await refreshSession();
     if(ME) await loadMyApps();
+    await loadInvite();
     await loadStructure();
-    if(ME) showForm();
+    lockPick();
+    if(ME || INVITE) showForm();
     else { el('authStep').classList.remove('hidden'); el('formStep').classList.add('hidden'); }
   })();
 })();

@@ -252,7 +252,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=9">
+  <link rel="stylesheet" href="kh-ui.css?v=10">
 </head>
 <body data-kh-nav="off">
 
@@ -341,6 +341,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
       <div class="sb-item" id="mi-committee-mgmt" onclick="switchPanel('committee-mgmt')">
         <i class="ti ti-sitemap"></i> কমিটি ব্যবস্থাপনা
+      </div>
+      <div class="sb-item" id="mi-committee-invite" onclick="switchPanel('committee-invite')">
+        <i class="ti ti-mail-forward"></i> আমন্ত্রণ পাঠান
       </div>
       <div class="sb-item" id="mi-users" onclick="switchPanel('users')">
         <i class="ti ti-address-book"></i> ব্যবহারকারী ও প্রোফাইল
@@ -763,6 +766,25 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
 
         <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-brand-whatsapp"></i> হোয়াটসঅ্যাপ নম্বর</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+            <label style="font-size:13px">ফাউন্ডেশনের হোয়াটসঅ্যাপ নম্বর
+              <input id="gs-wa-number" placeholder="01711515952" inputmode="numeric" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+            <label style="font-size:13px">চ্যাটে দেখানো নাম
+              <input id="gs-wa-label" placeholder="কর্জে হাসানা ফাউন্ডেশন" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit">
+            </label>
+          </div>
+          <div class="gs-checks" style="margin-top:14px">
+            <label><input type="checkbox" id="gs-wa-enabled"> ওয়েবসাইটে হোয়াটসঅ্যাপ চ্যাট বাটন দেখাও</label>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.8">
+            ০ দিয়ে শুরু ১১ সংখ্যার নম্বর দিলেই চলবে — সিস্টেম নিজেই ৮৮০ যোগ করে নেবে।
+            এই নম্বরেই সাইটের চ্যাট বাটন ও কমিটির আমন্ত্রণ বার্তা যাবে।
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — সঞ্চয় হিসাব খোলা</div>
           <div class="gs-checks" id="gsReqSavings">
             <label><input type="checkbox" value="full_name"> নাম</label>
@@ -866,6 +888,46 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <i class="ti ti-plus"></i> নতুন কমিটি যোগ করুন
         </button>
         <div id="cmgmt">লোড হচ্ছে…</div>
+      </div>
+
+      <!-- ══════ কমিটি: আমন্ত্রণ ══════ -->
+      <div class="panel" id="panel-committee-invite">
+        <div class="panel-title">📨 আমন্ত্রণ পাঠান</div>
+        <div class="panel-sub">প্রস্তাবিত সদস্যকে সম্মতিপত্র পূরণের লিংক ই-মেইলে পাঠান — কমিটি ও পদবি আগে থেকেই বসানো থাকবে</div>
+
+        <div class="section-card" style="margin-bottom:16px">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+            <div class="fg"><label>কমিটি *</label><select id="ivCom" style="width:100%"></select></div>
+            <div class="fg"><label>পদবি *</label><select id="ivPos" style="width:100%"></select></div>
+            <div class="fg"><label>প্রস্তাবিত ব্যক্তির নাম</label><input id="ivName" style="width:100%"></div>
+            <div class="fg"><label>হোয়াটসঅ্যাপ / মোবাইল নম্বর *</label><input id="ivMob" inputmode="numeric" placeholder="01XXXXXXXXX" style="width:100%"></div>
+            <div class="fg"><label>ই-মেইল ঠিকানা (জানা থাকলে)</label><input id="ivEmail" type="email" placeholder="ঐচ্ছিক" style="width:100%"></div>
+            <div class="fg"><label>মন্তব্য (ই-মেইলে দেখা যাবে)</label><input id="ivNote" style="width:100%"></div>
+          </div>
+          <div id="ivMsg" style="display:none;font-size:13px;margin:8px 0;padding:10px 12px;border-radius:9px"></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="ivSend" onclick="createInvite('whatsapp')">
+              <i class="ti ti-brand-whatsapp"></i> লিংক তৈরি করে হোয়াটসঅ্যাপে পাঠান
+            </button>
+            <button class="btn" id="ivSendMail" onclick="createInvite('email')"
+              style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)">
+              <i class="ti ti-mail"></i> ই-মেইলে পাঠান
+            </button>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:9px;line-height:1.8">
+            হোয়াটসঅ্যাপ বাটনে চাপলে লিংকসহ বাংলা বার্তা তৈরি হয়ে আপনার হোয়াটসঅ্যাপ খুলে যাবে —
+            শুধু "Send" চাপলেই চলে যাবে। ই-মেইলে পাঠাতে ঠিকানা জানা থাকতে হবে।
+          </div>
+        </div>
+
+        <div class="filter-pills" style="margin-bottom:14px">
+          <button class="filter-pill active" onclick="loadInvites('',this)">সব</button>
+          <button class="filter-pill" onclick="loadInvites('sent',this)">পাঠানো</button>
+          <button class="filter-pill" onclick="loadInvites('opened',this)">খোলা হয়েছে</button>
+          <button class="filter-pill" onclick="loadInvites('submitted',this)">দাখিল হয়েছে</button>
+          <button class="filter-pill" onclick="loadInvites('cancelled',this)">বাতিল</button>
+        </div>
+        <div id="ivList">লোড হচ্ছে…</div>
       </div>
 
       <!-- ══════ ব্যবহারকারী ও প্রোফাইল ══════ -->
@@ -980,7 +1042,7 @@ const PANEL_TITLES = {
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
   'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
-  'users':'ব্যবহারকারী ও প্রোফাইল'
+  'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ'
 };
 function switchPanel(name) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1007,6 +1069,7 @@ function switchPanel(name) {
   if (name === 'committee-apps') loadCommitteeApps('pending');
   if (name === 'committee-mgmt') loadCommitteeMgmt();
   if (name === 'users') loadUsersList('');
+  if (name === 'committee-invite') loadInviteForm();
 }
 
 // ════════════════════════════════════════
@@ -1110,6 +1173,11 @@ async function loadGeneralSettings() {
   document.getElementById('gs-loan-grace').value  = loan.grace_days != null ? loan.grace_days : 3;
   document.getElementById('gs-sav-remind').checked  = sav.reminder_enabled !== false;
   document.getElementById('gs-loan-remind').checked = loan.reminder_enabled !== false;
+
+  const wa = s['whatsapp'] || {};
+  document.getElementById('gs-wa-number').value  = wa.number || '';
+  document.getElementById('gs-wa-label').value   = wa.label  || '';
+  document.getElementById('gs-wa-enabled').checked = wa.enabled !== false;
 }
 
 async function saveGeneralSettings() {
@@ -1139,6 +1207,11 @@ async function saveGeneralSettings() {
     grace_days:       Math.max(0, num('gs-loan-grace', 3)),
     reminder_enabled: document.getElementById('gs-loan-remind').checked
   };
+  const whatsapp = {
+    number:  (document.getElementById('gs-wa-number').value || '').replace(/\D/g, ''),
+    label:   document.getElementById('gs-wa-label').value.trim(),
+    enabled: document.getElementById('gs-wa-enabled').checked
+  };
 
   try {
     for (const [k, v] of [
@@ -1146,7 +1219,8 @@ async function saveGeneralSettings() {
       ['required_fields.savings', reqSav],
       ['required_fields.donation', reqDon],
       ['savings_rules', savingsRules],
-      ['loan_rules', loanRules]
+      ['loan_rules', loanRules],
+      ['whatsapp', whatsapp]
     ]) {
       const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
       if (r && r.error) throw r.error;
@@ -2152,7 +2226,9 @@ async function loadCommitteeApps(status, btn) {
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px;font-size:13px;margin-bottom:12px">
         ${row('পিতা / স্বামী', a.father_name)}
+        ${row('মাতার নাম', a.mother_name)}
         ${row('এনআইডি', a.nid_no)}
+        ${row('জেলা', a.district)}
         ${row('জন্ম তারিখ', a.dob)}
         ${row('পেশা', a.occupation)}
         ${row('মোবাইল', a.mobile)}
@@ -2362,6 +2438,230 @@ async function deletePosition(id) {
 }
 
 // ════════════════════════════════════════
+//  কমিটির আমন্ত্রণ
+// ════════════════════════════════════════
+const IVST = {
+  sent:      ['পাঠানো হয়েছে','b-pending'],
+  opened:    ['লিংক খোলা হয়েছে','b-review'],
+  submitted: ['সম্মতিপত্র দাখিল','b-approved'],
+  cancelled: ['বাতিল','b-rejected']
+};
+let _ivFilter = '';
+
+function ivMsg(kind, text) {
+  const m = document.getElementById('ivMsg');
+  if (!m) return;
+  const C = { ok:['rgba(34,197,94,.16)','#86efac','#bbf7d0'],
+              err:['rgba(239,68,68,.16)','#fca5a5','#fecaca'],
+              info:['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'] }[kind] || ['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'];
+  m.style.display = 'block';
+  m.style.background = C[0]; m.style.border = '1px solid ' + C[1]; m.style.color = C[2];
+  m.innerHTML = text;
+}
+
+async function loadInviteForm() {
+  const cs = document.getElementById('ivCom');
+  if (!_cstruct.length) {
+    try {
+      const r = await _db.rpc('get_committee_structure');
+      if (!r.error) _cstruct = r.data || [];
+    } catch (e) {}
+  }
+  cs.innerHTML = _cstruct.map(c => `<option value="${esc(c.id)}">${esc(c.name_bn)}</option>`).join('');
+  cs.onchange = ivFillPositions;
+  ivFillPositions();
+  loadInvites(_ivFilter);
+}
+
+function ivFillPositions() {
+  const cid = document.getElementById('ivCom').value;
+  const c = _cstruct.filter(x => x.id === cid)[0];
+  const ps = (c && c.positions) || [];
+  document.getElementById('ivPos').innerHTML = ps.map(p => {
+    const full = (p.filled || 0) >= (p.seats || 1);
+    return `<option value="${esc(p.id)}"${full ? ' disabled' : ''}>${esc(p.title_bn)}${full ? ' — পূর্ণ' : ''}</option>`;
+  }).join('');
+}
+
+function waLink(mobile, text) {
+  var d = String(mobile || '').replace(/\D/g, '');
+  if (d.length === 11 && d[0] === '0') d = '88' + d;          /* 01XXXXXXXXX → 8801XXXXXXXXX */
+  else if (d.length === 10) d = '880' + d;
+  return 'https://wa.me/' + d + '?text=' + encodeURIComponent(text);
+}
+
+function inviteMessage(o) {
+  return [
+    'আসসালামু আলাইকুম' + (o.name ? ' ' + o.name : '') + ',',
+    '',
+    'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে ' + o.committee +
+      (o.position ? '-এর ' + o.position + ' পদে' : '-তে') + ' দায়িত্ব গ্রহণের জন্য প্রস্তাব করা হলো।',
+    o.note ? '' : null,
+    o.note ? o.note : null,
+    '',
+    'সম্মত থাকলে নিচের লিংকে গিয়ে সম্মতিপত্রটি পূরণ করুন। কমিটি ও পদবি আগে থেকেই বসানো আছে —',
+    'লগইন বা অ্যাকাউন্ট খোলার প্রয়োজন নেই।',
+    '',
+    o.link,
+    '',
+    'ধন্যবাদ।',
+    'কর্জে হাসানা ফাউন্ডেশন'
+  ].filter(function (x) { return x !== null; }).join('\n');
+}
+
+async function createInvite(mode) {
+  const mob   = (document.getElementById('ivMob').value || '').trim();
+  const email = (document.getElementById('ivEmail').value || '').trim().toLowerCase();
+  const cid   = document.getElementById('ivCom').value;
+  const pid   = document.getElementById('ivPos').value;
+  const name  = document.getElementById('ivName').value.trim();
+  const note  = document.getElementById('ivNote').value.trim();
+
+  if (!cid) { ivMsg('err','কমিটি বেছে নিন।'); return; }
+  if (mode === 'whatsapp' && String(mob).replace(/\D/g,'').length < 10) {
+    ivMsg('err','হোয়াটসঅ্যাপে পাঠাতে সঠিক মোবাইল নম্বর দিন।'); return;
+  }
+  if (mode === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    ivMsg('err','ই-মেইলে পাঠাতে সঠিক ই-মেইল ঠিকানা দিন।'); return;
+  }
+  if (!mob && !email) { ivMsg('err','মোবাইল নম্বর অথবা ই-মেইল — অন্তত একটি দিন।'); return; }
+
+  const b = document.getElementById(mode === 'email' ? 'ivSendMail' : 'ivSend');
+  const old = b.innerHTML;
+  b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> তৈরি হচ্ছে…';
+  try {
+    const r = await _db.rpc('admin_create_invite', { p: {
+      committee_id: cid, position_id: pid || null,
+      full_name: name, email: email || null, mobile: mob || null, note: note || null
+    }});
+    if (r.error) throw r.error;
+
+    const c = _cstruct.filter(x => x.id === cid)[0] || {};
+    const p = ((c.positions) || []).filter(x => x.id === pid)[0] || {};
+    const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+    const link = base + 'committee-form.html?inv=' + encodeURIComponent(r.data.token);
+
+    if (mode === 'whatsapp') {
+      const msg = inviteMessage({ name, committee: c.name_bn || '', position: p.title_bn || '',
+                                  note, link });
+      window.open(waLink(mob, msg), '_blank');
+      ivMsg('ok','<b>লিংক তৈরি হয়েছে</b> — হোয়াটসঅ্যাপ খুলে গেছে, শুধু "Send" চাপুন। ' +
+            'না খুললে নিচের তালিকা থেকে "হোয়াটসঅ্যাপ" বাটনে আবার চাপুন।');
+    } else {
+      const s2 = await _db.auth.getSession();
+      const tok = s2 && s2.data && s2.data.session && s2.data.session.access_token;
+      const url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-invite';
+      const res = await fetch(url, { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + tok },
+        body: JSON.stringify({ invite_id: r.data.id }) });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || j.detail || 'ই-মেইল পাঠানো যায়নি');
+      ivMsg('ok','<b>আমন্ত্রণ ই-মেইলে পাঠানো হয়েছে</b> ' + esc(j.sent_to || email) + ' ঠিকানায়।');
+    }
+    ['ivName','ivEmail','ivMob','ivNote'].forEach(id => document.getElementById(id).value = '');
+    loadInvites(_ivFilter);
+  } catch (e) {
+    ivMsg('err','ব্যর্থ: ' + esc((e && e.message) || 'আবার চেষ্টা করুন'));
+  }
+  b.disabled = false; b.innerHTML = old;
+}
+
+async function loadInvites(status, btn) {
+  _ivFilter = status || '';
+  if (btn) {
+    document.querySelectorAll('#panel-committee-invite .filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const c = document.getElementById('ivList');
+  c.innerHTML = 'লোড হচ্ছে…';
+  let list = [];
+  try {
+    const r = await _db.rpc('admin_list_invites', { p_status: _ivFilter || null });
+    if (r.error) throw r.error;
+    list = r.data || [];
+    _ivCache = list;
+  } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+  if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো আমন্ত্রণ নেই।</div>'; return; }
+
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  c.innerHTML = `<div class="kh-scrollx"><table class="trx-table">
+    <thead><tr><th>নাম ও ই-মেইল</th><th>কমিটি ও পদ</th><th>পাঠানো</th><th>অবস্থা</th><th></th></tr></thead>
+    <tbody>${list.map(i => {
+      const st = IVST[i.status] || IVST.sent;
+      const link = base + 'committee-form.html?inv=' + encodeURIComponent(i.token);
+      const canAct = i.status === 'sent' || i.status === 'opened';
+      return `<tr>
+        <td><b>${esc(i.full_name || '—')}</b><br><span style="font-size:12px;color:var(--muted)">${esc(i.mobile || '')}${i.mobile && i.email ? ' · ' : ''}${esc(i.email || '')}</span></td>
+        <td>${esc(i.committee_name || '')}<br><span style="font-size:12px;color:var(--muted)">${esc(i.position_title || '—')}</span></td>
+        <td style="font-size:12.5px">${i.sent_at ? new Date(i.sent_at).toLocaleDateString('bn-BD') : '—'}
+          ${i.expired && canAct ? '<br><span style="color:#fca5a5;font-size:11.5px">মেয়াদ শেষ</span>' : ''}</td>
+        <td><span class="badge ${st[1]}">${st[0]}</span></td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-sm" onclick="copyInvite('${esc(link)}',this)"
+            style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)">
+            <i class="ti ti-copy"></i> লিংক</button>
+          ${canAct && i.mobile ? `<button class="btn btn-sm" onclick="waInvite('${i.id}')"
+            style="background:rgba(13,110,86,.2);color:#6ee7b7;border:1px solid rgba(13,110,86,.45)">
+            <i class="ti ti-brand-whatsapp"></i> হোয়াটসঅ্যাপ</button>` : ''}
+          ${canAct && i.email ? `<button class="btn btn-sm" onclick="resendInvite('${i.id}',this)"
+            style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)">
+            <i class="ti ti-mail-forward"></i> ই-মেইল</button>` : ''}
+          ${canAct ? `
+          <button class="btn btn-sm btn-danger" onclick="cancelInvite('${i.id}')"><i class="ti ti-x"></i></button>` : ''}
+        </td></tr>`;
+    }).join('')}</tbody></table></div>`;
+}
+
+let _ivCache = [];
+
+function waInvite(id) {
+  const i = _ivCache.filter(x => x.id === id)[0];
+  if (!i) return;
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  const link = base + 'committee-form.html?inv=' + encodeURIComponent(i.token);
+  const msg = inviteMessage({ name: i.full_name || '', committee: i.committee_name || '',
+                              position: i.position_title || '', note: i.note || '', link });
+  window.open(waLink(i.mobile, msg), '_blank');
+}
+
+function copyInvite(link, btn) {
+  const done = () => { const o = btn.innerHTML; btn.innerHTML = '<i class="ti ti-check"></i> কপি হয়েছে';
+                       setTimeout(() => { btn.innerHTML = o; }, 1800); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(done).catch(() => prompt('লিংকটি কপি করুন:', link));
+  } else prompt('লিংকটি কপি করুন:', link);
+}
+
+async function resendInvite(id, btn) {
+  const o = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i>';
+  try {
+    const s = await _db.auth.getSession();
+    const token = s && s.data && s.data.session && s.data.session.access_token;
+    const url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-invite';
+    const res = await fetch(url, { method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+      body: JSON.stringify({ invite_id: id }) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || 'ব্যর্থ');
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    setTimeout(() => { btn.innerHTML = o; btn.disabled = false; }, 1800);
+  } catch (e) {
+    alert('আবার পাঠানো যায়নি: ' + ((e && e.message) || ''));
+    btn.innerHTML = o; btn.disabled = false;
+  }
+}
+
+async function cancelInvite(id) {
+  if (!confirm('এই আমন্ত্রণটি বাতিল করবেন? লিংকটি আর কাজ করবে না।')) return;
+  try {
+    const r = await _db.rpc('admin_cancel_invite', { p_id: id });
+    if (r.error) throw r.error;
+    loadInvites(_ivFilter);
+  } catch (e) { alert('বাতিল করা যায়নি: ' + ((e && e.message) || '')); }
+}
+
+// ════════════════════════════════════════
 //  ব্যবহারকারী ও প্রোফাইল (এনআইডিসহ)
 // ════════════════════════════════════════
 async function loadUsersList(q) {
@@ -2459,6 +2759,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=9"></script>
+<script src="kh-ui.js?v=10"></script>
 </body>
 </html>

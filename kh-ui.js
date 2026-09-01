@@ -1438,7 +1438,38 @@
      5 ── WHATSAPP CHAT WIDGET
      ══════════════════════════════════════════════════════ */
 
-  var WA_NUMBER = '8801711515952';   // wa.me format: country code + number, digits only
+  /* ফাউন্ডেশনের হোয়াটসঅ্যাপ নম্বর — সুপার অ্যাডমিন জেনারেল সেটিংস থেকে বদলাতে পারেন
+     (app_settings → whatsapp)। সেটিংস না থাকলে নিচের নম্বরটিই ব্যবহৃত হয়। */
+  var WA_NUMBER = '8801971515952';   // wa.me format: country code + number, digits only
+  var WA_LABEL  = '';
+  function waNormalize(v) {
+    var d = String(v || '').replace(/\D/g, '');
+    if (d.length === 11 && d.charAt(0) === '0') d = '88' + d;
+    else if (d.length === 10) d = '880' + d;
+    return d;
+  }
+  /* পেজে হাতে লেখা wa.me লিংকগুলোও সেটিংসের নম্বরে বদলে দেওয়া হয় —
+     তাই নম্বর একটি জায়গাতেই রাখলে সারা সাইটে ঠিক থাকে */
+  function syncWaLinks() {
+    var as = document.querySelectorAll('a[href*="wa.me/"]');
+    Array.prototype.forEach.call(as, function (a) {
+      a.href = a.getAttribute('href').replace(/wa\.me\/\d+/, 'wa.me/' + WA_NUMBER);
+    });
+  }
+
+  if (KHUI.getSetting) {
+    KHUI.getSetting('whatsapp', {}).then(function (w) {
+      if (w && typeof w === 'object') {
+        if (w.number) WA_NUMBER = waNormalize(w.number);
+        if (w.label) WA_LABEL = w.label;
+        if (w.enabled === false) {
+          var b = document.querySelector('.kh-chat-fab, .kh-chat-btn');
+          if (b) b.style.display = 'none';
+        }
+      }
+      syncWaLinks();
+    }).catch(function () { syncWaLinks(); });
+  }
 
   var CHAT_CHIPS = [
     { label: 'ঋণের আবেদন',  msg: 'আসসালামু আলাইকুম। আমি সুদমুক্ত ঋণের আবেদন করতে চাই।' },
@@ -1450,7 +1481,7 @@
   KHUI.mountChat = function (opts) {
     opts = opts || {};
     if (document.querySelector('.kh-chat-launch')) return;
-    var wa = (opts.number || WA_NUMBER).replace(/\D/g, '');
+    var wa = waNormalize(opts.number || WA_NUMBER);
 
     /* launcher */
     var btn = document.createElement('button');
