@@ -202,9 +202,13 @@
 
   <div class="chead-top">
     <h1><i class="ti ti-writing-sign" style="color:#e083b4"></i> সম্মতিপত্র</h1>
-    <a class="backl" href="committee.html"
+    <a class="backl" id="lnkList" href="committee.html"
        style="background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none">
       <i class="ti ti-arrow-left"></i> কমিটির তালিকা
+    </a>
+    <a class="backl hidden" id="lnkHome" href="index.html"
+       style="background:linear-gradient(112deg,#4c2f78,#241539);box-shadow:none">
+      <i class="ti ti-home"></i> হোম
     </a>
     <a class="backl" href="my-dashboard.html"
        style="background:linear-gradient(112deg,#0d6e56,#1d9e75);box-shadow:0 5px 16px rgba(13,110,86,.35)">
@@ -409,14 +413,14 @@
         box.classList.remove('hidden');
         el('invTxt').innerHTML =
           'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '—') +
-          '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে। কমিটি ও পদবি নিচে বসানো আছে।' +
+          '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।' +
           (d.note ? '<br><span class="upnote">মন্তব্য: ' + esc(d.note) + '</span>' : '');
       }
       /* আমন্ত্রণে দেওয়া ই-মেইল ও নাম আগেই বসিয়ে রাখা */
       if(d.email && el('fEml') && !el('fEml').value) el('fEml').value = d.email;
       if(d.mobile && el('fMob') && !el('fMob').value) el('fMob').value = d.mobile;
       if(d.full_name && el('fNameBn') && !el('fNameBn').value) el('fNameBn').value = d.full_name;
-      el('lede').textContent = 'আমন্ত্রণ অনুযায়ী কমিটি ও পদবি বসানো আছে। বাকি তথ্য পূরণ করে দাখিল করুন।';
+      el('lede').textContent = 'নিচের তথ্যগুলো পূরণ করে সম্মতিপত্রটি দাখিল করুন।';
     }catch(e){}
   }
 
@@ -488,9 +492,10 @@
       el('whoTxt').innerHTML = '<b>' + esc(ME.email || '') + '</b> হিসেবে লগইন করা আছে।';
       el('btnRefill').classList.remove('hidden');
     } else if(INVITE){
-      el('whoBox').classList.remove('hidden');
-      el('whoTxt').innerHTML = 'আমন্ত্রণ লিংক দিয়ে ফর্মটি খোলা হয়েছে — লগইনের প্রয়োজন নেই।';
-      el('btnRefill').classList.add('hidden');
+      /* আমন্ত্রণে আসা ব্যক্তি শুধু ফর্মটিই পূরণ করবেন — কমিটির তালিকায় যাওয়ার পথ নেই */
+      el('whoBox').classList.add('hidden');
+      el('lnkList').classList.add('hidden');
+      el('lnkHome').classList.remove('hidden');
     }
     fillPositionSelect();
     if(PICK.position) el('fPos').value = PICK.position;
@@ -501,7 +506,7 @@
 
   async function prefill(force){
     if(!ME){
-      if(INVITE) msg('fmMsg','info','আমন্ত্রণ অনুযায়ী কমিটি ও পদবি বসানো আছে — বাকি তথ্য পূরণ করে দাখিল করুন।');
+      if(INVITE) msg('fmMsg','info','তথ্যগুলো পূরণ করে সম্মতিপত্রটি দাখিল করুন।');
       return;
     }
     clearMsg('fmMsg');
@@ -857,7 +862,9 @@
       if(r.error) throw r.error;
       if(ME && INV_TOKEN){ try { await sb().rpc('mark_invite_submitted', { p_token: INV_TOKEN }); } catch(e2){} }
       msg('fmMsg','ok','<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
-          '<a href="committee.html" style="color:inherit;text-decoration:underline">কমিটির তালিকায় ফিরে যান</a>');
+          (ME
+            ? '<a href="my-dashboard.html" style="color:inherit;text-decoration:underline">ড্যাশবোর্ডে যান</a>'
+            : '<a href="index.html" style="color:inherit;text-decoration:underline">হোম পেজে যান</a>'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
       await loadMyApps();
     }catch(e){
