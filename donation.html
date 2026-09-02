@@ -697,6 +697,7 @@
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
       <button onclick="closeSuccess()" style="background:var(--green);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:14.5px;font-weight:700;cursor:pointer">Close</button>
       <button onclick="openVoucher()" style="background:var(--gold);color:var(--green);border:none;border-radius:20px;padding:10px 22px;font-size:14.5px;font-weight:700;cursor:pointer"><i class="ti ti-receipt"></i> View Voucher</button>
+      <div id="sc_mailMsg" style="display:none;font-size:12.5px;line-height:1.7;margin-top:12px;color:#6B7280"></div>
       <button onclick="window.print()" style="background:transparent;color:var(--green);border:1.5px solid var(--green);border-radius:20px;padding:10px 22px;font-size:14.5px;font-weight:600;cursor:pointer"><i class="ti ti-printer"></i> Print</button>
     </div>
   </div>
@@ -1134,12 +1135,14 @@ function processDonation() {
     if (saveError) {
       console.warn('দান সংরক্ষণে সমস্যা:', saveError);
     } else if (lastDonationId) {
-      /* সফল দান → ভাউচার নিজে থেকেই তৈরি ও দেখানো, তারপর ছবি তুলে ই-মেইল
-         (আগে ভাউচার তৈরির আগেই মেইল করা হত — তাই ছবি ফাঁকা/ব্যর্থ হত) */
+      /* সফল দান → ভাউচার দেখানো, তারপর ছবিসহ ই-মেইল।
+         ⚠️ ভাউচার আঁকতে গিয়ে কিছু ভাঙলেও ই-মেইল যেন আটকে না যায় — তাই
+         openVoucher() try/catch-এ, আর মেইলের টাইমার আলাদা করে বসানো। */
       setTimeout(function () {
-        openVoucher();
-        setTimeout(autoMailDonation, 900);   /* QR ও প্রোফাইল ছবি বসার সময় */
+        try { openVoucher(); }
+        catch (e) { console.warn('ভাউচার আঁকা যায়নি:', e); }
       }, 1200);
+      setTimeout(autoMailDonation, 2400);
     }
   };
 
@@ -1153,29 +1156,48 @@ var lastDonationId = null, donationLinked = false, donationMailed = false;
 /* লেনদেন সফল হলেই স্বয়ংক্রিয়ভাবে ভাউচার ই-মেইল (অ্যাডমিন অনুমোদন লাগে না) */
 function autoMailDonation() {
   if (donationMailed || !lastDonationId) return;
-  var box = document.getElementById('v_mailMsg');
+
+  /* বার্তা দুই জায়গাতেই — ভাউচারের ভেতরে ও সাফল্যের পর্দায় */
   function note(t, ok) {
-    if (!box) return;
-    box.style.display = 'block';
-    box.innerHTML = t;
-    box.style.color = ok ? '#14532d' : (ok === false ? '#92400e' : '#6B7280');
+    ['v_mailMsg', 'sc_mailMsg'].forEach(function (id) {
+      var box = document.getElementById(id);
+      if (!box) return;
+      box.style.display = 'block';
+      box.innerHTML = t;
+      box.style.color = ok ? '#14532d' : (ok === false ? '#92400e' : '#6B7280');
+    });
   }
-  if (!(window.KHUI && KHUI.sendVoucherMail)) return;
+
+  if (!(window.KHUI && KHUI.sendVoucherMail)) {
+    note('<i class="ti ti-mail-off"></i> ই-মেইল পাঠানোর অংশটি লোড হয়নি — পৃষ্ঠাটি রিফ্রেশ করে ভাউচার থেকে আবার চেষ্টা করুন।', false);
+    return;
+  }
+
   note('<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> ভাউচারের একটি কপি ই-মেইলে পাঠানো হচ্ছে…');
-  /* ভাউচারটি ছবি হিসেবেও যাবে — ই-মেইলে হুবহু দেখা যাবে */
-  KHUI.sendVoucherMail('donation', lastDonationId, { node: document.getElementById('voucherDoc') }).then(function (r) {
+
+  function ok(r) {
     donationMailed = true;
     note('<i class="ti ti-mail-check"></i> এই ভাউচারের একটি কপি ' + (r.sent_to || 'আপনার ই-মেইলে') +
          ' পাঠানো হয়েছে' + (r.image ? ' (ছবিসহ)' : '') + '।', true);
-  }).catch(function (e) {
+  }
+  function fail(e) {
     var m = (e && e.message) || '';
     note('<i class="ti ti-mail-off"></i> ' + (/লগইন/.test(m)
       ? 'ই-মেইল পাঠানো যায়নি — লগইন করা থাকলে ভাউচার নিজে থেকেই ই-মেইলে চলে যায়।'
       : 'ই-মেইল পাঠানো যায়নি: ' + (m || 'পরে আবার চেষ্টা করুন')) +
       ' ভাউচারটি "Download PDF" দিয়ে রেখে দিতে পারেন।', false);
-  });
-}
+  }
 
+  var node = document.getElementById('voucherDoc');
+  KHUI.sendVoucherMail('donation', lastDonationId, { node: node })
+    .then(ok)
+    .catch(function (e1) {
+      /* ছবি তৈরিতে সমস্যা হলে একবার ছবি ছাড়াই পাঠানোর চেষ্টা */
+      console.warn('ছবিসহ পাঠানো যায়নি, ছবি ছাড়া চেষ্টা:', e1);
+      return KHUI.sendVoucherMail('donation', lastDonationId, { png: false })
+        .then(ok).catch(fail);
+    });
+}
 
 /* ── ভাউচারে সদস্যের ছবি (গোপন থাকতে চাইলে দেখাবে না) ── */
 function paintVoucherMember(shownName) {

@@ -478,6 +478,26 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div class="card-title">সাম্প্রতিক দান</div>
           <div id="pdTable"><div class="empty-state"><i class="ti ti-loader-2"></i><p>লোড হচ্ছে…</p></div></div>
         </div>
+
+        <!-- ══════ আয়কর রেয়াতের প্রত্যয়নপত্র ══════ -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-title">🧾 আয়কর রেয়াতের প্রত্যয়নপত্র</div>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.85;margin:2px 0 12px">
+            একটি করবর্ষে দাতার সব দান একত্র করে প্রত্যয়নপত্র তৈরি হয় এবং "ই-মেইল করুন" চাপলে তাঁর নিবন্ধিত ঠিকানায় চলে যায়।
+            এটি স্বয়ংক্রিয় নয় — আপনি চাইলেই যায়।
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+            <div class="fg" style="min-width:140px">
+              <label>করবর্ষ</label>
+              <input id="taxYear" type="number" min="2020" max="2100" style="width:100%">
+            </div>
+            <button class="btn btn-primary" onclick="loadTaxDonors()">
+              <i class="ti ti-list-search"></i> দাতার তালিকা দেখুন
+            </button>
+          </div>
+          <div id="taxMsg" style="display:none;font-size:13px;margin:0 0 10px;padding:10px 12px;border-radius:9px"></div>
+          <div id="taxList">করবর্ষ দিয়ে "দাতার তালিকা দেখুন" চাপুন।</div>
+        </div>
       </div>
 
       <!-- ══════════════ PANEL: CASH DONATION ══════════════ -->
@@ -1367,6 +1387,13 @@ async function loadProdDonations() {
   c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>দান নং</th><th>দাতা</th><th style="text-align:right">পরিমাণ (৳)</th><th>উদ্দেশ্য</th><th>তারিখ</th></tr></thead><tbody>
     ${list.slice(0,20).map(r=>`<tr><td>${esc(r.donation_no)}</td><td>${esc(r.donor_name)||'—'}</td><td style="text-align:right;font-weight:700">${fmt(r.amount)}</td><td>${esc(r.purpose)||'—'}</td><td>${fmtDate(r.created_at)}</td></tr>`).join('')}
   </tbody></table></div>`;
+
+  /* আয়কর রেয়াতের প্রত্যয়নপত্র — চলতি বছর বসিয়ে তালিকা আনা */
+  const ty = document.getElementById('taxYear');
+  if (ty && !ty.value) {
+    ty.value = now.getFullYear();
+    try { loadTaxDonors(); } catch (e) { /* উপরের অংশ যেন আটকে না যায় */ }
+  }
 }
 
 /* ছোট এসকেপ হেল্পার — টেবিলে নিরাপদ টেক্সট */
@@ -2658,6 +2685,102 @@ async function cancelInvite(id) {
     if (r.error) throw r.error;
     loadInvites(_ivFilter);
   } catch (e) { alert('বাতিল করা যায়নি: ' + ((e && e.message) || '')); }
+}
+
+// ════════════════════════════════════════
+//  আয়কর রেয়াতের প্রত্যয়নপত্র (দান)
+// ════════════════════════════════════════
+/* সাল — কমা ছাড়া বাংলা অঙ্কে (fmt() হাজারের কমা বসিয়ে দেয়) */
+function bnYear(y) { return String(y == null ? '' : y).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]); }
+
+function taxMsg(kind, text) {
+  const m = document.getElementById('taxMsg');
+  if (!m) return;
+  const C = { ok:['rgba(34,197,94,.16)','#86efac','#bbf7d0'],
+              err:['rgba(239,68,68,.16)','#fca5a5','#fecaca'],
+              info:['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'] }[kind]
+          || ['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'];
+  m.style.display = 'block';
+  m.style.background = C[0]; m.style.border = '1px solid ' + C[1]; m.style.color = C[2];
+  m.innerHTML = text;
+}
+
+async function loadTaxDonors() {
+  const yEl = document.getElementById('taxYear');
+  if (yEl && !yEl.value) yEl.value = new Date().getFullYear();
+  const year = parseInt((yEl && yEl.value) || new Date().getFullYear(), 10);
+  const c = document.getElementById('taxList');
+  if (!c) return;
+  c.innerHTML = 'লোড হচ্ছে…';
+  taxMsg('info', 'তালিকা আনা হচ্ছে…');
+  let list = [];
+  try {
+    const r = await _db.rpc('admin_donors_by_year', { p_year: year });
+    if (r.error) throw r.error;
+    list = r.data || [];
+  } catch (e) {
+    c.innerHTML = '';
+    taxMsg('err', 'তালিকা আনা যায়নি: ' + ((e && e.message) || ''));
+    return;
+  }
+  taxMsg('info', 'করবর্ষ ' + bnYear(year) + ' — মোট ' + fmt(list.length) + ' জন দাতা।');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty-state"><i class="ti ti-mood-empty"></i><p>এই করবর্ষে নিশ্চিত হওয়া কোনো দান নেই।</p></div>';
+    return;
+  }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr>
+      <th>দাতা</th><th>ই-মেইল</th><th style="text-align:right">দানের সংখ্যা</th>
+      <th style="text-align:right">সর্বমোট (৳)</th><th>প্রত্যয়নপত্র</th>
+    </tr></thead><tbody>
+    ${list.map(d => `<tr>
+      <td>${esc(d.name)}</td>
+      <td>${d.email ? esc(d.email) : '<span style="color:var(--muted)">ই-মেইল নেই</span>'}</td>
+      <td style="text-align:right">${fmt(d.count)}</td>
+      <td style="text-align:right;font-weight:700">${fmt(d.total)}</td>
+      <td>${d.email
+        ? `<button class="btn btn-sm btn-primary" onclick="mailTaxCert('${escQ(d.donor_id)}',${year},this)">
+             <i class="ti ti-mail"></i> ই-মেইল করুন</button>`
+        : '<span style="color:var(--muted);font-size:12px">প্রোফাইলে ঠিকানা যোগ করুন</span>'}</td>
+    </tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+async function mailTaxCert(donorId, year, btn) {
+  if (!confirm('করবর্ষ ' + bnYear(year) + '-এর প্রত্যয়নপত্র দাতার ই-মেইলে পাঠানো হবে। নিশ্চিত?')) return;
+  const old = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> পাঠানো হচ্ছে…'; }
+  try {
+    const s = await _db.auth.getSession();
+    const tok = s && s.data && s.data.session && s.data.session.access_token;
+    if (!tok) throw new Error('সেশন নেই — আবার লগইন করুন');
+    const base = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1');
+    const ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const killer = ac ? setTimeout(() => ac.abort(), 75000) : null;
+    let res;
+    try {
+      res = await fetch(base + '/send-voucher', {
+        method: 'POST',
+        signal: ac ? ac.signal : undefined,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+        body: JSON.stringify({ kind: 'tax_certificate', donor_id: donorId, year: year })
+      });
+    } finally { if (killer) clearTimeout(killer); }
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const m = j.error === 'no email' ? 'দাতার প্রোফাইলে ই-মেইল ঠিকানা নেই'
+              : j.error === 'no donation in year' ? 'এই করবর্ষে ঐ দাতার কোনো দান নেই'
+              : j.error === 'forbidden' ? 'এই কাজের অনুমতি নেই'
+              : (j.error || 'ব্যর্থ');
+      throw new Error(m);
+    }
+    taxMsg('ok', '✅ প্রত্যয়নপত্র পাঠানো হয়েছে — ' + esc(j.sent_to || '') +
+      ' · নং ' + esc(j.no || '') + ' · সর্বমোট ৳' + fmt(j.total || 0));
+    if (btn) { btn.innerHTML = '<i class="ti ti-check"></i> পাঠানো হয়েছে'; }
+  } catch (e) {
+    taxMsg('err', 'পাঠানো যায়নি: ' + ((e && e.name === 'AbortError')
+      ? 'সময় শেষ — ই-মেইল সার্ভার সাড়া দেয়নি' : ((e && e.message) || '')));
+    if (btn) { btn.disabled = false; btn.innerHTML = old; }
+  }
 }
 
 // ════════════════════════════════════════

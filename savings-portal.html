@@ -315,6 +315,85 @@
       .portal-sidebar { display: none; } .guest-sidebar { display: none; }
       .portal-layout { display: block; } .guest-layout { display: block; }
     }
+
+    /* ── নমিনি ─────────────────────────────────────────────
+       ফর্মের কার্ড দুই থীমেই সাদা (.kh-slider{background:#fff}),
+       তাই এখানে গাঢ় লেখা ও হালকা পটভূমিই সঠিক কনট্রাস্ট দেয়। */
+    .nom-card {
+      position: relative;
+      background: #faf7fd;
+      border: 1px solid #ece4f2;
+      border-radius: 13px;
+      padding: 18px 16px 4px;
+      margin-bottom: 14px;
+    }
+    .nom-card .nom-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 16px;
+    }
+    .nom-card .nom-no {
+      font-size: 12.5px; font-weight: 700; letter-spacing: .4px;
+      color: #fff; background: linear-gradient(112deg, #7048e8, #d6336c);
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .nom-del {
+      background: #fdecef; color: #b02a4a; border: 1px solid #f6cdd8;
+      border-radius: 9px; font: inherit; font-size: 12.5px; font-weight: 600;
+      padding: 6px 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+      min-height: 34px;
+    }
+    .nom-del:hover { background: #fbdae1; }
+    .nom-card .kh-field { margin-bottom: 22px; }
+    /* কার্ডের হালকা পটভূমিতে ডিফল্ট লেবেল (#7b7288) ৪.৩:১ — তাই একটু গাঢ় */
+    .nom-card .kh-field label { color: #6d6379; }
+    .nom-photo { display: flex; align-items: center; gap: 12px; margin: -8px 0 18px; }
+    .nom-photo img {
+      width: 54px; height: 54px; border-radius: 10px; object-fit: cover;
+      border: 1px solid #ded8e6; background: #fff;
+    }
+    .nom-photo .nom-ph {
+      width: 54px; height: 54px; border-radius: 10px; display: grid; place-items: center;
+      border: 1px dashed #cfc4dd; background: #fff; color: #9a8fae; font-size: 22px;
+    }
+    .nom-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 2px 0 24px; }
+    .nom-btn {
+      background: #fff; color: #5b3d9e; border: 1px solid #d9cdee;
+      border-radius: 10px; font: inherit; font-size: 13.5px; font-weight: 600;
+      padding: 9px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      min-height: 40px;
+    }
+    .nom-btn:hover { background: #f4eefe; border-color: #b79ae6; }
+    .nom-btn[disabled] { opacity: .5; cursor: not-allowed; }
+    @media (max-width: 640px) {
+      .nom-btn, .nom-del { min-height: 44px; }
+      .nom-card { padding: 16px 13px 4px; }
+      .nom-actions { gap: 8px; }
+      .nom-view .nv-item { flex-wrap: wrap; }
+      .nom-view .nv-share { margin-left: 0; }
+    }
+    .nom-sum { font-size: 13px; font-weight: 600; color: #5f5570; }
+    .nom-sum.nom-ok  { color: #14713f; }
+    .nom-sum.nom-bad { color: #b02a4a; }
+    /* সংরক্ষিত নমিনি — হিসাব প্যানেলে
+       .section-card দুই থীমেই সাদা, তাই গাঢ় লেখাই সঠিক কনট্রাস্ট */
+    .nom-view { display: grid; gap: 10px; }
+    .nom-view .nv-item {
+      display: flex; gap: 12px; align-items: center;
+      background: #faf7fd; border: 1px solid #ece4f2;
+      border-radius: 12px; padding: 12px 14px;
+    }
+    .nom-view .nv-item img, .nom-view .nv-item .nv-ph {
+      width: 46px; height: 46px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+      display: grid; place-items: center; background: #fff; color: #6a4bbf;
+      border: 1px solid #e3dced; font-size: 20px;
+    }
+    .nom-view .nv-name { font-weight: 700; font-size: 15px; color: #241539; }
+    .nom-view .nv-meta { font-size: 12.5px; color: #5f5570; line-height: 1.7; }
+    .nom-view .nv-share {
+      margin-left: auto; font-weight: 800; font-size: 15px; color: #fff;
+      background: linear-gradient(112deg, #7048e8, #d6336c);
+      padding: 5px 12px; border-radius: 999px; white-space: nowrap;
+    }
   </style>
   <link rel="stylesheet" href="kh-ui.css?v=10">
 </head>
@@ -506,6 +585,38 @@
           <input type="text" id="regBankName" placeholder=" ">
           <label>ব্যাংকের নাম</label>
           <i class="ti ti-building-bank kh-fi" aria-hidden="true"></i>
+        </div>
+
+        <!-- ══════ নমিনি — সব স্কীমে বাধ্যতামূলক ══════ -->
+        <div class="kh-sect">নমিনির তথ্য</div>
+        <p class="kh-hint">
+          <i class="ti ti-users" style="color:#7048e8" aria-hidden="true"></i>
+          হিসাব খুলতে অন্তত একজন নমিনি দিতে হবে। একাধিক নমিনি দিলে প্রত্যেকের অংশ শতকরায় লিখুন —
+          যোগফল ঠিক ১০০ হতে হবে। পরে যেকোনো সময় বদলানো যাবে।
+        </p>
+        <p class="kh-hint" data-nom="inherit" data-for="nomList" style="display:none;color:#14713f">
+          <i class="ti ti-wand" aria-hidden="true"></i>
+          আপনার আগের হিসাবের নমিনির তথ্য বসিয়ে দেওয়া হয়েছে — প্রয়োজনে বদলে নিন।
+        </p>
+
+        <datalist id="nomRelList">
+          <option value="স্ত্রী"></option><option value="স্বামী"></option>
+          <option value="পুত্র"></option><option value="কন্যা"></option>
+          <option value="পিতা"></option><option value="মাতা"></option>
+          <option value="ভাই"></option><option value="বোন"></option>
+          <option value="নাতি"></option><option value="নাতনি"></option>
+          <option value="অন্যান্য"></option>
+        </datalist>
+        <div id="nomList"></div>
+        <div class="nom-actions">
+          <button type="button" class="nom-btn" data-nom="add" data-for="nomList"
+                  onclick="addNominee(null,{wrap:'nomList'})">
+            <i class="ti ti-user-plus" aria-hidden="true"></i> আরেকজন নমিনি
+          </button>
+          <button type="button" class="nom-btn" onclick="splitNomineeShares('nomList')">
+            <i class="ti ti-chart-pie" aria-hidden="true"></i> সমান ভাগ
+          </button>
+          <span class="nom-sum" data-nom="sum" data-for="nomList"></span>
         </div>
 
         <div class="kh-sect">লগইন তথ্য</div>
@@ -784,6 +895,20 @@
           </table>
         </div>
       </div>
+
+      <!-- ══════ নমিনি ══════ -->
+      <div class="section-card" style="margin-top:18px">
+        <div class="section-card-head">
+          <h3><i class="ti ti-users" style="color:var(--mdgreen)"></i> নমিনির তথ্য</h3>
+          <button class="filter-pill stmt-pill" id="accNomEdit" onclick="editAccountNominees()">
+            <i class="ti ti-edit"></i> সম্পাদনা
+          </button>
+        </div>
+        <div style="padding:8px 0 4px">
+          <div id="accNomMsg" class="kh-msg" style="margin-bottom:12px"></div>
+          <div id="accNomView">লোড হচ্ছে…</div>
+        </div>
+      </div>
     </div><!-- /panel-account -->
 
   </div><!-- /portal-main -->
@@ -947,6 +1072,13 @@ async function doRegister() {
     }
   }
 
+  /* নমিনি — যেকোনো স্কীমে বাধ্যতামূলক (যাচাই/অ্যাকাউন্ট তৈরির আগেই) */
+  const nomChk = collectNominees();
+  if (nomChk.error) {
+    if (nomChk.focus) nomChk.focus.focus();
+    return showMsg('regMsg', nomChk.error, 'error');
+  }
+
   /* ── ইতিমধ্যে সাইন ইন করা থাকলে পাসওয়ার্ড/OTP কিছুই লাগবে না ── */
   if (currentUser) { finishRegister(); return; }
 
@@ -994,6 +1126,14 @@ async function doRegister() {
     const { data: { session } } = await _db.auth.getSession();
     if (!session || !session.user) { showMsg('regMsg','যাচাই সম্পন্ন হয়নি। আবার চেষ্টা করুন।','error'); return; }
 
+    /* নমিনির ছবি (থাকলে) আপলোড — সেশন পাওয়ার পরেই সম্ভব */
+    let nom = collectNominees();
+    if (nom.error) { showMsg('regMsg', nom.error, 'error'); return; }
+    try {
+      const uploaded = await uploadNomineePhotos(session.user.id);
+      if (uploaded) nom = collectNominees();   /* photo_url বসার পর আবার পড়া */
+    } catch (e) { console.warn('নমিনির ছবি আপলোডে সমস্যা:', e); }
+
     const { error: rpcErr } = await _db.rpc('create_depositor', {
       p_id:                 session.user.id,
       p_full_name:          name,
@@ -1002,7 +1142,8 @@ async function doRegister() {
       p_scheme_type:        scheme,
       p_withdrawal_method:  method,
       p_withdrawal_account: account,
-      p_withdrawal_bank:    method === 'bank' ? bank : null
+      p_withdrawal_bank:    method === 'bank' ? bank : null,
+      p_nominees:           nom.list
     });
     if(rpcErr) return showMsg('regMsg', rpcErr.message, 'error');
 
@@ -1090,6 +1231,9 @@ async function loadPortal(user) {
   const aw2 = document.getElementById('accWithdrawal');     if(aw2) aw2.textContent = wInfo;
   const aj  = document.getElementById('accJoin');           if(aj)  aj.textContent  = dep?.created_at ? new Date(dep.created_at).toLocaleDateString('bn-BD') : '—';
   const ast = document.getElementById('accStatus');         if(ast) ast.innerHTML   = '<span style="background:rgba(240,140,40,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:13.5px;">সক্রিয়</span>';
+
+  /* নমিনির তথ্য — হিসাব প্যানেলে */
+  loadAccountNominees();
 
   renderTrx(allTrx);
 }
@@ -1207,6 +1351,9 @@ async function loadHeroStats() {
     prefillRegister();
     /* ড্যাশবোর্ড থেকে সরাসরি জমা/স্টেটমেন্টে আসার লিংক: savings-portal.html#deposit */
     openPanelFromHash();
+  } else {
+    /* অতিথি — নমিনির অন্তত একটি ফাঁকা ঘর দেখাতে হবে */
+    prefillNominees();
   }
 })();
 
@@ -1284,6 +1431,408 @@ function prefillRegister(tries) {
       showMsg('regMsg', 'আপনার অ্যাকাউন্টের তথ্য থেকে ফর্মটি স্বয়ংক্রিয়ভাবে পূরণ করা হয়েছে।', 'info');
     }
   });
+
+  /* নমিনি — আগের হিসাবের তথ্য থাকলে বসিয়ে দাও, নাহলে একটি ফাঁকা ঘর */
+  prefillNominees();
+}
+
+/* ══════════════════════════════════════════════════════
+   নমিনি — একাধিক, শতকরা অংশসহ
+   একবার দিলে পরের হিসাবে অটো-ফিল হয় (get_my_nominees)
+   ══════════════════════════════════════════════════════ */
+var NOM_MAX  = 5;
+var NOM_REL  = ['স্ত্রী','স্বামী','পুত্র','কন্যা','পিতা','মাতা','ভাই','বোন','নাতি','নাতনি','অন্যান্য'];
+var _nomSeq  = 0;
+var _nomFile = {};          /* কার্ড আইডি → বাছাই করা ছবির File (আপলোড বাকি) */
+
+/* একই কোড দুই জায়গায় চলে — হিসাব খোলার ফর্ম (nomList) ও
+   হিসাব প্যানেলের সম্পাদনা (accNomList)। তাই সব হেল্পার container-সচেতন। */
+var NOM_MSG = { nomList: 'regMsg', accNomList: 'accNomMsg' };
+function nomMsg(w, txt, type) { showMsg(NOM_MSG[w] || 'regMsg', txt, type); }
+function nomSide(w, role) { return document.querySelector('[data-nom="' + role + '"][data-for="' + w + '"]'); }
+function nomWrapOf(el) {
+  var w = el && el.closest ? el.closest('[id="nomList"],[id="accNomList"]') : null;
+  return w ? w.id : 'nomList';
+}
+function nomCards(w) {
+  return Array.prototype.slice.call(document.querySelectorAll('#' + (w || 'nomList') + ' .nom-card'));
+}
+function nomVal(card, key) {
+  var el = card.querySelector('[data-nk="' + key + '"]');
+  return el ? String(el.value || '').trim() : '';
+}
+
+/* একটি নমিনির ঘর যোগ করা */
+function addNominee(data, opts) {
+  opts = opts || {};
+  var w    = opts.wrap || 'nomList';
+  var wrap = document.getElementById(w);
+  if (!wrap) return null;
+  if (nomCards(w).length >= NOM_MAX) {
+    nomMsg(w, 'সর্বোচ্চ ' + bnNum(NOM_MAX) + ' জন নমিনি রাখা যাবে', 'error');
+    return null;
+  }
+  var d  = data || {};
+  var id = 'nom' + (++_nomSeq);
+  var card = document.createElement('div');
+  card.className = 'nom-card';
+  card.id = id;
+
+  /* অংশ: দেওয়া না থাকলে যা বাকি আছে তাই */
+  var share = d.share != null ? d.share : Math.max(100 - nomTotal(w), 0);
+
+  card.innerHTML =
+    '<div class="nom-head">' +
+      '<span class="nom-no"></span>' +
+      '<button type="button" class="nom-del" onclick="removeNominee(\'' + id + '\')">' +
+        '<i class="ti ti-trash" aria-hidden="true"></i> মুছুন</button>' +
+    '</div>' +
+    '<div class="kh-row2">' +
+      '<div class="kh-field">' +
+        '<input type="text" data-nk="full_name" placeholder=" ">' +
+        '<label>নমিনির পূর্ণ নাম *</label>' +
+        '<i class="ti ti-user-heart kh-fi" aria-hidden="true"></i></div>' +
+      '<div class="kh-field">' +
+        '<input type="text" data-nk="relation" placeholder=" " list="nomRelList" autocomplete="off">' +
+        '<label>সম্পর্ক *</label>' +
+        '<i class="ti ti-heart-handshake kh-fi" aria-hidden="true"></i></div>' +
+    '</div>' +
+    '<div class="kh-row2">' +
+      '<div class="kh-field">' +
+        '<input type="tel" data-nk="mobile" placeholder=" " inputmode="numeric">' +
+        '<label>মোবাইল নম্বর *</label>' +
+        '<i class="ti ti-phone kh-fi" aria-hidden="true"></i></div>' +
+      '<div class="kh-field">' +
+        '<input type="text" data-nk="nid" placeholder=" ">' +
+        '<label>এনআইডি / জন্ম নিবন্ধন</label>' +
+        '<i class="ti ti-id kh-fi" aria-hidden="true"></i></div>' +
+    '</div>' +
+    '<div class="kh-row2">' +
+      '<div class="kh-field">' +
+        '<input type="date" data-nk="dob" placeholder=" " class="kh-filled">' +
+        '<label>জন্ম তারিখ</label></div>' +
+      '<div class="kh-field">' +
+        '<input type="number" data-nk="share" placeholder=" " inputmode="decimal" min="0.01" max="100" step="0.01">' +
+        '<label>অংশ (%) *</label>' +
+        '<i class="ti ti-percentage kh-fi" aria-hidden="true"></i></div>' +
+    '</div>' +
+    '<div class="kh-field">' +
+      '<input type="text" data-nk="address" placeholder=" ">' +
+      '<label>ঠিকানা</label>' +
+      '<i class="ti ti-map-pin kh-fi" aria-hidden="true"></i></div>' +
+    '<div class="nom-photo">' +
+      '<span class="nom-ph" data-nk="photoBox"><i class="ti ti-camera" aria-hidden="true"></i></span>' +
+      '<button type="button" class="nom-btn" onclick="pickNomineePhoto(\'' + id + '\')">' +
+        '<i class="ti ti-upload" aria-hidden="true"></i> নমিনির ছবি</button>' +
+      '<input type="file" accept="image/*" data-nk="file" style="display:none" ' +
+        'onchange="onNomineePhoto(\'' + id + '\', this)">' +
+      '<input type="hidden" data-nk="photo_url">' +
+    '</div>';
+
+  wrap.appendChild(card);
+
+  /* মান বসানো */
+  var set = { full_name:d.full_name, relation:d.relation, mobile:d.mobile,
+              nid:d.nid, dob:d.dob, address:d.address, photo_url:d.photo_url,
+              share: share };
+  Object.keys(set).forEach(function (k) {
+    var el = card.querySelector('[data-nk="' + k + '"]');
+    if (el && set[k] != null && set[k] !== '') el.value = set[k];
+  });
+  if (d.photo_url) showNomineePhoto(card, d.photo_url);
+
+  /* অংশ বদলালে যোগফল হালনাগাদ */
+  var sh = card.querySelector('[data-nk="share"]');
+  if (sh) sh.addEventListener('input', function () { nomSyncSum(w); });
+
+  nomSyncSum(w);
+  if (!opts.silent) {
+    var first = card.querySelector('[data-nk="full_name"]');
+    if (first && !opts.noFocus) first.focus();
+  }
+  return card;
+}
+
+function removeNominee(id) {
+  var card = document.getElementById(id);
+  if (!card) return;
+  var w = nomWrapOf(card);
+  if (nomCards(w).length <= 1) {
+    nomMsg(w, 'অন্তত একজন নমিনি থাকতে হবে', 'error');
+    return;
+  }
+  delete _nomFile[id];
+  card.remove();
+  nomSyncSum(w);
+}
+
+function nomTotal(w) {
+  return nomCards(w).reduce(function (s, c) {
+    var v = parseFloat(nomVal(c, 'share') || '0');
+    return s + (isFinite(v) ? v : 0);
+  }, 0);
+}
+
+/* ক্রমিক নম্বর ও যোগফলের বার্তা */
+function nomSyncSum(w) {
+  w = w || 'nomList';
+  var cards = nomCards(w);
+  cards.forEach(function (c, i) {
+    var n = c.querySelector('.nom-no');
+    if (n) n.textContent = 'নমিনি ' + bnNum(i + 1);
+    var del = c.querySelector('.nom-del');
+    if (del) del.style.display = cards.length > 1 ? '' : 'none';
+  });
+  var add = nomSide(w, 'add');
+  if (add) add.disabled = cards.length >= NOM_MAX;
+
+  var el = nomSide(w, 'sum');
+  if (!el) return;
+  var t = Math.round(nomTotal(w) * 100) / 100;
+  el.textContent = 'অংশের যোগফল: ' + bnNum(t) + '% ' + (t === 100 ? '✓' : '(১০০% হতে হবে)');
+  el.className = 'nom-sum ' + (t === 100 ? 'nom-ok' : 'nom-bad');
+}
+
+/* সমান ভাগে ভাগ করা — শেষ জনে অবশিষ্টটুকু, যাতে যোগফল ঠিক ১০০ হয় */
+function splitNomineeShares(w) {
+  w = w || 'nomList';
+  var cards = nomCards(w);
+  if (!cards.length) return;
+  var each = Math.floor((100 / cards.length) * 100) / 100;
+  var used = 0;
+  cards.forEach(function (c, i) {
+    var v = (i === cards.length - 1) ? Math.round((100 - used) * 100) / 100 : each;
+    used += v;
+    var el = c.querySelector('[data-nk="share"]');
+    if (el) el.value = v;
+  });
+  nomSyncSum(w);
+}
+
+function pickNomineePhoto(id) {
+  var card = document.getElementById(id);
+  if (!card) return;
+  var f = card.querySelector('[data-nk="file"]');
+  if (f) f.click();
+}
+
+function showNomineePhoto(card, src) {
+  var box = card.querySelector('[data-nk="photoBox"]');
+  if (!box) return;
+  var img = document.createElement('img');
+  img.alt = 'নমিনির ছবি';
+  img.src = src;
+  img.setAttribute('data-nk', 'photoBox');
+  box.parentNode.replaceChild(img, box);
+}
+
+function onNomineePhoto(id, input) {
+  var card = document.getElementById(id);
+  if (!card || !input.files || !input.files[0]) return;
+  var w = nomWrapOf(card);
+  var file = input.files[0];
+  if (!/^image\//.test(file.type)) {
+    nomMsg(w, 'ছবির ফাইল দিন (JPG বা PNG)', 'error');
+    return;
+  }
+  _nomFile[id] = file;
+  try {
+    showNomineePhoto(card, URL.createObjectURL(file));
+  } catch (e) { /* প্রিভিউ না দেখালেও আপলোড চলবে */ }
+  nomMsg(w, 'নমিনির ছবি বাছাই হয়েছে — সংরক্ষণের সময় আপলোড হবে।', 'info');
+}
+
+/* ছবিগুলো আপলোড করে photo_url বসানো (সেশন থাকা অবস্থায়) */
+async function uploadNomineePhotos(uid, w) {
+  var cards = nomCards(w);
+  var did = false;
+  for (var i = 0; i < cards.length; i++) {
+    var card = cards[i];
+    var file = _nomFile[card.id];
+    if (!file) continue;
+    try {
+      var up = file;
+      if (window.KHUI && KHUI.compressImage) {
+        up = await KHUI.compressImage(file, { maxDim: 800, maxBytes: 300 * 1024 });
+      }
+      var ext  = (up.type === 'image/png') ? 'png' : 'jpg';
+      var path = uid + '/nominee-' + Date.now() + '-' + i + '.' + ext;
+      var r = await _db.storage.from('avatars').upload(path, up, { upsert: true, contentType: up.type });
+      if (r.error) throw r.error;
+      var pub = _db.storage.from('avatars').getPublicUrl(path);
+      var url = pub && pub.data && pub.data.publicUrl;
+      if (url) {
+        var h = card.querySelector('[data-nk="photo_url"]');
+        if (h) h.value = url;
+        delete _nomFile[card.id];
+        did = true;
+      }
+    } catch (e) {
+      /* ছবি না উঠলেও নমিনির তথ্য যেন হারিয়ে না যায় */
+      console.warn('নমিনির ছবি আপলোড হয়নি:', e);
+    }
+  }
+  return did;
+}
+
+/* ঘরগুলো পড়ে যাচাই করা — ভুল থাকলে {error} ফেরত */
+function collectNominees(w) {
+  var cards = nomCards(w);
+  if (!cards.length) return { error: 'অন্তত একজন নমিনির তথ্য দিতে হবে' };
+  var list = [], sum = 0;
+  for (var i = 0; i < cards.length; i++) {
+    var c = cards[i], no = bnNum(i + 1);
+    var name = nomVal(c, 'full_name');
+    var rel  = nomVal(c, 'relation');
+    var mob  = nomVal(c, 'mobile').replace(/\D/g, '');
+    var sh   = parseFloat(nomVal(c, 'share') || '0');
+    if (!name) return { error: 'নমিনি ' + no + '-এর নাম লিখুন', focus: c.querySelector('[data-nk="full_name"]') };
+    if (!rel)  return { error: 'নমিনি ' + no + '-এর সাথে সম্পর্ক লিখুন', focus: c.querySelector('[data-nk="relation"]') };
+    if (mob.length < 11) return { error: 'নমিনি ' + no + '-এর মোবাইল নম্বর ১১ সংখ্যার হতে হবে', focus: c.querySelector('[data-nk="mobile"]') };
+    if (!(sh > 0) || sh > 100) return { error: 'নমিনি ' + no + '-এর অংশ ০ থেকে ১০০-এর মধ্যে লিখুন', focus: c.querySelector('[data-nk="share"]') };
+    sum += sh;
+    list.push({
+      full_name: name, relation: rel, mobile: mob,
+      nid: nomVal(c, 'nid') || null,
+      dob: nomVal(c, 'dob') || null,
+      address: nomVal(c, 'address') || null,
+      photo_url: nomVal(c, 'photo_url') || null,
+      share: sh
+    });
+  }
+  if (Math.round(sum * 100) / 100 !== 100) {
+    return { error: 'সব নমিনির অংশের যোগফল ঠিক ১০০% হতে হবে — এখন ' + bnNum(Math.round(sum * 100) / 100) + '%' };
+  }
+  return { list: list };
+}
+
+/* সংরক্ষিত নমিনি আনা */
+async function fetchMyNominees() {
+  try {
+    var r = await _db.rpc('get_my_nominees', { p_account_kind: 'savings' });
+    if (!r.error && r.data) return r.data;
+  } catch (e) { /* নিঃশব্দে — ফাঁকা ঘরই দেখাব */ }
+  return { list: [], inherited: false };
+}
+
+/* একটি container-এ নমিনির ঘরগুলো বসানো */
+function paintNomineeForm(w, list) {
+  var wrap = document.getElementById(w);
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  Object.keys(_nomFile).forEach(function (k) { delete _nomFile[k]; });
+  if (!list || !list.length) {
+    addNominee(null, { wrap: w, silent: true, noFocus: true });
+    return;
+  }
+  list.forEach(function (n) { addNominee(n, { wrap: w, silent: true, noFocus: true }); });
+}
+
+/* হিসাব খোলার ফর্ম — আগের হিসাবের নমিনি বসানো (পরিবর্তনযোগ্য) */
+async function prefillNominees(force) {
+  var wrap = document.getElementById('nomList');
+  if (!wrap) return;
+  if (!currentUser) {
+    if (!nomCards('nomList').length) addNominee(null, { wrap: 'nomList', silent: true, noFocus: true });
+    return;
+  }
+  var res  = await fetchMyNominees();
+  var list = (res && res.list) || [];
+  if (!list.length) {
+    if (!nomCards('nomList').length || force) paintNomineeForm('nomList', []);
+    return;
+  }
+  paintNomineeForm('nomList', list);
+  var note = nomSide('nomList', 'inherit');
+  if (note) note.style.display = '';
+}
+
+/* ══════════════════════════════════════════════════════
+   হিসাব প্যানেল — সংরক্ষিত নমিনি দেখা ও বদলানো
+   ══════════════════════════════════════════════════════ */
+function nomEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+async function loadAccountNominees() {
+  var box = document.getElementById('accNomView');
+  if (!box) return;
+  box.innerHTML = 'লোড হচ্ছে…';
+  var res  = await fetchMyNominees();
+  var list = (res && res.list) || [];
+  if (!list.length) {
+    box.innerHTML = '<div class="empty-state"><i class="ti ti-user-question"></i>' +
+      'কোনো নমিনি সংরক্ষিত নেই — "সম্পাদনা" চেপে যোগ করুন</div>';
+    return;
+  }
+  box.innerHTML = '<div class="nom-view">' + list.map(function (n) {
+    var meta = [
+      n.relation ? 'সম্পর্ক: ' + nomEsc(n.relation) : '',
+      n.mobile   ? 'মোবাইল: ' + nomEsc(bnNum(n.mobile)) : '',
+      n.nid      ? 'এনআইডি: ' + nomEsc(bnNum(n.nid)) : '',
+      n.dob      ? 'জন্ম: ' + nomEsc(bnNum(new Date(n.dob).toLocaleDateString('en-GB'))) : '',
+      n.address  ? nomEsc(n.address) : ''
+    ].filter(Boolean).join(' · ');
+    return '<div class="nv-item">' +
+      (n.photo_url
+        ? '<img src="' + nomEsc(n.photo_url) + '" alt="নমিনির ছবি">'
+        : '<span class="nv-ph"><i class="ti ti-user"></i></span>') +
+      '<div><div class="nv-name">' + nomEsc(n.full_name) + '</div>' +
+      '<div class="nv-meta">' + meta + '</div></div>' +
+      '<span class="nv-share">' + bnNum(parseFloat(n.share)) + '%</span>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+async function editAccountNominees() {
+  var box = document.getElementById('accNomView');
+  if (!box) return;
+  showMsg('accNomMsg', '', '');
+  box.innerHTML =
+    '<div id="accNomList"></div>' +
+    '<div class="nom-actions">' +
+      '<button type="button" class="nom-btn" data-nom="add" data-for="accNomList" ' +
+        'onclick="addNominee(null,{wrap:\'accNomList\'})">' +
+        '<i class="ti ti-user-plus"></i> আরেকজন নমিনি</button>' +
+      '<button type="button" class="nom-btn" onclick="splitNomineeShares(\'accNomList\')">' +
+        '<i class="ti ti-chart-pie"></i> সমান ভাগ</button>' +
+      '<span class="nom-sum" data-nom="sum" data-for="accNomList"></span>' +
+    '</div>' +
+    '<div style="display:flex;gap:9px;flex-wrap:wrap">' +
+      '<button type="button" class="btn-primary" id="accNomSave" onclick="saveAccountNominees()">' +
+        '<i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>' +
+      '<button type="button" class="nom-btn" onclick="loadAccountNominees()">' +
+        '<i class="ti ti-x"></i> বাতিল</button>' +
+    '</div>';
+
+  var res = await fetchMyNominees();
+  paintNomineeForm('accNomList', (res && res.list) || []);
+}
+
+async function saveAccountNominees() {
+  var btn = document.getElementById('accNomSave');
+  var chk = collectNominees('accNomList');
+  if (chk.error) {
+    if (chk.focus) chk.focus.focus();
+    return showMsg('accNomMsg', chk.error, 'error');
+  }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> সংরক্ষণ হচ্ছে…'; }
+  showMsg('accNomMsg', 'সংরক্ষণ হচ্ছে…', 'info');
+  try {
+    if (currentUser) {
+      var up = await uploadNomineePhotos(currentUser.id, 'accNomList');
+      if (up) chk = collectNominees('accNomList');
+    }
+    var r = await _db.rpc('save_my_nominees', { p_list: chk.list, p_account_kind: 'savings' });
+    if (r.error) throw r.error;
+    await loadAccountNominees();
+    showMsg('accNomMsg', 'নমিনির তথ্য সংরক্ষণ করা হয়েছে।', 'success');
+  } catch (e) {
+    showMsg('accNomMsg', 'সংরক্ষণ হয়নি: ' + ((e && e.message) || ''), 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> সংরক্ষণ করুন'; }
+  }
 }
 
 /* URL-এর হ্যাশ (#deposit · #withdraw · #history · #account) থেকে প্যানেল খোলা */
