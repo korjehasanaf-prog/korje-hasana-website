@@ -289,7 +289,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=10">
+  <link rel="stylesheet" href="kh-ui.css?v=11">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1198,7 +1198,8 @@ function autoMailDonation() {
   function ok(r) {
     donationMailed = true;
     note('<i class="ti ti-mail-check"></i> এই ভাউচারের একটি কপি ' + (r.sent_to || 'আপনার ই-মেইলে') +
-         ' পাঠানো হয়েছে' + (r.image ? ' (ছবিসহ)' : '') + '।', true);
+         ' পাঠানো হয়েছে' + (r.image ? ' (ছবিসহ)' : '') + '।' +
+         (r.already ? ' (সার্ভার থেকেই পাঠানো হয়েছে — দ্বিতীয় কপি পাঠানো হয়নি)' : ''), true);
   }
   function fail(e) {
     var m = (e && e.message) || '';
@@ -1466,7 +1467,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=10"></script>
+<script src="kh-ui.js?v=11"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

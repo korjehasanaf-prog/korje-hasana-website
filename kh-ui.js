@@ -1350,6 +1350,53 @@
     return _h2cPromise;
   }
 
+  /* ── jsPDF দরকারে লোড করা ──
+     ⚠️ PDF-এ বাংলা লেখা সরাসরি বসানো যায় না (shaping নেই), তাই ভাউচারের
+     ছবিটিকেই পাতায় বসানো হয় — লেখা তখন ছবির অংশ, বাংলা নিখুঁত থাকে। */
+  var _pdfPromise = null;
+  function loadJsPdf() {
+    if (window.jspdf && window.jspdf.jsPDF) return Promise.resolve(window.jspdf.jsPDF);
+    if (_pdfPromise) return _pdfPromise;
+    _pdfPromise = new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = function () {
+        (window.jspdf && window.jspdf.jsPDF) ? res(window.jspdf.jsPDF) : rej(new Error('jsPDF পাওয়া গেল না'));
+      };
+      s.onerror = function () { rej(new Error('PDF টুল লোড হয়নি')); };
+      document.head.appendChild(s);
+    });
+    return _pdfPromise;
+  }
+
+  /* ভাউচারের PNG থেকে PDF — base64 (কোনো ডেটা-URL উপসর্গ ছাড়া) */
+  KHUI.pngToPdfBase64 = function (pngB64) {
+    if (!pngB64) return Promise.resolve(null);
+    var build = loadJsPdf().then(function (jsPDF) {
+      return new Promise(function (res, rej) {
+        var img = new Image();
+        img.onload = function () {
+          try {
+            /* ছবির অনুপাত ধরে রেখে A4 চওড়ায় বসানো; লম্বা হলে পাতা লম্বা হয় */
+            var mmW = 210, pad = 8;
+            var innerW = mmW - pad * 2;
+            var innerH = innerW * (img.height / img.width);
+            var mmH = Math.max(innerH + pad * 2, 120);
+            var pdf = new jsPDF({ orientation: mmH > mmW ? 'p' : 'l', unit: 'mm', format: [mmW, mmH] });
+            pdf.addImage('data:image/png;base64,' + pngB64, 'PNG', pad, pad, innerW, innerH, undefined, 'FAST');
+            var out = pdf.output('datauristring');
+            res((out.split(',')[1]) || null);
+          } catch (e) { rej(e); }
+        };
+        img.onerror = function () { rej(new Error('ছবি পড়া যায়নি')); };
+        img.src = 'data:image/png;base64,' + pngB64;
+      });
+    });
+    /* PDF বানাতে আটকে গেলেও মেইল যেন থেমে না থাকে */
+    var guard = new Promise(function (res) { setTimeout(function () { res(null); }, 10000); });
+    return Promise.race([build, guard]).catch(function () { return null; });
+  };
+
   /* খোলা ভাউচারটিকে ছবি (PNG) বানানো — ই-মেইলে পাঠানোর জন্য */
   KHUI.voucherToPng = function (node) {
     node = node || document.querySelector('.kh-vch') || document.getElementById('voucherDoc');
@@ -1393,11 +1440,32 @@
       var sess = s && s.data && s.data.session;
       if (!sess) throw new Error('আগে লগইন করুন');
 
+      /* ⚠️ লেনদেন লেখা হলেই ডাটাবেজের ট্রিগার সার্ভার থেকে মেইল পাঠিয়ে দেয়
+         (kick_voucher_mailer)। তাই ব্রাউজার থেকে পাঠানোর আগে দেখে নেওয়া হয় —
+         নাহলে দাতা/সদস্য একই ভাউচারের দুটি কপি পেতেন। */
+      return db.rpc('voucher_mail_status', { p_kind: kind, p_id: id })
+        .then(function (r) { return (r && r.data) || null; })
+        .catch(function () { return null; })
+        .then(function (st) {
+          if (st && st.status === 'sent') {
+            return { ok: true, already: true, sent_to: st.sent_to, image: false };
+          }
+          return sendNow();
+        });
+
+      function sendNow() {
       var pngPromise = (opts.png === false)
         ? Promise.resolve(null)
         : KHUI.voucherToPng(opts.node);
 
+      /* পর্দার হুবহু ভাউচারটিই দুই রূপে যায় — মেইলের ভেতরে ছবি, সাথে PDF সংযুক্তি */
       return pngPromise.then(function (png) {
+        if (!png || opts.pdf === false) return { png: png, pdf: null };
+        return KHUI.pngToPdfBase64(png).then(function (pdf) {
+          return { png: png, pdf: pdf };
+        });
+      }).then(function (made) {
+        var png = made.png, pdf = made.pdf;
       var url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-voucher';
       /* উত্তর না এলে যেন "পাঠানো হচ্ছে…" চিরকাল ঘুরতে না থাকে */
       var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -1409,7 +1477,7 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + sess.access_token
         },
-        body: JSON.stringify({ kind: kind, id: id, image_base64: png })
+        body: JSON.stringify({ kind: kind, id: id, image_base64: png, pdf_base64: pdf })
       }).catch(function (e) {
         if (killer) clearTimeout(killer);
         throw new Error((e && e.name === 'AbortError')
@@ -1431,6 +1499,7 @@
         });
       });
       });
+      }   /* sendNow() শেষ */
     });
   };
 
