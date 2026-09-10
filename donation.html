@@ -1197,9 +1197,16 @@ function autoMailDonation() {
 
   function ok(r) {
     donationMailed = true;
-    note('<i class="ti ti-mail-check"></i> এই ভাউচারের একটি কপি ' + (r.sent_to || 'আপনার ই-মেইলে') +
-         ' পাঠানো হয়েছে' + (r.image ? ' (ছবিসহ)' : '') + '।' +
-         (r.already ? ' (সার্ভার থেকেই পাঠানো হয়েছে — দ্বিতীয় কপি পাঠানো হয়নি)' : ''), true);
+    if (r && r.queued) {
+      var what = (r.image && r.pdf) ? 'ভাউচারের ছবি ও A4 মাপের PDF'
+               : r.pdf ? 'ভাউচারের PDF' : r.image ? 'ভাউচারের ছবি' : 'রশিদ';
+      note('<i class="ti ti-mail-check"></i> ' + what +
+           ' আপনার ই-মেইলে পাঠানো হচ্ছে — কয়েক সেকেন্ডের মধ্যে পৌঁছে যাবে। ' +
+           'ইনবক্সে না পেলে Spam ফোল্ডারটিও দেখুন।', true);
+      return;
+    }
+    note('<i class="ti ti-mail-check"></i> এই ভাউচারের একটি কপি ' + ((r && r.sent_to) || 'আপনার ই-মেইলে') +
+         ' পাঠানো হয়েছে' + (r && r.image ? ' (ছবিসহ)' : '') + '।', true);
   }
   function fail(e) {
     var m = (e && e.message) || '';

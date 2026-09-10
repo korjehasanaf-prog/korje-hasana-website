@@ -1438,13 +1438,59 @@
     var db = sb();
     if (!db || !db.auth) return Promise.reject(new Error('সংযোগ নেই'));
 
+    /* ══════════════════════════════════════════════════════════
+       ⚠️ পর্দার হুবহু ভাউচারটি সার্ভারে **জমা দেওয়া** হয়, নিজে মেইল করা হয় না।
+       আগে ব্রাউজার সরাসরি Edge Function-কে ডাকত — তাতে লগইন আবশ্যক ছিল আর
+       CORS/JWT-এর ফাঁদে বারবার আটকে যেত (ছবি/PDF কখনোই পৌঁছাত না)।
+       এখন `attach_voucher_asset` RPC-তে ছবি ও A4 PDF জমা পড়ে — record_donation
+       যে পথে কাজ করে, ঠিক সেই PostgREST পথ — তারপর `request_voucher_mail`
+       সার্ভারকে বলে "এখনই পাঠাও"। লগইন লাগে না, দ্বিগুণ কপিও যায় না।
+       ══════════════════════════════════════════════════════════ */
+    var pngPromise = (opts.png === false)
+      ? Promise.resolve(null)
+      : KHUI.voucherToPng(opts.node);
+
+    return pngPromise.then(function (png) {
+      if (!png || opts.pdf === false) return { png: png, pdf: null };
+      return KHUI.pngToPdfBase64(png).then(function (pdf) {
+        return { png: png, pdf: pdf };
+      });
+    }).then(function (made) {
+      /* ছবি/PDF জমা দেওয়া — না বানাতে পারলেও সার্ভার সাধারণ রশিদ পাঠাবে */
+      var put = (made.png || made.pdf)
+        ? db.rpc('attach_voucher_asset', {
+            p_kind: kind, p_ref_id: id,
+            p_png: made.png || null, p_pdf: made.pdf || null
+          }).then(function (r) { return r && r.data; })
+        : Promise.resolve(null);
+
+      return put.then(function (res) {
+        return db.rpc('request_voucher_mail', { p_kind: kind, p_ref_id: id })
+          .then(function () { return res; })
+          .catch(function () { return res; });
+      }).then(function (res) {
+        return {
+          ok: true,
+          queued: true,
+          image: !!(res && res.png),
+          pdf: !!(res && res.pdf),
+          already: !!(res && res.already)
+        };
+      });
+    });
+  };
+
+  /* লগইন করা অবস্থায় সরাসরি Edge Function দিয়ে পাঠানো — অ্যাডমিনের ম্যানুয়াল
+     "ই-মেইল করুন" বাটনের জন্য রাখা হলো (সাধারণ পথ উপরের জমা দেওয়াই) */
+  KHUI.sendVoucherMailDirect = function (kind, id, opts) {
+    opts = opts || {};
+    var db = sb();
+    if (!db || !db.auth) return Promise.reject(new Error('সংযোগ নেই'));
+
     return db.auth.getSession().then(function (s) {
       var sess = s && s.data && s.data.session;
       if (!sess) throw new Error('আগে লগইন করুন');
 
-      /* ⚠️ লেনদেন লেখা হলেই ডাটাবেজের ট্রিগার সার্ভার থেকে মেইল পাঠিয়ে দেয়
-         (kick_voucher_mailer)। তাই ব্রাউজার থেকে পাঠানোর আগে দেখে নেওয়া হয় —
-         নাহলে দাতা/সদস্য একই ভাউচারের দুটি কপি পেতেন। */
       return db.rpc('voucher_mail_status', { p_kind: kind, p_id: id })
         .then(function (r) { return (r && r.data) || null; })
         .catch(function () { return null; })
@@ -1460,7 +1506,6 @@
         ? Promise.resolve(null)
         : KHUI.voucherToPng(opts.node);
 
-      /* পর্দার হুবহু ভাউচারটিই দুই রূপে যায় — মেইলের ভেতরে ছবি, সাথে PDF সংযুক্তি */
       return pngPromise.then(function (png) {
         if (!png || opts.pdf === false) return { png: png, pdf: null };
         return KHUI.pngToPdfBase64(png).then(function (pdf) {
