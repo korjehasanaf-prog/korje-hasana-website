@@ -1399,18 +1399,48 @@
     return Promise.race([build, guard]).catch(function () { return null; });
   };
 
-  /* খোলা ভাউচারটিকে ছবি (PNG) বানানো — ই-মেইলে পাঠানোর জন্য */
+  /* ভাউচারটিকে ছবি (PNG) বানানো — ই-মেইলে পাঠানোর জন্য
+     ⚠️ আগে শর্ত ছিল "ভাউচার পর্দায় থাকতে হবে": নোডের মাপ ৪০px-এর কম হলে সরাসরি
+     null দেওয়া হত। দানের পেজে ভাউচারের ওভারলে `.show` না পাওয়া পর্যন্ত
+     `#voucherDoc` থাকে ০×০ — তাই ছবি/PDF কখনো তৈরিই হত না (সঞ্চয়ে কিটের নিজের
+     ভাউচার সবসময় দৃশ্যমান, তাই ওটি কাজ করত)। এখন লুকানো থাকলে নোডটি ক্লোন করে
+     পর্দার বাইরে (কিন্তু লেআউট-সহ) বসিয়ে ছবি তোলা হয় — ওভারলে খোলা থাকা,
+     টাইমিং বা ব্যবহারকারী ভাউচার বন্ধ করে দেওয়া — কিছুতেই আর আটকায় না। */
   KHUI.voucherToPng = function (node) {
     node = node || document.querySelector('.kh-vch') || document.getElementById('voucherDoc');
     if (!node) return Promise.resolve(null);
-    /* ভাউচারটি পর্দায় না থাকলে (লুকানো/০ মাপ) ছবি তোলা যায় না — ফাঁকা ছবি পাঠানোর
-       চেয়ে ছবি ছাড়া পাঠানোই ভালো */
-    var r = node.getBoundingClientRect();
-    if (r.width < 40 || r.height < 40) return Promise.resolve(null);
+
+    var host = null;                 /* ক্লোন রাখার অস্থায়ী ঘর */
+    function target() {
+      var r = node.getBoundingClientRect();
+      if (r.width >= 40 && r.height >= 40) return node;
+      /* লুকানো — পর্দার বাইরে ক্লোন করে মাপ পাওয়া যায় */
+      var w = node.offsetWidth || node.scrollWidth || 580;
+      host = document.createElement('div');
+      host.setAttribute('aria-hidden', 'true');
+      host.style.cssText = 'position:fixed;left:-10000px;top:0;width:' + w +
+                           'px;background:#fff;z-index:-1;pointer-events:none';
+      var clone = node.cloneNode(true);
+      clone.style.width = w + 'px';
+      clone.style.display = 'block';
+      host.appendChild(clone);
+      document.body.appendChild(host);
+      var cr = clone.getBoundingClientRect();
+      if (cr.width < 40 || cr.height < 40) { cleanup(); return null; }
+      return clone;
+    }
+    function cleanup() {
+      if (host && host.parentNode) host.parentNode.removeChild(host);
+      host = null;
+    }
 
     var shot = loadHtml2Canvas().then(function (h2c) {
-      return h2c(node, {
-        scale: 1.7, useCORS: true, backgroundColor: '#ffffff', logging: false,
+      var el = target();
+      if (!el) return null;
+      /* বড় ভাউচারে স্কেল কমানো — মেইলের আকার নিয়ন্ত্রণে থাকে */
+      var tall = el.getBoundingClientRect().height > 1100;
+      return h2c(el, {
+        scale: tall ? 1.35 : 1.7, useCORS: true, backgroundColor: '#ffffff', logging: false,
         imageTimeout: 6000,
         onclone: function (doc) {
           /* বাটন ও বার্তা ছবিতে থাকবে না */
@@ -1420,15 +1450,21 @@
         }
       });
     }).then(function (cv) {
+      cleanup();
       if (!cv || !cv.width || !cv.height) return null;
       var data = cv.toDataURL('image/png');
       var b64 = data.split(',')[1] || null;
       return (b64 && b64.length > 2000) ? b64 : null;   /* base64 অংশটুকু */
+    }).catch(function (e) {
+      cleanup();
+      throw e;
     });
 
     /* html2canvas কখনো আটকে গেলেও ই-মেইল যেন থেমে না থাকে */
-    var guard = new Promise(function (res) { setTimeout(function () { res(null); }, 12000); });
-    return Promise.race([shot, guard]).catch(function () { return null; });
+    var guard = new Promise(function (res) {
+      setTimeout(function () { cleanup(); res(null); }, 12000);
+    });
+    return Promise.race([shot, guard]).catch(function () { cleanup(); return null; });
   };
 
   /* ভাউচার ই-মেইল — Edge Function কল (লগইন আবশ্যক)
