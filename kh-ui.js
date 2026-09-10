@@ -1377,13 +1377,15 @@
         var img = new Image();
         img.onload = function () {
           try {
-            /* ছবির অনুপাত ধরে রেখে A4 চওড়ায় বসানো; লম্বা হলে পাতা লম্বা হয় */
-            var mmW = 210, pad = 8;
-            var innerW = mmW - pad * 2;
-            var innerH = innerW * (img.height / img.width);
-            var mmH = Math.max(innerH + pad * 2, 120);
-            var pdf = new jsPDF({ orientation: mmH > mmW ? 'p' : 'l', unit: 'mm', format: [mmW, mmH] });
-            pdf.addImage('data:image/png;base64,' + pngB64, 'PNG', pad, pad, innerW, innerH, undefined, 'FAST');
+            /* ⚠️ পাতা সবসময় সত্যিকারের A4 (২১০×২৯৭ মিমি) — আগে ছবির অনুপাত ধরে
+               পাতার উচ্চতা বদলে যেত, ফলে ছাপাতে দিলে A4-এ বসত না। */
+            var A4W = 210, A4H = 297, pad = 10;
+            var maxW = A4W - pad * 2, maxH = A4H - pad * 2;
+            var w = maxW, h = maxW * (img.height / img.width);
+            if (h > maxH) { h = maxH; w = maxH * (img.width / img.height); }  /* লম্বা হলে উচ্চতায় ফিট */
+            var x = (A4W - w) / 2, y = (A4H - h) / 2;                        /* পাতার মাঝখানে */
+            var pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+            pdf.addImage('data:image/png;base64,' + pngB64, 'PNG', x, y, w, h, undefined, 'FAST');
             var out = pdf.output('datauristring');
             res((out.split(',')[1]) || null);
           } catch (e) { rej(e); }

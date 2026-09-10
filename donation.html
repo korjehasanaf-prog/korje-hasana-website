@@ -289,7 +289,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=11">
+  <link rel="stylesheet" href="kh-ui.css?v=12">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1316,7 +1316,8 @@ function printVoucher() {
     if (actions) actions.style.display = '';
     const imgData = canvas.toDataURL('image/jpeg', 0.97);
     const win = window.open('', '_blank', 'width=700,height=950');
-    win.document.write('<!DOCTYPE html><html><head><title>Donation Voucher</title><style>*{margin:0;padding:0;box-sizing:border-box}body{display:flex;justify-content:center;align-items:flex-start;background:#f3f4f6;padding:20px}img{max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,.2)}@media print{body{background:#fff;padding:0}img{box-shadow:none}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();}<\/script></body></html>');
+    /* ছাপার পাতা A4 — ভাউচারটি পাতার মাঝখানে, প্রান্তে ১০ মিমি মার্জিন */
+    win.document.write('<!DOCTYPE html><html><head><title>Donation Voucher</title><style>@page{size:A4 portrait;margin:10mm}*{margin:0;padding:0;box-sizing:border-box}body{display:flex;justify-content:center;align-items:flex-start;background:#f3f4f6;padding:20px}img{max-width:100%;box-shadow:0 4px 20px rgba(0,0,0,.2)}@media print{body{background:#fff;padding:0;display:block}img{box-shadow:none;display:block;margin:0 auto;max-width:190mm;max-height:277mm;width:auto;height:auto}}</style></head><body><img src="' + imgData + '"><script>window.onload=function(){window.print();}<\/script></body></html>');
     win.document.close();
   }).catch(err => {
     if (actions) actions.style.display = '';
@@ -1347,11 +1348,15 @@ function downloadVoucherPDF() {
     if (btn) btn.style.visibility = '';
     const imgData = canvas.toDataURL('image/jpeg', 0.97);
     const { jsPDF } = window.jspdf;
-    // A4 width = 210mm, calculate height proportionally
-    const pdfW = 210;
-    const pdfH = Math.round((canvas.height / canvas.width) * pdfW);
-    const pdf = new jsPDF({ orientation: pdfH > pdfW ? 'p' : 'l', unit: 'mm', format: [pdfW, pdfH] });
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    /* ⚠️ পাতা সবসময় সত্যিকারের A4 (২১০×২৯৭ মিমি)। আগে ছবির অনুপাত ধরে পাতার
+       উচ্চতা বসানো হত — ফাইলটি তখন A4 থাকত না, ছাপাতে গেলে মাপ মিলত না। */
+    const A4W = 210, A4H = 297, pad = 10;
+    const maxW = A4W - pad * 2, maxH = A4H - pad * 2;
+    let w = maxW, h = maxW * (canvas.height / canvas.width);
+    if (h > maxH) { h = maxH; w = maxH * (canvas.width / canvas.height); }
+    const x = (A4W - w) / 2, y = (A4H - h) / 2;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    pdf.addImage(imgData, 'JPEG', x, y, w, h);
     pdf.save(ref + '.pdf');
   }).catch(err => {
     if (btn) btn.style.visibility = '';
@@ -1458,16 +1463,20 @@ function downloadCertPDF() {
   _capturecert(canvas => {
     const imgData = canvas.toDataURL('image/jpeg', 0.97);
     const { jsPDF } = window.jspdf;
-    const pdfW = 210;
-    const pdfH = Math.round((canvas.height / canvas.width) * pdfW);
-    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfW, pdfH] });
-    pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    /* প্রত্যয়নপত্রও সত্যিকারের A4 পাতায় */
+    const A4W = 210, A4H = 297, pad = 10;
+    const maxW = A4W - pad * 2, maxH = A4H - pad * 2;
+    let w = maxW, h = maxW * (canvas.height / canvas.width);
+    if (h > maxH) { h = maxH; w = maxH * (canvas.width / canvas.height); }
+    const x = (A4W - w) / 2, y = (A4H - h) / 2;
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    pdf.addImage(imgData, 'JPEG', x, y, w, h);
     const certNo = document.getElementById('cert_no').textContent || 'KH-CERT';
     pdf.save(certNo + '.pdf');
   });
 }
 </script>
-<script src="kh-ui.js?v=11"></script>
+<script src="kh-ui.js?v=12"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {
