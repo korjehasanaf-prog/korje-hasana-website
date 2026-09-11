@@ -692,10 +692,16 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
-      <!-- ══════════════ PANEL: SAVINGS WITHDRAWAL APPROVAL ══════════════ -->
+      <!-- ══════════════ PANEL: SAVINGS DEPOSIT & WITHDRAWAL APPROVAL ══════════════ -->
       <div class="panel" id="panel-savings-approve">
-        <div class="panel-title">✅ সঞ্চয় উত্তোলন অনুমোদন</div>
-        <div class="panel-sub">অপেক্ষমাণ সঞ্চয় উত্তোলন আবেদন</div>
+        <div class="panel-title">✅ সঞ্চয় জমা ও উত্তোলন অনুমোদন</div>
+        <div class="panel-sub">অপেক্ষমাণ সব আবেদন — হিসাব নম্বরসহ</div>
+
+        <div class="filter-pills" style="margin-bottom:14px">
+          <button class="filter-pill active" onclick="filterSavingsApprovals('all',this)">সব</button>
+          <button class="filter-pill" onclick="filterSavingsApprovals('deposit',this)">জমা</button>
+          <button class="filter-pill" onclick="filterSavingsApprovals('withdrawal',this)">উত্তোলন</button>
+        </div>
 
         <div id="savingsApproveContainer">
           <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
@@ -1410,7 +1416,8 @@ async function loadPendingBadges() {
   const [loanRes, donRes, savRes, cRes] = await Promise.all([
     _db.from('loan_applications').select('id',{count:'exact',head:true}).in('status',['pending','review']),
     _db.from('donations').select('id',{count:'exact',head:true}).eq('status','pending'),
-    _db.from('savings_transactions').select('id',{count:'exact',head:true}).eq('status','pending').eq('type','withdrawal'),
+    /* জমা ও উত্তোলন — দুটোই ব্যাজে গোনা হয় */
+    _db.from('savings_transactions').select('id',{count:'exact',head:true}).eq('status','pending'),
     _db.from('committee_applications').select('id',{count:'exact',head:true}).eq('status','pending'),
   ]);
   setBadge('badge-loan', loanRes.count);
@@ -1916,28 +1923,57 @@ async function confirmDonation(id, status) {
 // ════════════════════════════════════════
 //  SAVINGS APPROVAL
 // ════════════════════════════════════════
+/* ⚠️ আগে এখানে `.eq('type','withdrawal')` ছিল — তাই অপেক্ষমাণ **জমা** কখনো
+   তালিকায় আসত না, অনুমোদন দেওয়ার কোনো পথও ছিল না। এখন জমা ও উত্তোলন দুটোই। */
 async function loadSavingsApprovals() {
   const c = document.getElementById('savingsApproveContainer');
   c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
-  const {data} = await _db.from('savings_transactions')
-    .select('id,type,amount,status,notes,reference,created_at,depositor_id,depositors(full_name,phone)')
-    .eq('type','withdrawal').eq('status','pending').order('created_at',{ascending:false});
+  const {data, error} = await _db.from('savings_transactions')
+    .select('id,type,amount,status,notes,reference,created_at,depositor_id,account_id,' +
+            'depositors(full_name,phone),savings_accounts(account_no,scheme_type)')
+    .eq('status','pending').order('created_at',{ascending:false});
+  if (error) {
+    c.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><p>তালিকা আনা যায়নি: ' +
+                  esc(error.message) + '</p></div>';
+    return;
+  }
   _allSavingsTrx = data||[];
   renderSavingsApprovals(_allSavingsTrx);
 }
 
+/* জমা / উত্তোলন — দুটোর ছাঁকনি */
+function filterSavingsApprovals(kind, btn) {
+  document.querySelectorAll('#panel-savings-approve .filter-pill').forEach(p=>p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  let list = _allSavingsTrx || [];
+  if (kind === 'deposit')    list = list.filter(t=>t.type==='deposit');
+  if (kind === 'withdrawal') list = list.filter(t=>t.type==='withdrawal');
+  renderSavingsApprovals(list);
+}
+
 function renderSavingsApprovals(rows) {
   const c = document.getElementById('savingsApproveContainer');
-  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-check-circle" style="color:var(--success);opacity:.5"></i><p>কোনো অপেক্ষমাণ উত্তোলন নেই</p></div>';return;}
-  c.innerHTML = rows.map(r=>`<div class="apv-card">
+  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-check-circle" style="color:var(--success);opacity:.5"></i><p>কোনো অপেক্ষমাণ আবেদন নেই</p></div>';return;}
+  const SCH = { daily:'দৈনিক', fortnightly:'পাক্ষিক', monthly:'মাসিক', flexible:'যখন খুশি' };
+  c.innerHTML = rows.map(r=>{
+    const isDep = r.type === 'deposit';
+    const acc = r.savings_accounts;
+    return `<div class="apv-card">
     <div class="apv-top">
       <div>
-        <div class="apv-name">${r.depositors?.full_name||'অজ্ঞাত'}</div>
-        <div class="apv-info">মোবাইল: ${r.depositors?.phone||'—'}<br>নোট: ${r.notes||r.reference||'—'}<br>তারিখ: ${fmtDate(r.created_at)}</div>
+        <div class="apv-name">${esc(r.depositors?.full_name||'অজ্ঞাত')}</div>
+        <div class="apv-info">
+          হিসাব: <b>${esc(acc?.account_no||'—')}</b>${acc?.scheme_type ? ' · ' + (SCH[acc.scheme_type]||acc.scheme_type) : ''}<br>
+          মোবাইল: ${esc(r.depositors?.phone||'—')}<br>
+          রেফারেন্স: ${esc(r.reference||'—')}${r.notes ? '<br>নোট: ' + esc(r.notes) : ''}<br>
+          তারিখ: ${fmtDate(r.created_at)}
+        </div>
       </div>
       <div style="text-align:right">
-        <div class="apv-amount-big" style="color:#f87171">-৳${fmt(r.amount)}</div>
-        <span class="badge b-pending">উত্তোলন আবেদন</span>
+        <div class="apv-amount-big" style="color:${isDep ? '#22c55e' : '#f87171'}">
+          ${isDep ? '+' : '-'}৳${fmt(r.amount)}</div>
+        <span class="badge ${isDep ? 'b-approved' : 'b-pending'}">
+          ${isDep ? 'জমার আবেদন' : 'উত্তোলন আবেদন'}</span>
       </div>
     </div>
     <div class="apv-note"><textarea id="sw-note-${r.id}" placeholder="অনুমোদন নোট..."></textarea></div>
@@ -1945,7 +1981,7 @@ function renderSavingsApprovals(rows) {
       <button class="btn btn-success" onclick="approveSavings('${r.id}','approved')"><i class="ti ti-check"></i> অনুমোদন</button>
       <button class="btn btn-danger" onclick="approveSavings('${r.id}','rejected')"><i class="ti ti-x"></i> বাতিল</button>
     </div>
-  </div>`).join('');
+  </div>`;}).join('');
 }
 
 async function approveSavings(id, status) {
@@ -1967,6 +2003,10 @@ async function approveSavings(id, status) {
   }
   loadSavingsApprovals();
   loadPendingBadges();
+  if (status === 'approved') {
+    /* ডাটাবেজের ট্রিগার নিজেই নিশ্চিতকরণ মেইল পাঠায় — অ্যাডমিনকে শুধু জানানো হয় */
+    alert('✅ অনুমোদিত হয়েছে। সদস্যের ই-মেইলে নিশ্চিতকরণ বার্তা পাঠানো হচ্ছে।');
+  }
 }
 
 // ════════════════════════════════════════
