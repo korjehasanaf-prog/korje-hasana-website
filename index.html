@@ -700,6 +700,26 @@
 .nav-hamburger.active span:nth-child(2) { opacity:0; }
 .nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
 
+/* ═══ মোবাইলের লগইন / সাইন আপ বাটন ═══
+   ডেস্কটপে টপবারে ও নেভ-CTA-তে লগইন আছে, কিন্তু মোবাইলে দুটোই লুকানো
+   (.topbar ও .nav-cta → display:none) — তাই লগইন শুধু হ্যামবার্গারে থাকত।
+   এই বাটনটি হিরোতেই সেই পথ খুলে দেয়। ৭৬৮px-এর উপরে সম্পূর্ণ লুকানো। */
+.kh-mauth { display:none; }
+@media (max-width:768px) {
+  .kh-mauth {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; margin:0 0 14px; padding:14px 20px; min-height:48px;
+    border:none; border-radius:13px; cursor:pointer;
+    font-family:inherit; font-size:15.5px; font-weight:800;
+    /* সাদা লেখা — তাই পটভূমি অবশ্যই গাঢ় গ্র্যাডিয়েন্ট (কনট্রাস্ট ৫.৩–৭.২:১) */
+    color:#fff !important; text-decoration:none;
+    background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#c0307a);
+    box-shadow:0 6px 22px rgba(160,33,201,.35);
+  }
+  .kh-mauth i { font-size:19px; color:#fff !important; }
+  .kh-mauth:active { transform:translateY(1px); }
+}
+
 /* ═══ MOBILE RESPONSIVE ═══ */
 @media (max-width:768px) {
   .topbar { display:none !important; }
@@ -1241,6 +1261,12 @@
     </div>
     <h1 class="hero-h1" data-i18n-html="hero-h1">Interest-free loans<br>for those who <span>need it most</span></h1>
     <p class="hero-p" data-i18n="hero-p">কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.</p>
+    <!-- মোবাইলে টপবার ও নেভ-CTA লুকানো থাকে, তাই লগইনের পথ এখানে -->
+    <a class="kh-mauth" id="khMobileAuth" href="user-login.html">
+      <i class="ti ti-user-circle" aria-hidden="true"></i>
+      <span id="khMobileAuthTxt">লগইন / নতুন অ্যাকাউন্ট খুলুন</span>
+    </a>
+
     <div class="hero-btns">
       <button class="btn-primary" onclick="window.location.href='loan-application.html'"><i class="ti ti-file-text" style="font-size:16px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></button>
       <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
@@ -2197,5 +2223,25 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
 <script src="kh-ui.js?v=13"></script>
+
+<!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
+<script>
+(function () {
+  var a = document.getElementById('khMobileAuth');
+  var t = document.getElementById('khMobileAuthTxt');
+  if (!a || !t || !window._db || !_db.auth) return;
+  /* supabase-js-এর প্রমিসে .catch() ভরসাযোগ্য নয় — try/catch দিয়ে মোড়া */
+  (async function () {
+    try {
+      var r = await _db.auth.getSession();
+      if (!r || !r.data || !r.data.session) return;   // লগ-আউট → আগের লেখাই থাক
+      a.href = 'my-dashboard.html';
+      t.textContent = 'আমার ড্যাশবোর্ড';
+      var ic = a.querySelector('i');
+      if (ic) ic.className = 'ti ti-layout-dashboard';
+    } catch (e) { /* সেশন পড়া না গেলে লগইন বাটনই থাকবে */ }
+  })();
+})();
+</script>
 </body>
 </html>
