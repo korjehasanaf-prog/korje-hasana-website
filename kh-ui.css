@@ -2277,3 +2277,123 @@ body:not([data-kh-nav="off"]) .hero-btns .btn-outline:hover {
   background: linear-gradient(112deg, #b45309, #c2410c);
   padding: 4px 10px; border-radius: 12px; white-space: nowrap;
 }
+
+/* ══════════════════════════════════════════════════════════
+   18 ── ভিজিটর কাউন্টার (ফুটারে, সব পেজে)
+
+   ⚠️ প্রিফিক্স `.kh-visit-` — `.kh-vc-` উপরে ভেরিফিকেশন
+      চুজারের দখলে, মিলিয়ে ফেলা যাবে না।
+   ফুটারের পটভূমি পেজভেদে আলাদা, তাই কার্ডটি নিজের গাঢ়
+   গ্র্যাডিয়েন্ট বহন করে — সাদা লেখার কনট্রাস্ট (১৪:১+) দুই
+   থীমেই নিশ্চিত থাকে (CLAUDE.md থীম নিয়ম ২ ও ৩)।
+   ══════════════════════════════════════════════════════════ */
+.kh-visit {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 10px 22px;
+  max-width: 520px; margin: 22px auto 4px;
+  padding: 14px 20px; border-radius: 18px;
+  overflow: hidden; isolation: isolate;
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+  background: linear-gradient(115deg, #241539 0%, #3d1a5c 45%, #0d3b2e 100%);
+  border: 1px solid rgba(255, 255, 255, .16);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.kh-visit.kh-visit-in { opacity: 1; transform: none; }
+
+/* ধীরে ভেসে বেড়ানো রঙিন আভা — এটিই "ডায়নামিক" ভাবটা দেয়।
+   ⚠️ আভার ঘনত্ব ইচ্ছে করেই কম (.৩ ঘরে)। বেশি দিলে কমলা আভার উপর
+   ১২px লেবেলের কনট্রাস্ট ৩.৫:১-এ নেমে যেত — আর আভা নড়ে বলে
+   সমস্যাটা থেকে থেকে ফিরে আসত। এখন সবচেয়ে খারাপ জায়গাতেও ৬.৬:১। */
+.kh-visit::before {
+  content: ''; position: absolute; inset: -60%; z-index: -1;
+  background:
+    radial-gradient(closest-side, rgba(214, 51, 108, .34), transparent 70%) 18% 30%/55% 120% no-repeat,
+    radial-gradient(closest-side, rgba(240, 140, 40, .28), transparent 70%) 78% 70%/50% 120% no-repeat,
+    radial-gradient(closest-side, rgba(112, 72, 232, .32), transparent 70%) 50% 20%/60% 130% no-repeat;
+  animation: khVisitDrift 14s ease-in-out infinite alternate;
+}
+@keyframes khVisitDrift {
+  0%   { transform: translate3d(-6%, -3%, 0) scale(1); }
+  50%  { transform: translate3d(5%, 4%, 0) scale(1.12); }
+  100% { transform: translate3d(-4%, 3%, 0) scale(1.04); }
+}
+
+.kh-visit-item { display: flex; align-items: center; gap: 11px; }
+.kh-visit-ic {
+  width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 20px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+}
+.kh-visit-today .kh-visit-ic { background: linear-gradient(135deg, #e95420, #f08c28); }
+.kh-visit-total .kh-visit-ic { background: linear-gradient(135deg, #d6336c, #7048e8); }
+
+.kh-visit-tx { line-height: 1.25; }
+.kh-visit-num {
+  display: block; font-size: 23px; font-weight: 900; letter-spacing: .5px;
+  color: #ffd9a0;                    /* গাঢ় প্লামে ৮:১ */
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, .35);
+}
+.kh-visit-total .kh-visit-num { color: #f3d9ff; }
+.kh-visit-lbl { display: block; font-size: 12px; color: #e6d9ff; font-weight: 600; }
+
+.kh-visit-sep {
+  width: 1px; align-self: stretch; min-height: 34px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.32), transparent);
+}
+
+/* "লাইভ" ব্যাজ — টিমটিম করা সবুজ বিন্দু */
+.kh-visit-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 700; letter-spacing: .6px;
+  color: #bbf7d0; padding: 4px 10px; border-radius: 12px;
+  background: rgba(13, 110, 86, .85); border: 1px solid rgba(134, 239, 172, .4);
+}
+.kh-visit-live i {
+  width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, .7);
+  animation: khVisitPulse 1.8s ease-out infinite;
+}
+@keyframes khVisitPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74, 222, 128, .7); }
+  70%  { box-shadow: 0 0 0 9px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+/* সংখ্যা বদলালে একটু লাফিয়ে ওঠে */
+.kh-visit-num.kh-visit-bump { animation: khVisitBump .45s ease; }
+@keyframes khVisitBump {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+
+/* ⚠️⚠️ লাইট থীমে index.html-এর ফুটার ধরা পড়ে একটি ঢালাও নিয়মে (সেকশন ৯):
+   `html[data-theme="light"] … .footer … div, span { color:#35204f !important }`
+   — কাউন্টারের লেবেল, "লাইভ" ও আইকন সবই span/div, তাই সেগুলো গাঢ় বেগুনি হয়ে
+   কার্ডের গাঢ় পটভূমিতে মিলিয়ে যেত (১.০২:১ — কার্যত অদৃশ্য)। কার্ডটি নিজের
+   পটভূমি বহন করে বলে লাইট থীমেও রঙ বদলানোর দরকার নেই, শুধু ঐ নিয়মটি ফেরাতে হয়।
+   নতুন কোনো লেখা যোগ করলে এখানেও তার রঙ ফিরিয়ে দিতে হবে। */
+html[data-theme="light"] .kh-visit .kh-visit-lbl { color: #e6d9ff !important; }
+html[data-theme="light"] .kh-visit .kh-visit-live { color: #bbf7d0 !important; }
+html[data-theme="light"] .kh-visit .kh-visit-ic,
+html[data-theme="light"] .kh-visit .kh-visit-ic i { color: #fff !important; }
+html[data-theme="light"] .kh-visit .kh-visit-num { color: #ffd9a0 !important; }
+html[data-theme="light"] .kh-visit .kh-visit-total .kh-visit-num,
+html[data-theme="light"] .kh-visit-total .kh-visit-num { color: #f3d9ff !important; }
+
+@media (max-width: 420px) {
+  .kh-visit { gap: 10px 14px; padding: 13px 14px; }
+  .kh-visit-num { font-size: 20px; }
+  .kh-visit-sep { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-visit::before,
+  .kh-visit-live i,
+  .kh-visit-num.kh-visit-bump { animation: none; }
+  .kh-visit { transition: none; }
+}

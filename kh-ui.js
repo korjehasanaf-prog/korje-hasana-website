@@ -1995,6 +1995,113 @@
     KHUI._tableObserver = mo;
   };
 
+  /* ════════════════════════════════════════════════════════
+     ভিজিটর কাউন্টার — আজকের ও সর্বমোট, ফুটারে
+
+     গোপনীয়তা: IP বা ব্রাউজারের কোনো তথ্য পাঠানো হয় না। শুধু
+     একটি এলোমেলো UUID localStorage-এ থাকে, যাতে সার্ভার একই
+     দর্শককে দিনে একবারই গোনে। কেউ localStorage মুছে দিলে
+     তিনি নতুন দর্শক হিসেবে গোনা হবেন — এটি জেনেই করা।
+     ════════════════════════════════════════════════════════ */
+  var VISIT_KEY = 'kh_vid';
+  var visitDone = false;          /* ⚠️ ব্যর্থ হলে কার্ডটি DOM থেকে সরে যায়, তাই
+                                     `.kh-visit` খুঁজে দেখা যথেষ্ট নয় — নাহলে
+                                     দ্বিতীয়বার ডাকলে আবার গোনা হয়ে যেত */
+
+  KHUI.mountVisitorCounter = function () {
+    if (visitDone || document.querySelector('.kh-visit')) return;
+    var host = document.getElementById('khVisitors') ||
+               document.querySelector('footer');
+    if (!host) return;
+    visitDone = true;
+
+    var box = document.createElement('div');
+    box.className = 'kh-visit';
+    /* ⚠️ aria-live দেওয়া হয় না — গোনার সময় সংখ্যা সেকেন্ডে ~৬০ বার বদলায়,
+       স্ক্রিন রিডার প্রতিবার পড়ে শোনাত। সংখ্যা বসে যাওয়ার পর একবারে
+       aria-label বসানো হয়। */
+    box.innerHTML =
+      '<div class="kh-visit-item kh-visit-today">' +
+        '<span class="kh-visit-ic"><i class="ti ti-user-check" aria-hidden="true"></i></span>' +
+        '<span class="kh-visit-tx">' +
+          '<b class="kh-visit-num" data-kh-visit="today">০</b>' +
+          '<span class="kh-visit-lbl">আজকের ভিজিটর</span>' +
+        '</span>' +
+      '</div>' +
+      '<span class="kh-visit-sep" aria-hidden="true"></span>' +
+      '<div class="kh-visit-item kh-visit-total">' +
+        '<span class="kh-visit-ic"><i class="ti ti-users-group" aria-hidden="true"></i></span>' +
+        '<span class="kh-visit-tx">' +
+          '<b class="kh-visit-num" data-kh-visit="total">০</b>' +
+          '<span class="kh-visit-lbl">সর্বমোট ভিজিটর</span>' +
+        '</span>' +
+      '</div>' +
+      '<span class="kh-visit-live"><i aria-hidden="true"></i>লাইভ</span>';
+
+    host.appendChild(box);
+
+    var elToday = box.querySelector('[data-kh-visit="today"]');
+    var elTotal = box.querySelector('[data-kh-visit="total"]');
+
+    /* ০ থেকে গুনে গুনে উঠে আসে */
+    function countUp(el, target) {
+      var start = 0, t0 = null, dur = 900;
+      function settle() { el.textContent = KHUI.bn(Number(target).toLocaleString('en-IN')); }
+      /* গতি বন্ধ রাখা পছন্দ, অথবা ট্যাব পেছনে (তখন rAF চলেই না — সংখ্যা
+         ০-তে আটকে থাকত) → সরাসরি বসিয়ে দেওয়া */
+      var still = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      if (target <= 0 || still || document.hidden) { settle(); return; }
+      function step(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);                    /* easeOutCubic */
+        var v = Math.round(start + (target - start) * eased);
+        el.textContent = KHUI.bn(v.toLocaleString('en-IN'));
+        if (p < 1) requestAnimationFrame(step);
+        else {
+          settle();
+          el.classList.add('kh-visit-bump');
+          setTimeout(function () { el.classList.remove('kh-visit-bump'); }, 500);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    (function () {
+      var db = sb();
+      if (!db || !db.rpc) { box.remove(); return; }             /* সুপাবেস নেই — কিছুই দেখানো হবে না */
+
+      var mine = null;
+      try { mine = localStorage.getItem(VISIT_KEY) || null; } catch (e) { /* প্রাইভেট মোড */ }
+
+      /* ⚠️ supabase-js-এর rpc()-এ .catch() নেই — try/catch দিয়েই ধরতে হয় */
+      (async function () {
+        try {
+          /* সময়সীমা — অনুরোধ ঝুলে গেলে কার্ডটি চিরকাল অদৃশ্য অবস্থায় ফুটারে
+             জায়গা দখল করে বসে থাকত, দেখে মনে হত ফাঁকা গর্ত */
+          var r = await Promise.race([
+            db.rpc('record_visit', { p_visitor: mine }),
+            new Promise(function (_, rej) { setTimeout(function () { rej(new Error('timeout')); }, 8000); })
+          ]);
+          if (r.error || !r.data) { box.remove(); return; }
+          var d = r.data;
+          if (d.visitor) {
+            try { localStorage.setItem(VISIT_KEY, d.visitor); } catch (e) {}
+          }
+          var today = Number(d.today) || 0, total = Number(d.total) || 0;
+          box.classList.add('kh-visit-in');
+          countUp(elToday, today);
+          countUp(elTotal, total);
+          box.setAttribute('aria-label',
+            'আজকের ভিজিটর ' + KHUI.bn(today.toLocaleString('en-IN')) +
+            ', সর্বমোট ভিজিটর ' + KHUI.bn(total.toLocaleString('en-IN')));
+        } catch (e) {
+          box.remove();                                          /* গুনতে না পারলে শূন্য দেখানোর চেয়ে না দেখানোই ভালো */
+        }
+      })();
+    })();
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -2008,6 +2115,8 @@
     KHUI.enhanceEmails(document);
     KHUI.makeTablesScrollable(document);
     KHUI._watchTables();
+    /* অ্যাডমিন প্যানেলে দরকার নেই — পেজে data-kh-visits="off" দিলে বাদ যাবে */
+    if (document.body.dataset.khVisits !== 'off') KHUI.mountVisitorCounter();
 
     /* পেজে data-kh-requires থাকলে অতিথিকে সাইন আপে পাঠানো */
     var need = document.body.dataset.khRequires;
