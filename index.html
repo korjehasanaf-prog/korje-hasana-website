@@ -297,13 +297,13 @@
     /* KH PHOTO CAROUSEL */
     .khc-section { position: relative; width: 100%; padding: 8px 0; }
     .khc-wrap {
-      position: relative; width: 100%; height: 380px;
-      perspective: 1100px; overflow: visible;
+      position: relative; width: 100%; height: 440px;
+      perspective: 1250px; overflow: visible;
     }
     .khc-card {
       position: absolute; top: 50%; left: 50%;
-      width: 210px; height: 315px;
-      border-radius: 18px; overflow: hidden; cursor: pointer;
+      width: 246px; height: 369px;
+      border-radius: 20px; overflow: hidden; cursor: pointer;
       will-change: transform, opacity;
       transition: transform 0.65s cubic-bezier(.25,.46,.45,.94), opacity 0.65s ease;
     }
@@ -317,6 +317,53 @@
       text-align: center; letter-spacing: .3px;
     }
     .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #f08c28; }
+
+    /* ── ছবি বড় করে দেখা ──
+       মোবাইলে ক্যারোসেলের কার্ড ছোট, ছবির বিস্তারিত বোঝা যায় না।
+       মাঝের কার্ডে চাপ দিলে পুরো পর্দাজুড়ে ছবিটি খোলে। */
+    .khc-zoom {
+      position: absolute; top: 10px; right: 10px; z-index: 6;
+      display: none; align-items: center; justify-content: center;
+      gap: 5px; height: 30px; padding: 0 11px; border-radius: 15px;
+      background: rgba(22,13,38,.6); border: 1px solid rgba(255,255,255,.38);
+      color: #fff; font-size: 12px; font-weight: 600;
+      font-family: 'Hind Siliguri', sans-serif; pointer-events: none;
+    }
+    .khc-card.is-active .khc-zoom { display: flex; }
+    /* z-index ১০০০০ — হোয়াটসঅ্যাপ বাটন (৯৯৯৯), গ্লাস নেভ (৯০০০) ও চ্যাট প্যানেল
+       (৯৪০০) সবার উপরে থাকতে হবে, নাহলে ওগুলো ছবির উপর ভেসে থাকে */
+    .khc-lb {
+      position: fixed; inset: 0; z-index: 10000; display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px 16px; background: rgba(12,7,20,.95);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .khc-lb.show { display: flex; }
+    .khc-lb img {
+      max-width: 100%; max-height: 74vh; width: auto; height: auto;
+      border-radius: 16px; object-fit: contain;
+      box-shadow: 0 22px 64px rgba(0,0,0,.65);
+    }
+    .khc-lb-cap {
+      margin-top: 15px; color: #fff; text-align: center;
+      font-size: 17.5px; font-weight: 700; line-height: 1.4;
+    }
+    .khc-lb-cap span { display: block; font-size: 13px; font-weight: 400; opacity: .72; margin-top: 2px; }
+    .khc-lb-count { margin-top: 7px; color: #e0c9ff; font-size: 12.5px; letter-spacing: .4px; }
+    .khc-lb-btn {
+      position: absolute; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; cursor: pointer; color: #fff; font-size: 23px;
+      padding: 0; line-height: 1;
+      background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.34);
+    }
+    .khc-lb-x    { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 21px; }
+    .khc-lb-prev { top: 50%; left: 12px;  width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-next { top: 50%; right: 12px; width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-btn:hover { background: rgba(255,255,255,.3); }
+    @media (max-width: 480px) {
+      .khc-lb img { max-height: 68vh; }
+      .khc-lb-prev { left: 6px } .khc-lb-next { right: 6px }
+    }
     .khc-nav {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 36px; height: 36px; border-radius: 50%;
@@ -672,7 +719,9 @@
       .hero { grid-template-columns: 1fr; padding: 30px 20px; }
       /* Carousel: show as single card on tablet/mobile */
       .khc-section { display: block; margin-top: 12px; }
-      .khc-wrap { height: 270px; }
+      /* মোবাইলে শুধু মাঝের কার্ডটি থাকে — তাই সেটিকে যতটা সম্ভব বড় দেখানো হয় */
+      .khc-wrap { height: 420px; }
+      .khc-card { width: 252px; height: 378px; }
       .khc-card:not(.is-active) { opacity: 0 !important; pointer-events: none !important; }
       .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
       .impact-grid { grid-template-columns: repeat(2,1fr); }
@@ -776,7 +825,10 @@
       .logo-en { display:none; }
       .logo-bn { font-size:14.5px; }
       .logo-icon { width:36px; height:36px; font-size:14.5px; }
-      .khc-wrap { height:240px; }
+      /* ছোট ফোনে কার্ড ও ঘর একসাথে ছোট হয় — নাহলে কার্ডটি ঘরের চেয়ে লম্বা হয়ে
+         যায় আর .hero-র overflow:hidden নিচের নামটুকু কেটে দেয় */
+      .khc-wrap { height:352px; }
+      .khc-card { width:210px; height:315px; }
       .hero { padding:24px 16px; }
     }
 
@@ -1282,6 +1334,16 @@
     <button class="khc-nav khc-next" id="khcNext"><i class="ti ti-chevron-right"></i></button>
   </div>
 </section>
+
+<!-- ছবি বড় করে দেখার পর্দা (মোবাইলে মূলত এটিই কাজে লাগে) -->
+<div class="khc-lb" id="khcLb" role="dialog" aria-modal="true" aria-label="ছবি বড় করে দেখুন">
+  <button class="khc-lb-btn khc-lb-x" id="khcLbX" aria-label="বন্ধ করুন"><i class="ti ti-x"></i></button>
+  <button class="khc-lb-btn khc-lb-prev" id="khcLbPrev" aria-label="আগের ছবি"><i class="ti ti-chevron-left"></i></button>
+  <button class="khc-lb-btn khc-lb-next" id="khcLbNext" aria-label="পরের ছবি"><i class="ti ti-chevron-right"></i></button>
+  <img id="khcLbImg" src="" alt="">
+  <div class="khc-lb-cap" id="khcLbCap"></div>
+  <div class="khc-lb-count" id="khcLbCount"></div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════
      QURAN & HADITH SLIDER
@@ -1988,25 +2050,43 @@ function setLang(lang, btn) {
 
 /* ── KH PHOTO CAROUSEL ── */
 (function() {
+  /* নিজস্ব ছবি — images/ ফোল্ডারে, ২:৩ অনুপাত।
+     ক্রম: কর্জে হাসানা (ব্র্যান্ড কার্ড) → ৬টি ঋণ → ৪টি আমানত */
   const ITEMS = [
-    { label:'কৃষি ঋণ',     sub:'Agriculture Loan', img:'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=300&h=450&fit=crop&q=80' },
-    { label:'ব্যবসা ঋণ',   sub:'Business Loan',    img:'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=450&fit=crop&q=80' },
-    { label:'শিক্ষা ঋণ',   sub:'Education Loan',   img:'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=300&h=450&fit=crop&q=80' },
-    { label:'চিকিৎসা ঋণ', sub:'Medical Loan',     img:'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=450&fit=crop&q=80' },
-    { label:'পারিবারিক ঋণ',sub:'Family Loan',      img:'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=300&h=450&fit=crop&q=80' },
-    { label:'জরুরি সহায়তা',sub:'Emergency Aid',    img:'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=300&h=450&fit=crop&q=80' },
-    { label:'কর্জে হাসানা', sub:'Qard al-Hasan',   img:'https://images.unsplash.com/photo-1564769662533-4f00a87b4056?w=300&h=450&fit=crop&q=80' },
+    { label:'কর্জে হাসানা',  sub:'Qard al-Hasan',        img:'images/kh-qard.jpg',
+      alt:'মসজিদের দরজায় একজন আরেকজনের হাতে সাহায্য তুলে দিচ্ছেন' },
+    { label:'কৃষি ঋণ',       sub:'Agriculture Loan',     img:'images/kh-agri.jpg',
+      alt:'ধানক্ষেতে কৃষক হাতে পাকা ধানের শীষ নিয়ে দাঁড়িয়ে আছেন' },
+    { label:'ব্যবসা ঋণ',     sub:'Business Loan',        img:'images/kh-business.jpg',
+      alt:'গ্রামের মুদি দোকানের সামনে দোকানদার' },
+    { label:'শিক্ষা ঋণ',     sub:'Education Loan',       img:'images/kh-education.jpg',
+      alt:'স্কুলছাত্রী জানালার পাশে বসে খাতায় লিখছে' },
+    { label:'চিকিৎসা ঋণ',   sub:'Medical Loan',         img:'images/kh-medical.jpg',
+      alt:'গ্রামীণ ক্লিনিকে চিকিৎসক বয়স্ক রোগীকে দেখছেন' },
+    { label:'পারিবারিক ঋণ',  sub:'Family Loan',          img:'images/kh-family.jpg',
+      alt:'নিজেদের ঘরের সামনে দাঁড়ানো একটি পরিবার' },
+    { label:'জরুরি সহায়তা',  sub:'Emergency Aid',        img:'images/kh-emergency.jpg',
+      alt:'ত্রাণ শিবিরে দুই হাত একসাথে — সহায়তার মুহূর্ত' },
+    { label:'দৈনিক আমানত',   sub:'Daily Savings',        img:'images/kh-save-daily.jpg',
+      alt:'মাটির ব্যাংকে প্রতিদিনের মুদ্রা জমা' },
+    { label:'পাক্ষিক আমানত', sub:'Fortnightly Savings',  img:'images/kh-save-fortnightly.jpg',
+      alt:'স্বামী-স্ত্রী মিলে মুদ্রা গুনে জমা রাখছেন' },
+    { label:'মাসিক আমানত',   sub:'Monthly Savings',      img:'images/kh-save-monthly.jpg',
+      alt:'মা ও মেয়ে মিলে সঞ্চয়ের বাক্সে টাকা রাখছেন' },
+    { label:'যখন খুশি আমানত', sub:'Flexible Savings',    img:'images/kh-save-flexible.jpg',
+      alt:'থলি থেকে ছড়ানো মুদ্রা — যখন খুশি জমা' },
   ];
   // [tx_offset_px, rotateY_deg, scale, opacity, zIndex]
   // for positions -3, -2, -1, 0, +1, +2, +3
+  /* কার্ড বড় হওয়ায় (২১০→২৪৬px) দূরত্বগুলোও একই অনুপাতে বেড়েছে */
   const POS = [
-    [-308, 30, 0.40, 0.38, 1],
-    [-195, 20, 0.58, 0.58, 2],
-    [-102, 10, 0.77, 0.80, 3],
+    [-360, 30, 0.40, 0.38, 1],
+    [-228, 20, 0.58, 0.58, 2],
+    [-119, 10, 0.77, 0.80, 3],
     [   0,  0, 1.00, 1.00, 5],
-    [ 102,-10, 0.77, 0.80, 3],
-    [ 195,-20, 0.58, 0.58, 2],
-    [ 308,-30, 0.40, 0.38, 1],
+    [ 119,-10, 0.77, 0.80, 3],
+    [ 228,-20, 0.58, 0.58, 2],
+    [ 360,-30, 0.40, 0.38, 1],
   ];
   const N = ITEMS.length;
   let active = 0, animating = false, autoTimer = null;
@@ -2019,12 +2099,21 @@ function setLang(lang, btn) {
     const card = document.createElement('div');
     card.className = 'khc-card';
     const img = document.createElement('img');
-    img.src = item.img; img.alt = item.label; img.loading = 'lazy';
+    img.src = item.img;
+    img.alt = item.alt || item.label;
+    /* শুরুতে যে কার্ডগুলো চোখে পড়ে সেগুলো সাথে সাথেই আসুক,
+       বাকিগুলো স্ক্রল/সোয়াইপের সময় */
+    img.loading = (i <= 3 || i >= N - 3) ? 'eager' : 'lazy';
+    img.decoding = 'async';
     const lbl = document.createElement('div');
     lbl.className = 'khc-label';
     lbl.innerHTML = item.label + '<br><span style="font-size:12px;font-weight:400;opacity:.8">' + item.sub + '<\/span>';
-    card.appendChild(img); card.appendChild(lbl);
-    card.addEventListener('click', () => goTo(i));
+    const zoom = document.createElement('div');
+    zoom.className = 'khc-zoom';
+    zoom.innerHTML = '<i class="ti ti-zoom-in" aria-hidden="true"></i> বড় করে দেখুন';
+    card.appendChild(img); card.appendChild(zoom); card.appendChild(lbl);
+    /* মাঝের কার্ডে চাপ দিলে ছবি বড় হয়, পাশেরটিতে চাপ দিলে সেটি মাঝে আসে */
+    card.addEventListener('click', () => { if (i === active) openLb(i); else goTo(i); });
     wrap.appendChild(card);
     cards.push(card);
   });
@@ -2037,7 +2126,20 @@ function setLang(lang, btn) {
   }
 
   function applyPos(card, rel, animate) {
-    if (Math.abs(rel) > 3) { card.style.opacity = '0'; card.style.pointerEvents = 'none'; return; }
+    /* ⚠️ পর্দার বাইরের কার্ড শুধু লুকিয়ে রাখলে চলে না — তার পুরনো transform থেকে
+       যায়, ফলে ফিরে আসার সময় সে পুরো মঞ্চ পেরিয়ে উড়ে আসে। তাই যে কিনারা দিয়ে
+       ঢুকবে ঠিক সেখানেই আগেভাগে বসিয়ে রাখা হয় (transform-এ transition নেই,
+       শুধু opacity মিলিয়ে যায়)। ৭টি কার্ডে এটি ধরা পড়েনি, ১১টিতে পড়ে। */
+    if (Math.abs(rel) > 3) {
+      const edge = POS[rel > 0 ? 6 : 0];
+      card.style.transition = 'opacity .5s ease';
+      card.style.transform = 'translateX(calc(-50% + ' + edge[0] + 'px)) translateY(-50%) rotateY(' + edge[1] + 'deg) scale(' + edge[2] + ')';
+      card.style.opacity = '0';
+      card.style.zIndex = 0;
+      card.style.pointerEvents = 'none';
+      card.classList.remove('is-active');
+      return;
+    }
     const [tx, ry, sc, op, zi] = POS[rel + 3];
     card.style.transition = animate ? 'transform .65s cubic-bezier(.25,.46,.45,.94), opacity .65s ease' : 'none';
     card.style.transform = 'translateX(calc(-50% + ' + tx + 'px)) translateY(-50%) rotateY(' + ry + 'deg) scale(' + sc + ')';
@@ -2051,24 +2153,16 @@ function setLang(lang, btn) {
     cards.forEach((c, i) => applyPos(c, getRel(i), animate));
   }
 
+  /* ⚠️ আগে এখানে "যে কার্ডটি ঘুরে আসে তাকে লাফ দিয়ে সরানো" নামে একটি কৌশল ছিল,
+     যা ঠিক ৭টি কার্ডের জন্যই লেখা। ১১টি কার্ডে দৃশ্যমান জানালার (±৩) ভেতরে কিছুই
+     ঘুরে আসে না, তাই ঐ কৌশল উল্টো একটি কার্ডকে ভুল জায়গায় আটকে রাখত ও একটি ঘর
+     ফাঁকা পড়ে থাকত। applyPos() এখন নিজেই কিনারা সামলায়, তাই এটি সরল হলো। */
   function shift(dir) {
     if (animating) return;
     animating = true;
-    const prev = active;
     active = ((active + dir) % N + N) % N;
-    // Card that wraps around: was at rel=dir*3, now jumps to rel=-dir*3
-    const jumpIdx = ((prev + dir * 3) % N + N) % N;
-    const jumpCard = cards[jumpIdx];
-    jumpCard.style.transition = 'none';
-    const targetRel = -dir * 3;
-    const [tx, ry, sc, op, zi] = POS[targetRel + 3];
-    jumpCard.style.transform = 'translateX(calc(-50% + ' + tx + 'px)) translateY(-50%) rotateY(' + ry + 'deg) scale(' + sc + ')';
-    jumpCard.style.opacity = op; jumpCard.style.zIndex = zi;
-    jumpCard.classList.remove('is-active');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      cards.forEach((c, i) => { if (i !== jumpIdx) applyPos(c, getRel(i), true); });
-      setTimeout(() => { animating = false; }, 700);
-    }));
+    render(true);
+    setTimeout(() => { animating = false; }, 700);
   }
 
   function goTo(idx) {
@@ -2079,14 +2173,73 @@ function setLang(lang, btn) {
   function startAuto() { autoTimer = setInterval(() => shift(1), 3800); }
   function stopAuto()  { clearInterval(autoTimer); autoTimer = null; }
 
+  /* ── ছবি বড় করে দেখা ──
+     মোবাইলে কার্ডটি ছোট, তাই ট্যাপ করলে পুরো পর্দায় আসল ছবিটি খোলে। */
+  const lb      = document.getElementById('khcLb');
+  const lbImg   = document.getElementById('khcLbImg');
+  const lbCap   = document.getElementById('khcLbCap');
+  const lbCount = document.getElementById('khcLbCount');
+  let lbIdx = 0;
+  /* এই স্ক্রিপ্ট kh-ui.js-এর আগে চলে, তাই KHUI.bn() ভরসা করা যায় না */
+  const bnNum = v => String(v).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[+d]);
+
+  function paintLb() {
+    const it = ITEMS[lbIdx];
+    lbImg.src = it.img;
+    lbImg.alt = it.alt || it.label;
+    lbCap.innerHTML = it.label + '<span>' + it.sub + '<\/span>';
+    lbCount.textContent = bnNum(lbIdx + 1) + ' / ' + bnNum(N);
+  }
+  const hasLb = !!(lb && lbImg && lbCap && lbCount);
+  function openLb(i) {
+    if (!hasLb) return;                         /* মার্কআপ না থাকলে ক্যারোসেল তবু চলবে */
+    lbIdx = i; paintLb();
+    lb.classList.add('show');
+    document.body.style.overflow = 'hidden';   /* পেছনের পেজ যেন না নড়ে */
+    stopAuto();
+  }
+  function closeLb() {
+    lb.classList.remove('show');
+    document.body.style.overflow = '';
+    if (!autoTimer) startAuto();
+  }
+  function stepLb(d) {
+    lbIdx = ((lbIdx + d) % N + N) % N;
+    paintLb();
+    active = lbIdx; render(true);   /* পেছনের ক্যারোসেলও একই ছবিতে থাকুক */
+  }
+
+  if (hasLb) {
+    document.getElementById('khcLbX').addEventListener('click', closeLb);
+    document.getElementById('khcLbPrev').addEventListener('click', e => { e.stopPropagation(); stepLb(-1); });
+    document.getElementById('khcLbNext').addEventListener('click', e => { e.stopPropagation(); stepLb(1); });
+    lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+    document.addEventListener('keydown', e => {
+      if (!lb.classList.contains('show')) return;
+      if (e.key === 'Escape')     closeLb();
+      if (e.key === 'ArrowLeft')  stepLb(-1);
+      if (e.key === 'ArrowRight') stepLb(1);
+    });
+    /* আঙুল দিয়ে বাঁয়ে-ডানে টানলেও ছবি বদলায় */
+    let touchX = null;
+    lb.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', e => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) > 45) stepLb(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
+
   render(false);
   startAuto();
 
   document.getElementById('khcPrev').addEventListener('click', () => { stopAuto(); shift(-1); startAuto(); });
   document.getElementById('khcNext').addEventListener('click', () => { stopAuto(); shift(1); startAuto(); });
   const sec = document.getElementById('khcSection');
+  /* মাউস থাকলে থামে — তবে ছবি বড় করা থাকলে আবার চালু হবে না */
   sec.addEventListener('mouseenter', stopAuto);
-  sec.addEventListener('mouseleave', startAuto);
+  sec.addEventListener('mouseleave', () => { if (!hasLb || !lb.classList.contains('show')) startAuto(); });
 })();
 
 /* ── QURAN SLIDER ── */
