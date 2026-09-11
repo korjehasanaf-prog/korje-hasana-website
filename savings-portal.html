@@ -768,13 +768,13 @@
   <div class="portal-main">
 
     <div class="portal-panel active" id="panel-dashboard">
-    <!-- Balance cards -->
+    <!-- ══════ সমন্বিত চিত্র — সব হিসাব মিলিয়ে ══════ -->
     <div class="balance-grid">
       <div class="balance-card balance-main">
-        <div class="bc-icon"><i class="ti ti-wallet"></i></div>
-        <div class="bc-label">বর্তমান স্থিতি</div>
+        <div class="bc-icon"><i class="ti ti-building-bank"></i></div>
+        <div class="bc-label">সব হিসাব মিলিয়ে স্থিতি</div>
         <div class="bc-amount"><span class="bc-taka">৳</span> <span id="cardBalance">0.00</span></div>
-        <div class="bc-sub">সর্বশেষ আপডেট এইমাত্র</div>
+        <div class="bc-sub" id="sumAccLine">—</div>
       </div>
       <div class="balance-card balance-deposit">
         <div class="bc-icon"><i class="ti ti-arrow-down-circle"></i></div>
@@ -786,29 +786,43 @@
         <div class="bc-icon"><i class="ti ti-arrow-up-circle"></i></div>
         <div class="bc-label">মোট উত্তোলন</div>
         <div class="bc-amount"><span class="bc-taka">৳</span> <span id="cardWithdrawn">0.00</span></div>
-        <div class="bc-sub">অনুমোদিত লেনদেন</div>
+        <div class="bc-sub" id="sumPendLine">অনুমোদিত লেনদেন</div>
       </div>
     </div>
 
-    <!-- Account info -->
-    <div class="account-card">
+    <!-- ধরন অনুযায়ী হিসাব ও জমা -->
+    <div class="section-card">
+      <div class="section-card-head">
+        <h3><i class="ti ti-layout-grid" style="color:var(--mdgreen)"></i> ধরন অনুযায়ী হিসাব</h3>
+      </div>
+      <div id="sumByScheme"><div class="empty-state"><i class="ti ti-loader-2"></i>লোড হচ্ছে…</div></div>
+    </div>
+
+    <!-- বকেয়ার চিত্র -->
+    <div class="section-card">
+      <div class="section-card-head">
+        <h3><i class="ti ti-alert-triangle" style="color:var(--gold)"></i> বকেয়ার অবস্থা</h3>
+      </div>
+      <div id="sumDues"><div class="empty-state"><i class="ti ti-loader-2"></i>লোড হচ্ছে…</div></div>
+    </div>
+
+    <!-- আমার হিসাবগুলো -->
+    <div class="section-card">
+      <div class="section-card-head">
+        <h3><i class="ti ti-wallet" style="color:var(--mdgreen)"></i> আমার হিসাবসমূহ</h3>
+        <button class="filter-pill stmt-pill" onclick="showPanel('newaccount')">
+          <i class="ti ti-plus"></i> নতুন হিসাব
+        </button>
+      </div>
+      <div id="sumAccounts"><div class="empty-state"><i class="ti ti-loader-2"></i>লোড হচ্ছে…</div></div>
+    </div>
+
+    <div class="account-card" style="display:none">
       <div class="account-card-row">
-        <div class="account-detail">
-          <div class="lbl">উত্তোলন হিসাব</div>
-          <div class="val" id="portalWithdrawalInfo">—</div>
-        </div>
-        <div class="account-detail">
-          <div class="lbl">স্কীম ধরন</div>
-          <div class="val" id="portalSchemeDetail">—</div>
-        </div>
-        <div class="account-detail">
-          <div class="lbl">হিসাব খোলার তারিখ</div>
-          <div class="val" id="portalJoinDate">—</div>
-        </div>
-        <div class="account-detail">
-          <div class="lbl">হিসাবের অবস্থা</div>
-          <div class="val"><span style="background:rgba(240,140,40,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:13.5px;" id="portalStatus">সক্রিয়</span></div>
-        </div>
+        <div class="account-detail"><div class="lbl">উত্তোলন হিসাব</div><div class="val" id="portalWithdrawalInfo">—</div></div>
+        <div class="account-detail"><div class="lbl">স্কীম ধরন</div><div class="val" id="portalSchemeDetail">—</div></div>
+        <div class="account-detail"><div class="lbl">হিসাব খোলার তারিখ</div><div class="val" id="portalJoinDate">—</div></div>
+        <div class="account-detail"><div class="lbl">হিসাবের অবস্থা</div><div class="val"><span id="portalStatus">সক্রিয়</span></div></div>
       </div>
     </div>
 
@@ -1326,7 +1340,12 @@ function renderAccountBar() {
   var sel = document.getElementById('accSel');
   if (!bar || !sel) return;
   if (!ACCOUNTS.length) { bar.style.display = 'none'; return; }
-  bar.style.display = 'flex';
+  /* ড্যাশবোর্ড ও নতুন-হিসাবের পর্দায় বার দেখানো হয় না */
+  var onDash = document.getElementById('panel-dashboard');
+  var onNew  = document.getElementById('panel-newaccount');
+  var hide = (onDash && onDash.classList.contains('active')) ||
+             (onNew  && onNew.classList.contains('active'));
+  bar.style.display = hide ? 'none' : 'flex';
   sel.innerHTML = ACCOUNTS.map(function (a) {
     return '<option value="' + a.id + '">' + accLabel(a) + '</option>';
   }).join('');
@@ -1341,8 +1360,7 @@ function renderAccountBar() {
         chip = '<span class="due-chip late"><i class="ti ti-alert-triangle"></i> ' +
                bnNum(d.arrears) + ' মাস বকেয়া</span>';
       } else if (d.next_due) {
-        chip = '<span class="due-chip due"><i class="ti ti-calendar-due"></i> ' +
-               monthBn(d.next_due) + '-এর কিস্তি বাকি</span>';
+        chip = '<span class="due-chip due"><i class="ti ti-calendar-due"></i> কিস্তি বাকি</span>';
       } else {
         chip = '<span class="due-chip ok"><i class="ti ti-circle-check"></i> সব কিস্তি পরিশোধিত</span>';
       }
@@ -1386,6 +1404,7 @@ async function refreshAccount() {
   renderTrx(allTrx);
   renderTrx2(allTrx);
   syncDepositPanel();
+  loadSummary();          /* ড্যাশবোর্ডের যোগফলও হালনাগাদ */
 }
 
 async function loadPortal(user) {
@@ -1444,9 +1463,8 @@ function paintAccount() {
   // Update UI
   document.getElementById('portalName').textContent   = dep?.full_name || user.email;
   document.getElementById('portalScheme').textContent = SCHEME_LABELS[dep?.scheme_type] || '';
-  document.getElementById('cardBalance').textContent  = fmt(currentBalance);
-  document.getElementById('cardDeposited').textContent= fmt(deposited);
-  document.getElementById('cardWithdrawn').textContent= fmt(withdrawn);
+  /* ⚠️ উপরের তিনটি কার্ড এখন ড্যাশবোর্ডের — সব হিসাবের যোগফল দেখায় (paintSummary)।
+     এখান থেকে সেগুলো আর লেখা হয় না, নাহলে নির্বাচিত হিসাবের অঙ্ক বসে যেত। */
   document.getElementById('maxWithdraw').textContent  = '৳' + fmt(currentBalance);
   document.getElementById('portalSchemeDetail').textContent = SCHEME_LABELS[dep?.scheme_type] || '—';
   document.getElementById('portalJoinDate').textContent = dep?.created_at ? new Date(dep.created_at).toLocaleDateString('bn-BD') : '—';
@@ -1454,9 +1472,7 @@ function paintAccount() {
   document.getElementById('portalWithdrawalInfo').textContent = wInfo;
   document.getElementById('withdrawAccInfo').textContent = wInfo;
 
-  // Sidebar balance
-  const sb = document.getElementById('sidebarBalance');
-  if(sb) sb.textContent = fmt(currentBalance);
+  /* সাইডবারের অঙ্কটিও সব হিসাবের যোগফল — paintSummary() বসায় */
 
   // Panel: withdraw info
   const wap = document.getElementById('withdrawAccInfoPanel');
@@ -1484,6 +1500,115 @@ function paintAccount() {
   loadAccountNominees();
 }
 
+/* ══════════════════════════════════════════════════════════
+   ড্যাশবোর্ড — একটি হিসাব নয়, সব হিসাবের সমন্বিত চিত্র
+   (my_savings_summary: ধরনভিত্তিক সংখ্যা ও জমা, সর্বমোট, বকেয়া)
+   ══════════════════════════════════════════════════════════ */
+var SUMMARY = null;
+
+async function loadSummary() {
+  try {
+    var r = await _db.rpc('my_savings_summary');
+    if (r.error) throw r.error;
+    SUMMARY = r.data;
+  } catch (e) { SUMMARY = null; }
+  paintSummary();
+}
+
+function paintSummary() {
+  var s = SUMMARY;
+  var byEl  = document.getElementById('sumByScheme');
+  var duEl  = document.getElementById('sumDues');
+  var acEl  = document.getElementById('sumAccounts');
+  if (!byEl) return;
+  if (!s) {
+    byEl.innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i>তথ্য আনা যায়নি</div>';
+    return;
+  }
+
+  /* উপরের কার্ড — সব হিসাব মিলিয়ে */
+  setTxt('cardBalance',   fmt(s.total_balance));
+  setTxt('cardDeposited', fmt(s.total_deposited));
+  setTxt('cardWithdrawn', fmt(s.total_withdrawn));
+  setTxt('sumAccLine', bnNum(s.scheme_count) + ' ধরনের মোট ' + bnNum(s.accounts) + ' টি হিসাব');
+  var pl = document.getElementById('sumPendLine');
+  if (pl) pl.textContent = (+s.pending > 0)
+    ? 'অনুমোদনের অপেক্ষায় ৳' + fmt(s.pending) : 'অনুমোদিত লেনদেন';
+  var sbb = document.getElementById('sidebarBalance');
+  if (sbb) sbb.textContent = fmt(s.total_balance);
+
+  /* ধরন অনুযায়ী */
+  var by = s.by_scheme || [];
+  byEl.innerHTML = !by.length
+    ? '<div class="empty-state"><i class="ti ti-folder-off"></i>কোনো হিসাব নেই</div>'
+    : '<table class="trx-table"><thead><tr>' +
+      '<th>হিসাবের ধরন</th><th style="text-align:center">কতটি</th>' +
+      '<th style="text-align:right">মোট জমা</th><th style="text-align:right">উত্তোলন</th>' +
+      '<th style="text-align:right">স্থিতি</th></tr></thead><tbody>' +
+      by.map(function (x) {
+        return '<tr><td><b>' + (SCHEME_LABELS[x.scheme] || x.scheme) + '</b></td>' +
+          '<td style="text-align:center">' + bnNum(x.count) + '</td>' +
+          '<td style="text-align:right">৳' + fmt(x.deposited) + '</td>' +
+          '<td style="text-align:right">৳' + fmt(x.withdrawn) + '</td>' +
+          '<td style="text-align:right;font-weight:700">৳' + fmt(x.balance) + '</td></tr>';
+      }).join('') +
+      '</tbody><tfoot><tr>' +
+      '<td><b>সর্বমোট</b></td><td style="text-align:center"><b>' + bnNum(s.accounts) + '</b></td>' +
+      '<td style="text-align:right"><b>৳' + fmt(s.total_deposited) + '</b></td>' +
+      '<td style="text-align:right"><b>৳' + fmt(s.total_withdrawn) + '</b></td>' +
+      '<td style="text-align:right"><b>৳' + fmt(s.total_balance) + '</b></td>' +
+      '</tr></tfoot></table>';
+
+  /* বকেয়া */
+  var dues = s.dues || [];
+  duEl.innerHTML = !dues.length
+    ? '<div class="due-chip ok" style="font-size:14px;padding:10px 16px">' +
+      '<i class="ti ti-circle-check"></i> কোনো হিসাবে কোনো কিস্তি বকেয়া নেই</div>'
+    : '<p class="kh-hint" style="margin:-6px 0 12px">নিচের হিসাবগুলোতে কিস্তি বাকি আছে। ' +
+      'একবারে এক মাসের কিস্তি জমা হয় — সবচেয়ে পুরনোটি আগে।</p>' +
+      '<table class="trx-table"><thead><tr>' +
+      '<th>হিসাব নম্বর</th><th>ধরন</th><th style="text-align:center">বাকি কিস্তি</th>' +
+      '<th style="text-align:center">এর মধ্যে বকেয়া</th><th style="text-align:right">মোট প্রদেয়</th>' +
+      '</tr></thead><tbody>' +
+      dues.map(function (d) {
+        return '<tr><td><b>' + d.account_no + '</b></td>' +
+          '<td>' + (SCHEME_LABELS[d.scheme] || d.scheme) + '</td>' +
+          '<td style="text-align:center">' + bnNum(d.unpaid_months) + ' টি</td>' +
+          '<td style="text-align:center">' +
+            (d.arrears_months > 0
+              ? '<span class="due-chip late">' + bnNum(d.arrears_months) + ' মাস</span>'
+              : '<span class="due-chip ok">নেই</span>') + '</td>' +
+          '<td style="text-align:right;font-weight:700">৳' + fmt(d.amount_due) + '</td></tr>';
+      }).join('') +
+      '</tbody><tfoot><tr><td colspan="4"><b>সর্বমোট প্রদেয়</b></td>' +
+      '<td style="text-align:right"><b>৳' + fmt(s.total_due) + '</b></td></tr></tfoot></table>';
+
+  /* আমার হিসাবগুলো — নম্বরসহ, ক্লিকে নির্বাচিত হয় */
+  acEl.innerHTML = !ACCOUNTS.length
+    ? '<div class="empty-state"><i class="ti ti-folder-off"></i>কোনো হিসাব নেই</div>'
+    : '<table class="trx-table"><thead><tr>' +
+      '<th>হিসাব নম্বর</th><th>ধরন</th><th style="text-align:right">কিস্তি</th>' +
+      '<th style="text-align:right">স্থিতি</th><th></th></tr></thead><tbody>' +
+      ACCOUNTS.map(function (a) {
+        var d = a.due || {};
+        return '<tr>' +
+          '<td><b>' + a.account_no + '</b></td>' +
+          '<td>' + (SCHEME_LABELS[a.scheme] || a.scheme) + '</td>' +
+          '<td style="text-align:right">' + (a.instalment ? '৳' + fmt(a.instalment) : '—') + '</td>' +
+          '<td style="text-align:right;font-weight:700">৳' + fmt(d.balance || 0) + '</td>' +
+          '<td style="text-align:right"><button class="filter-pill" ' +
+            'onclick="pickAndOpen(\'' + a.id + '\')">খুলুন</button></td>' +
+        '</tr>';
+      }).join('') + '</tbody></table>';
+}
+
+function setTxt(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+
+async function pickAndOpen(id) {
+  await selectAccount(id);
+  showPanel('account');
+}
+
 /* ── জমার পর্দা — হিসাব নিশ্চিত, অঙ্ক লক, মাস স্বয়ংক্রিয় ── */
 function syncDepositPanel() {
   var box = document.getElementById('depLockBox');
@@ -1508,18 +1633,13 @@ function syncDepositPanel() {
       return;
     }
     if (btn) { btn.disabled = false; btn.style.opacity = 1; }
+    /* ⚠️ এখানে মাসের নাম ("সেপ্টেম্বর ২০২৬-এর কিস্তি") লেখা হত — দৈনিক হিসাবে
+       সেটি অর্থহীন ঠেকত। বকেয়ার বিস্তারিত এখন ড্যাশবোর্ডে, জমার পর্দা পরিচ্ছন্ন। */
     box.innerHTML = head +
       '<div class="locked-amt" style="margin-top:10px">' +
         '<span class="la-tk">৳</span><span class="la-num">' + fmt(d.instalment) + '</span>' +
         '<span class="la-note"><i class="ti ti-lock"></i> নির্ধারিত কিস্তি<br>বদলানো যায় না</span>' +
-      '</div>' +
-      '<div style="font-size:14px;color:#241539;font-weight:700">' +
-        '<i class="ti ti-calendar-due" style="color:#8a4b00"></i> ' + monthBn(d.next_due) + '-এর কিস্তি</div>' +
-      ((d.arrears || 0) > 0
-        ? '<p class="kh-hint" style="margin:8px 0 0;color:#b02a4a">' +
-          '<i class="ti ti-alert-triangle"></i> ' + bnNum(d.arrears) + ' মাসের কিস্তি বকেয়া। ' +
-          'একবারে এক মাসের কিস্তিই জমা হয় — সবচেয়ে পুরনোটি আগে। বকেয়া বাদ দিয়ে পরের মাস দেওয়া যাবে না।</p>'
-        : '');
+      '</div>';
   } else {
     if (wrap) wrap.style.display = '';
     if (btn) { btn.disabled = false; btn.style.opacity = 1; }
@@ -2163,10 +2283,12 @@ function showPanel(name) {
   if(name === 'history') renderTrx2(allTrx);
   /* প্রতিটি পর্দা নির্বাচিত হিসাব অনুযায়ী সাজানো */
   if(name === 'deposit') syncDepositPanel();
+  if(name === 'dashboard') loadSummary();
   if(name === 'newaccount') { naSyncScheme(); naSyncMethod(); prefillNewAccountNominees(); }
-  /* নতুন হিসাব খোলার পর্দায় হিসাব-বার লুকানো — ওখানে কিছু বাছার নেই */
+  /* ড্যাশবোর্ড সব হিসাবের, আর নতুন হিসাবের পর্দায় বাছার কিছু নেই — দুটোতেই বার লুকানো */
   var bar = document.getElementById('accBar');
-  if (bar) bar.style.display = (name === 'newaccount' || !ACCOUNTS.length) ? 'none' : 'flex';
+  if (bar) bar.style.display =
+    (name === 'newaccount' || name === 'dashboard' || !ACCOUNTS.length) ? 'none' : 'flex';
   window.scrollTo({top:68, behavior:'smooth'});
 }
 
@@ -2360,7 +2482,6 @@ async function submitDepositPanel() {
   const amount = parseFloat(res.amount);
   showMsg('depositMsgPanel',
     'জমার অনুরোধ পাঠানো হয়েছে — ' + CUR.account_no + ' · ৳' + fmt(amount) +
-    (res.period_month ? ' (' + monthBn(res.period_month) + '-এর কিস্তি)' : '') +
     '। অনুমোদনের পর স্থিতি হালনাগাদ হবে।', 'success');
 
   document.getElementById('depositAmountPanel').value='';
@@ -2475,7 +2596,6 @@ async function showSavingsVoucher(tx) {
     ['হিসাব নম্বর / Account', (CUR && CUR.account_no) || '—'],
     ['আমানত স্কীম / Scheme', SCHEME_BN[dep.scheme_type] || '—']
   ];
-  if (tx.period) rows.push(['কিস্তির মাস / For', monthBn(tx.period)]);
   rows.push(
     ['রেফারেন্স / Reference', tx.reference || '—'],
     ['অবস্থা / Status', 'অনুমোদনের অপেক্ষায় (Pending)']
