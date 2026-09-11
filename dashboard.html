@@ -811,6 +811,29 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
 
         <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-users"></i> ভিজিটর কাউন্টার — কী হিসেবে গোনা হবে</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;align-items:flex-start;gap:10px;font-size:14px;cursor:pointer;line-height:1.6">
+              <input type="radio" name="gs-visit-mode" value="views" style="width:17px;height:17px;margin-top:2px;accent-color:#f08c28">
+              <span><b>প্রতিটি পেজ ভিউ</b><br>
+                <span style="font-size:12.5px;color:var(--muted)">একজন পাঁচটি পেজ দেখলে পাঁচ, রিফ্রেশ করলেও বাড়ে। শুরুর দিকে সংখ্যা ভরাট দেখায়।</span>
+              </span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;font-size:14px;cursor:pointer;line-height:1.6">
+              <input type="radio" name="gs-visit-mode" value="unique" style="width:17px;height:17px;margin-top:2px;accent-color:#f08c28">
+              <span><b>আলাদা মানুষ</b><br>
+                <span style="font-size:12.5px;color:var(--muted)">একজন দর্শক দিনে একবার, সর্বমোটে জীবনে একবার। এটিই আসল হিসাব।</span>
+              </span>
+            </label>
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.9;
+                      border-top:1px solid var(--border);padding-top:10px">
+            <b style="color:inherit">এখনকার হিসাব</b> — <span id="gsVisitNow">লোড হচ্ছে…</span><br>
+            দুটি হিসাবই সবসময় আলাদা করে জমা থাকে, তাই নিয়ম বদলালে কোনো তথ্য হারায় না ও সংখ্যা পিছিয়ে যায় না।
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — সঞ্চয় হিসাব খোলা</div>
           <div class="gs-checks" id="gsReqSavings">
             <label><input type="checkbox" value="full_name"> নাম</label>
@@ -1204,6 +1227,27 @@ async function loadGeneralSettings() {
   document.getElementById('gs-wa-number').value  = wa.number || '';
   document.getElementById('gs-wa-label').value   = wa.label  || '';
   document.getElementById('gs-wa-enabled').checked = wa.enabled !== false;
+
+  /* ভিজিটর কাউন্টারের নিয়ম — সেট করা না থাকলে 'views' (সার্ভারের ডিফল্টও তাই) */
+  const vMode = s['visit_mode'] || 'views';
+  const vRadio = document.querySelector('input[name="gs-visit-mode"][value="' + vMode + '"]') ||
+                 document.querySelector('input[name="gs-visit-mode"][value="views"]');
+  if (vRadio) vRadio.checked = true;
+
+  /* দুটি হিসাবই পাশাপাশি দেখানো — কোনটি বাছবেন তা বোঝা সহজ হয় */
+  const vNow = document.getElementById('gsVisitNow');
+  if (vNow) {
+    try {
+      const vc = await _db.rpc('visit_counts');
+      if (vc.error || !vc.data) throw vc.error || new Error('no data');
+      const n = v => KHUI.bn(Number(v || 0).toLocaleString('en-IN'));
+      vNow.innerHTML =
+        'পেজ ভিউ — আজ <b>' + n(vc.data.today_views) + '</b>, সর্বমোট <b>' + n(vc.data.total_views) + '</b> &nbsp;·&nbsp; ' +
+        'আলাদা মানুষ — আজ <b>' + n(vc.data.today_unique) + '</b>, সর্বমোট <b>' + n(vc.data.total_unique) + '</b>';
+    } catch (e) {
+      vNow.textContent = 'পড়া যায়নি';
+    }
+  }
 }
 
 async function saveGeneralSettings() {
@@ -1238,6 +1282,9 @@ async function saveGeneralSettings() {
     label:   document.getElementById('gs-wa-label').value.trim(),
     enabled: document.getElementById('gs-wa-enabled').checked
   };
+  /* ⚠️ শুধু 'views' বা 'unique' — অন্য কিছু গেলে সার্ভার 'views' ধরে নেয় */
+  const vSel = document.querySelector('input[name="gs-visit-mode"]:checked');
+  const visitMode = (vSel && vSel.value === 'unique') ? 'unique' : 'views';
 
   try {
     for (const [k, v] of [
@@ -1246,7 +1293,8 @@ async function saveGeneralSettings() {
       ['required_fields.donation', reqDon],
       ['savings_rules', savingsRules],
       ['loan_rules', loanRules],
-      ['whatsapp', whatsapp]
+      ['whatsapp', whatsapp],
+      ['visit_mode', visitMode]
     ]) {
       const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
       if (r && r.error) throw r.error;
