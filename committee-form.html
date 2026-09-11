@@ -342,6 +342,27 @@
         </div>
       </div>
 
+      <!-- ই-সিগনেচার — কাগজে স্বাক্ষরের বিকল্প -->
+      <!-- ⚠️ ক্লাসগুলো এই পেজের বাকি বাক্সগুলোর মতোই — docside / docside-t / upst।
+           আলাদা নাম দিলে কোনো স্টাইলই পেত না। -->
+      <div class="docside" style="margin-top:14px">
+        <div class="docside-t"><i class="ti ti-signature"></i> ই-সিগনেচার
+          <span class="upst" id="stSig">এখনও দেওয়া হয়নি</span></div>
+        <div class="uprow">
+          <button class="upbtn" type="button" id="btnSig"><i class="ti ti-writing-sign"></i> স্বাক্ষর দিন</button>
+        </div>
+        <!-- ⚠️ ঘরটি সবসময় সাদা (কালি গাঢ়), আর বর্ডারের রঙ সরাসরি লেখা —
+             `var(--border)` কেবল লাইট থীমে সংজ্ঞায়িত, ডার্কে বর্ডারই উঠত না -->
+        <div id="sigPrev" style="display:none;margin-top:10px;padding:10px;border-radius:12px;
+             background:#fff;border:1px solid #ddd5e8">
+          <img id="sigImg" alt="আপনার স্বাক্ষর" style="display:block;width:100%;max-width:300px;height:auto;margin:0 auto">
+        </div>
+        <div class="upnote">
+          আঙুলে এঁকে বা কাগজের স্বাক্ষরের ছবি তুলে দিন — সিস্টেম পটভূমি মুছে আদর্শ মাপে বসিয়ে নেবে।
+          একবার দিলে আপনার প্রোফাইলে থেকে যাবে, পরের কোনো নথিতে আর নতুন করে দিতে হবে না।
+        </div>
+      </div>
+
       <label class="chk" style="margin-top:16px">
         <input type="checkbox" id="fDecl">
         <span>উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং
@@ -355,8 +376,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=14">
-<script src="kh-ui.js?v=14"></script>
+<link rel="stylesheet" href="kh-ui.css?v=16">
+<script src="kh-ui.js?v=16"></script>
 <script>
 (function(){
   'use strict';
@@ -821,6 +842,47 @@
     var w = window.open('', '_blank');
     if(!w){ alert('পপ-আপ বন্ধ আছে — ছাপানোর পৃষ্ঠা খোলার অনুমতি দিন।'); return; }
     w.document.open(); w.document.write(html); w.document.close();
+  };
+
+  /* ───────── ই-সিগনেচার ─────────
+     ⚠️ আমন্ত্রণের লিংকে (INV_TOKEN) লগইন ছাড়াই ফর্ম ভরা যায়, কিন্তু স্বাক্ষর
+     প্রোফাইলে জমা হয় — তাই লগইন ছাড়া এই অংশটি দেখানো হয় না, বদলে বলা হয়
+     কীভাবে পরে দেওয়া যাবে। (CLAUDE.md: আমন্ত্রণে OTP/লগইন বাধ্যতামূলক নয়) */
+  var SIG_PATH = null;
+  async function paintSig(){
+    var has = !!SIG_PATH;
+    el('stSig').textContent = has ? '✓ দেওয়া হয়েছে' : 'এখনও দেওয়া হয়নি';
+    el('stSig').style.color = has ? '#22c55e' : '';
+    el('btnSig').innerHTML = has
+      ? '<i class="ti ti-refresh"></i> বদলান'
+      : '<i class="ti ti-writing-sign"></i> স্বাক্ষর দিন';
+    if(!has){ el('sigPrev').style.display = 'none'; return; }
+    var u = await KHUI.signatureUrl(SIG_PATH, 600);
+    if(u){ el('sigImg').src = u; el('sigPrev').style.display = ''; }
+  }
+  (async function(){
+    if(!ME){
+      el('btnSig').disabled = true;
+      el('stSig').textContent = 'লগইন করলে দেওয়া যাবে';
+      el('btnSig').closest('.docside').querySelector('.upnote').textContent =
+        'ই-সিগনেচার আপনার প্রোফাইলে জমা থাকে, তাই এটি দিতে হলে অ্যাকাউন্টে লগইন করতে হবে। ' +
+        'এখন ফর্মটি দাখিল করে পরে লগইন করেও স্বাক্ষর যোগ করতে পারবেন — আবেদন আটকাবে না।';
+      return;
+    }
+    try{
+      var st = await KHUI.signatureStatus();
+      SIG_PATH = (st && st.url) || null;
+    }catch(e){}
+    paintSig();
+  })();
+  el('btnSig').onclick = function(){
+    KHUI.signaturePad({
+      onSave: async function(blob){
+        SIG_PATH = await KHUI.saveSignature(blob);
+        await paintSig();
+        msg('fmMsg','ok','ই-সিগনেচার সংরক্ষণ হয়েছে।');
+      }
+    });
   };
 
   /* ───────── দাখিল ───────── */

@@ -235,6 +235,10 @@
     </div>
   </div>
 
+  <!-- প্রিমিয়াম প্রোফাইল কার্ড — সদস্য কেবল নিজেরটিই পান (সার্ভারেই যাচাই) -->
+  <div class="sect-t"><i class="ti ti-id-badge-2"></i> আমার পরিচয়পত্র</div>
+  <div id="myCard" style="margin-bottom:26px"></div>
+
   <!-- ৩টি প্রোডাক্ট -->
   <div class="sect-t"><i class="ti ti-layout-dashboard"></i> আমার হিসাবসমূহ</div>
   <div class="cards">
@@ -287,8 +291,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=14">
-<script src="kh-ui.js?v=14"></script>
+<link rel="stylesheet" href="kh-ui.css?v=16">
+<script src="kh-ui.js?v=16"></script>
 <script>
 (function(){
   'use strict';
@@ -445,6 +449,10 @@
        যাতে কোনো কারণে RPC আটকালেও ব্যবহারকারী খালি স্ক্রিন না দেখে */
     el('gate').style.display='none';
     el('main').style.display='';
+
+    /* পরিচয়পত্র — নিজের কার্ড। ব্যর্থ হলে kh-ui নিজেই বার্তা বসায়,
+       তাই await না করে ছেড়ে দেওয়া হয়; বাকি পেজ আটকায় না। */
+    if (window.KHUI && KHUI.mountProfileCard) KHUI.mountProfileCard('#myCard');
 
     /* ৩ প্রোডাক্টের সারাংশ (সর্বোচ্চ ১০ সেকেন্ড অপেক্ষা) */
     var ov = null;

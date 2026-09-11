@@ -273,12 +273,36 @@
 
   </div>
 
+  <!-- ই-সিগনেচার -->
+  <div class="panel">
+    <h2><i class="ti ti-signature"></i> ই-সিগনেচার (গোপনীয়)</h2>
+    <div class="nidside">
+      <div class="nidside-t"><i class="ti ti-writing-sign"></i> আপনার স্বাক্ষর
+        <span class="nidst" id="sigSt">এখনও দেওয়া হয়নি</span></div>
+      <div class="nidrow">
+        <button class="upbtn" type="button" id="sigAdd"><i class="ti ti-signature"></i> স্বাক্ষর দিন</button>
+        <button class="upbtn ocralt" type="button" id="sigDel" style="display:none"><i class="ti ti-trash"></i> মুছে ফেলুন</button>
+      </div>
+      <!-- কালি গাঢ়, তাই ঘরটি সবসময় সাদা। ⚠️ বর্ডারের রঙ সরাসরি লেখা —
+           `var(--border)` কেবল লাইট থীমে সংজ্ঞায়িত, ডার্কে বর্ডারই উঠত না -->
+      <div id="sigPrev" style="display:none;margin-top:12px;padding:10px;border-radius:12px;
+           background:#fff;border:1px solid #ddd5e8">
+        <img id="sigImg" alt="আপনার স্বাক্ষর" style="display:block;width:100%;max-width:340px;height:auto;margin:0 auto">
+      </div>
+    </div>
+    <div class="upnote">
+      আঙুলে এঁকে বা কাগজের স্বাক্ষরের ছবি তুলে দিতে পারেন — সিস্টেম পটভূমি মুছে
+      আদর্শ মাপে বসিয়ে নেবে। শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন।
+      <b>অ্যাডমিন ও কমিটির সদস্যদের জন্য এটি প্রয়োজন</b> — অনুমোদনের কাগজ ও কমিটির নথিতে ব্যবহৃত হবে।
+    </div>
+  </div>
+
   <button class="saveb" id="saveBtn" type="button"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=14">
-<script src="kh-ui.js?v=14"></script>
+<link rel="stylesheet" href="kh-ui.css?v=16">
+<script src="kh-ui.js?v=16"></script>
 <script>
 (function(){
   'use strict';
@@ -449,7 +473,7 @@
         mobile: alias ? (au.email || '').split('@')[0] : '',
         email: alias ? '' : (au.email || ''),
         occupation:null, address:null, permanent_address:null, district:null,
-        nid:null, photo_url:null, nid_url:null, user_code:null
+        nid:null, photo_url:null, nid_url:null, user_code:null, signature_url:null
       };
     }
 
@@ -620,6 +644,49 @@
         else msg('err','ফাইল খোলা যায়নি।');
       }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
     };
+
+    /* ── ই-সিগনেচার ──
+       ছবি প্রাইভেট বাকেটে, তাই দেখাতে সাময়িক signed URL লাগে (NID-এর মতোই) */
+    async function paintSig(){
+      var has = !!prof.signature_url;
+      el('sigSt').textContent = has ? '✓ দেওয়া হয়েছে' : 'এখনও দেওয়া হয়নি';
+      el('sigSt').style.color = has ? '#22c55e' : '';
+      el('sigDel').style.display = has ? '' : 'none';
+      el('sigAdd').innerHTML = has
+        ? '<i class="ti ti-refresh"></i> বদলান'
+        : '<i class="ti ti-signature"></i> স্বাক্ষর দিন';
+      if(!has){ el('sigPrev').style.display = 'none'; return; }
+      var u = await KHUI.signatureUrl(prof.signature_url, 600);
+      if(u){ el('sigImg').src = u; el('sigPrev').style.display = ''; }
+      else  { el('sigPrev').style.display = 'none'; }
+    }
+
+    el('sigAdd').onclick = function(){
+      KHUI.signaturePad({
+        onSave: async function(blob){
+          var path = await KHUI.saveSignature(blob);   /* ব্যর্থ হলে ছুড়ে দেয়, পর্দাই দেখাবে */
+          prof.signature_url = path;
+          await paintSig();
+          msg('ok','ই-সিগনেচার সংরক্ষণ হয়েছে।');
+        }
+      });
+    };
+
+    el('sigDel').onclick = async function(){
+      if(!confirm('ই-সিগনেচার মুছে ফেলবেন?')) return;
+      try{
+        var r = await sb().rpc('set_my_signature', { p_url: null });
+        if(r && r.error) throw r.error;
+        /* ফাইলটিও সরানো — না পারলেও প্রোফাইল থেকে সরে গেছে, তাই আটকাই না */
+        try{ await sb().storage.from('signatures').remove([prof.signature_url]); }catch(e){}
+        prof.signature_url = null;
+        KHUI.clearProfileCache && KHUI.clearProfileCache();
+        await paintSig();
+        msg('ok','মুছে ফেলা হয়েছে।');
+      }catch(e){ msg('err','মোছা যায়নি — আবার চেষ্টা করুন।'); }
+    };
+
+    paintSig();
 
     /* সংরক্ষণ */
     el('saveBtn').onclick = async function(){

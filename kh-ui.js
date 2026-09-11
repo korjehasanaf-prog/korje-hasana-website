@@ -1996,6 +1996,618 @@
   };
 
   /* ════════════════════════════════════════════════════════
+     প্রিমিয়াম প্রোফাইল কার্ড
+
+     `profile_card()` / `admin_profile_cards()`-এর এক সারি নিয়ে
+     কার্ডটি বানায়। অনুমতি সার্ভারেই যাচাই হয় — সদস্য শুধু
+     নিজের সারিটিই পান, তাই এখানে আর যাচাই করা হয় না।
+     ════════════════════════════════════════════════════════ */
+  function pcTk(n) { return '৳' + KHUI.bn(Number(n || 0).toLocaleString('en-IN')); }
+
+  KHUI.profileCardHTML = function (c) {
+    if (!c) return '';
+    var sav = c.savings || {}, don = c.donation || {}, loan = c.loan || {};
+    var name = c.name || 'সদস্য';
+
+    var tags = [];
+    if (c.is_depositor) tags.push('আমানতকারী');
+    if (c.is_donor)     tags.push('দানকারী');
+    if (c.is_borrower)  tags.push('ঋণগ্রহীতা');
+    if (!tags.length)   tags.push('সদস্য');
+
+    var photo = c.photo
+      ? '<img class="kh-pc-photo" src="' + vEsc(c.photo) + '" alt="' + vEsc(name) + '">'
+      : '<div class="kh-pc-photo kh-pc-ini">' + vEsc(name.trim().charAt(0) || 'স') + '</div>';
+
+    var mob = (c.mobile || '').replace(/\D/g, '');
+    var wa  = mob ? (mob.length === 11 && mob.charAt(0) === '0' ? '88' + mob : mob) : '';
+    var rbtn = function (cls, icon, href, title) {
+      return href
+        ? '<a class="kh-pc-rbtn ' + cls + '" href="' + href + '" title="' + title + '" ' +
+          'target="_blank" rel="noopener"><i class="ti ' + icon + '"></i></a>'
+        : '<span class="kh-pc-rbtn kh-off" title="নম্বর/ঠিকানা নেই"><i class="ti ' + icon + '"></i></span>';
+    };
+
+    return '' +
+    '<div class="kh-pc" data-kh-pc="' + vEsc(c.id || '') + '">' +
+      '<div class="kh-pc-visual">' + photo + '</div>' +
+      '<div class="kh-pc-body">' +
+        '<span class="kh-pc-pill' + (c.online ? ' kh-on' : '') + '">' +
+          '<i aria-hidden="true"></i>' + (c.online ? 'এখন অনলাইনে' : 'অফলাইন') +
+        '</span>' +
+        '<div class="kh-pc-name">' + vEsc(name) + '</div>' +
+        '<div class="kh-pc-code">' + vEsc(c.code || '—') +
+          (c.mobile ? ' · ' + KHUI.bn(vEsc(c.mobile)) : '') + '</div>' +
+        '<p class="kh-pc-desc">' +
+          vEsc([c.occupation, c.district].filter(Boolean).join(' · ') ||
+               'কর্জে হাসানা ফাউন্ডেশনের সদস্য') + '</p>' +
+        '<div class="kh-pc-tags">' +
+          tags.map(function (t) { return '<span class="kh-pc-tag">' + t + '</span>'; }).join('') +
+        '</div>' +
+        '<div class="kh-pc-stats">' +
+          '<div class="kh-pc-stat kh-pc-s-sav"><b>আমানত</b><s>' + pcTk(sav.balance) + '</s>' +
+            '<span>' + KHUI.bn(sav.accounts || 0) + 'টি হিসাব</span></div>' +
+          '<div class="kh-pc-stat kh-pc-s-don"><b>দান</b><s>' + pcTk(don.total) + '</s>' +
+            '<span>' + KHUI.bn(don.count || 0) + 'বার</span></div>' +
+          '<div class="kh-pc-stat kh-pc-s-loan"><b>ঋণ বকেয়া</b><s>' + pcTk(loan.outstanding) + '</s>' +
+            '<span>' + KHUI.bn(loan.count || 0) + 'টি ঋণ</span></div>' +
+        '</div>' +
+        '<button type="button" class="kh-pc-link" data-kh-pc-more>' +
+          'বিস্তারিত হিসাব দেখুন <i class="ti ti-arrow-right" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="kh-pc-rail">' +
+        rbtn('kh-pc-r-stat', 'ti-file-text', 'savings-portal.html#history', 'স্টেটমেন্ট') +
+        rbtn('kh-pc-r-call', 'ti-phone', mob ? 'tel:' + mob : '', 'ফোন') +
+        rbtn('kh-pc-r-wa',   'ti-brand-whatsapp', wa ? 'https://wa.me/' + wa : '', 'হোয়াটসঅ্যাপ') +
+        rbtn('kh-pc-r-mail', 'ti-mail', c.email ? 'mailto:' + c.email : '', 'ই-মেইল') +
+      '</div>' +
+    '</div>';
+  };
+
+  /* কার্ডটি কোথাও বসিয়ে দেওয়া। uid না দিলে নিজের কার্ড। */
+  KHUI.mountProfileCard = async function (host, uid) {
+    host = typeof host === 'string' ? document.querySelector(host) : host;
+    if (!host) return null;
+    var db = sb();
+    if (!db) { host.innerHTML = ''; return null; }
+    try {
+      var r = await db.rpc('profile_card', uid ? { p_user: uid } : {});
+      if (r.error || !r.data) throw r.error || new Error('no data');
+      host.innerHTML = KHUI.profileCardHTML(r.data);
+      var more = host.querySelector('[data-kh-pc-more]');
+      if (more) more.onclick = function () { KHUI.profileCardDetail(r.data); };
+      return r.data;
+    } catch (e) {
+      host.innerHTML = '<div style="padding:16px;font-size:13.5px;color:#9186a3">' +
+                       'কার্ড দেখানো যায়নি।</div>';
+      return null;
+    }
+  };
+
+  /* "বিস্তারিত হিসাব" — ভাউচারের মত সাদা পাতা, দুই থীমে এক */
+  KHUI.profileCardDetail = function (c) {
+    var sav = c.savings || {}, don = c.donation || {}, loan = c.loan || {};
+    KHUI.voucher({
+      title: 'সদস্যের হিসাব',
+      no:    c.code || '—',
+      amount: (sav.balance || 0),
+      name:  c.name,
+      code:  c.code,
+      mobile: c.mobile,
+      photo: c.photo,
+      status: c.online ? 'এখন অনলাইনে' : 'সদস্য',
+      rows: [
+        ['আমানত — হিসাব সংখ্যা', KHUI.bn(sav.accounts || 0) + 'টি'],
+        ['আমানত — মোট জমা',      pcTk(sav.deposited)],
+        ['আমানত — মোট উত্তোলন',  pcTk(sav.withdrawn)],
+        ['আমানত — অনুমোদনের অপেক্ষায়', pcTk(sav.pending)],
+        ['আমানত — বর্তমান স্থিতি', pcTk(sav.balance)],
+        ['দান — সংখ্যা',          KHUI.bn(don.count || 0) + 'বার'],
+        ['দান — সর্বমোট',         pcTk(don.total)],
+        ['ঋণ — সংখ্যা',           KHUI.bn(loan.count || 0) + 'টি'],
+        ['ঋণ — মোট গৃহীত',        pcTk(loan.principal)],
+        ['ঋণ — পরিশোধিত',        pcTk(loan.paid)],
+        ['ঋণ — বকেয়া',           pcTk(loan.outstanding)]
+      ],
+      note: 'এটি সদস্যের বর্তমান হিসাবের সারসংক্ষেপ — সিস্টেম থেকে তৈরি।'
+    });
+  };
+
+  /* ════════════════════════════════════════════════════════
+     অনলাইন উপস্থিতি
+
+     প্রতি মিনিটে সার্ভারকে "আমি আছি" বলা হয়; সার্ভার ২ মিনিটের
+     মধ্যে সাড়া পেলে অনলাইন ধরে। ⚠️ ট্যাব পেছনে থাকলে স্পন্দন
+     পাঠানো হয় না — নাহলে বন্ধ করে রাখা ট্যাবও চিরকাল "অনলাইন"
+     দেখাত। সামনে ফিরলেই সাথে সাথে একবার পাঠানো হয়।
+     ════════════════════════════════════════════════════════ */
+  var presenceTimer = null;
+
+  KHUI.startPresence = function () {
+    if (presenceTimer) return;
+    var db = sb();
+    if (!db || !db.rpc) return;
+
+    async function beat() {
+      if (document.hidden) return;
+      try {
+        var ses = (await db.auth.getSession()).data.session;
+        if (!ses) return;                       /* লগ-আউট — কিছু পাঠানোর নেই */
+        await db.rpc('touch_presence');
+      } catch (e) { /* নীরবে — উপস্থিতি জানাতে না পারলে কিছু ভাঙে না */ }
+    }
+
+    beat();
+    presenceTimer = setInterval(beat, 60000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) beat();
+    });
+  };
+
+  /* ════════════════════════════════════════════════════════
+     ই-সিগনেচার — ছবি পরিষ্কার করা
+
+     লক্ষ্য: যে ফরম্যাটেই দিন, ফল একই রকম হবে — স্বচ্ছ পটভূমি,
+     কাটা-ছাঁটা, আর ৬০০×২০০ আদর্শ মাপ।
+
+     ⚠️ একটিমাত্র উজ্জ্বলতার সীমা (threshold) দিয়ে কাজ হয় না —
+     মোবাইলে তোলা ছবিতে কাগজের এক পাশে ছায়া থাকে, ফলে ছায়ার
+     দিকটা পুরো কালো হয়ে যায়। তাই আগে কাগজের নিজের উজ্জ্বলতা
+     এলাকাভিত্তিক আন্দাজ করা হয়, তারপর তার থেকে পার্থক্য মেপে
+     কালি আলাদা করা হয়।
+     ════════════════════════════════════════════════════════ */
+  var SIG_W = 600, SIG_H = 200;          /* আদর্শ মাপ (৩:১) */
+
+  /* ছবি → কালির ঘনত্বের মানচিত্র */
+  function sigAnalyze(img) {
+    var MAX = 1600;
+    var w = img.width || img.naturalWidth, h = img.height || img.naturalHeight;
+    var s = Math.min(1, MAX / Math.max(w, h));
+    w = Math.max(1, Math.round(w * s)); h = Math.max(1, Math.round(h * s));
+
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, w, h);
+    var px = ctx.getImageData(0, 0, w, h).data;
+
+    var gray = new Float32Array(w * h);
+    for (var i = 0, p = 0; i < gray.length; i++, p += 4) {
+      gray[i] = 0.299 * px[p] + 0.587 * px[p + 1] + 0.114 * px[p + 2];
+    }
+
+    /* ── কাগজের উজ্জ্বলতার মানচিত্র ──
+       ব্লকে ভাগ করে ৯০তম পার্সেন্টাইল নেওয়া হয়। সর্বোচ্চ নিলে
+       চকচকে প্রতিফলন ধরে ফেলত, গড় নিলে কালিও মিশে যেত। */
+    var B  = Math.max(8, Math.round(Math.min(w, h) / 24));
+    var gw = Math.max(1, Math.ceil(w / B)), gh = Math.max(1, Math.ceil(h / B));
+    var bg = new Float32Array(gw * gh);
+    var hist = new Uint32Array(32);
+    for (var by = 0; by < gh; by++) {
+      for (var bx = 0; bx < gw; bx++) {
+        hist.fill(0);
+        var n = 0;
+        var y1 = Math.min(h, (by + 1) * B), x1 = Math.min(w, (bx + 1) * B);
+        for (var yy = by * B; yy < y1; yy++) {
+          for (var xx = bx * B; xx < x1; xx++) { hist[gray[yy * w + xx] >> 3 | 0]++; n++; }
+        }
+        /* ⚠️ Math.max(1,…) — এক-পিক্সেলের ব্লকে want শূন্য হয়ে যেত,
+           ফলে ঐ পিক্সেলটি কালি বলে ধরা পড়ত */
+        var want = Math.max(1, Math.floor(n * 0.9)), acc = 0, k = 0;
+        for (k = 0; k < 32; k++) { acc += hist[k]; if (acc >= want) break; }
+        bg[by * gw + bx] = Math.min(255, k * 8 + 4);
+      }
+    }
+
+    /* ব্লকের মানগুলো মসৃণ করে প্রতিটি পিক্সেলে বসানো (bilinear) */
+    var diff = new Uint8ClampedArray(w * h);
+    var maxD = 1;
+    for (var y2 = 0; y2 < h; y2++) {
+      var fy = Math.min(gh - 1.001, Math.max(0, y2 / B - 0.5));
+      var iy = fy | 0, ty = fy - iy, iy2 = Math.min(gh - 1, iy + 1);
+      for (var x2 = 0; x2 < w; x2++) {
+        var fx = Math.min(gw - 1.001, Math.max(0, x2 / B - 0.5));
+        var ix = fx | 0, tx = fx - ix, ix2 = Math.min(gw - 1, ix + 1);
+        var b00 = bg[iy * gw + ix],  b10 = bg[iy * gw + ix2];
+        var b01 = bg[iy2 * gw + ix], b11 = bg[iy2 * gw + ix2];
+        var paper = (b00 * (1 - tx) + b10 * tx) * (1 - ty) + (b01 * (1 - tx) + b11 * tx) * ty;
+        var d = paper - gray[y2 * w + x2];
+        if (d < 0) d = 0;
+        diff[y2 * w + x2] = d;
+        if (d > maxD) maxD = d;
+      }
+    }
+    /* সবচেয়ে গাঢ় কালিকে ২৫৫ ধরে বাকিটা মাপা — হালকা পেন্সিলও ধরা পড়ে */
+    if (maxD > 0 && maxD < 255) {
+      var f = 255 / maxD;
+      for (var j = 0; j < diff.length; j++) diff[j] = diff[j] * f;
+    }
+
+    var thr = sigOtsu(diff);
+
+    /* ── কালি নীল কি না ──
+       ⚠️ এটি অবশ্যই diff বের হওয়ার **পরে**, আর শুধু কালির পিক্সেল দেখে।
+       আগে "গাঢ় পিক্সেল" ধরে হিসাব হত — ফলে ছায়ায় পড়া ধূসর কাগজও গাঢ়
+       গোনা হত ও নীল কলমের ঝোঁক চাপা পড়ে যেত (পরীক্ষায় ধরা পড়েছে)। */
+    var sumR = 0, sumB = 0, nInk = 0;
+    for (var m = 0; m < diff.length; m++) {
+      if (diff[m] > thr) { var q = m * 4; sumR += px[q]; sumB += px[q + 2]; nInk++; }
+    }
+    var blueish = nInk > 30 && (sumB / nInk) - (sumR / nInk) > 18;
+
+    return { w: w, h: h, diff: diff, blueish: blueish, otsu: thr };
+  }
+
+  /* কালি ও কাগজ ভাগ করার স্বয়ংক্রিয় সীমা (Otsu) */
+  function sigOtsu(d) {
+    var hist = new Uint32Array(256), i;
+    for (i = 0; i < d.length; i++) hist[d[i]]++;
+    var total = d.length, sum = 0;
+    for (i = 0; i < 256; i++) sum += i * hist[i];
+    var sumB = 0, wB = 0, best = 0, thr = 60;
+    for (i = 0; i < 256; i++) {
+      wB += hist[i]; if (!wB) continue;
+      var wF = total - wB; if (!wF) break;
+      sumB += i * hist[i];
+      var mB = sumB / wB, mF = (sum - sumB) / wF;
+      var between = wB * wF * (mB - mF) * (mB - mF);
+      if (between > best) { best = between; thr = i; }
+    }
+    /* খুব নিচে নামলে কাগজের দানা কালি বলে ধরা পড়ে */
+    return Math.max(28, Math.min(200, thr));
+  }
+
+  /* বিশ্লেষণ + সীমা → স্বচ্ছ, কাটা-ছাঁটা, আদর্শ মাপের ক্যানভাস */
+  function sigRender(an, thr) {
+    var w = an.w, h = an.h, d = an.diff;
+    var lo = thr * 0.55, hi = thr * 1.15, span = Math.max(1, hi - lo);
+    var ink = an.blueish ? [22, 49, 107] : [17, 24, 39];
+
+    var full = document.createElement('canvas');
+    full.width = w; full.height = h;
+    var fctx = full.getContext('2d');
+    var out = fctx.createImageData(w, h);
+    var o = out.data;
+    var minX = w, minY = h, maxX = -1, maxY = -1;
+
+    for (var y = 0, i = 0; y < h; y++) {
+      for (var x = 0; x < w; x++, i++) {
+        var a = (d[i] - lo) / span;
+        a = a < 0 ? 0 : (a > 1 ? 1 : a);      /* নরম কিনারা — খাঁজকাটা দেখায় না */
+        var p = i * 4;
+        o[p] = ink[0]; o[p + 1] = ink[1]; o[p + 2] = ink[2];
+        o[p + 3] = Math.round(a * 255);
+        if (a > 0.25) {
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) return null;               /* কালি খুঁজে পাওয়া যায়নি */
+    fctx.putImageData(out, 0, 0);
+
+    return sigFit(full, minX, minY, maxX - minX + 1, maxY - minY + 1);
+  }
+
+  /* কাটা অংশটিকে ৬০০×২০০ পাতার মাঝখানে বসানো */
+  function sigFit(src, cx, cy, cw, ch) {
+    var pad = Math.round(Math.max(cw, ch) * 0.03);
+    cx = Math.max(0, cx - pad); cy = Math.max(0, cy - pad);
+    cw = Math.min(src.width - cx, cw + pad * 2);
+    ch = Math.min(src.height - cy, ch + pad * 2);
+
+    var c = document.createElement('canvas');
+    c.width = SIG_W; c.height = SIG_H;
+    var ctx = c.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    /* ⚠️ ১.৫ গুণের বেশি বড় করা হয় না — ছোট ছবি টেনে বড় করলে ঝাপসা দেখায়।
+       তখন স্বাক্ষরটি পাতার মাঝে একটু ছোট বসে, কিন্তু পরিষ্কার থাকে। */
+    var s = Math.min(1.5, (SIG_W - 40) / cw, (SIG_H - 30) / ch);
+    var dw = cw * s, dh = ch * s;
+    ctx.drawImage(src, cx, cy, cw, ch, (SIG_W - dw) / 2, (SIG_H - dh) / 2, dw, dh);
+    return c;
+  }
+
+  /* আঁকা ক্যানভাস (স্বচ্ছ পটভূমি, গাঢ় কালি) — শুধু কেটে মাপে বসানো */
+  function sigTrimDrawn(src) {
+    var ctx = src.getContext('2d', { willReadFrequently: true });
+    var d = ctx.getImageData(0, 0, src.width, src.height).data;
+    var minX = src.width, minY = src.height, maxX = -1, maxY = -1;
+    for (var y = 0, i = 0; y < src.height; y++) {
+      for (var x = 0; x < src.width; x++, i++) {
+        if (d[i * 4 + 3] > 40) {
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < 0) return null;
+    return sigFit(src, minX, minY, maxX - minX + 1, maxY - minY + 1);
+  }
+
+  /* বাইরের জন্য: যেকোনো ছবি → পরিষ্কার স্বাক্ষরের ক্যানভাস */
+  KHUI.cleanSignature = function (img, threshold) {
+    var an = sigAnalyze(img);
+    return sigRender(an, threshold == null ? an.otsu : threshold);
+  };
+
+  /* ── স্বাক্ষর নেওয়ার পর্দা ──
+     cfg.onSave(blob, dataUrl) — সংরক্ষণে চাপলে ডাকা হয়।
+     cfg.current — আগের স্বাক্ষরের URL (থাকলে দেখানো হয়)। */
+  KHUI.signaturePad = function (cfg) {
+    cfg = cfg || {};
+    var ov = document.createElement('div');
+    ov.className = 'kh-sig-ov';
+    ov.innerHTML =
+      '<div class="kh-sig-box" role="dialog" aria-modal="true" aria-label="ই-সিগনেচার">' +
+        '<button type="button" class="kh-sig-x" aria-label="বন্ধ">&times;</button>' +
+        '<div class="kh-sig-head"><b>ই-সিগনেচার</b><span>যেভাবেই দিন — সিস্টেম পটভূমি মুছে আদর্শ মাপে বসিয়ে নেবে</span></div>' +
+        '<div class="kh-sig-tabs">' +
+          '<button type="button" class="kh-sig-tab kh-on" data-tab="draw"><i class="ti ti-signature"></i> আঙুলে আঁকুন</button>' +
+          '<button type="button" class="kh-sig-tab" data-tab="up"><i class="ti ti-photo-up"></i> ছবি দিন</button>' +
+        '</div>' +
+
+        '<div class="kh-sig-pane" data-pane="draw">' +
+          '<div class="kh-sig-padwrap"><canvas class="kh-sig-pad" width="900" height="300"></canvas>' +
+            '<span class="kh-sig-hint">এখানে স্বাক্ষর করুন</span>' +
+            '<span class="kh-sig-base"></span></div>' +
+          '<div class="kh-sig-row"><button type="button" class="kh-sig-btn kh-sig-clear"><i class="ti ti-eraser"></i> মুছুন</button></div>' +
+        '</div>' +
+
+        '<div class="kh-sig-pane" data-pane="up" hidden>' +
+          '<label class="kh-sig-drop"><input type="file" accept="image/*" hidden>' +
+            '<i class="ti ti-cloud-upload"></i><b>ছবি বাছুন বা ক্যামেরায় তুলুন</b>' +
+            '<span>সাদা কাগজে স্বাক্ষর করে ভালো আলোয় ছবি তুললে ফল সবচেয়ে ভালো হয়</span></label>' +
+          '<div class="kh-sig-tune" hidden>' +
+            '<label>কালির ঘনত্ব' +
+              '<input type="range" class="kh-sig-thr" min="20" max="200" value="70">' +
+            '</label>' +
+            '<span class="kh-sig-tunehint">দাগ কম উঠলে বাঁয়ে, দাগের সাথে দাগ-ছোপ উঠলে ডানে টানুন</span>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="kh-sig-prevwrap" hidden>' +
+          '<div class="kh-sig-prevlbl">যেমন দেখাবে</div>' +
+          '<div class="kh-sig-prev"><img alt="স্বাক্ষরের প্রাকদর্শন"></div>' +
+        '</div>' +
+
+        '<div class="kh-sig-msg" role="alert"></div>' +
+        '<div class="kh-sig-foot">' +
+          '<button type="button" class="kh-sig-btn kh-sig-cancel">বাতিল</button>' +
+          '<button type="button" class="kh-sig-btn kh-sig-save" disabled><i class="ti ti-check"></i> সংরক্ষণ করুন</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    document.body.style.overflow = 'hidden';
+
+    var q    = function (s) { return ov.querySelector(s); };
+    /* ⚠️ willReadFrequently এখানেই দিতে হয় — প্রতি স্ট্রোকের শেষে
+       sigTrimDrawn() getImageData করে; পরে অপশন দিলে ব্রাউজার তা ফেলে দেয় */
+    var pad  = q('.kh-sig-pad'), pctx = pad.getContext('2d', { willReadFrequently: true });
+    var prevWrap = q('.kh-sig-prevwrap'), prevImg = prevWrap.querySelector('img');
+    var saveBtn  = q('.kh-sig-save'), msg = q('.kh-sig-msg');
+    var tune = q('.kh-sig-tune'), thrEl = q('.kh-sig-thr');
+    var result = null, upAnalysis = null;
+
+    function say(t, bad) {
+      msg.textContent = t || '';
+      msg.style.color = bad ? '#fca5a5' : '#86efac';
+    }
+    function setResult(canvas) {
+      result = canvas;
+      if (canvas) {
+        prevImg.src = canvas.toDataURL('image/png');
+        prevWrap.hidden = false;
+        saveBtn.disabled = false;
+      } else {
+        prevWrap.hidden = true;
+        saveBtn.disabled = true;
+      }
+    }
+
+    /* ── আঁকা ── */
+    pctx.lineWidth = 4.5; pctx.lineCap = 'round'; pctx.lineJoin = 'round';
+    pctx.strokeStyle = '#111827';
+    var drawing = false, last = null, inked = false;
+    function pt(e) {
+      var r = pad.getBoundingClientRect();
+      var t = e.touches ? e.touches[0] : e;
+      return { x: (t.clientX - r.left) * (pad.width / r.width),
+               y: (t.clientY - r.top)  * (pad.height / r.height) };
+    }
+    function down(e) { e.preventDefault(); drawing = true; last = pt(e); q('.kh-sig-hint').style.opacity = 0; }
+    function move(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      var p = pt(e);
+      pctx.beginPath(); pctx.moveTo(last.x, last.y); pctx.lineTo(p.x, p.y); pctx.stroke();
+      last = p; inked = true;
+    }
+    function up() {
+      if (!drawing) return;
+      drawing = false;
+      if (inked) {
+        var c = sigTrimDrawn(pad);
+        if (c) setResult(c);
+      }
+    }
+    /* ⚠️ দুই পরিবারের ইভেন্ট একসাথে বাঁধলে ফোনে প্রতিটি নড়াচড়ায় দুবার
+       getBoundingClientRect + stroke হয় — দাগ দুবার পড়ে না ঠিকই, কিন্তু
+       সস্তা ফোনে আঁকা আটকে আটকে যায়। তাই Pointer Events থাকলে সেটিই,
+       না থাকলে (পুরনো iOS Safari) touch fallback। */
+    var hasPointer = 'PointerEvent' in window;
+    if (hasPointer) {
+      pad.addEventListener('pointerdown', down);
+      pad.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    } else {
+      pad.addEventListener('touchstart', down, { passive: false });
+      pad.addEventListener('touchmove', move, { passive: false });
+      pad.addEventListener('mousedown', down);
+      pad.addEventListener('mousemove', move);
+      window.addEventListener('touchend', up);
+      window.addEventListener('mouseup', up);
+    }
+
+    q('.kh-sig-clear').onclick = function () {
+      pctx.clearRect(0, 0, pad.width, pad.height);
+      inked = false; q('.kh-sig-hint').style.opacity = '';
+      setResult(null); say('');
+    };
+
+    /* ── ছবি দেওয়া ── */
+    q('.kh-sig-drop input').onchange = function (e) {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      say('ছবি পরিষ্কার করা হচ্ছে…');
+      var img = new Image();
+      img.onload = function () {
+        try {
+          upAnalysis = sigAnalyze(img);
+          thrEl.value = upAnalysis.otsu;
+          tune.hidden = false;
+          var c = sigRender(upAnalysis, upAnalysis.otsu);
+          if (!c) { setResult(null); say('ছবিতে স্বাক্ষর খুঁজে পাওয়া যায়নি — আরেকটু আলোয় আবার তুলুন', true); return; }
+          setResult(c); say('হয়ে গেছে — দরকার হলে নিচের টানে ঠিক করে নিন');
+        } catch (err) {
+          setResult(null); say('ছবিটি পড়া গেল না — অন্য একটি চেষ্টা করুন', true);
+        }
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = function () {
+        say('ছবিটি পড়া গেল না — অন্য একটি চেষ্টা করুন', true);
+        URL.revokeObjectURL(img.src);          /* নাহলে ব্লবটি পেজের শেষ পর্যন্ত থেকে যেত */
+      };
+      img.src = URL.createObjectURL(f);
+    };
+    thrEl.oninput = function () {
+      if (!upAnalysis) return;
+      var c = sigRender(upAnalysis, parseInt(thrEl.value, 10));
+      if (c) setResult(c);
+    };
+
+    /* ── ট্যাব ── */
+    ov.querySelectorAll('.kh-sig-tab').forEach(function (b) {
+      b.onclick = function () {
+        ov.querySelectorAll('.kh-sig-tab').forEach(function (x) { x.classList.remove('kh-on'); });
+        b.classList.add('kh-on');
+        ov.querySelectorAll('.kh-sig-pane').forEach(function (p) {
+          p.hidden = p.dataset.pane !== b.dataset.tab;
+        });
+        setResult(null); say('');
+      };
+    });
+
+    function close() {
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('touchend', up);
+      window.removeEventListener('mouseup', up);
+      ov.remove();
+      document.body.style.overflow = '';
+    }
+    q('.kh-sig-x').onclick = close;
+    q('.kh-sig-cancel').onclick = close;
+    /* পেছনে ক্লিক করলে বন্ধ — তবে স্বাক্ষর তৈরি হয়ে গেলে নয়,
+       নাহলে ভুল ছোঁয়ায় পরিশ্রমটুকু হারিয়ে যেত */
+    ov.addEventListener('click', function (e) { if (e.target === ov && !result) close(); });
+
+    saveBtn.onclick = function () {
+      if (!result) return;
+      saveBtn.disabled = true; say('সংরক্ষণ হচ্ছে…');
+      result.toBlob(function (blob) {
+        if (!blob) { saveBtn.disabled = false; say('সংরক্ষণ করা গেল না', true); return; }
+        Promise.resolve(cfg.onSave && cfg.onSave(blob, result.toDataURL('image/png')))
+          .then(function () { close(); })
+          .catch(function (e) {
+            saveBtn.disabled = false;
+            say((e && e.message) || 'সংরক্ষণ করা গেল না', true);
+          });
+      }, 'image/png');
+    };
+
+    return { close: close };
+  };
+
+  /* ── স্বাক্ষর সংরক্ষণ: বাকেটে তুলে প্রোফাইলে পথ বসানো ── */
+  KHUI.saveSignature = async function (blob) {
+    var db = sb();
+    if (!db) throw new Error('সংযোগ পাওয়া যায়নি');
+    var ses = (await db.auth.getSession()).data.session;
+    if (!ses) throw new Error('আগে লগইন করুন');
+    var uid = ses.user.id;
+    /* ⚠️ পথ অবশ্যই uid দিয়ে শুরু — স্টোরেজ পলিসি ও RPC দুটোই তা যাচাই করে */
+    var path = uid + '/signature-' + Date.now() + '.png';
+
+    var up = await db.storage.from('signatures')
+      .upload(path, blob, { contentType: 'image/png', upsert: true });
+    if (up.error) throw new Error('আপলোড হয়নি: ' + up.error.message);
+
+    var r = await db.rpc('set_my_signature', { p_url: path });
+    if (r.error) throw new Error(r.error.message);
+    KHUI.clearProfileCache && KHUI.clearProfileCache();
+    return path;
+  };
+
+  /* ── দেখার জন্য সাময়িক লিংক (প্রাইভেট বাকেট) ── */
+  KHUI.signatureUrl = async function (path, secs) {
+    var db = sb();
+    if (!db || !path) return null;
+    try {
+      var r = await db.storage.from('signatures').createSignedUrl(path, secs || 3600);
+      return (r.data && r.data.signedUrl) || null;
+    } catch (e) { return null; }
+  };
+
+  KHUI.signatureStatus = async function () {
+    var db = sb();
+    if (!db) return null;
+    try {
+      var r = await db.rpc('my_signature_status');
+      return r.error ? null : r.data;
+    } catch (e) { return null; }
+  };
+
+  /* ── স্মরণিকা পট্টি ──
+     অ্যাডমিন ও কমিটির অনুমোদিত সদস্যের স্বাক্ষর না থাকলে উপরে দেখায়।
+     ⚠️ কোনো কাজ আটকায় না (সিদ্ধান্ত: ১২ সেপ্টেম্বর ২০২৬) — জরুরি
+     মুহূর্তে অনুমোদন থেমে যাওয়া এর চেয়ে বড় ক্ষতি। */
+  KHUI.mountSignatureReminder = async function () {
+    if (document.querySelector('.kh-sigbar')) return;
+    try { if (sessionStorage.getItem('kh_sigbar_off') === '1') return; } catch (e) {}
+    /* কোনো ওভারলে খোলা থাকলে তার উপরে পট্টি তুলে দেওয়া হয় না */
+    if (document.querySelector('.kh-otp-back.show, .kh-gate-back, .kh-cam-back, .kh-sig-ov, .kh-vch-back.show')) return;
+
+    var st = await KHUI.signatureStatus();
+    if (!st || !st.signed_in || !st.required || st.has) return;
+
+    var bar = document.createElement('div');
+    bar.className = 'kh-sigbar';
+    bar.innerHTML =
+      '<i class="ti ti-signature" aria-hidden="true"></i>' +
+      '<span>আপনার <b>ই-সিগনেচার</b> এখনো দেওয়া হয়নি — ' +
+        (st.is_admin ? 'অনুমোদনের কাগজে' : 'কমিটির নথিতে') + ' এটি প্রয়োজন হয়।</span>' +
+      '<button type="button" class="kh-sigbar-go">এখনই দিন</button>' +
+      '<button type="button" class="kh-sigbar-x" aria-label="পরে">&times;</button>';
+    document.body.appendChild(bar);
+    requestAnimationFrame(function () { bar.classList.add('kh-on'); });
+
+    bar.querySelector('.kh-sigbar-go').onclick = function () {
+      KHUI.signaturePad({
+        onSave: async function (blob) {
+          await KHUI.saveSignature(blob);
+          bar.remove();
+          alert('✅ ই-সিগনেচার সংরক্ষণ হয়েছে');
+        }
+      });
+    };
+    bar.querySelector('.kh-sigbar-x').onclick = function () {
+      try { sessionStorage.setItem('kh_sigbar_off', '1'); } catch (e) {}
+      bar.remove();
+    };
+  };
+
+  /* ════════════════════════════════════════════════════════
      ভিজিটর কাউন্টার — আজকের ও সর্বমোট, ফুটারে
 
      গোপনীয়তা: IP বা ব্রাউজারের কোনো তথ্য পাঠানো হয় না। শুধু
@@ -2117,6 +2729,11 @@
     KHUI._watchTables();
     /* অ্যাডমিন প্যানেলে দরকার নেই — পেজে data-kh-visits="off" দিলে বাদ যাবে */
     if (document.body.dataset.khVisits !== 'off') KHUI.mountVisitorCounter();
+    /* স্বাক্ষরের স্মরণিকা — লগইন বসতে একটু সময় দিয়ে */
+    if (document.body.dataset.khSig !== 'off') {
+      setTimeout(function () { KHUI.mountSignatureReminder(); }, 1400);
+    }
+    KHUI.startPresence();
 
     /* পেজে data-kh-requires থাকলে অতিথিকে সাইন আপে পাঠানো */
     var need = document.body.dataset.khRequires;

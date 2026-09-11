@@ -2397,3 +2397,313 @@ html[data-theme="light"] .kh-visit-total .kh-visit-num { color: #f3d9ff !importa
   .kh-visit-num.kh-visit-bump { animation: none; }
   .kh-visit { transition: none; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   19 ── ই-সিগনেচার
+
+   পর্দাটি নিজের গাঢ় পটভূমি বহন করে, তাই দুই থীমেই এক রকম।
+   ⚠️ স্বাক্ষরের কালি গাঢ়, তাই তার ঘর সবসময় সাদা — ডার্ক থীমে
+      গাঢ় ঘরে গাঢ় কালি মিলিয়ে যেত।
+   ══════════════════════════════════════════════════════════ */
+.kh-sig-ov {
+  position: fixed; inset: 0; z-index: 10050;
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+  background: rgba(12, 7, 20, .82);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+}
+.kh-sig-box {
+  position: relative; width: 100%; max-width: 620px;
+  max-height: 92vh; overflow-y: auto;
+  padding: 22px 22px 18px; border-radius: 20px;
+  background: linear-gradient(160deg, #1e1233 0%, #241539 60%, #2c1a45 100%);
+  border: 1px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  color: #fff;
+}
+.kh-sig-x {
+  position: absolute; top: 12px; right: 14px; width: 34px; height: 34px;
+  border-radius: 50%; border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.1); color: #fff; font-size: 22px;
+  line-height: 1; cursor: pointer;
+}
+.kh-sig-x:hover { background: rgba(255,255,255,.22); }
+.kh-sig-head { margin-bottom: 14px; padding-right: 40px; }
+.kh-sig-head b { display: block; font-size: 18px; font-weight: 800; }
+.kh-sig-head span { display: block; font-size: 12.5px; color: #cbb6f5; margin-top: 3px; line-height: 1.6; }
+
+.kh-sig-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.kh-sig-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 44px; padding: 9px 12px; border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16);
+  color: #e6d9ff;
+}
+.kh-sig-tab.kh-on {
+  background: linear-gradient(112deg, #c2255c, #8b1fb0 60%);
+  border-color: transparent; color: #fff;
+}
+
+/* আঁকার ঘর — সাদা কাগজ */
+.kh-sig-padwrap {
+  position: relative; border-radius: 14px; overflow: hidden;
+  background: #fff; border: 1px solid rgba(255,255,255,.2);
+}
+.kh-sig-pad { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; }
+.kh-sig-hint {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  color: #9aa3b2; font-size: 15px; pointer-events: none; transition: opacity .2s;
+}
+.kh-sig-base {
+  position: absolute; left: 8%; right: 8%; bottom: 26%;
+  border-bottom: 2px dashed #cbd5e1; pointer-events: none;
+}
+.kh-sig-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+/* ছবি দেওয়া */
+.kh-sig-drop {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 26px 18px; border-radius: 14px; cursor: pointer; text-align: center;
+  background: rgba(255,255,255,.06);
+  border: 1.5px dashed rgba(255,255,255,.3);
+}
+.kh-sig-drop:hover { background: rgba(255,255,255,.1); border-color: #f08c28; }
+.kh-sig-drop i { font-size: 30px; color: #f8b76a; }
+.kh-sig-drop b { font-size: 14.5px; }
+.kh-sig-drop span { font-size: 12px; color: #cbb6f5; line-height: 1.6; }
+.kh-sig-tune { margin-top: 14px; }
+.kh-sig-tune label { display: block; font-size: 13px; font-weight: 700; color: #e6d9ff; }
+.kh-sig-tune input[type="range"] { width: 100%; margin-top: 8px; accent-color: #f08c28; }
+.kh-sig-tunehint { display: block; font-size: 11.5px; color: #cbb6f5; margin-top: 4px; line-height: 1.6; }
+
+/* প্রাকদর্শন — স্বচ্ছতা বোঝাতে চেক-কাটা, তবে কালি সাদাতেই দেখা হয় */
+.kh-sig-prevwrap { margin-top: 16px; }
+.kh-sig-prevlbl { font-size: 12px; font-weight: 700; color: #cbb6f5; margin-bottom: 6px; }
+.kh-sig-prev {
+  border-radius: 12px; padding: 10px; background: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+  background-image:
+    linear-gradient(45deg, #eef0f4 25%, transparent 25%, transparent 75%, #eef0f4 75%),
+    linear-gradient(45deg, #eef0f4 25%, transparent 25%, transparent 75%, #eef0f4 75%);
+  background-size: 16px 16px; background-position: 0 0, 8px 8px;
+}
+.kh-sig-prev img { display: block; width: 100%; height: auto; max-height: 150px; object-fit: contain; }
+
+.kh-sig-msg { min-height: 20px; font-size: 12.5px; margin-top: 10px; line-height: 1.6; }
+.kh-sig-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 6px; }
+.kh-sig-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  min-height: 44px; padding: 10px 18px; border-radius: 12px; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); color: #fff;
+}
+.kh-sig-btn:hover { background: rgba(255,255,255,.2); }
+.kh-sig-save {
+  background: linear-gradient(112deg, #0d6e56, #1d9e75); border-color: transparent;
+}
+.kh-sig-save:hover { filter: brightness(1.12); background: linear-gradient(112deg, #0d6e56, #1d9e75); }
+.kh-sig-save:disabled { opacity: .45; cursor: not-allowed; filter: none; }
+
+/* স্মরণিকা পট্টি
+   ⚠️ z-index ১০০০৫ — হোয়াটসঅ্যাপ বাটন ও "উপরে যান" (৯৯৯৯) দুটোই একই কোণে
+      বসে; ৯৫০০-এ রাখলে ওগুলো পট্টির ডান প্রান্ত ঢেকে দিত আর ঠিক সেখানেই
+      "পরে" বাটন — অর্থাৎ পট্টিটি আর সরানোই যেত না।
+   ⚠️ উচ্চতাও ভাসমান বাটনগুলোর উপরে তোলা হয়েছে (চ্যাট ৯৬px, হোয়াটসঅ্যাপ ৮৬px)। */
+.kh-sigbar {
+  position: fixed; left: 50%; bottom: 158px; z-index: 10005;
+  display: flex; align-items: center; gap: 10px;
+  max-width: calc(100vw - 28px); padding: 11px 14px; border-radius: 14px;
+  font-family: 'Hind Siliguri', system-ui, sans-serif; font-size: 13.5px;
+  color: #fff; background: linear-gradient(112deg, #7a2e12, #b4421d 60%, #c2551f);
+  border: 1px solid rgba(255, 255, 255, .24);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .4);
+  transform: translate(-50%, 14px); opacity: 0;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.kh-sigbar.kh-on { opacity: 1; transform: translate(-50%, 0); }
+.kh-sigbar > i { font-size: 20px; color: #ffd9a0; flex-shrink: 0; }
+.kh-sigbar span { line-height: 1.55; }
+.kh-sigbar-go {
+  flex-shrink: 0; min-height: 36px; padding: 7px 14px; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 800;
+  background: #fff; color: #8a2f10; border: none;
+}
+.kh-sigbar-go:hover { filter: brightness(.94); }
+.kh-sigbar-x {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+  color: #fff; font-size: 18px; line-height: 1;
+}
+@media (max-width: 560px) {
+  .kh-sigbar { flex-wrap: wrap; bottom: 150px; font-size: 12.5px; }
+  .kh-sigbar span { flex: 1 1 100%; order: 2; }
+  .kh-sigbar-go { order: 3; margin-left: auto; }
+  .kh-sig-box { padding: 18px 16px 14px; }
+  .kh-sig-tab { font-size: 13px; padding: 9px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-sigbar { transition: none; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   20 ── প্রিমিয়াম প্রোফাইল কার্ড
+
+   নমুনার গড়ন হুবহু — ৩২px গোলাই, বাঁয়ে skew করা গ্র্যাডিয়েন্ট
+   ব্লব, তার উপর সাদা রিং-ঘেরা গোল ছবি, ডানে লেখা, একদম ডানে
+   গোল বাটনের খুঁটি। ⚠️ রঙ শুধু Aurora-তে বদলানো (ব্যবহারকারীর
+   সিদ্ধান্ত: ১২ সেপ্টেম্বর ২০২৬), গড়ন অপরিবর্তিত।
+
+   ⚠️ কার্ডের ভেতরটা **দুই থীমেই সাদা** — নমুনাটাই সাদা কাগজের,
+   আর গাঢ় করলে গ্র্যাডিয়েন্ট ব্লবের সাথে লেখা মিলিয়ে যেত।
+   ══════════════════════════════════════════════════════════ */
+.kh-pc {
+  position: relative; display: flex; align-items: stretch;
+  width: 100%; max-width: 720px; min-height: 232px;
+  border-radius: 32px; overflow: hidden; isolation: isolate;
+  background: #fff;
+  box-shadow: 0 25px 55px rgba(68, 76, 130, .14);
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+  color: #1c1230;
+}
+
+/* বাঁ পাশের রঙিন অংশ + তির্যক ব্লব */
+.kh-pc-visual {
+  position: relative; flex: 0 0 186px; display: flex;
+  align-items: center; justify-content: center;
+}
+.kh-pc-visual::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
+  width: 200%;
+  background: linear-gradient(135deg, #7048e8 0%, #d6336c 55%, #f08c28 100%);
+  box-shadow: 8px 0 0 rgba(112, 72, 232, .12), 16px 0 0 rgba(214, 51, 108, .06);
+  transform: skew(12deg, 18deg) scale(1.5);
+}
+.kh-pc-photo {
+  width: 128px; height: 128px; border-radius: 50%; object-fit: cover;
+  border: 5px solid #fff; background: #efe9f7;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .22);
+}
+/* ছবি না থাকলে নামের প্রথম অক্ষর */
+.kh-pc-ini {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 46px; font-weight: 900; color: #7048e8;
+}
+
+/* ডান পাশের লেখা
+   ⚠️ ঘরটি **অস্বচ্ছ সাদা** ও ব্লবের উপরে বসে। প্রথমে স্বচ্ছ রাখা
+   হয়েছিল — তখন তির্যক গ্র্যাডিয়েন্ট লেখার নিচ দিয়ে চলে যেত আর
+   গাঢ় গোলাপির উপর গাঢ় লেখা পড়াই যেত না (ব্রাউজারে ধরা পড়ে)।
+   বাঁ কিনারাটি clip-path দিয়ে কাত — নমুনার তির্যক ভাগটি এভাবেই আসে। */
+.kh-pc-body {
+  position: relative; z-index: 1; flex: 1; min-width: 0;
+  background: #fff;
+  margin-left: -46px;
+  padding: 24px 22px 22px 66px;
+  clip-path: polygon(46px 0, 100% 0, 100% 100%, 0 100%);
+}
+.kh-pc-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
+  background: #eef7f0; color: #14663f; border: 1px solid #cdeadd;   /* ৬.৩:১ */
+}
+.kh-pc-pill i {
+  width: 7px; height: 7px; border-radius: 50%; background: #9aa3af;
+}
+.kh-pc-pill.kh-on { background: #e9f9ef; color: #10603a; border-color: #a7e8c4; }
+.kh-pc-pill.kh-on i {
+  background: #22c55e; box-shadow: 0 0 0 0 rgba(34, 197, 94, .7);
+  animation: khPcPulse 1.9s ease-out infinite;
+}
+@keyframes khPcPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, .7); }
+  70%  { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.kh-pc-name {
+  font-size: 25px; font-weight: 800; line-height: 1.25; margin-top: 9px;
+  color: #1c1230;
+}
+.kh-pc-code { font-size: 13.5px; color: #7a7190; margin-top: 1px; }  /* ৪.৭:১ */
+.kh-pc-desc { font-size: 13.5px; color: #55506a; line-height: 1.65; margin-top: 9px; }
+
+.kh-pc-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 11px; }
+.kh-pc-tag {
+  font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 8px;
+  background: #f2effa; color: #4a3f72; border: 1px solid #e3dcf3;     /* ৭.১:১ */
+}
+
+/* আমানত · দান · ঋণ — নতুন অংশ */
+.kh-pc-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 13px;
+}
+.kh-pc-stat {
+  padding: 9px 10px; border-radius: 12px; background: #f8f6fc;
+  border: 1px solid #ebe5f6; min-width: 0;
+}
+.kh-pc-stat b {
+  display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .2px;
+  color: #6d6488;                                                    /* ৪.৯:১ */
+}
+.kh-pc-stat s {
+  display: block; text-decoration: none; font-size: 16px; font-weight: 800;
+  font-variant-numeric: tabular-nums; margin-top: 2px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.kh-pc-stat span { display: block; font-size: 10.5px; color: #7a7190; margin-top: 1px; }
+.kh-pc-s-sav s { color: #0d6e56; }     /* ৫.৪:১ */
+.kh-pc-s-don s { color: #b02a80; }     /* ৫.১:১ */
+.kh-pc-s-loan s { color: #a0560d; }    /* ৫.০:১ */
+
+.kh-pc-link {
+  display: inline-flex; align-items: center; gap: 7px; margin-top: 13px;
+  font-size: 13.5px; font-weight: 700; color: #5b34c4; text-decoration: none; /* ৬.৮:১ */
+  background: none; border: none; padding: 0; cursor: pointer; font-family: inherit;
+}
+.kh-pc-link:hover { color: #4527a0; }
+.kh-pc-link i { transition: transform .2s; }
+.kh-pc-link:hover i { transform: translateX(3px); }
+
+/* একদম ডানের খুঁটি — নমুনার সোশ্যাল বাটনের জায়গায় কাজের বাটন */
+.kh-pc-rail {
+  flex: 0 0 68px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  background: #f4f1f9; border-left: 1px solid #ebe5f6;
+}
+.kh-pc-rbtn {
+  width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; text-decoration: none;
+  transition: transform .18s, filter .18s;
+}
+.kh-pc-rbtn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.kh-pc-r-stat { background: linear-gradient(135deg, #0d6e56, #1d9e75); }
+.kh-pc-r-call { background: linear-gradient(135deg, #1f3a8a, #2563c9); }
+.kh-pc-r-wa   { background: linear-gradient(135deg, #128c4a, #25a35a); }
+.kh-pc-r-mail { background: linear-gradient(135deg, #a3341f, #d0562b); }
+.kh-pc-rbtn.kh-off { background: #cfc7dd; cursor: not-allowed; pointer-events: none; }
+
+@media (max-width: 620px) {
+  .kh-pc { flex-direction: column; min-height: 0; }
+  .kh-pc-visual { flex: 0 0 150px; }
+  .kh-pc-visual::before { width: 100%; height: 200%; }
+  .kh-pc-photo { width: 104px; height: 104px; }
+  /* খাড়া সাজে কাত কিনারা উপরে যায় — নাহলে ছবির নিচটা কেটে যেত */
+  .kh-pc-body {
+    margin-left: 0; margin-top: -26px; padding: 22px 18px 16px;
+    clip-path: polygon(0 26px, 100% 0, 100% 100%, 0 100%);
+  }
+  .kh-pc-name { font-size: 22px; }
+  .kh-pc-stats { gap: 6px; }
+  .kh-pc-stat { padding: 8px; }
+  .kh-pc-stat s { font-size: 14.5px; }
+  /* খুঁটিটি নিচে শুয়ে পড়ে */
+  .kh-pc-rail {
+    flex: 0 0 auto; flex-direction: row; padding: 12px;
+    border-left: none; border-top: 1px solid #ebe5f6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-pc-pill.kh-on i { animation: none; }
+}

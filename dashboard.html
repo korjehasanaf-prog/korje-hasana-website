@@ -252,7 +252,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=14">
+  <link rel="stylesheet" href="kh-ui.css?v=16">
 </head>
 <body data-kh-nav="off">
 
@@ -327,6 +327,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="sb-item" id="mi-savings-approve" onclick="switchPanel('savings-approve')">
         <i class="ti ti-arrows-exchange"></i> সঞ্চয় জমা ও উত্তোলন অনুমোদন
         <span class="sb-badge" id="badge-savings">0</span>
+      </div>
+      <div class="sb-item" id="mi-cards" onclick="switchPanel('cards')">
+        <i class="ti ti-id-badge-2"></i> সদস্যের পরিচয়পত্র
       </div>
 
       <div class="sb-item" id="mi-reminders" onclick="switchPanel('reminders')">
@@ -860,6 +863,37 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
+      <!-- ══════════════ PANEL: MEMBER CARDS ══════════════ -->
+      <div class="panel" id="panel-cards">
+        <div class="panel-title">🪪 সদস্যের পরিচয়পত্র</div>
+        <div class="panel-sub">আমানতকারী, দানকারী ও ঋণগ্রহীতা — প্রত্যেকের নিজস্ব হিসাবসহ</div>
+
+        <div class="filter-pills" style="margin-bottom:12px">
+          <button class="filter-pill active" onclick="loadCards('all',this)">সব</button>
+          <button class="filter-pill" onclick="loadCards('depositor',this)">আমানতকারী</button>
+          <button class="filter-pill" onclick="loadCards('donor',this)">দানকারী</button>
+          <button class="filter-pill" onclick="loadCards('borrower',this)">ঋণগ্রহীতা</button>
+          <button class="filter-pill" id="pcOnlineBtn" onclick="showOnlineUsers()"
+                  style="margin-left:auto;background:linear-gradient(112deg,#0d6e56,#1d9e75);
+                         border-color:transparent;color:#fff">
+            <i class="ti ti-circle-dot"></i> কারা অনলাইনে
+          </button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <input id="pcSearch" placeholder="নাম, মোবাইল বা সদস্য কোড দিয়ে খুঁজুন"
+                 style="flex:1;min-width:200px;padding:10px 13px;border-radius:10px;
+                        border:1px solid var(--border);background:var(--bg3,#1a1330);
+                        color:inherit;font-family:inherit;font-size:14px">
+          <button class="filter-pill" onclick="loadCards()"><i class="ti ti-search"></i> খুঁজুন</button>
+        </div>
+
+        <div id="pcCount" style="font-size:12.5px;color:var(--muted);margin-bottom:12px"></div>
+        <div id="pcGrid" style="display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(560px,1fr))">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
+      </div>
+
       <!-- ══════════════ PANEL: ADMIN MANAGEMENT ══════════════ -->
       <div class="panel" id="panel-admin-mgmt">
         <div class="panel-title">👤 এডমিন ব্যবস্থাপনা</div>
@@ -1087,6 +1121,7 @@ const PANEL_TITLES = {
   'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
   'expense':'খরচ এন্ট্রি', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় জমা ও উত্তোলন অনুমোদন',
+  'cards':'সদস্যের পরিচয়পত্র',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
@@ -1106,6 +1141,7 @@ function switchPanel(name) {
   if (name === 'loan-approve') loadLoanApps('pending');
   if (name === 'donation-online') loadDonationApprovals('pending');
   if (name === 'savings-approve') loadSavingsApprovals();
+  if (name === 'cards') loadCards();
   if (name === 'log') loadLog('all');
   if (name === 'admin-mgmt') loadAdminUsers();
   if (name === 'donation-cash') loadTodayDonations();
@@ -2058,6 +2094,69 @@ async function approveSavings(id, status) {
 }
 
 // ════════════════════════════════════════
+//  MEMBER PROFILE CARDS
+// ════════════════════════════════════════
+let _pcCat = 'all';
+
+async function loadCards(cat, btn) {
+  if (cat) _pcCat = cat;
+  if (btn) {
+    document.querySelectorAll('#panel-cards .filter-pill').forEach(p => {
+      if (p.id !== 'pcOnlineBtn') p.classList.remove('active');
+    });
+    btn.classList.add('active');
+  }
+  const grid = document.getElementById('pcGrid');
+  const cnt  = document.getElementById('pcCount');
+  grid.innerHTML = '<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+
+  /* ⚠️ supabase-js-এ .catch() নেই — try/catch দিয়েই ধরতে হয় */
+  try {
+    const q = (document.getElementById('pcSearch').value || '').trim();
+    const r = await _db.rpc('admin_profile_cards', {
+      p_category: _pcCat, p_search: q || null, p_limit: 60, p_offset: 0
+    });
+    if (r.error) throw r.error;
+    const rows = (r.data && r.data.rows) || [];
+    cnt.textContent = 'দেখানো হচ্ছে ' + KHUI.bn(rows.length) + ' জন' +
+                      (q ? ' · খোঁজ: "' + q + '"' : '');
+    if (!rows.length) {
+      grid.innerHTML = '<div class="empty-state"><i class="ti ti-user-off"></i><p>এই ক্যাটাগরিতে কেউ নেই</p></div>';
+      return;
+    }
+    grid.innerHTML = rows.map(c => KHUI.profileCardHTML(c)).join('');
+    /* "বিস্তারিত" বাটনগুলো কার্ডের আইডি ধরে সারির সাথে মেলানো হয় */
+    grid.querySelectorAll('[data-kh-pc-more]').forEach(b => {
+      const id = b.closest('[data-kh-pc]').getAttribute('data-kh-pc');
+      const row = rows.find(x => x.id === id);
+      if (row) b.onclick = () => KHUI.profileCardDetail(row);
+    });
+  } catch (e) {
+    cnt.textContent = '';
+    grid.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>' +
+      (e.message === 'admin only' ? 'শুধু অ্যাডমিন দেখতে পারেন' : 'তালিকা আনা যায়নি') + '</p></div>';
+  }
+}
+
+async function showOnlineUsers() {
+  try {
+    const r = await _db.rpc('online_users');
+    if (r.error) throw r.error;
+    const list = r.data || [];
+    if (!list.length) { alert('এই মুহূর্তে কেউ অনলাইনে নেই।'); return; }
+    const fmt = t => {
+      const s = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 1000));
+      return s < 60 ? 'এইমাত্র' : KHUI.bn(Math.floor(s / 60)) + ' মিনিট আগে';
+    };
+    alert('🟢 এখন অনলাইনে ' + KHUI.bn(list.length) + ' জন\n\n' +
+      list.map((u, i) => KHUI.bn(i + 1) + '. ' + u.name +
+        (u.code ? ' (' + u.code + ')' : '') + ' — ' + fmt(u.last_seen)).join('\n'));
+  } catch (e) {
+    alert(e.message === 'admin only' ? 'শুধু অ্যাডমিন দেখতে পারেন' : 'তালিকা আনা যায়নি');
+  }
+}
+
+// ════════════════════════════════════════
 //  APPROVAL LOG
 // ════════════════════════════════════════
 let _logFilter = 'all';
@@ -2969,6 +3068,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=14"></script>
+<script src="kh-ui.js?v=16"></script>
 </body>
 </html>
