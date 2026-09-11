@@ -297,12 +297,12 @@
     /* KH PHOTO CAROUSEL */
     .khc-section { position: relative; width: 100%; padding: 8px 0; }
     .khc-wrap {
-      position: relative; width: 100%; height: 440px;
-      perspective: 1250px; overflow: visible;
+      position: relative; width: 100%; height: 490px;
+      perspective: 1400px; overflow: visible;
     }
     .khc-card {
       position: absolute; top: 50%; left: 50%;
-      width: 246px; height: 369px;
+      width: 280px; height: 420px;
       border-radius: 20px; overflow: hidden; cursor: pointer;
       will-change: transform, opacity;
       transition: transform 0.65s cubic-bezier(.25,.46,.45,.94), opacity 0.65s ease;
@@ -319,17 +319,8 @@
     .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #f08c28; }
 
     /* ── ছবি বড় করে দেখা ──
-       মোবাইলে ক্যারোসেলের কার্ড ছোট, ছবির বিস্তারিত বোঝা যায় না।
-       মাঝের কার্ডে চাপ দিলে পুরো পর্দাজুড়ে ছবিটি খোলে। */
-    .khc-zoom {
-      position: absolute; top: 10px; right: 10px; z-index: 6;
-      display: none; align-items: center; justify-content: center;
-      gap: 5px; height: 30px; padding: 0 11px; border-radius: 15px;
-      background: rgba(22,13,38,.6); border: 1px solid rgba(255,255,255,.38);
-      color: #fff; font-size: 12px; font-weight: 600;
-      font-family: 'Hind Siliguri', sans-serif; pointer-events: none;
-    }
-    .khc-card.is-active .khc-zoom { display: flex; }
+       মাঝের কার্ডে চাপ দিলে পুরো পর্দাজুড়ে ছবিটি খোলে। ছবির উপরে কোনো
+       ব্যাজ/লেখা বসানো হয় না — ছবিটিই পরিষ্কার দেখা যাক (সিদ্ধান্ত: ১১ সেপ্টে ২০২৬)। */
     /* z-index ১০০০০ — হোয়াটসঅ্যাপ বাটন (৯৯৯৯), গ্লাস নেভ (৯০০০) ও চ্যাট প্যানেল
        (৯৪০০) সবার উপরে থাকতে হবে, নাহলে ওগুলো ছবির উপর ভেসে থাকে */
     .khc-lb {
@@ -720,8 +711,8 @@
       /* Carousel: show as single card on tablet/mobile */
       .khc-section { display: block; margin-top: 12px; }
       /* মোবাইলে শুধু মাঝের কার্ডটি থাকে — তাই সেটিকে যতটা সম্ভব বড় দেখানো হয় */
-      .khc-wrap { height: 420px; }
-      .khc-card { width: 252px; height: 378px; }
+      .khc-wrap { height: 456px; }
+      .khc-card { width: 276px; height: 414px; }
       .khc-card:not(.is-active) { opacity: 0 !important; pointer-events: none !important; }
       .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
       .impact-grid { grid-template-columns: repeat(2,1fr); }
@@ -827,8 +818,8 @@
       .logo-icon { width:36px; height:36px; font-size:14.5px; }
       /* ছোট ফোনে কার্ড ও ঘর একসাথে ছোট হয় — নাহলে কার্ডটি ঘরের চেয়ে লম্বা হয়ে
          যায় আর .hero-র overflow:hidden নিচের নামটুকু কেটে দেয় */
-      .khc-wrap { height:352px; }
-      .khc-card { width:210px; height:315px; }
+      .khc-wrap { height:392px; }
+      .khc-card { width:236px; height:354px; }
       .hero { padding:24px 16px; }
     }
 
@@ -2073,20 +2064,23 @@ function setLang(lang, btn) {
       alt:'স্বামী-স্ত্রী মিলে মুদ্রা গুনে জমা রাখছেন' },
     { label:'মাসিক আমানত',   sub:'Monthly Savings',      img:'images/kh-save-monthly.jpg',
       alt:'মা ও মেয়ে মিলে সঞ্চয়ের বাক্সে টাকা রাখছেন' },
-    { label:'যখন খুশি আমানত', sub:'Flexible Savings',    img:'images/kh-save-flexible.jpg',
-      alt:'থলি থেকে ছড়ানো মুদ্রা — যখন খুশি জমা' },
+    /* ⚠️ অস্থায়ী — নিজের ছবি না পাওয়া পর্যন্ত দৈনিক আমানতের ছবিটিই ব্যবহার হচ্ছে,
+       তাই এটি ক্যারোসেলে দুবার আসে। পুরনো `kh-save-flexible.jpg` (থলি ও মুদ্রা)
+       বাদ দেওয়া হয়েছে — ১১টির মধ্যে ওটিই একমাত্র ছিল যাতে কোনো মানুষ নেই। */
+    { label:'যখন খুশি আমানত', sub:'Flexible Savings',    img:'images/kh-save-daily.jpg',
+      alt:'ঘরের বারান্দায় বসে সুবিধামতো সঞ্চয় জমা' },
   ];
   // [tx_offset_px, rotateY_deg, scale, opacity, zIndex]
   // for positions -3, -2, -1, 0, +1, +2, +3
-  /* কার্ড বড় হওয়ায় (২১০→২৪৬px) দূরত্বগুলোও একই অনুপাতে বেড়েছে */
+  /* কার্ড বড় হওয়ায় (২১০→২৮০px) দূরত্বগুলোও একই অনুপাতে বেড়েছে */
   const POS = [
-    [-360, 30, 0.40, 0.38, 1],
-    [-228, 20, 0.58, 0.58, 2],
-    [-119, 10, 0.77, 0.80, 3],
+    [-410, 30, 0.40, 0.38, 1],
+    [-260, 20, 0.58, 0.58, 2],
+    [-135, 10, 0.77, 0.80, 3],
     [   0,  0, 1.00, 1.00, 5],
-    [ 119,-10, 0.77, 0.80, 3],
-    [ 228,-20, 0.58, 0.58, 2],
-    [ 360,-30, 0.40, 0.38, 1],
+    [ 135,-10, 0.77, 0.80, 3],
+    [ 260,-20, 0.58, 0.58, 2],
+    [ 410,-30, 0.40, 0.38, 1],
   ];
   const N = ITEMS.length;
   let active = 0, animating = false, autoTimer = null;
@@ -2108,10 +2102,8 @@ function setLang(lang, btn) {
     const lbl = document.createElement('div');
     lbl.className = 'khc-label';
     lbl.innerHTML = item.label + '<br><span style="font-size:12px;font-weight:400;opacity:.8">' + item.sub + '<\/span>';
-    const zoom = document.createElement('div');
-    zoom.className = 'khc-zoom';
-    zoom.innerHTML = '<i class="ti ti-zoom-in" aria-hidden="true"></i> বড় করে দেখুন';
-    card.appendChild(img); card.appendChild(zoom); card.appendChild(lbl);
+    card.appendChild(img); card.appendChild(lbl);
+    card.title = 'বড় করে দেখতে চাপ দিন';
     /* মাঝের কার্ডে চাপ দিলে ছবি বড় হয়, পাশেরটিতে চাপ দিলে সেটি মাঝে আসে */
     card.addEventListener('click', () => { if (i === active) openLb(i); else goTo(i); });
     wrap.appendChild(card);
