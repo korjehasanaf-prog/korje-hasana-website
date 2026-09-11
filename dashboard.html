@@ -325,7 +325,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <span class="sb-badge" id="badge-donation">0</span>
       </div>
       <div class="sb-item" id="mi-savings-approve" onclick="switchPanel('savings-approve')">
-        <i class="ti ti-arrows-exchange"></i> সঞ্চয় উত্তোলন
+        <i class="ti ti-arrows-exchange"></i> পেন্ডিং অ্যাপ্রুভাল
         <span class="sb-badge" id="badge-savings">0</span>
       </div>
 
@@ -694,8 +694,8 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <!-- ══════════════ PANEL: SAVINGS DEPOSIT & WITHDRAWAL APPROVAL ══════════════ -->
       <div class="panel" id="panel-savings-approve">
-        <div class="panel-title">✅ সঞ্চয় জমা ও উত্তোলন অনুমোদন</div>
-        <div class="panel-sub">অপেক্ষমাণ সব আবেদন — হিসাব নম্বরসহ</div>
+        <div class="panel-title">✅ পেন্ডিং অ্যাপ্রুভাল</div>
+        <div class="panel-sub">সঞ্চয় জমা ও উত্তোলনের অপেক্ষমাণ সব আবেদন — হিসাব নম্বরসহ</div>
 
         <div class="filter-pills" style="margin-bottom:14px">
           <button class="filter-pill active" onclick="filterSavingsApprovals('all',this)">সব</button>
@@ -867,7 +867,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
               <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> খরচ এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="loan_approve"><span><i class="ti ti-file-check"></i> ঋণ আবেদন অনুমোদন</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="donation_approve"><span><i class="ti ti-credit-card-refund"></i> অনলাইন ডোনেশন অনুমোদন</span></label>
-              <label class="perm-item"><input type="checkbox" name="perm" value="savings_approve"><span><i class="ti ti-arrows-exchange"></i> সঞ্চয় উত্তোলন অনুমোদন</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="savings_approve"><span><i class="ti ti-arrows-exchange"></i> সঞ্চয় জমা ও উত্তোলন অনুমোদন</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="view_log"><span><i class="ti ti-list-check"></i> অনুমোদন লগ দেখা</span></label>
               <label class="perm-item" id="perm-admin-mgmt-wrap"><input type="checkbox" name="perm" value="admin_mgmt"><span><i class="ti ti-users-group"></i> এডমিন ব্যবস্থাপনা</span></label>
             </div>
@@ -1063,7 +1063,7 @@ const PANEL_TITLES = {
   'dashboard':'ড্যাশবোর্ড', 'donation-cash':'নগদ ডোনেশন এন্ট্রি',
   'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
   'expense':'খরচ এন্ট্রি', 'loan-approve':'ঋণ আবেদন অনুমোদন',
-  'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় উত্তোলন অনুমোদন',
+  'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'পেন্ডিং অ্যাপ্রুভাল',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
@@ -2167,7 +2167,7 @@ async function loadAdminUsers() {
     const permLabels = {
       cash_donation:'নগদ ডোনেশন', savings_entry:'সঞ্চয় জমা', installment:'কিস্তি',
       expense:'খরচ', loan_approve:'ঋণ অনুমোদন', donation_approve:'ডোনেশন অনুমোদন',
-      savings_approve:'সঞ্চয় উত্তোলন', view_log:'লগ', admin_mgmt:'এডমিন মগমট'
+      savings_approve:'সঞ্চয় অনুমোদন', view_log:'লগ', admin_mgmt:'এডমিন ব্যবস্থাপনা'
     };
     return `<div class="admin-row" id="ar-${a.user_id}">
       <div class="ar-avatar" style="background:${a.role==='super_admin'?'linear-gradient(135deg,#78350f,#9a3412)':'linear-gradient(135deg,var(--green),var(--mdgreen))'}">${(a.name_bn||a.email||'A').charAt(0)}</div>
