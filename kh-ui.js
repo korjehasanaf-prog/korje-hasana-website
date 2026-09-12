@@ -2746,6 +2746,243 @@
     })();
   };
 
+  /* ════════════════════════════════════════════════════════
+     লাইভ পরিসংখ্যান ড্যাশবোর্ড (হোম পেজ, হিরোর নিচে)
+
+     সব অঙ্ক আসে `public_stats()` থেকে — anon-ও ডাকতে পারে, কারণ
+     এতে কেবল সর্বমোট যোগফল থাকে, কারো নাম বা মোবাইল নয়।
+     কার্ডে ক্লিক করলে `public_stats_detail(topic)` দিয়ে শুধু সেই
+     বিষয়ের ভাঙা হিসাব ও মাসভিত্তিক ধারা দেখানো হয়।
+     ⚠️ বাদ দিতে হলে পেজে `<body data-kh-stats="off">`।
+     ════════════════════════════════════════════════════════ */
+  var BN_MONTH = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+                  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
+
+  function stNum(n) { return KHUI.bn(Number(n || 0).toLocaleString('en-IN')); }
+  function stTk(n)  { return '৳' + stNum(Math.round(Number(n || 0))); }
+  function stVal(v, money) { return money ? stTk(v) : stNum(v); }
+
+  /* '2026-09' → 'সেপ্টে ২৬' (জায়গা কম, তাই সংক্ষিপ্ত) */
+  function stMon(iso) {
+    var p = String(iso || '').split('-');
+    var m = parseInt(p[1], 10);
+    if (!p[0] || !(m >= 1 && m <= 12)) return KHUI.bn(iso || '');
+    return BN_MONTH[m - 1].slice(0, 4) + ' ' + KHUI.bn(p[0].slice(2));
+  }
+
+  /* ০ থেকে গুনে গুনে ওঠা — ট্যাব পেছনে থাকলে সরাসরি বসে
+     (rAF তখন চলে না, নাহলে "০" দেখাত — ভিজিটর কাউন্টারের মতোই) */
+  function stCount(el, to, money) {
+    var end = Number(to || 0);
+    if (document.hidden || !window.requestAnimationFrame ||
+        (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      el.textContent = stVal(end, money); return;
+    }
+    var t0 = 0, dur = 1100;
+    requestAnimationFrame(function step(ts) {
+      if (!t0) t0 = ts;
+      var k = Math.min(1, (ts - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);
+      el.textContent = stVal(end * e, money);
+      if (k < 1) requestAnimationFrame(step);
+      else el.textContent = stVal(end, money);
+    });
+  }
+
+  function stCard(o) {
+    return '<button type="button" class="kh-st-card kh-st-' + o.tone + '" ' +
+             'data-kh-topic="' + o.topic + '">' +
+        '<span class="kh-st-ic"><i class="ti ' + o.icon + '" aria-hidden="true"></i></span>' +
+        '<span class="kh-st-lbl">' + vEsc(o.label) + '</span>' +
+        '<span class="kh-st-num" data-kh-to="' + Number(o.value || 0) + '" ' +
+              'data-kh-money="' + (o.money === false ? '0' : '1') + '">' +
+          (o.money === false ? '০' : '৳০') + '</span>' +
+        '<span class="kh-st-sub">' + vEsc(o.sub || '') + '</span>' +
+        (o.mini && o.mini.length
+          ? '<span class="kh-st-mini">' + o.mini.map(function (m) {
+              return '<span><b>' + vEsc(m[0]) + '</b><s>' + stTk(m[1]) + '</s></span>';
+            }).join('') + '</span>'
+          : '') +
+        '<span class="kh-st-go">বিস্তারিত দেখুন ' +
+          '<i class="ti ti-arrow-right" aria-hidden="true"></i></span>' +
+      '</button>';
+  }
+
+  KHUI.publicStatsHTML = function (s) {
+    var d = s.donation || {}, op = s.operation || {}, rv = s.revolving || {},
+        sv = s.savings || {}, ln = s.loan || {};
+    var opPct = KHUI.bn(op.pct != null ? op.pct : 5);
+    var rvPct = KHUI.bn(rv.pct != null ? rv.pct : 5);
+
+    return '<div class="kh-stats-head">' +
+        '<span class="kh-stats-kick"><i aria-hidden="true"></i>লাইভ হিসাব</span>' +
+        '<div class="kh-stats-h2">আজ পর্যন্ত আমাদের হিসাব</div>' +
+        '<div class="kh-stats-sub">প্রতিটি কার্ডে ক্লিক করলে সেই বিষয়ের বিস্তারিত হিসাব দেখা যাবে</div>' +
+      '</div>' +
+      '<div class="kh-stats-grid">' +
+        stCard({ topic: 'donation', tone: 'pink', icon: 'ti-heart-handshake',
+                 label: 'সর্বমোট দান প্রাপ্তি', value: d.total,
+                 sub: stNum(d.count) + 'টি দান · ' + stNum(d.donors) + ' জন দাতা',
+                 mini: [['আজ', d.today], ['চলতি মাসে', d.month]] }) +
+
+        stCard({ topic: 'operation', tone: 'teal', icon: 'ti-briefcase',
+                 label: 'অপারেশন ফান্ড (স্থিতি)', value: op.balance,
+                 sub: 'দানের ' + opPct + '% এই তহবিলে জমা হয়',
+                 mini: [['প্রাপ্তি', op.income], ['খরচ', op.expense], ['স্থিতি', op.balance]] }) +
+
+        stCard({ topic: 'revolving', tone: 'violet', icon: 'ti-refresh',
+                 label: 'রিভলভিং ফান্ড (স্থিতি)', value: rv.balance,
+                 sub: 'দানের ' + rvPct + '% এই তহবিলে জমা হয়',
+                 mini: [['প্রাপ্তি', rv.income], ['সমন্বয়', rv.adjusted], ['স্থিতি', rv.balance]] }) +
+
+        stCard({ topic: 'savings', tone: 'amber', icon: 'ti-pig-money',
+                 label: 'মোট সঞ্চয় জমা', value: sv.deposit,
+                 sub: stNum(sv.accounts) + 'টি হিসাব · ' + stNum(sv.members) + ' জন সদস্য',
+                 mini: [['উত্তোলন', sv.withdraw], ['স্থিতি', sv.balance]] }) +
+
+        stCard({ topic: 'loan', tone: 'indigo', icon: 'ti-businessplan',
+                 label: 'ঋণ বিতরণ', value: ln.principal,
+                 sub: stNum(ln.people) + ' জনকে ' + stNum(ln.count) + 'টি ঋণ',
+                 mini: [['আদায়', ln.recovered], ['বকেয়া', ln.outstanding]] }) +
+
+        stCard({ topic: 'loan', tone: 'rust', icon: 'ti-cash-banknote',
+                 label: 'ঋণ আদায়', value: ln.recovered,
+                 sub: 'বকেয়া ' + stTk(ln.outstanding),
+                 mini: [['বিতরণ', ln.principal], ['বকেয়া', ln.outstanding]] }) +
+      '</div>' +
+      '<div class="kh-stats-foot">সব অঙ্ক সরাসরি সিস্টেম থেকে — সর্বশেষ হালনাগাদ ' +
+        KHUI.bn(stWhen(s.as_of)) + '</div>';
+  };
+
+  /* '2026-09-12T13:31:33' → '১২ সেপ্টেম্বর ২০২৬, ০১:৩১ অপরাহ্ণ'
+     ⚠️ সার্ভার ঢাকার সময়েই পাঠায়, তাই এখানে আর টাইমজোন বদলানো হয় না */
+  function stWhen(iso) {
+    var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (!m) return '';
+    var h = +m[4], ap = h < 12 ? 'পূর্বাহ্ণ' : 'অপরাহ্ণ';
+    var h12 = h % 12 || 12;
+    return (+m[3]) + ' ' + BN_MONTH[+m[2] - 1] + ' ' + m[1] + ', ' +
+           (h12 < 10 ? '0' : '') + h12 + ':' + m[5] + ' ' + ap;
+  }
+
+  KHUI.mountPublicStats = async function (host) {
+    host = typeof host === 'string' ? document.querySelector(host) : host;
+    host = host || document.getElementById('khStats');
+    if (!host || host.dataset.khMounted === '1') return null;
+    var db = sb();
+    if (!db) { host.remove(); return null; }
+    try {
+      var r = await db.rpc('public_stats');
+      if (r.error || !r.data) throw r.error || new Error('no data');
+      host.dataset.khMounted = '1';
+      host.classList.add('kh-stats');
+      host.innerHTML = KHUI.publicStatsHTML(r.data);
+      host.querySelectorAll('.kh-st-num').forEach(function (el) {
+        stCount(el, el.getAttribute('data-kh-to'), el.getAttribute('data-kh-money') === '1');
+      });
+      host.querySelectorAll('[data-kh-topic]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          KHUI.statsDetail(b.getAttribute('data-kh-topic'));
+        });
+      });
+      return r.data;
+    } catch (e) {
+      host.remove();          /* গুনতে না পারলে শূন্য দেখানোর চেয়ে না দেখানোই ভালো */
+      return null;
+    }
+  };
+
+  /* এক বিষয়ের বিস্তারিত — আলাদা পর্দায় */
+  KHUI.statsDetail = async function (topic) {
+    var db = sb();
+    if (!db) return;
+    var old = document.querySelector('.kh-stdet');
+    if (old) old.remove();
+
+    var back = document.createElement('div');
+    back.className = 'kh-stdet show';
+    back.innerHTML = '<div class="kh-stdet-box"><div class="kh-stdet-head">' +
+        '<button type="button" class="kh-stdet-x" aria-label="বন্ধ করুন">' +
+          '<i class="ti ti-x" aria-hidden="true"></i></button>' +
+        '<div class="kh-stdet-t">লোড হচ্ছে…</div></div></div>';
+    document.body.appendChild(back);
+
+    function close() {
+      back.remove();
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    back.addEventListener('click', function (e) { if (e.target === back) close(); });
+    back.querySelector('.kh-stdet-x').onclick = close;
+
+    var box = back.querySelector('.kh-stdet-box');
+    try {
+      var r = await db.rpc('public_stats_detail', { p_topic: topic });
+      if (r.error || !r.data) throw r.error || new Error('no data');
+      var d = r.data;
+      var pts = (d.series && d.series.points) || [];
+      var max = pts.reduce(function (a, p) { return Math.max(a, Number(p.value || 0)); }, 0) || 1;
+      var TONE = ['pink', 'teal', 'violet', 'amber', 'indigo', 'rust'];
+
+      box.innerHTML =
+        '<div class="kh-stdet-head">' +
+          '<button type="button" class="kh-stdet-x" aria-label="বন্ধ করুন">' +
+            '<i class="ti ti-x" aria-hidden="true"></i></button>' +
+          '<div class="kh-stdet-t">' + vEsc(d.title || '') + '</div>' +
+          /* ⚠️ আগে বাংলা অঙ্ক, তারপর এসকেপ — উল্টো করলে `&#39;`-এর ৩৯-ও
+             বাংলা হয়ে `&#৩৯;` হয়ে যেত ও কাঁচা লেখা হিসেবে দেখা যেত */
+          '<div class="kh-stdet-s">' + vEsc(KHUI.bn(d.subtitle || '')) + '</div>' +
+        '</div>' +
+
+        '<div class="kh-stdet-cards">' +
+          (d.cards || []).map(function (c, i) {
+            return '<div class="kh-stdet-c kh-st-' +
+                     (TONE.indexOf(c.tone) >= 0 ? c.tone : TONE[i % TONE.length]) + '">' +
+                   '<b>' + vEsc(c.label) + '</b><s>' + stVal(c.value, c.money) + '</s></div>';
+          }).join('') +
+        '</div>' +
+
+        (pts.length
+          ? '<div class="kh-stdet-sec">' + vEsc(d.series.title || '') + '</div>' +
+            '<div class="kh-stdet-bars">' +
+              pts.map(function (p) {
+                var h = Math.max(4, Math.round(Number(p.value || 0) / max * 100));
+                return '<div class="kh-stdet-bar" title="' + vEsc(stMon(p.label)) + ' — ' +
+                         stTk(p.value) + '">' +
+                       '<u>' + stTk(p.value) + '</u>' +
+                       '<i style="height:' + h + '%"></i>' +
+                       '<em>' + vEsc(stMon(p.label)) + '</em></div>';
+              }).join('') +
+            '</div>'
+          : '') +
+
+        '<div class="kh-stdet-sec">ভাগ অনুযায়ী হিসাব</div>' +
+        ((d.rows || []).length
+          ? '<table class="kh-stdet-tbl"><thead><tr><th>খাত</th>' +
+              '<th style="text-align:right">সংখ্যা</th>' +
+              '<th style="text-align:right">টাকা</th></tr></thead><tbody>' +
+            d.rows.map(function (x) {
+              return '<tr><td>' + vEsc(x.label) + '</td>' +
+                     '<td class="n">' + stNum(x.count) + '</td>' +
+                     '<td class="n">' + stTk(x.value) + '</td></tr>';
+            }).join('') + '</tbody></table>'
+          : '<div class="kh-stdet-empty">এখনো কোনো তথ্য নেই।</div>') +
+
+        '<div class="kh-stdet-foot">এটি প্রকাশ্য সারসংক্ষেপ — কোনো ব্যক্তির নাম, ' +
+          'মোবাইল বা লেনদেনের বিবরণ এখানে দেখানো হয় না। ' +
+          'সর্বশেষ হালনাগাদ ' + KHUI.bn(stWhen(d.as_of)) + '।</div>';
+      box.querySelector('.kh-stdet-x').onclick = close;
+    } catch (e) {
+      box.innerHTML = '<div class="kh-stdet-head">' +
+        '<button type="button" class="kh-stdet-x" aria-label="বন্ধ করুন">' +
+          '<i class="ti ti-x" aria-hidden="true"></i></button>' +
+        '<div class="kh-stdet-t">বিস্তারিত আনা যায়নি</div>' +
+        '<div class="kh-stdet-s">একটু পরে আবার চেষ্টা করুন।</div></div>';
+      box.querySelector('.kh-stdet-x').onclick = close;
+    }
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -2761,6 +2998,10 @@
     KHUI._watchTables();
     /* অ্যাডমিন প্যানেলে দরকার নেই — পেজে data-kh-visits="off" দিলে বাদ যাবে */
     if (document.body.dataset.khVisits !== 'off') KHUI.mountVisitorCounter();
+    /* লাইভ ড্যাশবোর্ড — পেজে `#khStats` ঘর থাকলেই বসে */
+    if (document.body.dataset.khStats !== 'off' && document.getElementById('khStats')) {
+      KHUI.mountPublicStats();
+    }
     /* স্বাক্ষরের স্মরণিকা — লগইন বসতে একটু সময় দিয়ে */
     if (document.body.dataset.khSig !== 'off') {
       setTimeout(function () { KHUI.mountSignatureReminder(); }, 1400);

@@ -902,7 +902,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=17">
+  <link rel="stylesheet" href="kh-ui.css?v=18">
 </head>
 <body data-kh-nav="on">
 
@@ -1326,6 +1326,18 @@
   </div>
 </section>
 
+<!-- ═══════════════════════════════════════════════════════
+     LIVE DASHBOARD — হিরোর ঠিক নিচে
+     ঘরটি ফাঁকা থাকে; `kh-ui.js`-এর KHUI.mountPublicStats()
+     `public_stats()` RPC থেকে আসল অঙ্ক এনে ভরে দেয়।
+     ⚠️ অঙ্ক আনতে না পারলে ঘরটি নিজেই DOM থেকে সরে যায় —
+        "৳০" দেখিয়ে দাতাকে বিভ্রান্ত করা হয় না।
+════════════════════════════════════════════════════════ -->
+<!-- ফুটারের "Live dashboard" লিংক এখানেই আসে (আগে নকল সংখ্যার
+     impact-section-এ আসত, সেটি বাদ দেওয়া হয়েছে) -->
+<span id="dashboard" aria-hidden="true"></span>
+<section id="khStats" aria-label="লাইভ হিসাব"></section>
+
 <!-- ছবি বড় করে দেখার পর্দা (মোবাইলে মূলত এটিই কাজে লাগে) -->
 <div class="khc-lb" id="khcLb" role="dialog" aria-modal="true" aria-label="ছবি বড় করে দেখুন">
   <button class="khc-lb-btn khc-lb-x" id="khcLbX" aria-label="বন্ধ করুন"><i class="ti ti-x"></i></button>
@@ -1499,47 +1511,11 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════════════════
-     IMPACT DASHBOARD
-════════════════════════════════════════════════════════ -->
-<section class="impact-section" id="dashboard">
-  <div class="section-title-dark" data-i18n="impact-title">Live impact dashboard</div>
-  <div class="impact-grid">
-    <div class="impact-card ic-1">
-      <i class="ti ti-users ic-icon" style="color:#90CAF9"></i>
-      <div class="ic-num" data-target="127" id="cnt1">0</div>
-      <div class="ic-lbl" data-i18n="impact-lbl1">Total beneficiaries helped</div>
-      <div class="ic-bar"><div class="ic-bar-inner" data-w="72" id="bar1"></div></div>
-      <div class="ic-trend">This month: <span id="t1">+0</span> new families</div>
-    </div>
-    <div class="impact-card ic-2">
-      <i class="ti ti-currency-taka ic-icon" style="color:#A5D6A7"></i>
-      <div class="ic-num" id="cnt2">৳0L</div>
-      <div class="ic-lbl" data-i18n="impact-lbl2">Total taka disbursed</div>
-      <div class="ic-bar"><div class="ic-bar-inner" data-w="65" id="bar2"></div></div>
-      <div class="ic-trend">Average loan: <span>৳24,500</span></div>
-    </div>
-    <div class="impact-card ic-3">
-      <i class="ti ti-chart-line ic-icon" style="color:#FFCC80"></i>
-      <div class="ic-num" id="cnt3">0%</div>
-      <div class="ic-lbl" data-i18n="impact-lbl3">Repayment rate</div>
-      <div class="ic-bar"><div class="ic-bar-inner" data-w="99" id="bar3"></div></div>
-      <div class="ic-trend">On-time: <span>96%</span></div>
-    </div>
-    <div class="impact-card ic-4">
-      <i class="ti ti-heart-handshake ic-icon" style="color:#CE93D8"></i>
-      <div class="ic-num" data-target="84" id="cnt4">0</div>
-      <div class="ic-lbl" data-i18n="impact-lbl4">Active donors worldwide</div>
-      <div class="ic-bar"><div class="ic-bar-inner" data-w="84" id="bar4"></div></div>
-      <div class="ic-trend">From <span>12</span> countries</div>
-    </div>
-  </div>
-  <div style="text-align:center;margin-top:28px">
-    <a href="dashboard.html" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#f08c28,#ffc46b);color:#241539;border:none;border-radius:30px;padding:13px 32px;font-size:16px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(240,140,40,.4);letter-spacing:.3px">
-      <i class="ti ti-layout-dashboard" style="font-size:19px"></i> বিস্তারিত দেখুন &nbsp;/&nbsp; Full Dashboard
-    </a>
-  </div>
-</section>
+<!-- ⚠️ নকল সংখ্যার "Live impact dashboard" (১২৭ উপকারভোগী, ৳১৮L,
+     ৯৯% পরিশোধের হার, ৮৪ জন দাতা — সবই হার্ডকোড করা ছিল) সরানো
+     হয়েছে ১২ সেপ্টেম্বর ২০২৬-এ। আসল হিসাব এখন হিরোর নিচে
+     `#khStats`-এ, সরাসরি ডাটাবেজ থেকে। দাতব্য সাইটে বানানো
+     সংখ্যা রাখা যাবে না। -->
 
 <!-- ═══════════════════════════════════════════════════════
      PROGRAMS / SERVICES
@@ -2253,42 +2229,10 @@ function setLang(lang, btn) {
   setInterval(() => goTo(idx + 1), 5000);
 })();
 
-/* ── COUNTER ANIMATION ── */
-(function() {
-  let animated = false;
-  const observer = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !animated) {
-      animated = true;
-      animateCounters();
-      animateBars();
-    }
-  }, { threshold: 0.2 });
-
-  const section = document.querySelector('.impact-section');
-  if (section) observer.observe(section);
-
-  function animateCounters() {
-    // Counter 1: 127
-    let v = 0; const t1 = setInterval(() => { v += 2; document.getElementById('cnt1').textContent = v; if(v >= 127){ document.getElementById('cnt1').textContent = '127'; clearInterval(t1); } }, 15);
-    // Counter 2: 18L
-    let v2 = 0; const t2 = setInterval(() => { v2 += 0.5; document.getElementById('cnt2').textContent = '৳' + v2.toFixed(1) + 'L'; if(v2 >= 18){ document.getElementById('cnt2').textContent = '৳18L'; clearInterval(t2); } }, 40);
-    // Counter 3: 99%
-    let v3 = 0; const t3 = setInterval(() => { v3++; document.getElementById('cnt3').textContent = v3 + '%'; if(v3 >= 99){ clearInterval(t3); } }, 12);
-    // Counter 4: 84
-    let v4 = 0; const t4 = setInterval(() => { v4 += 2; document.getElementById('cnt4').textContent = v4; if(v4 >= 84){ document.getElementById('cnt4').textContent = '84'; clearInterval(t4); } }, 20);
-    // Trend
-    setTimeout(() => { document.getElementById('t1').textContent = '+12'; }, 1800);
-  }
-
-  function animateBars() {
-    setTimeout(() => {
-      ['bar1','bar2','bar3','bar4'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.width = el.dataset.w + '%';
-      });
-    }, 400);
-  }
-})();
+/* ── COUNTER ANIMATION ──
+   ⚠️ নকল impact-section-এর সাথে এই স্ক্রিপ্টটিও বাদ দেওয়া হয়েছে
+   (১২ সেপ্টেম্বর ২০২৬)। এখন সংখ্যা গোনার কাজ `kh-ui.js`-এর
+   stCount() করে, আর অঙ্ক আসে `public_stats()` থেকে। */
 
 /* ── BACK TO TOP ── */
 window.addEventListener('scroll', () => {
@@ -2367,7 +2311,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=17"></script>
+<script src="kh-ui.js?v=18"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>

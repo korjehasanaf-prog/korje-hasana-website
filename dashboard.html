@@ -241,6 +241,13 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 .fpill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);border-radius:20px;padding:5px 14px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif}
 .fpill:hover{border-color:rgba(255,255,255,.2);color:#fff}
 .fpill.active{background:rgba(240,140,40,.15);border-color:rgba(240,140,40,.4);color:var(--gold)}
+/* ⚠️ `.filter-pill` কোথাও স্টাইল করা ছিল না (শুধু savings-portal.html-এ) —
+   তাই গাঢ় অ্যাডমিন পর্দায় ব্রাউজারের ডিফল্ট ধূসর বাটন দেখা যেত।
+   এখন `.fpill`-এর মতোই, সব প্যানেলে একসাথে ঠিক হয়ে গেল। */
+.filter-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted);border-radius:20px;padding:7px 15px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Hind Siliguri','Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;min-height:36px}
+.filter-pill:hover{border-color:rgba(255,255,255,.2);color:#fff}
+.filter-pill.active{background:rgba(240,140,40,.15);border-color:rgba(240,140,40,.4);color:var(--gold)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
@@ -252,7 +259,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=17">
+  <link rel="stylesheet" href="kh-ui.css?v=18">
 </head>
 <body data-kh-nav="off">
 
@@ -312,7 +319,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি
       </div>
       <div class="sb-item" id="mi-expense" onclick="switchPanel('expense')">
-        <i class="ti ti-receipt-2"></i> খরচ এন্ট্রি
+        <i class="ti ti-receipt-2"></i> তহবিল ও খরচ
       </div>
 
       <div class="sb-section">অনুমোদন</div>
@@ -629,18 +636,39 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <!-- ══════════════ PANEL: EXPENSE ══════════════ -->
       <div class="panel" id="panel-expense">
-        <div class="panel-title">💸 খরচ এন্ট্রি</div>
-        <div class="panel-sub">সংস্থার যাবতীয় ব্যয় নথিভুক্ত করুন</div>
+        <div class="panel-title">💸 তহবিল ও খরচ</div>
+        <div class="panel-sub">অপারেশন ও রিভলভিং — দুই তহবিলের খরচ ও সমন্বয় নথিভুক্ত করুন</div>
+
+        <!-- দুই তহবিলের বর্তমান অবস্থা — হোম পেজে যা দেখা যায়, ঠিক তাই -->
+        <div id="fundSummary" class="card" style="display:grid;gap:12px;
+             grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+          <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
+        </div>
 
         <div class="card">
-          <div class="card-title"><i class="ti ti-receipt-2"></i> খরচ তথ্য</div>
+          <div class="card-title"><i class="ti ti-receipt-2"></i> নতুন এন্ট্রি</div>
           <div class="form-grid">
+            <div class="fld"><label>তহবিল *</label>
+              <select id="exp-fund">
+                <option value="operation">অপারেশন ফান্ড</option>
+                <option value="revolving">রিভলভিং ফান্ড</option>
+              </select>
+            </div>
+            <div class="fld"><label>ধরন *</label>
+              <select id="exp-type">
+                <option value="expense">খরচ (তহবিল কমবে)</option>
+                <option value="adjustment">সমন্বয় (তহবিল কমবে)</option>
+                <option value="income">অতিরিক্ত আয় (তহবিল বাড়বে)</option>
+              </select>
+            </div>
             <div class="fld"><label>তারিখ *</label><input id="exp-date" type="date"></div>
             <div class="fld"><label>পরিমাণ (৳) *</label><input id="exp-amount" type="number" min="1" placeholder="0.00"></div>
-            <div class="fld form-full"><label>বিবরণ *</label><input id="exp-desc" type="text" placeholder="খরচের বিস্তারিত বিবরণ"></div>
+            <div class="fld form-full"><label>বিবরণ *</label><input id="exp-desc" type="text" placeholder="খরচ বা সমন্বয়ের বিস্তারিত বিবরণ"></div>
             <div class="fld"><label>বিভাগ</label>
               <select id="exp-cat">
                 <option value="operations">পরিচালনা ব্যয়</option>
+                <option value="office">অফিস</option>
+                <option value="salary">সম্মানী</option>
                 <option value="general">সাধারণ</option>
                 <option value="reserve">রিজার্ভ</option>
                 <option value="loan_fund">ঋণ তহবিল</option>
@@ -650,14 +678,24 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div class="fld form-full"><label>মন্তব্য</label><textarea id="exp-notes" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
           </div>
           <div style="margin-top:14px;display:flex;gap:10px">
-            <button class="btn btn-gold" onclick="submitExpense()"><i class="ti ti-device-floppy"></i> খরচ সংরক্ষণ করুন</button>
+            <button class="btn btn-gold" onclick="submitExpense()"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button>
             <button class="btn btn-sm" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--muted)" onclick="resetExpenseForm()">রিসেট</button>
           </div>
           <div id="exp-msg" class="msg"></div>
+          <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.7">
+            ⓘ শতকরা হারের আয় সিস্টেম নিজেই হিসাব করে — প্রতিটি নিশ্চিত দান থেকে।
+            এখানে শুধু খরচ, সমন্বয় বা তহবিলের বাইরের আয় লিখতে হয়।
+            হার বদলাতে হলে <b>জেনারেল সেটিংস</b>-এ যান।
+          </div>
         </div>
 
         <div class="card">
-          <div class="card-title"><i class="ti ti-history"></i> সাম্প্রতিক খরচ</div>
+          <div class="card-title"><i class="ti ti-history"></i> সাম্প্রতিক এন্ট্রি</div>
+          <div class="filter-pills" style="margin-bottom:12px">
+            <button class="filter-pill active" onclick="loadFundEntries('all',this)">সব</button>
+            <button class="filter-pill" onclick="loadFundEntries('operation',this)">অপারেশন ফান্ড</button>
+            <button class="filter-pill" onclick="loadFundEntries('revolving',this)">রিভলভিং ফান্ড</button>
+          </div>
           <div id="recentExpenses"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো তথ্য নেই</p></div></div>
         </div>
       </div>
@@ -836,6 +874,22 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           </div>
         </div>
 
+        <div class="card">
+          <div class="card-title"><i class="ti ti-percentage"></i> তহবিলের হার — দান থেকে কত অংশ</div>
+          <div class="form-grid">
+            <div class="fld"><label>অপারেশন ফান্ড (%)</label>
+              <input id="gs-op-pct" type="number" min="0" max="100" step="0.01" placeholder="5"></div>
+            <div class="fld"><label>রিভলভিং ফান্ড (%)</label>
+              <input id="gs-rv-pct" type="number" min="0" max="100" step="0.01" placeholder="5"></div>
+          </div>
+          <div style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.9">
+            প্রতিটি <b style="color:inherit">নিশ্চিত</b> দান থেকে এই হারে দুটি তহবিলে জমা হয় —
+            হিসাবটি সিস্টেম নিজেই করে, আলাদা এন্ট্রি লাগে না। হার বদলালে
+            হোম পেজের লাইভ ড্যাশবোর্ডে সাথে সাথেই নতুন হিসাব দেখা যাবে
+            (পুরনো কোনো তথ্য হারায় না — হারটি প্রতিবার নতুন করে কষা হয়)।
+          </div>
+        </div>
+
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — সঞ্চয় হিসাব খোলা</div>
           <div class="gs-checks" id="gsReqSavings">
@@ -938,7 +992,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
               <label class="perm-item"><input type="checkbox" name="perm" value="cash_donation"><span><i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="savings_entry"><span><i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="installment"><span><i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি</span></label>
-              <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> খরচ এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> তহবিল ও খরচ</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="loan_approve"><span><i class="ti ti-file-check"></i> ঋণ আবেদন অনুমোদন</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="donation_approve"><span><i class="ti ti-credit-card-refund"></i> অনলাইন ডোনেশন অনুমোদন</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="savings_approve"><span><i class="ti ti-arrows-exchange"></i> সঞ্চয় জমা ও উত্তোলন অনুমোদন</span></label>
@@ -1136,7 +1190,7 @@ function showAccessDenied() {
 const PANEL_TITLES = {
   'dashboard':'ড্যাশবোর্ড', 'donation-cash':'নগদ ডোনেশন এন্ট্রি',
   'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
-  'expense':'খরচ এন্ট্রি', 'loan-approve':'ঋণ আবেদন অনুমোদন',
+  'expense':'তহবিল ও খরচ', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় জমা ও উত্তোলন অনুমোদন',
   'cards':'সদস্যের পরিচয়পত্র',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
@@ -1287,6 +1341,15 @@ async function loadGeneralSettings() {
                  document.querySelector('input[name="gs-visit-mode"][value="views"]');
   if (vRadio) vRadio.checked = true;
 
+  /* তহবিলের হার — সেট করা না থাকলে ৫% ও ৫% (সার্ভারের ডিফল্টও তাই) */
+  const fr = s['fund_rules'] || {};
+  const setPct = (id, v) => {
+    const el = document.getElementById(id);
+    if (el) el.value = (v === undefined || v === null || v === '') ? 5 : v;
+  };
+  setPct('gs-op-pct', fr.operation_pct);
+  setPct('gs-rv-pct', fr.revolving_pct);
+
   /* দুটি হিসাবই পাশাপাশি দেখানো — কোনটি বাছবেন তা বোঝা সহজ হয় */
   const vNow = document.getElementById('gsVisitNow');
   if (vNow) {
@@ -1339,6 +1402,13 @@ async function saveGeneralSettings() {
   const vSel = document.querySelector('input[name="gs-visit-mode"]:checked');
   const visitMode = (vSel && vSel.value === 'unique') ? 'unique' : 'views';
 
+  /* ⚠️ হার ০–১০০-এর বাইরে গেলে সার্ভারও কেটে দেয়, তবু এখানেই আটকানো ভালো */
+  const pct = id => {
+    const v = parseFloat((document.getElementById(id) || {}).value);
+    return (isFinite(v) && v >= 0 && v <= 100) ? v : 5;
+  };
+  const fundRules = { operation_pct: pct('gs-op-pct'), revolving_pct: pct('gs-rv-pct') };
+
   try {
     for (const [k, v] of [
       ['products', products],
@@ -1347,7 +1417,8 @@ async function saveGeneralSettings() {
       ['savings_rules', savingsRules],
       ['loan_rules', loanRules],
       ['whatsapp', whatsapp],
-      ['visit_mode', visitMode]
+      ['visit_mode', visitMode],
+      ['fund_rules', fundRules]
     ]) {
       const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
       if (r && r.error) throw r.error;
@@ -1544,7 +1615,9 @@ async function loadDashboard() {
     _db.from('borrowers').select('id',{count:'exact',head:true}),
     _db.from('repayments').select('amount_paid').eq('is_paid',true),
     _db.from('depositors').select('id',{count:'exact',head:true}),
-    _db.from('fund_ledger').select('amount').eq('type','expense'),
+    /* ⚠️ `.eq('type','expense')` নয় — সমন্বয়ও তহবিল থেকে বেরিয়ে যায়,
+       নাহলে "মোট খরচ" কার্ডে সেগুলো কখনো গোনা হত না */
+    _db.from('fund_ledger').select('amount').in('type',['expense','adjustment']),
   ]);
 
   const sumDon = (donations.data||[]).reduce((s,r)=>s+parseFloat(r.amount||0),0);
@@ -1869,43 +1942,120 @@ function cancelInstallment() {
 }
 
 // ════════════════════════════════════════
-//  EXPENSE
+//  তহবিল ও খরচ
+//  ⚠️ কাঁচা `from('fund_ledger').insert()` আর নয় — RLS-নির্ভর
+//  লেখা নীরবে ব্যর্থ হতে পারে (CLAUDE.md-এর পুরনো শিক্ষা), তাই
+//  সব লেখা `record_fund_entry` RPC দিয়ে, যা নিজেই সব যাচাই করে।
 // ════════════════════════════════════════
-async function submitExpense() {
-  const date = document.getElementById('exp-date').value;
-  const amount = parseFloat(document.getElementById('exp-amount').value);
-  const desc = document.getElementById('exp-desc').value.trim();
-  const cat = document.getElementById('exp-cat').value;
-  const ref = document.getElementById('exp-ref').value.trim();
-  const notes = document.getElementById('exp-notes').value.trim();
-  if (!date||!amount||!desc) { showMsg('exp-msg','তারিখ, পরিমাণ ও বিবরণ আবশ্যক','err'); return; }
+let _fundFilter = 'all';
+const FUND_BN = { operation: 'অপারেশন ফান্ড', revolving: 'রিভলভিং ফান্ড' };
+const FTYPE_BN = { expense: 'খরচ', adjustment: 'সমন্বয়', income: 'অতিরিক্ত আয়' };
 
-  const {error} = await _db.from('fund_ledger').insert({
-    date, type:'expense', description: desc, amount,
-    category: cat, reference_no: ref||null, notes: notes||null,
-    auth_user_id: _currentUser.id, created_at: new Date().toISOString()
-  });
-  if (error) { showMsg('exp-msg','সংরক্ষণ ব্যর্থ: '+error.message,'err'); return; }
-  showMsg('exp-msg','✅ খরচ নথিভুক্ত হয়েছে','ok');
-  resetExpenseForm();
-  loadRecentExpenses();
+async function submitExpense() {
+  const fund   = document.getElementById('exp-fund').value;
+  const type   = document.getElementById('exp-type').value;
+  const date   = document.getElementById('exp-date').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const desc   = document.getElementById('exp-desc').value.trim();
+  const cat    = document.getElementById('exp-cat').value;
+  const ref    = document.getElementById('exp-ref').value.trim();
+  const notes  = document.getElementById('exp-notes').value.trim();
+  if (!date || !amount || !desc) { showMsg('exp-msg','তারিখ, পরিমাণ ও বিবরণ আবশ্যক','err'); return; }
+
+  /* ⚠️ supabase-js-এ .catch() নেই — try/catch দিয়েই ধরতে হয় */
+  try {
+    const r = await _db.rpc('record_fund_entry', {
+      p_fund: fund, p_type: type, p_date: date, p_amount: amount,
+      p_description: desc, p_category: cat, p_ref: ref || null, p_notes: notes || null
+    });
+    if (r.error) throw r.error;
+    showMsg('exp-msg', '✅ ' + FUND_BN[fund] + '-এ ' + FTYPE_BN[type] + ' নথিভুক্ত হয়েছে', 'ok');
+    resetExpenseForm();
+    loadFundEntries();
+  } catch (e) {
+    showMsg('exp-msg', 'সংরক্ষণ ব্যর্থ: ' +
+      (e.message === 'admin only' ? 'শুধু অ্যাডমিন পারেন' : e.message), 'err');
+  }
 }
 
 function resetExpenseForm() {
   ['exp-amount','exp-desc','exp-ref','exp-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('exp-cat').value='operations';
+  document.getElementById('exp-type').value='expense';
 }
 
-async function loadRecentExpenses() {
-  const {data} = await _db.from('fund_ledger')
-    .select('id,date,description,amount,category,created_at')
-    .eq('type','expense').order('created_at',{ascending:false}).limit(10);
-  const c = document.getElementById('recentExpenses');
-  if (!data||!data.length){c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো খরচ নেই</p></div>';return;}
-  c.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th>বিভাগ</th><th>পরিমাণ</th></tr></thead><tbody>
-  ${data.map(r=>`<tr><td style="font-size:12.5px;color:var(--muted)">${r.date}</td><td class="td-name">${r.description}</td><td style="font-size:12.5px">${catBn(r.category)}</td><td class="td-amount">৳${fmt(r.amount)}</td></tr>`).join('')}
-  </tbody></table></div>`;
+/* দুই তহবিলের অবস্থা — হোম পেজের কার্ডের সাথে হুবহু মেলে */
+function paintFundSummary(s) {
+  const box = document.getElementById('fundSummary');
+  if (!box) return;
+  /* ⚠️ অঙ্ক না এলে স্পিনারটি চিরকাল ঘুরত — তাই স্পষ্ট বার্তা */
+  if (!s) {
+    box.style.display = 'block';
+    box.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i>' +
+                    '<p>তহবিলের হিসাব আনা যায়নি</p></div>';
+    return;
+  }
+  const op = s.operation || {}, rv = s.revolving || {}, d = s.donation || {};
+  const cell = (title, tone, list) =>
+    `<div style="padding:14px 15px;border-radius:14px;color:#fff;background:${tone}">
+       <div style="font-size:12px;font-weight:700;opacity:.94">${title}</div>
+       ${list.map(([k,v]) =>
+         `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:7px;font-size:13px">
+            <span style="opacity:.9">${k}</span>
+            <b style="font-variant-numeric:tabular-nums">৳${fmt(v)}</b></div>`).join('')}
+     </div>`;
+  box.style.display = 'grid';
+  box.innerHTML =
+    cell('সর্বমোট দান প্রাপ্তি', 'linear-gradient(135deg,#7a0d45,#c42a63)',
+         [['সর্বমোট', d.total], ['চলতি মাসে', d.month]]) +
+    cell('অপারেশন ফান্ড (' + bnDigits(op.pct) + '%)', 'linear-gradient(135deg,#0b4a37,#0f7259)',
+         [['প্রাপ্তি', op.income], ['খরচ', op.expense], ['স্থিতি', op.balance]]) +
+    cell('রিভলভিং ফান্ড (' + bnDigits(rv.pct) + '%)', 'linear-gradient(135deg,#3b1b8f,#6234c9)',
+         [['প্রাপ্তি', rv.income], ['সমন্বয়', rv.adjusted], ['স্থিতি', rv.balance]]);
 }
+
+function bnDigits(v) { return (window.KHUI ? KHUI.bn(v == null ? 5 : v) : String(v)); }
+
+async function loadFundEntries(fund, btn) {
+  if (fund) _fundFilter = fund;
+  if (btn) {
+    document.querySelectorAll('#panel-expense .filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const c = document.getElementById('recentExpenses');
+  c.innerHTML = '<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+  try {
+    const r = await _db.rpc('admin_fund_entries', { p_fund: _fundFilter, p_limit: 40 });
+    if (r.error) throw r.error;
+    paintFundSummary(r.data && r.data.stats);
+    const rows = (r.data && r.data.rows) || [];
+    if (!rows.length) {
+      c.innerHTML = '<div class="empty-state"><i class="ti ti-receipt-off"></i><p>এই তহবিলে কোনো এন্ট্রি নেই</p></div>';
+      return;
+    }
+    c.innerHTML = `<div class="tbl-wrap"><table><thead><tr>
+        <th>তারিখ</th><th>তহবিল</th><th>ধরন</th><th>বিবরণ</th><th>বিভাগ</th><th>পরিমাণ</th>
+      </tr></thead><tbody>
+      ${rows.map(x => `<tr>
+        <td style="font-size:12.5px;color:var(--muted)">${fmtDate(x.date)}</td>
+        <td style="font-size:12.5px">${FUND_BN[x.fund] || esc(x.fund)}</td>
+        <td style="font-size:12.5px">${FTYPE_BN[x.type] || esc(x.type)}</td>
+        <td class="td-name">${esc(x.description)}</td>
+        <td style="font-size:12.5px">${catBn(x.category)}</td>
+        <td class="td-amount" style="color:${x.type === 'income' ? '#3ddc97' : '#ff9b7a'}">
+          ${x.type === 'income' ? '+' : '−'}৳${fmt(x.amount)}</td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  } catch (e) {
+    paintFundSummary(null);
+    c.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>' +
+      (e.message === 'admin only' ? 'শুধু অ্যাডমিন দেখতে পারেন' : 'তালিকা আনা যায়নি') + '</p></div>';
+  }
+}
+
+/* পুরনো নামটি ধরে রাখা — switchPanel() ও অন্য কোথাও ডাকা হতে পারে।
+   ⚠️ বিবরণ ও বিভাগ সবসময় esc() দিয়ে বসে (উপরে সংজ্ঞায়িত) */
+function loadRecentExpenses() { return loadFundEntries(); }
 
 // ════════════════════════════════════════
 //  LOAN APPROVAL
@@ -2258,8 +2408,10 @@ async function loadLog(filter) {
       .select('id,app_no,applicant_name,amount_requested,status,reviewed_at,approved_at,review_notes,created_at')
       .not('status','eq','pending').order('created_at',{ascending:false}).limit(20),
     _db.from('fund_ledger')
-      .select('id,date,description,amount,type,auth_user_id,created_at')
-      .eq('type','expense').order('created_at',{ascending:false}).limit(20),
+      .select('id,date,description,amount,type,fund,auth_user_id,created_at')
+      /* ⚠️ তিনটি ধরনই লগে আসবে — expense/adjustment/income */
+      .in('type',['expense','adjustment','income'])
+      .order('created_at',{ascending:false}).limit(20),
   ]);
 
   // Build admin info map from admin_roles
@@ -2395,7 +2547,7 @@ async function loadAdminUsers() {
     const isSelf = a.user_id === _currentUser?.id;
     const permLabels = {
       cash_donation:'নগদ ডোনেশন', savings_entry:'সঞ্চয় জমা', installment:'কিস্তি',
-      expense:'খরচ', loan_approve:'ঋণ অনুমোদন', donation_approve:'ডোনেশন অনুমোদন',
+      expense:'তহবিল ও খরচ', loan_approve:'ঋণ অনুমোদন', donation_approve:'ডোনেশন অনুমোদন',
       savings_approve:'সঞ্চয় অনুমোদন', view_log:'লগ', admin_mgmt:'এডমিন ব্যবস্থাপনা'
     };
     return `<div class="admin-row" id="ar-${a.user_id}">
@@ -3143,13 +3295,15 @@ function statusBn(s){return{pending:'অপেক্ষমাণ',approved:'অ�
 function statusBadge(s){return{pending:'b-pending',approved:'b-approved',rejected:'b-rejected',confirmed:'b-confirmed',failed:'b-rejected',review:'b-review',disbursed:'b-disbursed',active:'b-approved'}[s]||'b-pending'}
 function purposeBn(p){return{general:'সাধারণ',loan_fund:'ঋণ তহবিল',zakat:'যাকাত',sadaqah:'সাদাকাহ',emergency:'জরুরি'}[p]||p}
 function schemeBn(s){return{daily:'দৈনিক',fortnightly:'পাক্ষিক',monthly:'মাসিক',flexible:'যখন খুশি'}[s]||s}
-function catBn(s){return{operations:'পরিচালনা',general:'সাধারণ',reserve:'রিজার্ভ',loan_fund:'ঋণ তহবিল'}[s]||s}
+/* ⚠️ অজানা মান এলে esc() — বিভাগটি ডাটাবেজ থেকে আসে */
+function catBn(s){return{operations:'পরিচালনা',general:'সাধারণ',reserve:'রিজার্ভ',
+  loan_fund:'ঋণ তহবিল',office:'অফিস',salary:'সম্মানী'}[s]||esc(s||'—')}
 
 // ════════════════════════════════════════
 //  START
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=17"></script>
+<script src="kh-ui.js?v=18"></script>
 </body>
 </html>

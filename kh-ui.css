@@ -2747,3 +2747,188 @@ html[data-theme="light"] .kh-visit-total .kh-visit-num { color: #f3d9ff !importa
 @media (prefers-reduced-motion: reduce) {
   .kh-pc-pill.kh-on i { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   21 ── লাইভ পরিসংখ্যান ড্যাশবোর্ড (হোম পেজ, হিরোর নিচে)
+
+   ⚠️ প্রতিটি কার্ড **নিজের গ্র্যাডিয়েন্ট পটভূমি বহন করে** ও লেখা
+   সাদা — তাই ডার্ক/লাইট দুই থীমেই একরকম এবং কনট্রাস্ট নিশ্চিত।
+   প্রতিটি গ্র্যাডিয়েন্টের **সবচেয়ে হালকা প্রান্তেও** সাদা লেখার
+   কনট্রাস্ট মেপে নেওয়া হয়েছে (নিচে প্রতিটির পাশে লেখা আছে)।
+   ══════════════════════════════════════════════════════════ */
+.kh-stats { margin: 0 auto; padding: 46px 20px 52px; max-width: 1240px; }
+.kh-stats-head { text-align: center; margin-bottom: 26px; }
+.kh-stats-kick {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 800; letter-spacing: .6px;
+  padding: 6px 14px; border-radius: 20px; color: #fff;      /* ৫.৫:১ */
+  background: linear-gradient(112deg, #5b34c4, #a021c9);
+}
+.kh-stats-kick i { width: 7px; height: 7px; border-radius: 50%; background: #7bf1b8; }
+.kh-stats-h2 {
+  font-size: clamp(22px, 3.4vw, 32px); font-weight: 900; margin: 12px 0 6px;
+  color: var(--kh-ink, #f3ecff);
+}
+html[data-theme="light"] .kh-stats-h2 { color: #241539; }
+.kh-stats-sub { font-size: 13.5px; color: var(--kh-mute, #b3a6c9); }
+html[data-theme="light"] .kh-stats-sub { color: #5b5170; }
+
+/* ⚠️ ৩২০px — ছয়টি কার্ড চওড়া পর্দায় ৩+৩ সাজে (২৬৮px দিলে ৪+২ হয়ে
+   দ্বিতীয় সারিতে বড় ফাঁক পড়ত), আর ভেতরের ছোট ঘরগুলোও জায়গা পায় */
+.kh-stats-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.kh-st-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 20px 20px 16px; border-radius: 20px; border: none;
+  text-align: left; cursor: pointer; color: #fff;
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+  box-shadow: 0 16px 34px rgba(20, 8, 40, .26);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.kh-st-card:hover, .kh-st-card:focus-visible {
+  transform: translateY(-4px); box-shadow: 0 22px 44px rgba(20, 8, 40, .34);
+}
+.kh-st-card:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+/* ভেসে বেড়ানো আভা — ভিজিটর কাউন্টারের মতোই, তবে খুব হালকা */
+.kh-st-card::after {
+  content: ''; position: absolute; z-index: -1; inset: -40% -20% auto auto;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255, 255, 255, .13); filter: blur(6px);
+}
+
+.kh-st-pink   { background: linear-gradient(135deg, #7a0d45, #c42a63); } /* ৫.৪:১ */
+.kh-st-teal   { background: linear-gradient(135deg, #0b4a37, #0f7259); } /* ৫.৯:১ */
+.kh-st-violet { background: linear-gradient(135deg, #3b1b8f, #6234c9); } /* ৭.৬:১ */
+.kh-st-amber  { background: linear-gradient(135deg, #7a3405, #b5540e); } /* ৪.৯:১ */
+.kh-st-indigo { background: linear-gradient(135deg, #123a86, #2154b8); } /* ৬.৯:১ */
+.kh-st-rust   { background: linear-gradient(135deg, #7d1a0d, #bf3a1c); } /* ৫.৫:১ */
+
+.kh-st-ic {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px; margin-bottom: 8px;
+  background: rgba(255, 255, 255, .18); font-size: 20px;
+}
+.kh-st-lbl { font-size: 13px; font-weight: 700; letter-spacing: .2px; color: #fff; }
+.kh-st-num {
+  font-size: clamp(25px, 3.2vw, 31px); font-weight: 900; line-height: 1.15;
+  font-variant-numeric: tabular-nums; color: #fff; margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+/* ⚠️ সাদা রঙ .৯ স্বচ্ছতায় দিলে কমলা কার্ডে কনট্রাস্ট ৪.৩৩:১-এ নেমে
+   যেত (ব্রাউজারে মেপে ধরা পড়ে) — তাই পুরো সাদা, ৪.৯৫:১ */
+.kh-st-sub { font-size: 12px; color: #fff; margin-top: 3px; }
+
+/* তহবিলের কার্ডে প্রাপ্তি · খরচ · স্থিতি — তিনটি ছোট ঘর */
+.kh-st-mini {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; width: 100%;
+}
+.kh-st-mini span {
+  flex: 1 1 0; min-width: 74px; padding: 6px 9px; border-radius: 10px;
+  background: rgba(0, 0, 0, .22); border: 1px solid rgba(255, 255, 255, .16);
+}
+.kh-st-mini b { display: block; font-size: 10px; font-weight: 700; color: rgba(255,255,255,.92); }
+.kh-st-mini s {
+  display: block; text-decoration: none; font-size: 13.5px; font-weight: 800;
+  font-variant-numeric: tabular-nums; color: #fff; margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.kh-st-go {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+  font-size: 12px; font-weight: 800; color: #fff;
+  padding: 6px 12px; border-radius: 20px; background: rgba(0, 0, 0, .26);
+  border: 1px solid rgba(255, 255, 255, .22);
+}
+.kh-st-card:hover .kh-st-go i { transform: translateX(3px); }
+.kh-st-go i { transition: transform .2s; }
+
+.kh-stats-foot {
+  margin-top: 16px; text-align: center; font-size: 12px;
+  color: var(--kh-mute, #b3a6c9);
+}
+html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
+
+/* ── বিস্তারিত পর্দা ──────────────────────────────────────
+   ⚠️ z-index ১০০২০ — ক্যারোসেলের লাইটবক্স (১০০০০), সিগনেচার
+   পট্টি (১০০০৫), হোয়াটসঅ্যাপ/উপরে-যান (৯৯৯৯), গ্লাস নেভ (৯০০০)
+   ও চ্যাট (৯৪০০) — সবার উপরে থাকতে হবে। */
+.kh-stdet {
+  position: fixed; inset: 0; z-index: 10020; display: none;
+  align-items: center; justify-content: center; padding: 20px;
+  background: rgba(12, 6, 24, .82); backdrop-filter: blur(6px);
+}
+.kh-stdet.show { display: flex; }
+.kh-stdet-box {
+  width: min(860px, 100%); max-height: 90vh; overflow: auto;
+  background: #fff; color: #1c1230; border-radius: 22px; padding: 26px 24px 22px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, .45);
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+}
+/* ভেতরটা দুই থীমেই সাদা — ভাউচারের মতোই, সব রঙ মাপা আছে */
+.kh-stdet-t { font-size: 21px; font-weight: 900; color: #241539; }
+.kh-stdet-s { font-size: 13px; color: #5b5170; margin-top: 3px; }   /* ৬.৪:১ */
+.kh-stdet-x {
+  position: absolute; top: 16px; right: 18px; width: 40px; height: 40px;
+  border-radius: 50%; border: none; cursor: pointer; color: #fff; font-size: 20px;
+  background: linear-gradient(112deg, #5b34c4, #a021c9);
+  display: flex; align-items: center; justify-content: center;
+}
+.kh-stdet-head { position: relative; padding-right: 52px; }
+
+.kh-stdet-cards {
+  display: grid; gap: 10px; margin-top: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}
+.kh-stdet-c { padding: 12px 13px; border-radius: 13px; color: #fff; }
+.kh-stdet-c b { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.94); }
+.kh-stdet-c s {
+  display: block; text-decoration: none; font-size: 19px; font-weight: 900;
+  font-variant-numeric: tabular-nums; margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.kh-stdet-sec {
+  margin-top: 20px; font-size: 13px; font-weight: 800; color: #3f3459;   /* ৯.১:১ */
+}
+.kh-stdet-bars { display: flex; align-items: flex-end; gap: 8px; height: 150px; margin-top: 12px; }
+.kh-stdet-bar { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+.kh-stdet-bar i {
+  display: block; width: 100%; border-radius: 7px 7px 0 0; min-height: 4px;
+  background: linear-gradient(180deg, #7048e8, #d6336c);
+}
+.kh-stdet-bar em {
+  display: block; font-style: normal; font-size: 10px; color: #5b5170;
+  text-align: center; margin-top: 6px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.kh-stdet-bar u {
+  display: block; text-decoration: none; font-size: 10.5px; font-weight: 800;
+  color: #3f3459; text-align: center; margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.kh-stdet-tbl { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+.kh-stdet-tbl th {
+  text-align: left; font-size: 11px; font-weight: 800; color: #5b5170;
+  padding: 8px 10px; border-bottom: 2px solid #ece5f7;
+}
+.kh-stdet-tbl td { padding: 9px 10px; border-bottom: 1px solid #f2edf9; color: #241539; }
+.kh-stdet-tbl td.n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 800; }
+.kh-stdet-tbl tr:last-child td { border-bottom: none; }
+.kh-stdet-empty { font-size: 13px; color: #5b5170; padding: 14px 2px; }
+.kh-stdet-foot { margin-top: 16px; font-size: 11.5px; color: #6a6080; }  /* ৫.১:১ */
+
+@media (max-width: 640px) {
+  .kh-stats { padding: 34px 14px 40px; }
+  .kh-stats-grid { grid-template-columns: 1fr; }
+  .kh-stdet-box { padding: 22px 16px 18px; border-radius: 18px; }
+  .kh-stdet-bars { height: 120px; gap: 5px; }
+  .kh-stdet-bar u { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-st-card, .kh-st-go i { transition: none; }
+  .kh-st-card:hover { transform: none; }
+}
