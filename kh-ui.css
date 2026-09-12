@@ -1020,7 +1020,12 @@ html[data-theme="light"] .nav-indicator {
   border-color: rgba(112, 72, 232, .26) !important;
 }
 
-/* ── large dark bands become soft tinted bands ── */
+/* ── large dark bands become soft tinted bands ──
+   ⚠️ `.quran-strip` এই দুটি তালিকা থেকে **বাদ দেওয়া হয়েছে**
+   (১২ সেপ্টেম্বর ২০২৬)। ব্লকটি এখন নিজের "পান্ডুলিপি" রঙ বহন করে
+   — ভাউচার ও প্রোফাইল কার্ডের মতোই দুই থীমে এক। এখানে রাখলে
+   ঢালাও `background … !important` ও `color:#35204f !important`
+   পার্চমেন্ট পটভূমি ও সবুজ কালি দুটোই চাপা দিয়ে দিত। */
 html[data-theme="light"] .page-hero,
 html[data-theme="light"] .hero,
 html[data-theme="light"] .cta-band,
@@ -1029,7 +1034,6 @@ html[data-theme="light"] .islamic-sec,
 html[data-theme="light"] .impact-calc,
 html[data-theme="light"] .impact-section,
 html[data-theme="light"] .mv-section,
-html[data-theme="light"] .quran-strip,
 html[data-theme="light"] .guest-sidebar,
 html[data-theme="light"] .footer {
   background: linear-gradient(135deg, #f7f1fb 0%, #fdeef4 48%, #fff4ec 100%) !important;
@@ -1037,7 +1041,7 @@ html[data-theme="light"] .footer {
 }
 
 html[data-theme="light"] :is(.page-hero, .hero, .cta-band, .how-section,
-  .islamic-sec, .impact-calc, .impact-section, .mv-section, .quran-strip,
+  .islamic-sec, .impact-calc, .impact-section, .mv-section,
   .guest-sidebar, .footer) :is(h1, h2, h3, h4, h5, p, li, td, th, label, small, div, span, a) {
   color: #35204f !important;
 }

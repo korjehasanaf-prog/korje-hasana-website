@@ -366,42 +366,117 @@
     .khc-prev { left: -4px; } .khc-next { right: -4px; }
 
     /* ═══════════════════════════════════════
-       QURAN & HADITH SLIDER
+       QURAN & HADITH SLIDER — "পান্ডুলিপি" থীম
+
+       ⚠️ আগে পটভূমি ছিল var(--dkgreen) = #160d26 — অর্থাৎ হিরো ও
+       টপবারের প্রায় একই গাঢ় প্লাম। তাই ব্লকটি আলাদা করে চোখে
+       পড়ত না, কুরআন-হাদিসের অংশ বলেও বোঝা যেত না (ব্যবহারকারীর
+       পর্যবেক্ষণ, ১২ সেপ্টেম্বর ২০২৬)। এখন **হালকা পার্চমেন্ট**
+       পাতা — গাঢ় হিরোর ঠিক পরেই উল্টো উজ্জ্বলতা, তাই আলাদা করে
+       চেনা যায়; সাথে ইসলামি গিরিহ নকশা, সোনালি রেখা ও সবুজ কালি।
+
+       ⚠️ ভাউচার ও প্রোফাইল কার্ডের মতোই **দুই থীমেই এক** — এটি
+       "কাগজ", তাই থীমের সাথে বদলায় না। সেজন্য `kh-ui.css`-এর
+       সেকশন ৯-এর দুটি ঢালাও লাইট-থীম নিয়ম থেকে `.quran-strip`
+       বাদ দেওয়া হয়েছে (নাহলে পটভূমি ও লেখার রঙ চাপা পড়ত)।
     ═══════════════════════════════════════ */
     .quran-strip {
-      background: var(--dkgreen);
-      padding: 22px 60px; position: relative; overflow: hidden;
+      position: relative; overflow: hidden;
+      padding: 44px 68px 36px;
+      background:
+        /* নিচের সোনালি রেখা */
+        linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent)
+          bottom / 100% 3px no-repeat,
+        /* পার্চমেন্ট */
+        radial-gradient(125% 95% at 50% 0%, #fffdf6 0%, #fbf3e2 55%, #f2e4c9 100%);
     }
+    /* উপরের সোনালি রেখা */
+    .quran-strip::after {
+      content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent);
+    }
+    /* গিরিহ নকশা — দুটি ঘোরানো বর্গ মিলে আট-কোণা তারা।
+       ঘনত্ব ইচ্ছে করেই কম (.09), নাহলে লেখার কনট্রাস্ট নষ্ট হত। */
+    .quran-strip::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: .09;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%2314694f' stroke-width='1'%3E%3Cpath d='M40 6 74 40 40 74 6 40Z'/%3E%3Cpath d='M16 16h48v48H16Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3Cpath d='M0 0h80v80H0Z'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 80px 80px;
+    }
+    .quran-strip > * { position: relative; z-index: 1; }
+
+    /* ব্লকটি কী, সেটি এক নজরে বোঝানোর জন্য (ব্যবহারকারীর দাবি) */
+    .quran-head { text-align: center; margin-bottom: 20px; }
+    .quran-kick {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12.5px; font-weight: 800; letter-spacing: .4px;
+      padding: 7px 17px; border-radius: 22px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      box-shadow: 0 6px 16px rgba(13, 92, 67, .22);
+    }
+    .quran-kick i { font-size: 15px; color: #ffd98a; }
+    /* সোনালি ফুল-নকশার বিভাজক */
+    /* ⚠️ প্রথমে #b8821f ছিল — পার্চমেন্টে মাত্র ২.৩৬:১, হীরের
+       আইকনটি প্রায় দেখাই যেত না (ব্রাউজারে মেপে ধরা পড়ে)।
+       এখন ৩.৯৭:১ — সাজসজ্জার উপাদানের জন্য AA সীমা ৩:১। */
+    .quran-orn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 14px; color: #8a5f10;
+    }
+    .quran-orn span { display: block; width: 66px; height: 1px; background: linear-gradient(90deg, transparent, #cfa04a); }
+    .quran-orn span:last-child { background: linear-gradient(90deg, #cfa04a, transparent); }
+    .quran-orn i { font-size: 13px; }
+
     .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
-    .quran-slide { min-width: 100%; text-align: center; padding: 0 60px; }
-    .quran-icon { font-size: 26px; color: var(--gold); margin-bottom: 10px; display: block; }
-    .quran-text-ar {
-      color: #fff; font-size: 16px; font-weight: 500; line-height: 1.7; margin-bottom: 6px;
-      font-family: 'Hind Siliguri', sans-serif;
+    .quran-slide { min-width: 100%; text-align: center; padding: 0 56px; }
+    /* আইকনটি এখন গোল সবুজ মেডেলিয়ন — পার্চমেন্টে কমলা আইকন
+       মাত্র ২.৩:১ দিত, তাই নিজের রঙিন পটভূমি বহন করে */
+    .quran-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 46px; height: 46px; border-radius: 50%; margin-bottom: 14px;
+      font-size: 21px; color: #fff;
+      background: linear-gradient(135deg, #0d5c43, #12805e);
+      box-shadow: 0 8px 20px rgba(13, 92, 67, .26), 0 0 0 6px rgba(18, 128, 94, .09);
     }
-    .quran-text-en { color: var(--ltgreen); font-size: 13.5px; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .quran-text-ar {
+      color: #123a2c; font-size: 18px; font-weight: 600; line-height: 1.85;   /* ১০.২:১ */
+      margin-bottom: 10px; font-family: 'Hind Siliguri', sans-serif;
+      max-width: 820px; margin-left: auto; margin-right: auto;
+    }
+    .quran-text-en {
+      color: #4a5f52; font-size: 13.5px; line-height: 1.7; margin-bottom: 12px;  /* ৫.৬:১ */
+      font-style: italic; max-width: 760px; margin-left: auto; margin-right: auto;
+    }
     .quran-ref {
-      display: inline-block; background: rgba(240,140,40,.15);
-      color: var(--gold); font-size: 12.5px; padding: 3px 12px; border-radius: 20px;
-      border: 1px solid rgba(240,140,40,.3);
+      display: inline-block; font-size: 12.5px; font-weight: 700;
+      padding: 6px 15px; border-radius: 20px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      border: none;
     }
     .quran-nav-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
-      width: 30px; height: 30px; border-radius: 50%;
-      background: rgba(255,255,255,.1); border: none; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; transition: background .2s;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #fffdf6; border: 1px solid #e2cfa6; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s, transform .2s;
+      box-shadow: 0 3px 10px rgba(120, 90, 30, .14);
     }
-    .quran-nav-btn:hover { background: rgba(255,255,255,.2); }
-    .quran-nav-btn i { font-size: 17px; color: rgba(255,255,255,.6); }
-    .quran-nav-l { left: 16px; }
-    .quran-nav-r { right: 16px; }
-    .quran-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
+    .quran-nav-btn:hover { background: #fff; border-color: #c8912f; transform: translateY(-50%) scale(1.06); }
+    .quran-nav-btn i { font-size: 18px; color: #0d5c43; }
+    .quran-nav-l { left: 18px; }
+    .quran-nav-r { right: 18px; }
+    .quran-dots { display: flex; justify-content: center; gap: 7px; margin-top: 18px; }
     .qdot {
-      height: 6px; border-radius: 3px; cursor: pointer;
-      transition: all .3s; background: rgba(255,255,255,.2);
-      width: 6px;
+      height: 6px; width: 6px; border-radius: 3px; cursor: pointer;
+      transition: all .3s; background: #dcc9a4;
     }
-    .qdot.active { background: var(--gold); width: 20px; }
+    .qdot.active { background: linear-gradient(90deg, #c8912f, #e6ac43); width: 22px; }
+
+    @media (max-width: 640px) {
+      .quran-strip { padding: 32px 20px 26px; }
+      .quran-text-ar { font-size: 16px; line-height: 1.8; }
+      .quran-nav-btn { width: 32px; height: 32px; }
+      .quran-nav-l { left: 6px; } .quran-nav-r { right: 6px; }
+    }
 
     /* ═══════════════════════════════════════
        IMPACT DASHBOARD
@@ -902,7 +977,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=18">
+  <link rel="stylesheet" href="kh-ui.css?v=19">
 </head>
 <body data-kh-nav="on">
 
@@ -1345,7 +1420,14 @@
      QURAN & HADITH SLIDER
 ════════════════════════════════════════════════════════ -->
 <div class="quran-strip">
-  <button class="quran-nav-btn quran-nav-l" id="qPrev"><i class="ti ti-chevron-left"></i></button>
+  <!-- ব্লকটি কী তা যেন এক নজরেই বোঝা যায় — আগে কোনো শিরোনাম ছিল না -->
+  <div class="quran-head">
+    <span class="quran-kick"><i class="ti ti-moon-stars" aria-hidden="true"></i>কুরআন ও হাদিসের আলো</span>
+    <div class="quran-orn" aria-hidden="true">
+      <span></span><i class="ti ti-diamond"></i><span></span>
+    </div>
+  </div>
+  <button class="quran-nav-btn quran-nav-l" id="qPrev" aria-label="আগের বাণী"><i class="ti ti-chevron-left"></i></button>
   <div style="overflow:hidden">
     <div class="quran-track" id="qTrack">
       <div class="quran-slide">
@@ -1374,7 +1456,7 @@
       </div>
     </div>
   </div>
-  <button class="quran-nav-btn quran-nav-r" id="qNext"><i class="ti ti-chevron-right"></i></button>
+  <button class="quran-nav-btn quran-nav-r" id="qNext" aria-label="পরের বাণী"><i class="ti ti-chevron-right"></i></button>
   <div class="quran-dots" id="qDots">
     <div class="qdot active"></div>
     <div class="qdot"></div>
@@ -2312,7 +2394,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=18"></script>
+<script src="kh-ui.js?v=19"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>
