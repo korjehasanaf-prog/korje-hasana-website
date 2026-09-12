@@ -1524,6 +1524,13 @@ html[data-theme="light"] .kh-vch-back { background: rgba(60, 40, 90, .58); }
   border-left: 3px solid #7048e8; border-radius: 10px; padding: 10px 13px;
 }
 .kh-vch-cell:nth-child(2n) { border-left-color: #f08c28; }
+/* rows-এর তৃতীয় ঘর সত্য হলে — যেমন প্রোফাইল কার্ডে বাছা ক্যাটাগরির সারিগুলো */
+.kh-vch-cell.kh-vch-hl {
+  background: linear-gradient(135deg, #f3ecff, #fdeaf3);
+  border-color: #cdb8f6; border-left-color: #7048e8; border-left-width: 4px;
+  box-shadow: 0 3px 10px rgba(112, 72, 232, .13);
+}
+.kh-vch-cell.kh-vch-hl .kh-vch-lbl { color: #4a4458; }   /* ৮.১:১ */
 .kh-vch-lbl { font-size: 10.5px; color: #6B7280; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 3px; }
 .kh-vch-val { font-size: 14px; font-weight: 700; color: #1a1a1a; word-break: break-word; }
 
@@ -2602,13 +2609,15 @@ html[data-theme="light"] .kh-visit-total .kh-visit-num { color: #f3d9ff !importa
   padding: 24px 22px 22px 66px;
   clip-path: polygon(46px 0, 100% 0, 100% 100%, 0 100%);
 }
+/* ⚠️ অফলাইন = কমলা, অনলাইন = সবুজ (সিদ্ধান্ত: ১২ সেপ্টেম্বর ২০২৬)।
+   আগে অফলাইনও সবুজ ঘরানার ছিল, তাই দূর থেকে দুটো আলাদা করা যেত না। */
 .kh-pc-pill {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 11.5px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
-  background: #eef7f0; color: #14663f; border: 1px solid #cdeadd;   /* ৬.৩:১ */
+  background: #fff3e6; color: #a04a00; border: 1px solid #ffd9b0;   /* ৫.৫:১ */
 }
 .kh-pc-pill i {
-  width: 7px; height: 7px; border-radius: 50%; background: #9aa3af;
+  width: 7px; height: 7px; border-radius: 50%; background: #e8590c; /* ৩.৩:১ */
 }
 .kh-pc-pill.kh-on { background: #e9f9ef; color: #10603a; border-color: #a7e8c4; }
 .kh-pc-pill.kh-on i {
@@ -2655,6 +2664,37 @@ html[data-theme="light"] .kh-visit-total .kh-visit-num { color: #f3d9ff !importa
 .kh-pc-s-sav s { color: #0d6e56; }     /* ৫.৪:১ */
 .kh-pc-s-don s { color: #b02a80; }     /* ৫.১:১ */
 .kh-pc-s-loan s { color: #a0560d; }    /* ৫.০:১ */
+
+/* ── নির্বাচন ও ক্যাটাগরি হাইলাইট (১২ সেপ্টেম্বর ২০২৬) ──
+   অ্যাডমিনের তালিকায় একটি কার্ড বাছলে রিং ওঠে, আর যে ক্যাটাগরির
+   জন্য বাছা হয়েছে সেই ঘরটি জোর দিয়ে দেখানো হয়। ⚠️ শুধু দেখার
+   ব্যাপার — ডাটাবেজে কিছু সংরক্ষণ হয় না। */
+.kh-pc-pick .kh-pc-stat { cursor: pointer; transition: background .18s, border-color .18s, transform .18s, box-shadow .18s; }
+.kh-pc-pick .kh-pc-stat:hover { border-color: #c9b6f5; background: #f5f1fd; }
+.kh-pc-pick { cursor: pointer; transition: box-shadow .2s, transform .2s; }
+.kh-pc-pick:hover { transform: translateY(-2px); }
+
+.kh-pc-stat.kh-hl {
+  background: linear-gradient(135deg, #f3ecff, #fdeaf3);
+  border-color: #b79bf0;
+  box-shadow: 0 0 0 2px rgba(112, 72, 232, .20), 0 6px 16px rgba(112, 72, 232, .14);
+  transform: translateY(-2px);
+}
+.kh-pc-stat.kh-hl b { color: #4a3a80; }          /* ৮.৩:১ */
+.kh-pc-stat.kh-hl span { color: #6a5f86; }       /* ৫.১:১ */
+
+.kh-pc.kh-pc-sel {
+  box-shadow: 0 0 0 3px #7048e8, 0 25px 55px rgba(68, 76, 130, .18);
+}
+/* বাছাই করা কার্ডের কোণে ছোট চিহ্ন */
+.kh-pc.kh-pc-sel .kh-pc-body::after {
+  content: '✓ নির্বাচিত';
+  position: absolute; top: 12px; right: 14px;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .3px;
+  padding: 4px 10px; border-radius: 20px;
+  background: linear-gradient(112deg, #5b34c4, #a021c9);
+  color: #fff;                                    /* ৭.৫:১ */
+}
 
 .kh-pc-link {
   display: inline-flex; align-items: center; gap: 7px; margin-top: 13px;

@@ -252,7 +252,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=16">
+  <link rel="stylesheet" href="kh-ui.css?v=17">
 </head>
 <body data-kh-nav="off">
 
@@ -888,7 +888,24 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <button class="filter-pill" onclick="loadCards()"><i class="ti ti-search"></i> খুঁজুন</button>
         </div>
 
-        <div id="pcCount" style="font-size:12.5px;color:var(--muted);margin-bottom:12px"></div>
+        <div id="pcCount" style="font-size:12.5px;color:var(--muted);margin-bottom:8px"></div>
+
+        <!-- নির্বাচনের অবস্থা — শুধু দেখার ব্যাপার, ডাটাবেজে কিছু জমা হয় না -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;
+                    padding:9px 13px;border-radius:11px;
+                    background:linear-gradient(112deg,rgba(112,72,232,.13),rgba(214,51,108,.10));
+                    border:1px solid rgba(112,72,232,.30)">
+          <!-- আইকনটি নিজের রঙিন পটভূমি বহন করে — দুই থীমেই সাদা লেখা নিরাপদ -->
+          <span style="flex:0 0 26px;width:26px;height:26px;border-radius:50%;display:flex;
+                       align-items:center;justify-content:center;color:#fff;font-size:14px;
+                       background:linear-gradient(112deg,#5b34c4,#a021c9)">
+            <i class="ti ti-hand-click"></i>
+          </span>
+          <span id="pcSelNote" style="flex:1;min-width:180px;font-size:12.5px;line-height:1.6"></span>
+          <button class="filter-pill" id="pcSelClear" onclick="pcClearSel()" style="display:none">
+            <i class="ti ti-x"></i> নির্বাচন বাতিল
+          </button>
+        </div>
         <div id="pcGrid" style="display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(560px,1fr))">
           <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
         </div>
@@ -2096,13 +2113,51 @@ async function approveSavings(id, status) {
 // ════════════════════════════════════════
 //  MEMBER PROFILE CARDS
 // ════════════════════════════════════════
-let _pcCat = 'all';
+/* ⚠️ ক্যাটাগরি ছাঁকনি সার্ভারেই হয় (`admin_profile_cards`) — ক্লায়েন্টে আবার
+   ছাঁকা হয় না। 'all' ডিফল্ট। নির্বাচন **শুধু দেখার** ব্যাপার (সিদ্ধান্ত:
+   ১২ সেপ্টেম্বর ২০২৬) — ডাটাবেজে কিছু সংরক্ষণ হয় না, তাই কোনো RPC নেই।
+   একই ইউজার যত ক্যাটাগরিতে পড়েন সব ক্যাটাগরির তালিকাতেই আসেন; যে
+   ক্যাটাগরির জন্য বাছা হবে সেই ঘরটিই হাইলাইট হয়। */
+let _pcCat  = 'all';
+let _pcRows = [];
+let _pcSel  = null;                       // { id, cat }
+const PC_CAT_BN = { all: 'সব', depositor: 'আমানতকারী', donor: 'দানকারী', borrower: 'ঋণগ্রহীতা' };
+
+function pcClearSel() { _pcSel = null; pcPaintSel(); }
+
+/* নির্বাচনের ছাপ বসানো — রিং, ক্যাটাগরির ঘর ও নিচের বার্তা */
+function pcPaintSel() {
+  const grid  = document.getElementById('pcGrid');
+  const note  = document.getElementById('pcSelNote');
+  const clr   = document.getElementById('pcSelClear');
+  if (!grid || !note) return;
+
+  grid.querySelectorAll('.kh-pc').forEach(card => {
+    const on = !!_pcSel && _pcSel.id === card.getAttribute('data-kh-pc');
+    card.classList.toggle('kh-pc-sel', on);
+    KHUI.pcHighlight(card, on ? _pcSel.cat : '');
+  });
+
+  if (!_pcSel) {
+    clr.style.display = 'none';
+    note.textContent = 'কার্ডে ক্লিক করলে সেটি নির্বাচিত হয়। ভেতরের আমানত / দান / ঋণ ঘরে ক্লিক করলে সেই ক্যাটাগরির ব্যালেন্স হাইলাইট হয় — একই ইউজারকে একাধিক ক্যাটাগরির জন্যও বেছে নেওয়া যায়।';
+    return;
+  }
+  clr.style.display = '';
+  const row = _pcRows.find(x => x.id === _pcSel.id);
+  /* ⚠️ textContent — সদস্যের নাম কখনো innerHTML-এ বসানো হয় না */
+  note.textContent = 'নির্বাচিত: ' + ((row && row.name) || '—') +
+    (_pcSel.cat && _pcSel.cat !== 'all'
+      ? ' — ' + PC_CAT_BN[_pcSel.cat] + ' হিসেবে; ঐ ক্যাটাগরির ব্যালেন্স হাইলাইট করা আছে।'
+      : ' — ক্যাটাগরি বাছতে কার্ডের আমানত / দান / ঋণ ঘরে ক্লিক করুন।');
+}
 
 async function loadCards(cat, btn) {
+  if (cat && cat !== _pcCat) _pcSel = null;   // ক্যাটাগরি বদলালে নির্বাচন মুছে যায়
   if (cat) _pcCat = cat;
   if (btn) {
     document.querySelectorAll('#panel-cards .filter-pill').forEach(p => {
-      if (p.id !== 'pcOnlineBtn') p.classList.remove('active');
+      if (p.id !== 'pcOnlineBtn' && p.id !== 'pcSelClear') p.classList.remove('active');
     });
     btn.classList.add('active');
   }
@@ -2118,23 +2173,50 @@ async function loadCards(cat, btn) {
     });
     if (r.error) throw r.error;
     const rows = (r.data && r.data.rows) || [];
-    cnt.textContent = 'দেখানো হচ্ছে ' + KHUI.bn(rows.length) + ' জন' +
+    _pcRows = rows;
+    cnt.textContent = 'ক্যাটাগরি: ' + (PC_CAT_BN[_pcCat] || 'সব') +
+                      ' · দেখানো হচ্ছে ' + KHUI.bn(rows.length) + ' জন' +
                       (q ? ' · খোঁজ: "' + q + '"' : '');
     if (!rows.length) {
+      _pcSel = null;
       grid.innerHTML = '<div class="empty-state"><i class="ti ti-user-off"></i><p>এই ক্যাটাগরিতে কেউ নেই</p></div>';
+      pcPaintSel();
       return;
     }
     grid.innerHTML = rows.map(c => KHUI.profileCardHTML(c)).join('');
-    /* "বিস্তারিত" বাটনগুলো কার্ডের আইডি ধরে সারির সাথে মেলানো হয় */
-    grid.querySelectorAll('[data-kh-pc-more]').forEach(b => {
-      const id = b.closest('[data-kh-pc]').getAttribute('data-kh-pc');
-      const row = rows.find(x => x.id === id);
-      if (row) b.onclick = () => KHUI.profileCardDetail(row);
+
+    /* একটিই হ্যান্ডলার — নির্বাচন, ক্যাটাগরি ও "বিস্তারিত" তিনটিই এখানে */
+    grid.querySelectorAll('.kh-pc').forEach(card => {
+      card.classList.add('kh-pc-pick');
+      card.querySelectorAll('.kh-pc-stat').forEach(s => {
+        const k = s.getAttribute('data-kh-cat');
+        if (PC_CAT_BN[k]) s.title = PC_CAT_BN[k] + ' হিসেবে নির্বাচন করুন';
+      });
+      const id = card.getAttribute('data-kh-pc');
+      card.addEventListener('click', ev => {
+        if (ev.target.closest('.kh-pc-rail')) return;      // ফোন/হোয়াটসঅ্যাপ/মেইল লিংক
+        const row = _pcRows.find(x => x.id === id);
+        if (ev.target.closest('[data-kh-pc-more]')) {
+          const c = (_pcSel && _pcSel.id === id) ? _pcSel.cat
+                  : (_pcCat === 'all' ? '' : _pcCat);
+          if (row) KHUI.profileCardDetail(row, c);
+          return;
+        }
+        const box = ev.target.closest('.kh-pc-stat');
+        const c   = box ? box.getAttribute('data-kh-cat') : _pcCat;
+        /* একই ঘরে আবার ক্লিক করলে নির্বাচন উঠে যায় */
+        _pcSel = (_pcSel && _pcSel.id === id && _pcSel.cat === c) ? null : { id, cat: c };
+        pcPaintSel();
+      });
     });
+    /* ছাঁকনির ক্যাটাগরি বাছা থাকলে সেটিই নির্বাচনের ডিফল্ট হাইলাইট */
+    pcPaintSel();
   } catch (e) {
     cnt.textContent = '';
+    _pcRows = []; _pcSel = null;
     grid.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>' +
       (e.message === 'admin only' ? 'শুধু অ্যাডমিন দেখতে পারেন' : 'তালিকা আনা যায়নি') + '</p></div>';
+    pcPaintSel();
   }
 }
 
@@ -3068,6 +3150,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=16"></script>
+<script src="kh-ui.js?v=17"></script>
 </body>
 </html>

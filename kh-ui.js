@@ -1117,8 +1117,10 @@
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
+    /* r = [লেবেল, মান, হাইলাইট?] — তৃতীয় ঘরটি সত্য হলে সারিটি জোর দিয়ে দেখানো হয় */
     var rowsHtml = (cfg.rows || []).map(function (r) {
-      return '<div class="kh-vch-cell"><div class="kh-vch-lbl">' + vEsc(r[0]) + '</div>' +
+      return '<div class="kh-vch-cell' + (r[2] ? ' kh-vch-hl' : '') + '">' +
+             '<div class="kh-vch-lbl">' + vEsc(r[0]) + '</div>' +
              '<div class="kh-vch-val">' + vEsc(r[1]) + '</div></div>';
     }).join('');
 
@@ -2044,12 +2046,19 @@
         '<div class="kh-pc-tags">' +
           tags.map(function (t) { return '<span class="kh-pc-tag">' + t + '</span>'; }).join('') +
         '</div>' +
+        /* ⚠️ প্রতিটি ঘরে `data-kh-cat` — অ্যাডমিনের তালিকায় ক্যাটাগরি বেছে
+           নিলে বা ঘরটিতে ক্লিক করলে এই নাম ধরেই `kh-hl` বসানো হয়।
+           টুলটিপ এখানে দেওয়া হয় না — সদস্যের নিজের কার্ডে বাছাবাছি নেই,
+           তাই dashboard.html `kh-pc-pick` বসানোর সময় title যোগ করে। */
         '<div class="kh-pc-stats">' +
-          '<div class="kh-pc-stat kh-pc-s-sav"><b>আমানত</b><s>' + pcTk(sav.balance) + '</s>' +
+          '<div class="kh-pc-stat kh-pc-s-sav" data-kh-cat="depositor">' +
+            '<b>আমানত</b><s>' + pcTk(sav.balance) + '</s>' +
             '<span>' + KHUI.bn(sav.accounts || 0) + 'টি হিসাব</span></div>' +
-          '<div class="kh-pc-stat kh-pc-s-don"><b>দান</b><s>' + pcTk(don.total) + '</s>' +
+          '<div class="kh-pc-stat kh-pc-s-don" data-kh-cat="donor">' +
+            '<b>দান</b><s>' + pcTk(don.total) + '</s>' +
             '<span>' + KHUI.bn(don.count || 0) + 'বার</span></div>' +
-          '<div class="kh-pc-stat kh-pc-s-loan"><b>ঋণ বকেয়া</b><s>' + pcTk(loan.outstanding) + '</s>' +
+          '<div class="kh-pc-stat kh-pc-s-loan" data-kh-cat="borrower">' +
+            '<b>ঋণ বকেয়া</b><s>' + pcTk(loan.outstanding) + '</s>' +
             '<span>' + KHUI.bn(loan.count || 0) + 'টি ঋণ</span></div>' +
         '</div>' +
         '<button type="button" class="kh-pc-link" data-kh-pc-more>' +
@@ -2084,30 +2093,53 @@
     }
   };
 
-  /* "বিস্তারিত হিসাব" — ভাউচারের মত সাদা পাতা, দুই থীমে এক */
-  KHUI.profileCardDetail = function (c) {
+  /* ক্যাটাগরির বাংলা নাম — সব জায়গায় এখান থেকেই নেওয়া হয় */
+  KHUI.PC_CATS = {
+    depositor: 'আমানতকারী',
+    donor:     'দানকারী',
+    borrower:  'ঋণগ্রহীতা'
+  };
+
+  /* একটি কার্ডে ক্যাটাগরির ঘরটি জোর দিয়ে দেখানো।
+     cat না দিলে (বা 'all') সব হাইলাইট মুছে যায়। */
+  KHUI.pcHighlight = function (card, cat) {
+    if (!card) return;
+    card.querySelectorAll('.kh-pc-stat').forEach(function (s) {
+      s.classList.toggle('kh-hl', !!cat && cat !== 'all' &&
+                                  s.getAttribute('data-kh-cat') === cat);
+    });
+  };
+
+  /* "বিস্তারিত হিসাব" — ভাউচারের মত সাদা পাতা, দুই থীমে এক।
+     cat দিলে বড় অঙ্কটি ও সংশ্লিষ্ট সারিগুলো সেই ক্যাটাগরির হয়। */
+  KHUI.profileCardDetail = function (c, cat) {
     var sav = c.savings || {}, don = c.donation || {}, loan = c.loan || {};
+    var hlS = cat === 'depositor', hlD = cat === 'donor', hlL = cat === 'borrower';
+    var big = hlD ? (don.total || 0) : hlL ? (loan.outstanding || 0) : (sav.balance || 0);
+    var cap = hlD ? 'দানকারী — সর্বমোট দান'
+            : hlL ? 'ঋণগ্রহীতা — বর্তমান বকেয়া'
+            : hlS ? 'আমানতকারী — বর্তমান স্থিতি' : 'সদস্যের হিসাব';
     KHUI.voucher({
-      title: 'সদস্যের হিসাব',
+      title: cap,
       no:    c.code || '—',
-      amount: (sav.balance || 0),
+      amount: big,
       name:  c.name,
       code:  c.code,
       mobile: c.mobile,
       photo: c.photo,
-      status: c.online ? 'এখন অনলাইনে' : 'সদস্য',
+      status: c.online ? 'এখন অনলাইনে' : 'অফলাইন',
       rows: [
-        ['আমানত — হিসাব সংখ্যা', KHUI.bn(sav.accounts || 0) + 'টি'],
-        ['আমানত — মোট জমা',      pcTk(sav.deposited)],
-        ['আমানত — মোট উত্তোলন',  pcTk(sav.withdrawn)],
-        ['আমানত — অনুমোদনের অপেক্ষায়', pcTk(sav.pending)],
-        ['আমানত — বর্তমান স্থিতি', pcTk(sav.balance)],
-        ['দান — সংখ্যা',          KHUI.bn(don.count || 0) + 'বার'],
-        ['দান — সর্বমোট',         pcTk(don.total)],
-        ['ঋণ — সংখ্যা',           KHUI.bn(loan.count || 0) + 'টি'],
-        ['ঋণ — মোট গৃহীত',        pcTk(loan.principal)],
-        ['ঋণ — পরিশোধিত',        pcTk(loan.paid)],
-        ['ঋণ — বকেয়া',           pcTk(loan.outstanding)]
+        ['আমানত — হিসাব সংখ্যা', KHUI.bn(sav.accounts || 0) + 'টি', hlS],
+        ['আমানত — মোট জমা',      pcTk(sav.deposited), hlS],
+        ['আমানত — মোট উত্তোলন',  pcTk(sav.withdrawn), hlS],
+        ['আমানত — অনুমোদনের অপেক্ষায়', pcTk(sav.pending), hlS],
+        ['আমানত — বর্তমান স্থিতি', pcTk(sav.balance), hlS],
+        ['দান — সংখ্যা',          KHUI.bn(don.count || 0) + 'বার', hlD],
+        ['দান — সর্বমোট',         pcTk(don.total), hlD],
+        ['ঋণ — সংখ্যা',           KHUI.bn(loan.count || 0) + 'টি', hlL],
+        ['ঋণ — মোট গৃহীত',        pcTk(loan.principal), hlL],
+        ['ঋণ — পরিশোধিত',        pcTk(loan.paid), hlL],
+        ['ঋণ — বকেয়া',           pcTk(loan.outstanding), hlL]
       ],
       note: 'এটি সদস্যের বর্তমান হিসাবের সারসংক্ষেপ — সিস্টেম থেকে তৈরি।'
     });
