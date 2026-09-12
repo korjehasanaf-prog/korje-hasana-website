@@ -2983,6 +2983,94 @@
     }
   };
 
+  /* ════════════════════════════════════════════════════════
+     সেকশন-ব্রেকের আলো-রেখা
+
+     পাশাপাশি দুটি বড় সেকশনের মাঝে একটি সরু রেখা বসায়, যার
+     উপর দিয়ে আভা বাঁ থেকে ডানে ভেসে যায় — কোথায় এক অংশ শেষ
+     হয়ে আরেকটি শুরু হলো তা যেন বোঝা যায়।
+
+     ⚠️ প্রতিটি পেজের গঠন আলাদা, তাই **অনুমান করা হয় না** —
+     শুধু সেই ভাইবোনদের মাঝে বসে যারা সত্যিই বড়, পুরো চওড়া ও
+     সাধারণ প্রবাহে আছে (fixed/absolute নয়)। ওভারলে, মোডাল,
+     ফ্লোটিং বাটন — কোনোটাই ধরা পড়ে না।
+     ⚠️ বাদ দিতে `<body data-kh-breaks="off">` বা সেকশনে
+     `class="kh-nobreak"`।
+     ════════════════════════════════════════════════════════ */
+  function khIsBand(el) {
+    if (!el || el.nodeType !== 1) return false;
+    var tag = el.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' ||
+        tag === 'TEMPLATE' || tag === 'NOSCRIPT' || tag === 'BR') return false;
+    if (el.classList.contains('kh-break') || el.classList.contains('kh-nobreak')) return false;
+    /* নেভবার, ফ্লোটিং ও ওভারলে বাদ */
+    if (el.matches('nav, .navbar, .topbar, .kh-glassnav, .wa-float, .btt, [role="dialog"]')) return false;
+    var cs = getComputedStyle(el);
+    if (cs.position === 'fixed' || cs.position === 'absolute' || cs.position === 'sticky') return false;
+    if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+    var r = el.getBoundingClientRect();
+    /* বড় ও কার্যত পুরো চওড়া হলে তবেই "ব্যান্ড" ধরা হয় */
+    return r.height >= 140 && r.width >= document.documentElement.clientWidth * 0.9;
+  }
+
+  /* পর্দার বাইরে গেলে আভা থামানো (ব্যাটারি) */
+  var khBreakObs = null;
+  function khWatchBreak(el) {
+    if (!window.IntersectionObserver) return;
+    if (!khBreakObs) {
+      khBreakObs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          e.target.classList.toggle('kh-break-off', !e.isIntersecting);
+        });
+      }, { rootMargin: '120px 0px' });
+    }
+    el.classList.add('kh-break-off');
+    khBreakObs.observe(el);
+  }
+
+  function khScanBreaks(root) {
+    var kids = Array.prototype.slice.call(root.children);
+    var prevBand = null, made = 0;
+    kids.forEach(function (el) {
+      if (el.classList && el.classList.contains('kh-break')) { prevBand = null; return; }
+      if (!khIsBand(el)) return;
+      if (prevBand) {
+        var br = document.createElement('div');
+        br.className = 'kh-break';
+        br.setAttribute('aria-hidden', 'true');
+        el.parentNode.insertBefore(br, el);
+        khWatchBreak(br);
+        made++;
+      }
+      prevBand = el;
+    });
+    return made;
+  }
+
+  KHUI.mountSectionBreaks = function (root) {
+    if (document.body.dataset.khBreaks === 'off') return 0;
+    if (root) return khScanBreaks(root);
+
+    var made = khScanBreaks(document.body);
+    /* কিছু পেজে (my-dashboard, committee, wallet…) পুরো বিষয়বস্তু
+       একটি মোড়কের ভেতরে থাকে — তখন body-তে কিছুই মেলে না।
+       ⚠️ এক ধাপই নামা হয়, আর কেবল সাধারণ block মোড়কে — flex/grid-এ
+       ৩px-এর একটি সন্তান লেআউট ভেঙে দিতে পারত। */
+    if (!made) {
+      Array.prototype.slice.call(document.body.children).some(function (w) {
+        if (!w || w.nodeType !== 1 || !w.children || w.children.length < 2) return false;
+        var cs = getComputedStyle(w);
+        if (cs.display !== 'block' && cs.display !== 'flow-root') return false;
+        if (cs.position === 'fixed' || cs.position === 'absolute') return false;
+        var r = w.getBoundingClientRect();
+        if (r.width < document.documentElement.clientWidth * 0.9) return false;
+        made = khScanBreaks(w);
+        return made > 0;
+      });
+    }
+    return made;
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -3002,6 +3090,18 @@
     if (document.body.dataset.khStats !== 'off' && document.getElementById('khStats')) {
       KHUI.mountPublicStats();
     }
+    /* সেকশন-ব্রেকের রেখা — ⚠️ ছবি/ফন্ট বসার পর মাপ নিতে হয়,
+       নাহলে উচ্চতা কম দেখে সেকশনগুলো বাদ পড়ে যায়।
+       ⚠️ **দুবার** চালানো হয়: `#khStats`-এর মত ঘর RPC-র উত্তর
+       আসার পর ভরে, প্রথম পাসে তার উচ্চতা ০ থাকে বলে বাদ পড়ত
+       (রিভিউয়ে ধরা পড়ে)। দ্বিতীয় পাস নিরাপদ — আগের রেখা দেখলে
+       গণনা রিসেট হয়, তাই একই জায়গায় দুবার বসে না। */
+    (function () {
+      var run = function () { try { KHUI.mountSectionBreaks(); } catch (e) {} };
+      var go = function () { setTimeout(run, 60); setTimeout(run, 1500); };
+      if (document.readyState === 'complete') go();
+      else window.addEventListener('load', go);
+    })();
     /* স্বাক্ষরের স্মরণিকা — লগইন বসতে একটু সময় দিয়ে */
     if (document.body.dataset.khSig !== 'off') {
       setTimeout(function () { KHUI.mountSignatureReminder(); }, 1400);

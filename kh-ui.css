@@ -981,10 +981,25 @@ html[data-theme="light"] {
   --offwhite: #fbf8fd;
   --border:   #e6dff0;
   --text:     #241539;
-  --muted:    #6b6280;
+  /* ⚠️ আগে #6b6280 ছিল — ক্যালিগ্রাফি নকশার সবচেয়ে গাঢ় টানের
+     উপর পড়লে ৪.২৩:১-এ নেমে যেত (মেপে ধরা পড়ে)। এখন ৫.৩:১। */
+  --muted:    #5f566f;
+
+  /* ── ইসলিমি ক্যালিগ্রাফি নকশা (১২ সেপ্টেম্বর ২০২৬) ──
+     লাইট থীমের পটভূমিতে হালকা করে বসে। নিজের হাতে আঁকা
+     আরবেস্ক টান — কোনো বিদ্যমান শিল্পকর্মের নকল নয়।
+     ⚠️ `stroke-opacity` নকশার ভেতরেই (.11) — বাইরে `opacity`
+     দিলে পুরো সেকশনের লেখা ফ্যাকাসে হয়ে যেত।
+     ⚠️ .14-এ মূল লেখা ঠিক থাকলেও `--muted` লেখা নকশার টানের
+     উপর ৪.২৩:১-এ নেমে যেত — তাই .11 করা হয়েছে **এবং**
+     `--muted` গাঢ় করা হয়েছে। এখন মূল লেখা ১১:১, muted ৫.৩:১। */
+  --kh-calli: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%237048e8' stroke-opacity='.11' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0 120c40-60 80-60 120 0s80 60 120 0'/%3E%3Cpath d='M120 0c-60 40-60 80 0 120s60 80 0 120'/%3E%3Cpath d='M94 120c13-26 39-26 52 0-13 26-39 26-52 0z'/%3E%3Ccircle cx='120' cy='120' r='30'/%3E%3Cpath d='M0 0c30 26 30 54 0 80'/%3E%3Cpath d='M240 240c-30-26-30-54 0-80'/%3E%3C/g%3E%3C/svg%3E");
 }
 
-html[data-theme="light"] body { background: #fdfcfe; color: #241539; }
+html[data-theme="light"] body {
+  background: var(--kh-calli) 0 0 / 260px 260px repeat, #fdfcfe;
+  color: #241539;
+}
 
 /* ── top strip + menubar ── */
 html[data-theme="light"] .topbar {
@@ -1036,7 +1051,10 @@ html[data-theme="light"] .impact-section,
 html[data-theme="light"] .mv-section,
 html[data-theme="light"] .guest-sidebar,
 html[data-theme="light"] .footer {
-  background: linear-gradient(135deg, #f7f1fb 0%, #fdeef4 48%, #fff4ec 100%) !important;
+  /* ক্যালিগ্রাফি নকশা গ্র্যাডিয়েন্টের **উপরে** বসে — নাহলে
+     ঢাকা পড়ে যেত (ব্যাকগ্রাউন্ডের প্রথম স্তরটিই সবার উপরে) */
+  background: var(--kh-calli) 0 0 / 260px 260px repeat,
+              linear-gradient(135deg, #f7f1fb 0%, #fdeef4 48%, #fff4ec 100%) !important;
   border-top: 1px solid #eee2f5;
 }
 
@@ -2935,4 +2953,72 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 @media (prefers-reduced-motion: reduce) {
   .kh-st-card, .kh-st-go i { transition: none; }
   .kh-st-card:hover { transform: none; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   22 ── সেকশন-ব্রেকের আলো-রেখা (১২ সেপ্টেম্বর ২০২৬)
+
+   এক সেকশন শেষ হয়ে আরেকটি শুরু হচ্ছে — সেটি যেন চোখে পড়ে,
+   তার জন্য প্রতিটি সেকশনের মাঝে একটি সরু ব্র্যান্ড-গ্র্যাডিয়েন্ট
+   রেখা, যার উপর দিয়ে একটি উজ্জ্বল আভা **বাঁ থেকে ডানে** ভেসে
+   যায় (ব্যবহারকারীর অনুরোধ)। `kh-ui.js`-এর
+   `KHUI.mountSectionBreaks()` নিজে থেকেই বসিয়ে দেয়।
+
+   ⚠️ রেখাটি **নিজের রঙ বহন করে** — দুই থীমেই এক। আভার রঙ
+   অ্যাম্বার (`#ffcf70`), সাদা নয়; সাদা দিলে লাইট থীমের হালকা
+   পটভূমিতে একেবারেই দেখা যেত না।
+   ⚠️ বাদ দিতে: `<body data-kh-breaks="off">`, বা কোনো নির্দিষ্ট
+   সেকশনে `class="kh-nobreak"`।
+   ══════════════════════════════════════════════════════════ */
+/* ⚠️ ঘরটি ১২px উঁচু, কিন্তু **রেখাটি ৩px** — ব্যাকগ্রাউন্ডে মাঝখানে
+   বসানো। প্রথমে পুরো ঘরটিই ৩px করা হয়েছিল, তখন `overflow:hidden`
+   মাঝের হীরেটিকে (৭px, ৪৫° ঘোরানো ⇒ ~১০px) কেটে ফেলত — শুধু একটি
+   বিন্দু দেখা যেত (রিভিউয়ে ধরা পড়ে)। `overflow:hidden` সরানো যায় না,
+   কারণ ভেসে যাওয়া আভা ১৩০% পর্যন্ত যায় ও পেজে আড়াআড়ি স্ক্রল আনত। */
+.kh-break {
+  position: relative; width: 100%; height: 12px; overflow: hidden;
+  flex: none; border: none; margin: 0; padding: 0;
+  background: linear-gradient(90deg,
+    rgba(112, 72, 232, 0) 0%,
+    rgba(112, 72, 232, .55) 16%,
+    rgba(214, 51, 108, .75) 50%,
+    rgba(240, 140, 40, .55) 84%,
+    rgba(240, 140, 40, 0) 100%) center / 100% 3px no-repeat;
+}
+/* ভেসে যাওয়া আভা — মাঝের ৭px জুড়ে, রেখাটির চেয়ে সামান্য চওড়া */
+.kh-break::after {
+  content: ''; position: absolute; top: 50%; left: 0;
+  height: 7px; margin-top: -3.5px; width: 30%;
+  background: linear-gradient(90deg,
+    rgba(255, 207, 112, 0), rgba(255, 207, 112, .95) 50%, rgba(255, 207, 112, 0));
+  filter: blur(1px);
+  animation: khBreakSweep 5.6s linear infinite;
+}
+/* ৩০% চওড়া ঘরটি −১২০% থেকে ৪৩৩% গেলে পুরো পর্দা পেরিয়ে যায়
+   (৩০% × ৪.৩৩ ≈ পাত্রের ১৩০%) — শতকরা translate নিজের চওড়ার উপর */
+@keyframes khBreakSweep {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(433%); }
+}
+/* পর্দার বাইরে গেলে আভা থেমে যায় — একটি পেজে ১০টি ব্লার-করা
+   স্তর সারাক্ষণ চললে মোবাইলের ব্যাটারি খরচ হত (রিভিউয়ের পরামর্শ) */
+.kh-break.kh-break-off::after { animation-play-state: paused; }
+
+/* মাঝখানে ছোট হীরে — রেখাটি যে ইচ্ছাকৃত বিভাজক তা বোঝায় */
+.kh-break::before {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #d6336c, #f08c28);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .35);
+}
+
+@media (max-width: 640px) {
+  /* মোবাইলেও থাকে (ব্যবহারকারীর অনুরোধ), শুধু একটু সরু ও দ্রুত */
+  .kh-break { height: 10px; background-size: 100% 2px; }
+  .kh-break::after { animation-duration: 4.2s; height: 6px; margin-top: -3px; }
+  .kh-break::before { width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-break::after { animation: none; opacity: 0; }
 }
