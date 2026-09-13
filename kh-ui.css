@@ -985,20 +985,41 @@ html[data-theme="light"] {
      উপর পড়লে ৪.২৩:১-এ নেমে যেত (মেপে ধরা পড়ে)। এখন ৫.৩:১। */
   --muted:    #5f566f;
 
-  /* ── ইসলিমি ক্যালিগ্রাফি নকশা (১২ সেপ্টেম্বর ২০২৬) ──
-     লাইট থীমের পটভূমিতে হালকা করে বসে। নিজের হাতে আঁকা
-     আরবেস্ক টান — কোনো বিদ্যমান শিল্পকর্মের নকল নয়।
-     ⚠️ `stroke-opacity` নকশার ভেতরেই (.11) — বাইরে `opacity`
-     দিলে পুরো সেকশনের লেখা ফ্যাকাসে হয়ে যেত।
-     ⚠️ .14-এ মূল লেখা ঠিক থাকলেও `--muted` লেখা নকশার টানের
-     উপর ৪.২৩:১-এ নেমে যেত — তাই .11 করা হয়েছে **এবং**
-     `--muted` গাঢ় করা হয়েছে। এখন মূল লেখা ১১:১, muted ৫.৩:১। */
-  --kh-calli: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cg fill='none' stroke='%237048e8' stroke-opacity='.11' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M0 120c40-60 80-60 120 0s80 60 120 0'/%3E%3Cpath d='M120 0c-60 40-60 80 0 120s60 80 0 120'/%3E%3Cpath d='M94 120c13-26 39-26 52 0-13 26-39 26-52 0z'/%3E%3Ccircle cx='120' cy='120' r='30'/%3E%3Cpath d='M0 0c30 26 30 54 0 80'/%3E%3Cpath d='M240 240c-30-26-30-54 0-80'/%3E%3C/g%3E%3C/svg%3E");
+  /* ── ক্যালিগ্রাফি পটভূমি (সংশোধন: ১৩ সেপ্টেম্বর ২০২৬) ──
+     এখন **লগইন পেজের সেই ছবিটিই** (`images/auth-bg.jpg`) —
+     ব্যবহারকারীর সিদ্ধান্ত, যাতে সাইটজুড়ে একই ইসলামি ভাষা থাকে।
+     আগে ছিল হাতে আঁকা আরবেস্ক SVG, ২৬০px টাইল।
+     ⚠️ ছবিটি **টাইল করা যায় না** — এটি একটি সম্পূর্ণ শিল্পকর্ম,
+     পুনরাবৃত্তি করলে জোড়া চোখে পড়ত। তাই `center / cover fixed`,
+     অর্থাৎ পুরো পর্দাজুড়ে একটিই ছবি, স্ক্রলেও স্থির।
+     ⚠️ ব্যাকগ্রাউন্ড স্তরে `opacity` দেওয়া যায় না, তাই উপরে একটি
+     **সাদা পর্দা** (`--kh-calli-veil`) বসিয়ে হালকা করা হয়েছে। */
+  --kh-calli: url('images/auth-bg.jpg');
+  /* ⚠️ পর্দার ঘনত্ব .84 — মেপে বাছা। ছবির সবচেয়ে গাঢ় নেভি অংশ
+     এই পর্দার নিচে দাঁড়ায় `rgb(215,217,223)`; তাতে মূল লেখা
+     ১২:১ আর `--muted` লেখা ৪.৯:১। .80 করলে muted ৪.৫:১-এর
+     কিনারায় চলে যেত, আর .88 করলে নকশাটাই চোখে পড়ত না। */
+  --kh-calli-veil: linear-gradient(rgba(253, 252, 254, .84), rgba(253, 252, 254, .84));
 }
 
+/* ⚠️ ছবিটি **কেবল body-তে একবার** বসে (fixed)। বড় ব্যান্ডগুলো
+   নিচে স্বচ্ছ পর্দা হয়ে যায়, তাই একই ছবি সবার ভেতর দিয়ে দেখা যায়
+   — দশটি আলাদা fixed ব্যাকগ্রাউন্ড আঁকার খরচও বেঁচে যায়। */
 html[data-theme="light"] body {
-  background: var(--kh-calli) 0 0 / 260px 260px repeat, #fdfcfe;
+  background: var(--kh-calli-veil),
+              var(--kh-calli) center / cover fixed no-repeat,
+              #fdfcfe;
   color: #241539;
+}
+/* ⚠️ iOS-এ `background-attachment: fixed` ঠিকমতো চলে না — মোবাইলে
+   তাই স্থির নয়, প্রতিটি পর্দায় নিজের মতো বসে। */
+@media (max-width: 768px) {
+  html[data-theme="light"] body {
+    background: var(--kh-calli-veil),
+                var(--kh-calli) center top / cover scroll no-repeat,
+                #fdfcfe;
+    background-attachment: scroll, scroll, scroll;
+  }
 }
 
 /* ── top strip + menubar ── */
@@ -1051,10 +1072,14 @@ html[data-theme="light"] .impact-section,
 html[data-theme="light"] .mv-section,
 html[data-theme="light"] .guest-sidebar,
 html[data-theme="light"] .footer {
-  /* ক্যালিগ্রাফি নকশা গ্র্যাডিয়েন্টের **উপরে** বসে — নাহলে
-     ঢাকা পড়ে যেত (ব্যাকগ্রাউন্ডের প্রথম স্তরটিই সবার উপরে) */
-  background: var(--kh-calli) 0 0 / 260px 260px repeat,
-              linear-gradient(135deg, #f7f1fb 0%, #fdeef4 48%, #fff4ec 100%) !important;
+  /* ⚠️ গ্র্যাডিয়েন্টটি এখন **স্বচ্ছ** (alpha .86) — body-তে বসানো
+     ক্যালিগ্রাফি ছবিটি এর ভেতর দিয়ে হালকাভাবে দেখা যায়। আগে
+     প্রতিটি ব্যান্ডে আলাদা করে নকশা বসানো হত; এক ছবি fixed
+     রাখায় সব ব্যান্ডে ছবিটি **মিলে যায়**, জোড়াও পড়ে না। */
+  background: linear-gradient(135deg,
+      rgba(247, 241, 251, .86) 0%,
+      rgba(253, 238, 244, .86) 48%,
+      rgba(255, 244, 236, .86) 100%) !important;
   border-top: 1px solid #eee2f5;
 }
 
