@@ -399,12 +399,17 @@
       content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
       background: linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent);
     }
-    /* গিরিহ নকশা — দুটি ঘোরানো বর্গ মিলে আট-কোণা তারা।
-       ঘনত্ব ইচ্ছে করেই কম (.09), নাহলে লেখার কনট্রাস্ট নষ্ট হত। */
+    /* ⚠️ নকশাটি এখন **লগইন পেজের সেই ক্যালিগ্রাফি ছবিটিই**
+       (`images/auth-bg.jpg`) — ব্যবহারকারীর সিদ্ধান্ত, ১৩ সেপ্টেম্বর
+       ২০২৬। আগে হাতে আঁকা গিরিহ তারা ছিল; এখন সাইটজুড়ে একই
+       ইসলামি ভাষা থাকে। ছবিটি লগইন পেজে আগেই লোড হয় বলে
+       বেশিরভাগ দর্শকের কাছে ক্যাশ থেকেই আসে।
+       ⚠️ ঘনত্ব ইচ্ছে করেই কম (.18) — ছবির দুই কিনারায় গাঢ় নেভি
+       আছে, বেশি দিলে ইংরেজি অনুবাদের কনট্রাস্ট AA-র নিচে নামত
+       (মেপে দেখা হয়েছে)। */
     .quran-strip::before {
-      content: ''; position: absolute; inset: 0; z-index: 0; opacity: .09;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%2314694f' stroke-width='1'%3E%3Cpath d='M40 6 74 40 40 74 6 40Z'/%3E%3Cpath d='M16 16h48v48H16Z'/%3E%3Ccircle cx='40' cy='40' r='10'/%3E%3Cpath d='M0 0h80v80H0Z'/%3E%3C/g%3E%3C/svg%3E");
-      background-size: 80px 80px;
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: .18;
+      background: url('images/auth-bg.jpg') center / cover no-repeat;
     }
     .quran-strip > * { position: relative; z-index: 1; }
 
@@ -425,13 +430,15 @@
     }
     .quran-kick i { font-size: 14px; color: #ffd98a; }
     /* সোনালি ফুল-নকশার বিভাজক */
-    /* চিপের দুই পাশে সোনালি রেখা — সাজসজ্জা, কোনো লেখা নয়।
+    /* চিপের দুই পাশে সোনালি রেখা — নিছক সাজসজ্জা (`aria-hidden`),
+       কোনো তথ্য বহন করে না। ⚠️ `#cfa04a` ছিল — ক্যালিগ্রাফি ছবির
+       উপর মাত্র ১.৩:১, প্রায় মিলিয়ে যেত; এখন গাঢ় সোনালি ২.১:১।
        (আগের হীরের আইকনটি বাদ: পার্চমেন্টে মাত্র ২.৩৬:১ দিত।) */
     .quran-orn {
       display: block; width: 70px; height: 1px; flex: none;
-      background: linear-gradient(90deg, transparent, #cfa04a);
+      background: linear-gradient(90deg, transparent, #a97615);
     }
-    .quran-orn.r { background: linear-gradient(90deg, #cfa04a, transparent); }
+    .quran-orn.r { background: linear-gradient(90deg, #a97615, transparent); }
 
     .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
     .quran-slide { min-width: 100%; text-align: center; padding: 0 56px; }
@@ -449,8 +456,10 @@
       margin: 0 auto 6px; font-family: 'Hind Siliguri', sans-serif;
       max-width: 780px;
     }
+    /* ⚠️ আগে #4a5f52 ছিল — ক্যালিগ্রাফি ছবির গাঢ় নেভি অংশের উপর
+       পড়লে ৩.৯:১-এ নেমে যেত। এখন গাঢ়, সবচেয়ে খারাপ জায়গাতেও ৫.৪:১ */
     .quran-text-en {
-      color: #4a5f52; font-size: 13px; line-height: 1.6; margin: 0 auto 9px;  /* ৫.৬:১ */
+      color: #37493f; font-size: 13px; line-height: 1.6; margin: 0 auto 9px;
       font-style: italic; max-width: 720px;
     }
     .quran-ref {
