@@ -911,6 +911,7 @@
       };
       list.appendChild(wrap);
     });
+    KHUI._addNavAdminItem();
   };
 
   /* লগ-আউট অবস্থায় হ্যামবার্গার মেনুতে "লগইন" আইটেম */
@@ -921,6 +922,26 @@
       a.className = 'kh-navlogin';
       a.href = 'user-login.html';
       a.innerHTML = '<i class="ti ti-user-circle" aria-hidden="true"></i> লগইন / সাইন আপ';
+      list.appendChild(a);
+    });
+    KHUI._addNavAdminItem();
+  };
+
+  /* ⚠️ মোবাইলে অ্যাডমিন লগইনের কোনো পথ ছিল না (১৩ সেপ্টেম্বর ২০২৬)।
+     "Admin" বাটনটি আছে `.topbar`-এ, আর মোবাইলে `.topbar { display:none }` —
+     তাই অ্যাডমিনকে ডেস্কটপ খুঁজতে হত অথবা হাতে URL লিখতে হত।
+     এখন হ্যামবার্গার মেনুর একদম শেষে একটি আলাদা আইটেম বসে।
+     লগইন থাকুক বা না থাকুক — দুই অবস্থাতেই, কারণ একজন অ্যাডমিন
+     সদস্য হিসেবেও লগইন করা থাকতে পারেন। */
+  KHUI._addNavAdminItem = function () {
+    if (document.body.dataset.khAdminLink === 'off') return;
+    if (/admin-login\.html/i.test(location.pathname)) return;   /* ঐ পেজে অর্থহীন */
+    document.querySelectorAll('.nav-links').forEach(function (list) {
+      if (list.querySelector('.kh-navadmin')) return;
+      var a = document.createElement('a');
+      a.className = 'kh-navadmin';
+      a.href = 'admin-login.html';
+      a.innerHTML = '<i class="ti ti-shield-lock" aria-hidden="true"></i> অ্যাডমিন লগইন';
       list.appendChild(a);
     });
   };
@@ -1882,16 +1903,12 @@
      ══════════════════════════════════════════════════════ */
 
   /* pages without the glass navbar still need a way to switch theme */
-  KHUI.mountThemeButton = function () {
-    if (document.querySelector('.kh-theme-btn')) return;
-    var b = document.createElement('button');
-    b.className = 'kh-theme-btn kh-theme-float';
-    b.setAttribute('aria-label', 'থিম পরিবর্তন করুন');
-    b.innerHTML = '<i class="ti ti-moon" aria-hidden="true"></i>';
-    b.onclick = function () { KHUI.toggleTheme(); };
-    document.body.appendChild(b);
-    KHUI._syncThemeIcon();
-  };
+  /* ⚠️ আলাদা/ভাসমান থীম বাটনটি সম্পূর্ণ বাদ (সিদ্ধান্ত: ১৩ সেপ্টেম্বর ২০২৬)।
+     এখন **সব পেজেই** গ্লাস নেভবার আছে, আর থীম টগলটি তার ভেতরেই
+     (`mountNav()`-এর `.kh-glassnav-top.kh-theme-btn`)। দুটো রাখলে একই
+     জিনিস দুবার থাকত, আর ভাসমানটি অ্যাডমিন টপবারের "লাইভ" ব্যাজ
+     ঢেকে দিত। নতুন কোনো পেজে `data-kh-nav="off"` দিলে থীম বদলানোর
+     পথ থাকবে না — তাই নেভবার সবসময় চালু রাখতে হবে। */
 
   /* ══════════════════════════════════════════════════════
      সাইন-আপ গেট — লগইন ছাড়া ঋণ/সঞ্চয়/দান নেওয়া যাবে না।
@@ -3075,8 +3092,6 @@
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
       if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
-    } else if (document.body.dataset.khTheme !== 'off') {
-      KHUI.mountThemeButton();
     }
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     if (document.body.dataset.khUser !== 'off') KHUI.mountUserChip();

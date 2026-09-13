@@ -624,14 +624,36 @@
       text-decoration: none;
     }
     .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.6); }
+    /* ⚠️ আগে এটি ছিল `background:transparent` + `color:var(--green)`।
+       কিন্তু kh-ui.css-এর "রঙিন ফিলের উপর বসা বাটন" তালিকায় `.call-btn`ও
+       আছে, যা `color:#fff !important` দেয় — ফলে ক্রিম পটভূমিতে সাদা লেখা,
+       দুই থীমেই অদৃশ্য। এখন বাটনটি নিজের গ্র্যাডিয়েন্ট বহন করে
+       (প্রকল্পের ২ নম্বর নিয়ম: সাদা লেখা = রঙিন পটভূমি)। */
     .call-btn {
-      background: transparent; color: var(--green);
-      border: 1.5px solid var(--green);
-      font-size: 14.5px; font-weight: 600; padding: 10px 20px; border-radius: 24px;
-      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .2s;
-      text-decoration: none;
+      background: linear-gradient(112deg,#c2255c 0%,#8b1fb0 55%,#7048e8 100%);
+      color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .2s; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(139,31,176,.38);
     }
-    .call-btn:hover { background: var(--green); color: #fff; }
+    .call-btn i { color: #fff; }
+    .call-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,31,176,.55); }
+
+    /* ── মোবাইলে স্ট্রিপটি দাঁড়িয়ে যায় ──
+       ডেস্কটপে এটি `space-between` করা এক সারি; ছোট পর্দায় বাঁয়ের
+       লম্বা দুই লাইনের লেখা আর ডানের দুটি বাটন একে অপরকে চেপে ধরত। */
+    @media (max-width: 860px) {
+      .cc-strip { flex-direction: column; align-items: center; gap: 18px; padding: 24px 20px; text-align: center; }
+      .cc-left { flex-direction: column; gap: 12px; }
+      .cc-title { font-size: 15px; line-height: 1.45; }
+      .cc-sub { font-size: 12.5px; line-height: 1.65; }
+      .cc-actions { width: 100%; max-width: 430px; }
+      .wa-btn, .call-btn { flex: 1; justify-content: center; min-height: 46px; }
+    }
+    @media (max-width: 430px) {
+      .cc-actions { flex-direction: column; }
+    }
 
     /* ═══════════════════════════════════════
        SUCCESS STORIES
@@ -996,7 +1018,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=21">
+  <link rel="stylesheet" href="kh-ui.css?v=24">
 </head>
 <body data-kh-nav="on">
 
@@ -2412,7 +2434,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=21"></script>
+<script src="kh-ui.js?v=24"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>
