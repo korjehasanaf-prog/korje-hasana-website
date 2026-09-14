@@ -275,9 +275,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=26">
+  <link rel="stylesheet" href="kh-ui.css?v=27">
 </head>
-<body data-kh-nav="on" data-kh-chat="off">
+<body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
 <!-- ACCESS DENIED -->
 <div id="accessDenied">
@@ -386,6 +386,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="sb-section super-only" id="sbSecAdmin">সুপার এডমিন</div>
       <div class="sb-item super-only" id="mi-admin-mgmt" onclick="switchPanel('admin-mgmt')">
         <i class="ti ti-users-group"></i> এডমিন ব্যবস্থাপনা
+      </div>
+      <div class="sb-item super-only" id="mi-chat-kb" onclick="switchPanel('chat-kb')">
+        <i class="ti ti-message-chatbot"></i> চ্যাটবটের জ্ঞানভান্ডার
       </div>
       <div class="sb-item super-only" id="mi-settings" onclick="switchPanel('settings')">
         <i class="ti ti-settings"></i> জেনারেল সেটিংস
@@ -814,6 +817,48 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
 
       <!-- ══════════════ PANEL: GENERAL SETTINGS (super admin) ══════════════ -->
+      <!-- ══ চ্যাটবটের জ্ঞানভান্ডার (সুপার অ্যাডমিন) ══ -->
+      <div class="panel" id="panel-chat-kb">
+        <div class="panel-title">🤖 চ্যাটবটের জ্ঞানভান্ডার</div>
+        <div class="panel-sub">সাইটের "হাসানা সহায়িকা" ঠিক এই লেখাগুলোই জানে। এখানে যা লিখবেন, সাথে সাথেই সে ব্যবহার করতে শুরু করবে।</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-info-circle"></i> কীভাবে কাজ করে</div>
+          <div style="font-size:13.5px;line-height:1.9;color:var(--muted)">
+            • বট <b>কেবল</b> এখানকার লেখা, ওয়েবসাইটের প্রকাশ্য লাইভ হিসাব, আর লগইন করা ব্যক্তির <b>নিজের</b> হিসাব দেখে উত্তর দেয়।<br>
+            • এখানে যা নেই, সে অনুমান করে না — স্পষ্ট বলে দেয় যে জানে না।<br>
+            • কোনো নথি সাময়িকভাবে বন্ধ রাখতে "চালু" টিক তুলে দিন।
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-file-text"></i> নথি যোগ / সম্পাদনা</div>
+          <input type="hidden" id="kbId">
+          <div class="form-grid col3" style="margin-bottom:10px">
+            <div class="fg"><label>শিরোনাম</label>
+              <input type="text" id="kbTitle" placeholder="যেমন: গঠনতন্ত্র (v3)"></div>
+            <div class="fg"><label>ক্রম</label>
+              <input type="number" id="kbSort" value="100"></div>
+            <div class="fg"><label>অবস্থা</label>
+              <label style="display:flex;align-items:center;gap:8px;padding-top:10px">
+                <input type="checkbox" id="kbActive" checked> <span>চালু</span></label></div>
+          </div>
+          <div class="fg"><label>লেখা</label>
+            <textarea id="kbBody" rows="12" placeholder="এখানে নীতিমালা/গঠনতন্ত্রের লেখা পেস্ট করুন…"
+                      style="width:100%;font-family:inherit;font-size:14px;line-height:1.8"></textarea></div>
+          <div id="kbMsg" style="margin:8px 0;font-size:13.5px"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="saveKB()"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button>
+            <button class="btn btn-ghost" onclick="resetKB()"><i class="ti ti-plus"></i> নতুন নথি</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><i class="ti ti-books"></i> নথিসমূহ</div>
+          <div id="kbList"></div>
+        </div>
+      </div>
+
       <div class="panel" id="panel-settings">
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
@@ -1234,7 +1279,8 @@ const PANEL_TITLES = {
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
   'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
-  'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ'
+  'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ',
+  'chat-kb':'চ্যাটবটের জ্ঞানভান্ডার'
 };
 /* ══════════════════════════════════════════════════════
    মোবাইলের সাইডবার-ড্রয়ার (১৪ সেপ্টেম্বর ২০২৬)
@@ -1302,6 +1348,7 @@ function switchPanel(name) {
   if (name === 'prod-loans') loadProdLoans();
   if (name === 'prod-donations') loadProdDonations();
   if (name === 'settings') loadGeneralSettings();
+  if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
   if (name === 'committee-apps') loadCommitteeApps('pending');
   if (name === 'committee-mgmt') loadCommitteeMgmt();
@@ -2569,6 +2616,113 @@ function renderLog(items) {
 }
 
 // ════════════════════════════════════════
+//  চ্যাটবটের জ্ঞানভান্ডার (সুপার অ্যাডমিন)
+//  ⚠️ কাঁচা টেবিলে কারো অধিকার নেই — সব কাজ admin_kb_* RPC দিয়ে,
+//     যেগুলো ভেতরে is_super_admin() যাচাই করে।
+// ════════════════════════════════════════
+function kbEsc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+function kbMsg(kind, text) {
+  const el = document.getElementById('kbMsg');
+  if (!el) return;
+  el.textContent = text || '';
+  el.style.color = kind === 'ok' ? 'var(--success)' : (kind === 'err' ? 'var(--red)' : 'var(--muted)');
+}
+function resetKB() {
+  document.getElementById('kbId').value = '';
+  document.getElementById('kbTitle').value = '';
+  document.getElementById('kbBody').value = '';
+  document.getElementById('kbSort').value = '100';
+  document.getElementById('kbActive').checked = true;
+  kbMsg('', 'নতুন নথি — শিরোনাম ও লেখা দিন।');
+}
+
+async function loadKB() {
+  const host = document.getElementById('kbList');
+  if (!host) return;
+  host.innerHTML = '<div style="color:var(--muted);font-size:13.5px">লোড হচ্ছে…</div>';
+  let rows = null, err = null;
+  try {
+    const r = await _db.rpc('admin_kb_list');
+    rows = r.data; err = r.error;
+  } catch (e) { err = e; }
+  if (err) {
+    host.innerHTML = '<div style="color:var(--red);font-size:13.5px">'
+      + kbEsc(err.message || 'আনা যায়নি') + '</div>';
+    return;
+  }
+  if (!rows || !rows.length) {
+    host.innerHTML = '<div style="color:var(--muted);font-size:13.5px">কোনো নথি নেই।</div>';
+    return;
+  }
+  host.innerHTML = rows.map(r => `
+    <div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <b style="font-size:14px">${kbEsc(r.title)}</b>
+        <span style="font-size:11.5px;padding:2px 8px;border-radius:20px;
+          background:${r.is_active ? 'rgba(34,197,94,.15)' : 'rgba(239,68,68,.15)'};
+          color:${r.is_active ? 'var(--success)' : 'var(--red)'}">
+          ${r.is_active ? 'চালু' : 'বন্ধ'}</span>
+        <span style="font-size:12px;color:var(--muted)">ক্রম ${kbEsc(r.sort_order)} · ${kbEsc(String(r.body || '').length)} অক্ষর</span>
+        <span style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px"
+                  onclick="editKB('${kbEsc(r.id)}')"><i class="ti ti-edit"></i> সম্পাদনা</button>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:12.5px;color:var(--red)"
+                  onclick="deleteKB('${kbEsc(r.id)}')"><i class="ti ti-trash"></i></button>
+        </span>
+      </div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.7;
+                  max-height:46px;overflow:hidden">${kbEsc(String(r.body || '').slice(0, 240))}…</div>
+    </div>`).join('');
+  window._kbRows = rows;
+}
+
+function editKB(id) {
+  const r = (window._kbRows || []).find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('kbId').value = r.id;
+  document.getElementById('kbTitle').value = r.title || '';
+  document.getElementById('kbBody').value = r.body || '';
+  document.getElementById('kbSort').value = r.sort_order ?? 100;
+  document.getElementById('kbActive').checked = !!r.is_active;
+  kbMsg('', 'সম্পাদনা করছেন: ' + (r.title || ''));
+  document.getElementById('kbTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function saveKB() {
+  const id = document.getElementById('kbId').value || null;
+  const title = document.getElementById('kbTitle').value.trim();
+  const bodyTxt = document.getElementById('kbBody').value;
+  const sort = parseInt(document.getElementById('kbSort').value, 10);
+  const active = document.getElementById('kbActive').checked;
+  if (!title) { kbMsg('err', 'শিরোনাম দিন।'); return; }
+  if (!bodyTxt.trim()) { kbMsg('err', 'লেখা দিন।'); return; }
+  kbMsg('', 'সংরক্ষণ হচ্ছে…');
+  try {
+    const { error } = await _db.rpc('admin_kb_save', {
+      p_id: id, p_title: title, p_body: bodyTxt,
+      p_sort: isNaN(sort) ? 100 : sort, p_active: active
+    });
+    if (error) { kbMsg('err', error.message); return; }
+  } catch (e) { kbMsg('err', String(e.message || e)); return; }
+  kbMsg('ok', '✅ সংরক্ষিত হয়েছে — বট এখন থেকেই এটি ব্যবহার করবে।');
+  resetKB();
+  loadKB();
+}
+
+async function deleteKB(id) {
+  if (!confirm('নথিটি মুছে ফেলবেন? বট আর এটি জানবে না।')) return;
+  try {
+    const { error } = await _db.rpc('admin_kb_delete', { p_id: id });
+    if (error) { kbMsg('err', error.message); return; }
+  } catch (e) { kbMsg('err', String(e.message || e)); return; }
+  kbMsg('ok', 'মুছে ফেলা হয়েছে।');
+  loadKB();
+}
+
+// ════════════════════════════════════════
 //  ADMIN MANAGEMENT
 // ════════════════════════════════════════
 const ALL_PERMS = ['cash_donation','savings_entry','installment','expense','loan_approve','donation_approve','savings_approve','view_log','admin_mgmt'];
@@ -3385,6 +3539,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=26"></script>
+<script src="kh-ui.js?v=27"></script>
 </body>
 </html>

@@ -3126,11 +3126,235 @@
     return made;
   };
 
+  /* ══════════════════════════════════════════════════════
+     🤖 হাসানা সহায়িকা — চ্যাটবট + কথা বলা এভাটার
+     (১৪ সেপ্টেম্বর ২০২৬)
+
+     ⚠️ হোয়াটসঅ্যাপ চ্যাট বাটনটি আলাদাই থাকে (ব্যবহারকারীর সিদ্ধান্ত) —
+     এটি তার উপরে বসে, রঙও আলাদা (বেগুনি/গোলাপি বনাম সবুজ)।
+     বন্ধ করতে `<body data-kh-bot="off">`।
+
+     ⚠️ গোপনীয়তা: ব্রাউজার কোনো ব্যক্তিগত তথ্য পাঠায় না — কেবল
+     সেশন টোকেনটি হেডারে যায়। Edge Function ঐ টোকেন দিয়েই
+     ব্যবহারকারীর নিজের RPC ডাকে, তাই RLS-ই সীমা টানে।
+     ══════════════════════════════════════════════════════ */
+
+  var BOT_TIPS = [
+    'কর্জে হাসানা কী?',
+    'সঞ্চয় হিসাব কীভাবে খুলব?',
+    'ঋণের আবেদন কীভাবে করব?',
+    'আজ পর্যন্ত মোট দান কত?'
+  ];
+
+  KHUI.mountAssistant = function () {
+    if (document.body.dataset.khBot === 'off') return;
+    if (document.querySelector('.kh-bot-launch')) return;
+
+    var history = [];
+    var busy = false;
+    var muted = false;
+    try { muted = localStorage.getItem('kh_bot_mute') === '1'; } catch (e) {}
+
+    /* ভিজিটর আইডি — ভিজিটর কাউন্টারের সাথে একই, নতুন কিছু নয় */
+    var vid = '';
+    try {
+      vid = localStorage.getItem('kh_vid') || '';
+      if (!vid && window.crypto && crypto.randomUUID) {
+        vid = crypto.randomUUID();
+        localStorage.setItem('kh_vid', vid);
+      }
+    } catch (e) {}
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'kh-bot-launch';
+    btn.setAttribute('aria-label', 'হাসানা সহায়িকা');
+    btn.title = 'হাসানা সহায়িকা — প্রশ্ন করুন';
+    btn.innerHTML = '<i class="ti ti-message-chatbot" aria-hidden="true"></i>';
+
+    var panel = document.createElement('div');
+    panel.className = 'kh-bot-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-label', 'হাসানা সহায়িকা');
+    panel.innerHTML =
+      '<div class="kh-bot-head">' +
+        '<div class="kh-bot-face" aria-hidden="true">' +
+          '<span class="kh-bot-eye l"></span><span class="kh-bot-eye r"></span>' +
+          '<span class="kh-bot-mouth"></span>' +
+        '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<b>হাসানা সহায়িকা</b>' +
+          '<span>কর্জে হাসানা ফাউন্ডেশন সম্পর্কে জিজ্ঞেস করুন</span>' +
+        '</div>' +
+        '<button type="button" class="kh-bot-mute" aria-label="কণ্ঠস্বর"></button>' +
+        '<button type="button" class="kh-bot-head-x" aria-label="বন্ধ করুন">' +
+          '<i class="ti ti-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="kh-bot-body"></div>' +
+      '<div class="kh-bot-chips"></div>' +
+      '<div class="kh-bot-foot">' +
+        '<input type="text" placeholder="আপনার প্রশ্ন লিখুন…" aria-label="প্রশ্ন">' +
+        '<button type="button" class="kh-bot-send" aria-label="পাঠান">' +
+          '<i class="ti ti-send" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="kh-bot-note">উত্তরগুলো স্বয়ংক্রিয়। নিশ্চিত হতে অফিসে যোগাযোগ করুন।</div>';
+
+    document.body.appendChild(btn);
+    document.body.appendChild(panel);
+
+    var body  = panel.querySelector('.kh-bot-body');
+    var chips = panel.querySelector('.kh-bot-chips');
+    var input = panel.querySelector('.kh-bot-foot input');
+    var send  = panel.querySelector('.kh-bot-send');
+    var muteB = panel.querySelector('.kh-bot-mute');
+
+    function paintMute() {
+      muteB.innerHTML = '<i class="ti ' + (muted ? 'ti-volume-off' : 'ti-volume') + '" aria-hidden="true"></i>';
+      muteB.title = muted ? 'কণ্ঠস্বর চালু করুন' : 'কণ্ঠস্বর বন্ধ করুন';
+    }
+    paintMute();
+
+    /* ⚠️ textContent — উত্তরের লেখা কখনো innerHTML-এ বসানো হয় না */
+    function say(text, kind) {
+      var d = document.createElement('div');
+      d.className = 'kh-bot-msg ' + (kind || 'bot');
+      d.textContent = text;
+      body.appendChild(d);
+      body.scrollTop = body.scrollHeight;
+      return d;
+    }
+
+    function typing(on) {
+      var t = body.querySelector('.kh-bot-typing');
+      if (on && !t) {
+        t = document.createElement('div');
+        t.className = 'kh-bot-typing';
+        t.innerHTML = '<span></span><span></span><span></span>';
+        body.appendChild(t);
+        body.scrollTop = body.scrollHeight;
+      } else if (!on && t) { t.remove(); }
+    }
+
+    /* ব্রাউজারের নিজস্ব কণ্ঠস্বর — সম্পূর্ণ ফ্রি, কোনো সেবা লাগে না।
+       ⚠️ বাংলা ভয়েস সব ডিভাইসে থাকে না; না থাকলে চুপচাপ কিছুই হয় না। */
+    function speak(text) {
+      if (muted || !('speechSynthesis' in window)) return;
+      try {
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(String(text).slice(0, 700));
+        var vs = speechSynthesis.getVoices() || [];
+        var v = null;
+        for (var i = 0; i < vs.length; i++) { if (/^bn/i.test(vs[i].lang)) { v = vs[i]; break; } }
+        if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = 'bn-BD'; }
+        u.rate = 0.98;
+        u.onstart = function () { panel.classList.add('kh-speaking'); };
+        u.onend = u.onerror = function () { panel.classList.remove('kh-speaking'); };
+        speechSynthesis.speak(u);
+      } catch (e) {}
+    }
+
+    function paintChips() {
+      chips.innerHTML = '';
+      if (history.length) return;              /* কথা শুরু হলে আর দেখায় না */
+      BOT_TIPS.forEach(function (t) {
+        var c = document.createElement('button');
+        c.type = 'button';
+        c.className = 'kh-bot-chip';
+        c.textContent = t;
+        c.onclick = function () { input.value = t; ask(); };
+        chips.appendChild(c);
+      });
+    }
+
+    async function ask() {
+      var q = (input.value || '').trim();
+      if (!q || busy) return;
+      busy = true; send.disabled = true;
+      input.value = '';
+      say(q, 'me');
+      paintChips();
+      typing(true);
+
+      var token = '';
+      try {
+        var db = sb();
+        if (db && db.auth) {
+          var s = await db.auth.getSession();
+          token = (s && s.data && s.data.session && s.data.session.access_token) || '';
+        }
+      } catch (e) {}
+
+      var base = window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1';
+      var reply = '';
+      try {
+        var headers = { 'Content-Type': 'application/json' };
+        if (token) headers.Authorization = 'Bearer ' + token;
+        var ctl = new AbortController();
+        var timer = setTimeout(function () { ctl.abort(); }, 50000);
+        var res = await fetch(base + '/kh-chat', {
+          method: 'POST', headers: headers, signal: ctl.signal,
+          body: JSON.stringify({ q: q, visitor: vid, history: history.slice(-8) })
+        });
+        clearTimeout(timer);
+        var out = await res.json();
+        reply = (out && out.reply) || '';
+      } catch (e) {
+        reply = '';
+      }
+
+      typing(false);
+      if (!reply) {
+        say('দুঃখিত, এখন উত্তর আনতে পারছি না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', 'err');
+      } else {
+        say(reply, 'bot');
+        history.push({ role: 'user', content: q });
+        history.push({ role: 'assistant', content: reply });
+        if (history.length > 16) history = history.slice(-16);
+        speak(reply);
+      }
+      busy = false; send.disabled = false;
+      input.focus();
+    }
+
+    function open() {
+      panel.classList.add('kh-open');
+      if (!body.children.length) {
+        say('আসসালামু আলাইকুম! আমি হাসানা সহায়িকা। কর্জে হাসানা ফাউন্ডেশন, আমাদের সেবা বা আপনার নিজের হিসাব — যা জানতে চান জিজ্ঞেস করুন।', 'bot');
+        paintChips();
+      }
+      setTimeout(function () { input.focus(); }, 120);
+    }
+    function close() {
+      panel.classList.remove('kh-open', 'kh-speaking');
+      try { speechSynthesis.cancel(); } catch (e) {}
+    }
+
+    btn.onclick = function () {
+      if (panel.classList.contains('kh-open')) close(); else open();
+    };
+    panel.querySelector('.kh-bot-head-x').onclick = close;
+    muteB.onclick = function () {
+      muted = !muted;
+      try { localStorage.setItem('kh_bot_mute', muted ? '1' : '0'); } catch (e) {}
+      if (muted) { try { speechSynthesis.cancel(); } catch (e) {} panel.classList.remove('kh-speaking'); }
+      paintMute();
+    };
+    send.onclick = ask;
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); ask(); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && panel.classList.contains('kh-open')) close();
+    });
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
       if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
     }
+    /* 🤖 হাসানা সহায়িকা — নেভবার থাকুক বা না থাকুক, নিজের পতাকাতেই চলে */
+    KHUI.mountAssistant();
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     if (document.body.dataset.khUser !== 'off') KHUI.mountUserChip();
     KHUI.enhancePasswords(document);

@@ -3140,3 +3140,167 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 @media (prefers-reduced-motion: reduce) {
   .kh-break::after { animation: none; opacity: 0; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   23 ── 🤖 হাসানা সহায়িকা (চ্যাটবট + কথা বলা এভাটার)
+        ⚠️ হোয়াটসঅ্যাপ চ্যাট বাটনটি আলাদাই থাকে (ব্যবহারকারীর
+        সিদ্ধান্ত: ১৪ সেপ্টেম্বর ২০২৬) — এটি তার **উপরে** বসে।
+        z-index: বাটন ৯৩০১, প্যানেল ৯৪০১ — হোয়াটসঅ্যাপ চ্যাটের
+        (৯৩০০/৯৪০০) ঠিক উপরে, অ্যাডমিন ড্রয়ারের (৯৪৯০) নিচে।
+   ══════════════════════════════════════════════════════════ */
+
+.kh-bot-launch {
+  position: fixed; right: 24px; bottom: 168px; z-index: 9301;
+  width: 60px; height: 60px; border-radius: 50%; border: none;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #7048e8 0%, #a021c9 52%, #d6336c 100%);
+  color: #fff; font-size: 26px; cursor: pointer;
+  box-shadow: 0 8px 26px rgba(122, 54, 200, .45);
+  transition: transform .2s, filter .25s;
+}
+.kh-bot-launch i { color: #fff; }
+.kh-bot-launch:hover  { transform: scale(1.06); filter: brightness(1.08); }
+.kh-bot-launch:active { transform: scale(.94); }
+/* ছোট "নতুন" বিন্দু — প্রথমবার চোখে পড়ার জন্য */
+.kh-bot-launch::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(160, 33, 201, .5);
+  animation: khBotPulse 2.6s ease-out infinite;
+}
+@keyframes khBotPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(160, 33, 201, .45); }
+  70%  { box-shadow: 0 0 0 16px rgba(160, 33, 201, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(160, 33, 201, 0); }
+}
+
+.kh-bot-panel {
+  position: fixed; right: 20px; bottom: 168px; z-index: 9401;
+  width: 366px; max-width: calc(100vw - 28px);
+  height: 540px; max-height: calc(100vh - 210px);
+  display: none; flex-direction: column; overflow: hidden;
+  background: #fff; border-radius: 20px;
+  box-shadow: 0 26px 70px rgba(36, 21, 57, .4);
+  border: 1px solid rgba(36, 21, 57, .1);
+}
+.kh-bot-panel.kh-open { display: flex; }
+
+/* ── মাথা: এভাটার ── */
+.kh-bot-head {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+  background: linear-gradient(112deg, #241539, #5b2c9c 55%, #a021c9);
+  color: #fff; flex-shrink: 0;
+}
+.kh-bot-head b { display: block; font-size: 14.5px; font-weight: 700; color: #fff; }
+.kh-bot-head span { font-size: 11.5px; color: rgba(255, 255, 255, .82); }
+.kh-bot-head-x, .kh-bot-mute {
+  background: rgba(255, 255, 255, .16); border: none; color: #fff;
+  width: 32px; height: 32px; min-height: 32px; border-radius: 9px;
+  cursor: pointer; font-size: 16px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.kh-bot-head-x i, .kh-bot-mute i { color: #fff; }
+.kh-bot-head-x:hover, .kh-bot-mute:hover { background: rgba(255, 255, 255, .3); }
+
+/* এভাটার — কথা বলার সময় মুখ নড়ে। সম্পূর্ণ CSS, কোনো ছবি বা সেবা লাগে না। */
+.kh-bot-face {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; position: relative;
+  background: linear-gradient(160deg, #ffd9a8, #f5b871);
+  border: 2px solid rgba(255, 255, 255, .7);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .25);
+}
+.kh-bot-face i { display: none; }
+.kh-bot-eye {
+  position: absolute; top: 15px; width: 5px; height: 5px; border-radius: 50%;
+  background: #3a2410; animation: khBotBlink 4.4s infinite;
+}
+.kh-bot-eye.l { left: 10px; }
+.kh-bot-eye.r { right: 10px; }
+@keyframes khBotBlink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95%           { transform: scaleY(.1); }
+}
+.kh-bot-mouth {
+  position: absolute; left: 50%; bottom: 10px; width: 14px; height: 4px;
+  margin-left: -7px; border-radius: 0 0 8px 8px; background: #3a2410;
+  transform-origin: top center; transition: height .12s;
+}
+.kh-bot-panel.kh-speaking .kh-bot-mouth { animation: khBotTalk .34s infinite; }
+@keyframes khBotTalk {
+  0%, 100% { height: 3px; }
+  50%      { height: 9px; }
+}
+.kh-bot-panel.kh-speaking .kh-bot-face {
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .25), 0 0 0 4px rgba(255, 255, 255, .28);
+}
+
+/* ── বার্তা ── */
+.kh-bot-body {
+  flex: 1; overflow-y: auto; padding: 14px; background: #faf7fd;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.kh-bot-msg {
+  max-width: 86%; padding: 10px 13px; border-radius: 14px;
+  font-size: 14px; line-height: 1.65; white-space: pre-wrap; word-break: break-word;
+}
+.kh-bot-msg.bot  { align-self: flex-start; background: #fff; color: #2c2440;
+                   border: 1px solid #ece4f4; border-bottom-left-radius: 5px; }
+.kh-bot-msg.me   { align-self: flex-end;  color: #fff; border-bottom-right-radius: 5px;
+                   background: linear-gradient(112deg, #7048e8, #a021c9); }
+.kh-bot-msg.err  { align-self: flex-start; background: #fee2e2; color: #991b1b;
+                   border: 1px solid #fca5a5; }
+.kh-bot-typing { display: flex; gap: 4px; align-self: flex-start; padding: 12px 14px;
+  background: #fff; border: 1px solid #ece4f4; border-radius: 14px; }
+.kh-bot-typing span {
+  width: 7px; height: 7px; border-radius: 50%; background: #a98fd8;
+  animation: khBotDot 1.2s infinite;
+}
+.kh-bot-typing span:nth-child(2) { animation-delay: .18s; }
+.kh-bot-typing span:nth-child(3) { animation-delay: .36s; }
+@keyframes khBotDot { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+
+/* প্রস্তাবিত প্রশ্ন */
+.kh-bot-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; background: #faf7fd; }
+.kh-bot-chip {
+  background: #fff; border: 1px solid #ddd0ee; color: #4a3a80;
+  border-radius: 999px; padding: 7px 12px; font-family: inherit;
+  font-size: 12.5px; font-weight: 600; cursor: pointer; min-height: 34px;
+}
+.kh-bot-chip:hover { background: #f3ecff; border-color: #a021c9; }
+
+/* ── লেখার ঘর ── */
+.kh-bot-foot {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
+  border-top: 1px solid #ece4f4; background: #fff; flex-shrink: 0;
+}
+.kh-bot-foot input {
+  flex: 1; border: 1px solid #ddd0ee; border-radius: 999px;
+  padding: 11px 15px; font-family: inherit; font-size: 14px;
+  background: #faf7fd; color: #241539; outline: none; min-width: 0;
+}
+.kh-bot-foot input:focus { border-color: #a021c9; background: #fff; }
+.kh-bot-send {
+  width: 42px; height: 42px; min-height: 42px; border-radius: 50%; border: none;
+  background: linear-gradient(112deg, #7048e8, #a021c9); color: #fff;
+  font-size: 17px; cursor: pointer; flex-shrink: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.kh-bot-send i { color: #fff; }
+.kh-bot-send:disabled { opacity: .5; cursor: not-allowed; }
+.kh-bot-note {
+  padding: 0 14px 10px; font-size: 11px; color: #6d6379;
+  background: #fff; text-align: center; line-height: 1.5;
+}
+
+/* ⚠️ প্যানেলের ভেতরটা **দুই থীমেই সাদা** — ভাউচার ও প্রোফাইল কার্ডের
+   মতোই। গাঢ় করলে প্রতিটি বার্তার রঙ আলাদা করে মাপতে হত; সাদা রেখে
+   একবারেই নিশ্চিত (লেখা #2c2440 সাদায় ১২.৮:১)। */
+
+@media (max-width: 640px) {
+  .kh-bot-launch { right: 16px; bottom: 156px; width: 54px; height: 54px; font-size: 23px; }
+  .kh-bot-panel  { right: 12px; left: 12px; bottom: 156px; width: auto;
+                   height: auto; max-height: calc(100vh - 190px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-bot-launch::after, .kh-bot-eye { animation: none; }
+  .kh-bot-panel.kh-speaking .kh-bot-mouth { animation: none; height: 6px; }
+}
