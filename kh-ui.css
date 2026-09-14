@@ -1912,18 +1912,48 @@ table { max-width: 100%; }
   }
   .quran-slide { padding: 0 18px !important; }
 
-  /* অ্যাডমিন প্যানেল: সাইডবার উপরে সরে যাবে, টেবিল টেনে দেখা যাবে
+  /* ⚠️ অ্যাডমিন সাইডবার এখন **ড্রয়ার** (সিদ্ধান্ত: ১৪ সেপ্টেম্বর ২০২৬)।
+     আগে সাইডবারটি মোবাইলে `position:static` হয়ে পুরো প্রস্থে উপরে বসত
+     আর `.sb-nav` দুই-কলামে wrap করত — ১৮টি আইটেম + ৭টি শিরোনাম মিলে
+     পর্দার প্রায় পুরোটা খেয়ে ফেলত, আসল কাজ অনেক নিচে নেমে যেত
+     (ব্যবহারকারীর পর্যবেক্ষণ)। এখন বাঁ দিক থেকে স্লাইড করে আসা প্যানেল —
+     টপবারের হ্যামবার্গারে (`.kh-sb-toggle`) খোলে, ব্যাকড্রপে/Esc-এ বন্ধ হয়।
      (!important — কারণ কিছু পেজে kh-ui.css আগে লোড হয়) */
-  html body #sidebar {
-    position: static !important; width: 100% !important; min-width: 0 !important;
-    min-height: 0 !important; height: auto !important;
-  }
   html body #adminLayout { flex-direction: column !important; }
   html body #mainWrap { width: 100% !important; max-width: 100% !important; }
-  html body .sb-nav { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; }
-  html body .sb-item { flex: 1 1 46% !important; min-height: 44px !important; }
-  html body .sb-section { flex: 1 1 100% !important; }
-  html body #adminTopbar { flex-wrap: wrap !important; gap: 8px !important; }
+
+  html body #sidebar {
+    position: fixed !important; top: 0 !important; left: 0 !important;
+    width: 86vw !important; max-width: 320px !important; min-width: 0 !important;
+    height: 100% !important; min-height: 0 !important;
+    z-index: 9500 !important;                 /* গ্লাস নেভ ৯০০০-এর উপরে */
+    overflow-y: auto !important; -webkit-overflow-scrolling: touch;
+    transform: translateX(-100%);
+    transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+    box-shadow: 0 0 44px rgba(0, 0, 0, .55);
+    border-right: 1px solid rgba(240, 140, 40, .25) !important;
+  }
+  html body #sidebar.kh-sb-open { transform: translateX(0); }
+
+  /* ⚠️ পুরো ড্রয়ারটাই স্ক্রল করে, `.sb-nav` আলাদা করে নয় — নাহলে
+     মাথা ও ফুটার আটকে থেকে মাঝের অংশটুকুই কেবল স্ক্রল করত এবং ছোট
+     পর্দায় শেষ আইটেমগুলোয় পৌঁছানো কঠিন হত। **কোনো মেনু বাদ যায় না।** */
+  html body #sidebar .sb-nav {
+    display: block !important; flex: none !important; overflow: visible !important;
+  }
+  html body #sidebar .sb-item { min-height: 44px !important; }
+
+  html body .kh-sb-backdrop {
+    display: block;
+    position: fixed; inset: 0; z-index: 9490;
+    background: rgba(8, 4, 16, .58);
+    opacity: 0; pointer-events: none; transition: opacity .28s;
+  }
+  html body .kh-sb-backdrop.kh-sb-open { opacity: 1; pointer-events: auto; }
+
+  html body .kh-sb-toggle { display: inline-flex !important; }
+
+  html body #adminTopbar { gap: 8px !important; padding: 0 14px !important; }
   html body .panel { padding: 14px !important; }
   html body .tbl-wrap { overflow-x: auto !important; }
   html body .tbl-wrap table { min-width: 640px !important; }   /* ভেতরে টানা যাবে */

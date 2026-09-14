@@ -55,7 +55,12 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .rb-admin{background:rgba(59,130,246,.2);color:#93c5fd;border:1px solid rgba(59,130,246,.3)}
 
 .sb-nav{flex:1;padding:10px 0;overflow-y:auto}
-.sb-section{padding:8px 14px 4px;font-size:11px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase}
+/* ⚠️ আগে `rgba(255,255,255,.25)` ছিল — সাইডবারের গাঢ় সবুজে মেপে মাত্র
+   ২.২৫:১। ড্রয়ার হওয়ার পর এটিই মোবাইলের একমাত্র মেনু, তাই বিভাগের
+   নামগুলো পড়া যাওয়া জরুরি। ভরাট `#9fb3a8` — গ্র্যাডিয়েন্টের দুই প্রান্তেই
+   ৭.৫–৭.৮:১, অথচ সাদা আইটেমের (১৭:১) চেয়ে স্পষ্টভাবে হালকা, তাই
+   স্তরবিন্যাস বজায় থাকে। */
+.sb-section{padding:8px 14px 4px;font-size:11px;font-weight:700;color:#9fb3a8;letter-spacing:.12em;text-transform:uppercase}
 .sb-item{
   display:flex;align-items:center;gap:10px;
   padding:9px 14px;margin:1px 8px;border-radius:8px;
@@ -86,7 +91,18 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
   display:flex;align-items:center;justify-content:space-between;
   padding:0 24px;position:sticky;top:0;z-index:500;flex-shrink:0;
 }
-.tb-left{display:flex;align-items:center;gap:12px}
+.tb-left{display:flex;align-items:center;gap:12px;min-width:0}
+/* হ্যামবার্গার — ডেস্কটপে দরকার নেই (সাইডবার এমনিতেই দেখা যায়),
+   kh-ui.css-এর ৮২০px ব্লক এটিকে মোবাইলে দেখায়। */
+.kh-sb-toggle{
+  display:none;align-items:center;justify-content:center;flex-shrink:0;
+  width:38px;height:38px;min-height:38px;padding:0;border-radius:10px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);
+  color:#fff;font-size:20px;cursor:pointer;
+}
+.kh-sb-toggle:hover{background:rgba(255,255,255,.16)}
+.kh-sb-toggle i{color:#fff}
+.kh-sb-backdrop{display:none}
 .tb-pagetitle{font-size:16px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif}
 .tb-date{font-size:12.5px;color:var(--muted);background:rgba(255,255,255,.05);padding:4px 10px;border-radius:20px}
 .tb-right{display:flex;align-items:center;gap:10px}
@@ -259,7 +275,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=25">
+  <link rel="stylesheet" href="kh-ui.css?v=26">
 </head>
 <body data-kh-nav="on" data-kh-chat="off">
 
@@ -270,6 +286,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   <div class="ad-sub">এই পৃষ্ঠাটি শুধুমাত্র অনুমোদিত অ্যাডমিনদের জন্য</div>
   <button class="ad-btn" onclick="window.location.href='admin-login.html'"><i class="ti ti-login"></i> লগইন করুন</button>
 </div>
+
+<!-- মোবাইল ড্রয়ারের ব্যাকড্রপ — ডেস্কটপে display:none -->
+<div class="kh-sb-backdrop" id="sbBackdrop"></div>
 
 <!-- ADMIN LAYOUT -->
 <div id="adminLayout">
@@ -388,6 +407,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
     <!-- TOPBAR -->
     <header id="adminTopbar">
       <div class="tb-left">
+        <button class="kh-sb-toggle" id="sbToggle" type="button"
+                aria-label="মেনু খুলুন" aria-expanded="false" aria-controls="sidebar">
+          <i class="ti ti-menu-2" aria-hidden="true"></i>
+        </button>
         <div class="tb-pagetitle" id="tbTitle">ড্যাশবোর্ড</div>
         <div class="tb-date" id="tbDate"></div>
       </div>
@@ -1213,7 +1236,51 @@ const PANEL_TITLES = {
   'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
   'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ'
 };
+/* ══════════════════════════════════════════════════════
+   মোবাইলের সাইডবার-ড্রয়ার (১৪ সেপ্টেম্বর ২০২৬)
+   CSS আছে kh-ui.css-এর ৮২০px ব্লকে; ডেস্কটপে এই কোড কিছুই বদলায় না,
+   কারণ ঐ ক্লাসগুলোর কোনো নিয়ম ৮২০px-এর উপরে নেই।
+   ══════════════════════════════════════════════════════ */
+function setAdminDrawer(open) {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  const bd = document.getElementById('sbBackdrop');
+  const tg = document.getElementById('sbToggle');
+  sb.classList.toggle('kh-sb-open', open);
+  if (bd) bd.classList.toggle('kh-sb-open', open);
+  if (tg) {
+    tg.setAttribute('aria-expanded', open ? 'true' : 'false');
+    tg.setAttribute('aria-label', open ? 'মেনু বন্ধ করুন' : 'মেনু খুলুন');
+    const ic = tg.querySelector('i');
+    if (ic) ic.className = open ? 'ti ti-x' : 'ti ti-menu-2';
+  }
+  if (open) sb.scrollTop = 0;     /* প্রতিবার উপর থেকে শুরু */
+}
+function closeAdminDrawer() { setAdminDrawer(false); }
+
+(function () {
+  const tg = document.getElementById('sbToggle');
+  const bd = document.getElementById('sbBackdrop');
+  if (tg) tg.addEventListener('click', function () {
+    const sb = document.getElementById('sidebar');
+    setAdminDrawer(!(sb && sb.classList.contains('kh-sb-open')));
+  });
+  if (bd) bd.addEventListener('click', closeAdminDrawer);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeAdminDrawer();
+  });
+  /* ফুটারের "প্রধান ওয়েবসাইট" ও লগআউট — এগুলো switchPanel() ডাকে না */
+  document.querySelectorAll('.sb-foot .sb-item, .sb-logout').forEach(function (el) {
+    el.addEventListener('click', closeAdminDrawer);
+  });
+  /* ডেস্কটপে ফিরলে খোলা অবস্থাটা ঝুলিয়ে রাখা হয় না */
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 820) closeAdminDrawer();
+  });
+})();
+
 function switchPanel(name) {
+  closeAdminDrawer();                 /* মেনু বাছার সাথে সাথে ড্রয়ার বন্ধ */
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
   const p = document.getElementById('panel-' + name);
@@ -3318,6 +3385,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=25"></script>
+<script src="kh-ui.js?v=26"></script>
 </body>
 </html>
