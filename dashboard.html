@@ -259,7 +259,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=24">
+  <link rel="stylesheet" href="kh-ui.css?v=25">
 </head>
 <body data-kh-nav="on" data-kh-chat="off">
 
@@ -1122,8 +1122,11 @@ async function initAdmin() {
 
   const { data: info, error } = await _db.rpc('get_my_admin_info');
   if (error || !info || info.length === 0) {
-    await _db.auth.signOut();
-    showAccessDenied();
+    /* ⚠️ আগে এখানে `await _db.auth.signOut()` ছিল — অর্থাৎ কোনো সাধারণ
+       সদস্য এই পেজে এলে তাঁর **নিজের সেশনটিও মুছে যেত**, সঞ্চয় পোর্টাল
+       থেকেও বেরিয়ে যেতেন। অ্যাডমিন প্যানেলে ঢুকতে না দেওয়া আর
+       সদস্যকে লগ-আউট করে দেওয়া এক জিনিস নয় (সংশোধন: ১৪ সেপ্টেম্বর ২০২৬)। */
+    showAccessDenied(true);
     return;
   }
   _adminInfo = info[0];
@@ -1180,7 +1183,18 @@ async function loadWalletSummary(){
   }catch(e){ /* summary is non-critical */ }
 }
 
-function showAccessDenied() {
+/* signedIn = লগইন আছে কিন্তু অ্যাডমিন নন — তখন "লগইন করুন" বলা
+   অর্থহীন, বরং নিজের ড্যাশবোর্ডে ফেরার পথ দেখানো হয়। */
+function showAccessDenied(signedIn) {
+  if (signedIn) {
+    const sub = document.querySelector('#accessDenied .ad-sub');
+    const btn = document.querySelector('#accessDenied .ad-btn');
+    if (sub) sub.textContent = 'আপনি লগইন করা আছেন, তবে এই অ্যাকাউন্টটি অ্যাডমিন হিসেবে অনুমোদিত নয়।';
+    if (btn) {
+      btn.innerHTML = '<i class="ti ti-layout-dashboard"></i> আমার ড্যাশবোর্ডে যান';
+      btn.onclick = function () { window.location.href = 'my-dashboard.html'; };
+    }
+  }
   document.getElementById('accessDenied').classList.add('show');
 }
 
@@ -3304,6 +3318,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=24"></script>
+<script src="kh-ui.js?v=25"></script>
 </body>
 </html>

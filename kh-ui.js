@@ -911,7 +911,7 @@
       };
       list.appendChild(wrap);
     });
-    KHUI._addNavAdminItem();
+    KHUI._addNavAdminItem(true);
   };
 
   /* লগ-আউট অবস্থায় হ্যামবার্গার মেনুতে "লগইন" আইটেম */
@@ -924,18 +924,32 @@
       a.innerHTML = '<i class="ti ti-user-circle" aria-hidden="true"></i> লগইন / সাইন আপ';
       list.appendChild(a);
     });
-    KHUI._addNavAdminItem();
+    KHUI._addNavAdminItem(false);
   };
 
   /* ⚠️ মোবাইলে অ্যাডমিন লগইনের কোনো পথ ছিল না (১৩ সেপ্টেম্বর ২০২৬)।
      "Admin" বাটনটি আছে `.topbar`-এ, আর মোবাইলে `.topbar { display:none }` —
      তাই অ্যাডমিনকে ডেস্কটপ খুঁজতে হত অথবা হাতে URL লিখতে হত।
-     এখন হ্যামবার্গার মেনুর একদম শেষে একটি আলাদা আইটেম বসে।
-     লগইন থাকুক বা না থাকুক — দুই অবস্থাতেই, কারণ একজন অ্যাডমিন
-     সদস্য হিসেবেও লগইন করা থাকতে পারেন। */
-  KHUI._addNavAdminItem = function () {
+
+     ⚠️ দুটি আলাদা পথ (সিদ্ধান্ত: ১৪ সেপ্টেম্বর ২০২৬ — ব্যবহারকারী
+     চেয়েছেন "খুব হাইলাইট করার দরকার নেই, ছোট করে কোথাও রাখলেই হবে"):
+       • **লগ-আউট অবস্থায়** — মেনুর একদম শেষে একটি ছোট, শান্ত লিংক
+         → `admin-login.html`।
+       • **লগইন অবস্থায়** — শুধু তিনিই "অ্যাডমিন প্যানেল" আইটেমটি
+         দেখেন যিনি সত্যিই অ্যাডমিন; সেটি বসে সদস্যের কার্ডের ভেতরে
+         এবং সরাসরি `dashboard.html`-এ নিয়ে যায়। **আলাদা করে অ্যাডমিন
+         লগইন করতে হয় না** — একই সেশনেই চলে (`initAdmin()` কেবল
+         `get_my_admin_info()` দেখে, আলাদা লগইন চায় না)।
+       • **সাধারণ সদস্য কিছুই দেখেন না** — মেনু অকারণে ভরে না।
+     যাচাই একই ফাংশনে করা হয় যেটি ড্যাশবোর্ড নিজে ব্যবহার করে
+     (`get_my_admin_info`), তাই "লিংক দেখাল কিন্তু ঢুকতে দিল না" —
+     এমন অমিল হতে পারে না। */
+  KHUI._addNavAdminItem = function (signedIn) {
     if (document.body.dataset.khAdminLink === 'off') return;
     if (/admin-login\.html/i.test(location.pathname)) return;   /* ঐ পেজে অর্থহীন */
+
+    if (signedIn) { khAdminPanelItem(); return; }
+
     document.querySelectorAll('.nav-links').forEach(function (list) {
       if (list.querySelector('.kh-navadmin')) return;
       var a = document.createElement('a');
@@ -945,6 +959,30 @@
       list.appendChild(a);
     });
   };
+
+  /* ⚠️ `rpc()`-এ `.catch()` নেই (প্রকল্পের ৪ নম্বর নিয়ম) — try/catch লাগে।
+     ব্যর্থ হলে চুপচাপ কিছুই বসে না; অ্যাডমিন তখন ডেস্কটপের টপবার বা
+     `admin-login.html` দিয়ে ঢুকতে পারেন। */
+  async function khAdminPanelItem() {
+    var db = sb();
+    if (!db || !db.rpc) return;
+    var rows;
+    try {
+      var r = await db.rpc('get_my_admin_info');
+      rows = r && r.data;
+    } catch (e) { return; }
+    if (!rows || !rows.length) return;        /* সাধারণ সদস্য — কিছুই দেখানো হয় না */
+
+    document.querySelectorAll('.nav-links .kh-navme').forEach(function (wrap) {
+      if (wrap.querySelector('.kh-navadmin')) return;
+      var a = document.createElement('a');
+      a.className = 'kh-navadmin kh-navadmin-in';
+      a.href = 'dashboard.html';
+      a.innerHTML = '<i class="ti ti-shield-lock" aria-hidden="true"></i> অ্যাডমিন প্যানেল';
+      var out = wrap.querySelector('.kh-navme-out');   /* সাইন আউটের ঠিক উপরে */
+      if (out) wrap.insertBefore(a, out); else wrap.appendChild(a);
+    });
+  }
 
   /* গ্লাস নেভে লগইন → শুধু ছবি + প্রোফাইল-পূর্ণতার সবুজ রিং */
   KHUI._mountGlassAvatar = function (p, name) {

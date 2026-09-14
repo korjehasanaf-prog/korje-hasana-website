@@ -1765,22 +1765,50 @@ html[data-theme="light"] .kh-gate-x { color: #6b6280; }
 /* ⚠️ বাটনটি **নিজের ভরাট পটভূমি বহন করে**, স্বচ্ছ নয়। প্রথমে
    `rgba(240,140,40,.16)` + হালকা কমলা লেখা দেওয়া হয়েছিল — কিন্তু
    মেনুর পটভূমি থীমভেদে গাঢ় বা হালকা, তাই হালকা পর্দায় কনট্রাস্ট
-   ১.১৬:১-এ নেমে যাচ্ছিল (ব্রাউজারে মেপে ধরা পড়ে)। এখন অ্যাম্বার
-   গ্র্যাডিয়েন্টে সাদা লেখা — যেকোনো পটভূমিতে ৪.৯:১ থেকে ৬.৯:১,
-   দুই থীমেই এক। সদস্যের গোলাপি-বেগুনি বাটনের সাথেও গুলিয়ে যায় না। */
+   ১.১৬:১-এ নেমে যাচ্ছিল (ব্রাউজারে মেপে ধরা পড়ে)।
+
+   ⚠️ আগে এটি ছিল পূর্ণ-প্রস্থের অ্যাম্বার গ্র্যাডিয়েন্ট বাটন — ব্যবহারকারী
+   বলেছেন "খুব হাইলাইট করার দরকার নেই, ছোট করে কোথাও রাখলেই হবে"
+   (১৪ সেপ্টেম্বর ২০২৬)। এখন ছোট, শান্ত একটি পিল — নিজের ভরাট
+   স্লেট পটভূমিই বহন করে, তাই নিয়মটি ভাঙে না। */
 .kh-navadmin {
-  align-items: center; justify-content: center; gap: 9px;
-  margin: 0 16px 14px; padding: 11px 14px; min-height: 44px;
-  border-radius: 10px; text-decoration: none; border: none;
-  font-family: inherit; font-size: 13.5px; font-weight: 700;
-  background: linear-gradient(112deg, #8a4a00, #b5540e) !important;
-  color: #fff !important;
-  box-shadow: 0 5px 15px rgba(138, 74, 0, .3);
+  align-items: center; justify-content: center; gap: 7px;
+  margin: 2px auto 12px; padding: 8px 15px; min-height: 36px;
+  width: max-content; max-width: calc(100% - 32px);
+  border-radius: 999px; text-decoration: none; border: none;
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  background: #3b3450 !important;
+  color: #e8e3f2 !important;
+  box-shadow: none;
 }
-.kh-navadmin i { font-size: 16px; }
+.kh-navadmin i { font-size: 14px; }
 .kh-navadmin:hover {
-  background: linear-gradient(112deg, #6f3b00, #98460b) !important;
+  background: #4a4266 !important;
   color: #fff !important;
+}
+
+/* লগইন করা অ্যাডমিনের "অ্যাডমিন প্যানেল" — সদস্যের কার্ডের ভেতরে বসে,
+   তাই কার্ডের নিজস্ব রঙই ব্যবহার করা হয় (দুই থীমেই আগে থেকে মাপা,
+   `.kh-navme a`-র মতো হুবহু)। আলাদা করে জ্বলজ্বল করে না। */
+.kh-navadmin-in {
+  width: auto; max-width: none; margin: 0;
+  justify-content: flex-start; gap: 10px;
+  padding: 12px 14px; min-height: 44px; border-radius: 10px;
+  font-size: 14.5px; font-weight: 600;
+  background: rgba(255, 255, 255, .1) !important;
+  color: #fff !important;
+}
+.kh-navadmin-in i { font-size: 17px; }
+.kh-navadmin-in:hover {
+  background: linear-gradient(112deg, rgba(214, 51, 108, .5), rgba(112, 72, 232, .5)) !important;
+  color: #fff !important;
+}
+html[data-theme="light"] .kh-navadmin-in {
+  background: #f4eefb !important; color: #35204f !important;
+}
+html[data-theme="light"] .kh-navadmin-in:hover {
+  background: linear-gradient(112deg, rgba(214, 51, 108, .14), rgba(112, 72, 232, .14)) !important;
+  color: #35204f !important;
 }
 
 html[data-theme="light"] .kh-navme { border-color: rgba(36, 21, 57, .12); }
