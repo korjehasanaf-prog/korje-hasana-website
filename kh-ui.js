@@ -3228,7 +3228,8 @@
 
     function paintMute() {
       muteB.innerHTML = '<i class="ti ' + (muted ? 'ti-volume-off' : 'ti-volume') + '" aria-hidden="true"></i>';
-      muteB.title = muted ? 'কণ্ঠস্বর চালু করুন' : 'কণ্ঠস্বর বন্ধ করুন';
+      muteB.title = muted ? 'কণ্ঠস্বর বন্ধ আছে — কণ্ঠে করা প্রশ্নের উত্তরও লেখায় আসবে'
+                          : 'কণ্ঠস্বর বন্ধ করুন';
     }
     paintMute();
 
@@ -3253,27 +3254,133 @@
       } else if (!on && t) { t.remove(); }
     }
 
-    /* ব্রাউজারের নিজস্ব কণ্ঠস্বর — সম্পূর্ণ ফ্রি, কোনো সেবা লাগে না।
-       ⚠️ বাংলা ভয়েস সব ডিভাইসে থাকে না; না থাকলে চুপচাপ কিছুই হয় না। */
-    function talking(on) {
-      panel.classList.toggle('kh-speaking', !!on);
-      btn.classList.toggle('kh-speaking', !!on);
+    /* ══ 🔊 কণ্ঠস্বর — ব্রাউজারের নিজস্ব, সম্পূর্ণ ফ্রি ════════════
+       ⚠️⚠️ পড়ার আগে লেখা পরিষ্কার করা **আবশ্যক**। মডেলের উত্তরে
+          তারকা, হ্যাশ, বুলেট, ইমোজি, লিংক থাকে — TTS সেগুলোকেও
+          উচ্চারণ করার চেষ্টা করে ও অদ্ভুত শোনায় (ব্যবহারকারীর
+          পর্যবেক্ষণ, ১৫ সেপ্টেম্বর ২০২৬)। `ttsClean()` সেগুলো সরায়। */
+    var speaking = false, speakSeq = 0;
+    var TTS_DROP = /[*_`~#>|\[\](){}<>^=+\\/•·◦▪●■→←↔⇒–—…]/g;
+    var TTS_EMOJI = /[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu;
+
+    function ttsClean(s) {
+      var t = String(s || '');
+      t = t.replace(/```[\s\S]*?```/g, ' ');            /* কোড ব্লক পড়া হয় না */
+      t = t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');    /* [লেখা](লিংক) → লেখা */
+      t = t.replace(/https?:\/\/\S+|www\.\S+/gi, ' লিংক ');
+      t = t.replace(/[\w.+-]+@[\w.-]+\.\w+/g, ' ই-মেইল ঠিকানা ');
+      t = t.replace(TTS_EMOJI, ' ');
+      t = t.replace(/^\s*[-*•·—]+\s+/gm, ' ');          /* বুলেটের দাগ */
+      t = t.replace(/৳\s*/g, ' টাকা ').replace(/[$]\s*/g, ' ডলার ');
+      t = t.replace(/%/g, ' শতাংশ ').replace(/&/g, ' এবং ');
+      t = t.replace(TTS_DROP, ' ');
+      t = t.replace(/([।!?,;:])\1+/g, '$1');
+      return t.replace(/\s+/g, ' ').trim();
     }
 
-    function speak(text) {
-      if (muted || !('speechSynthesis' in window)) { afterSpeak(); return; }
-      try {
-        speechSynthesis.cancel();
-        var u = new SpeechSynthesisUtterance(String(text).slice(0, 700));
-        var vs = speechSynthesis.getVoices() || [];
-        var v = null;
-        for (var i = 0; i < vs.length; i++) { if (/^bn/i.test(vs[i].lang)) { v = vs[i]; break; } }
+    /* লম্বা লেখা টুকরো করে বলা — ক্রোম এক টানে বেশি বললে মাঝপথে কেটে যায় */
+    function ttsChunks(s, max) {
+      var parts = s.split(/(?<=[।.!?])\s+/), out = [], cur = '';
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        while (p.length > max) {                        /* বিশাল বাক্য হলে */
+          var cut = p.lastIndexOf(' ', max); if (cut < max * 0.5) cut = max;
+          out.push(p.slice(0, cut).trim()); p = p.slice(cut);
+        }
+        if ((cur + ' ' + p).trim().length > max) { if (cur) out.push(cur.trim()); cur = p; }
+        else { cur = (cur + ' ' + p).trim(); }
+      }
+      if (cur.trim()) out.push(cur.trim());
+      return out.filter(Boolean);
+    }
+
+    /* ⚠️ ব্যবহারকারীর সিদ্ধান্ত: **ডিফল্টে নরম নারীকণ্ঠ**। বাংলা নারীকণ্ঠ
+       না থাকলে বাংলা পুরুষকণ্ঠ — ভাষা ঠিক থাকাটাই আগে, লিঙ্গ পরে।
+       ⚠️ `getVoices()` প্রথমবার ফাঁকা আসতে পারে, তাই ক্যাশ করা হয় না। */
+    var TTS_F = /(female|woman|girl|নারী|মহিলা|nabanita|tanish|aditi|raveena|kalpana|swara|veena|lekha|heera|sarika|pooja|neerja|kajal|priya|ananya|salma|shruti|isha|zira|hazel|susan|linda|catherine|\beva\b|samantha|karen|fiona|tessa|moira|serena|allison|\bava\b|joanna|kendra|kimberly|salli|nicole|\bamy\b|emma|sonia|libby|maisie|natasha|clara|yasmin)/i;
+    var TTS_M = /(\bmale\b|\bman\b|পুরুষ|bashkar|pradeep|prabhat|madhur|hemant|ravi|\bmark\b|david|george|james|\balex\b|daniel|\bfred\b|oliver|thomas|aaron|arthur|ryan|guy|liam|matthew|justin|joey|brian)/i;
+
+    function pickVoice() {
+      var vs = [];
+      try { vs = speechSynthesis.getVoices() || []; } catch (e) {}
+      if (!vs.length) return null;
+      var forced = '';
+      try { forced = window.KH_TTS_VOICE || localStorage.getItem('kh_bot_voice') || ''; } catch (e) {}
+      if (forced) {
+        for (var k = 0; k < vs.length; k++) {
+          if (vs[k].name === forced || vs[k].voiceURI === forced) return vs[k];
+        }
+      }
+      var best = null, bestScore = -1e9;
+      for (var i = 0; i < vs.length; i++) {
+        var v = vs[i], lg = (v.lang || '').replace('_', '-'), n = v.name || '';
+        var sc = 0;
+        if (/^bn/i.test(lg)) sc += 100;                 /* বাংলা সবার আগে */
+        else if (/^hi/i.test(lg)) sc += 40;
+        else if (/^en-IN/i.test(lg)) sc += 26;
+        else if (/^en/i.test(lg)) sc += 10;
+        else sc -= 40;
+        if (TTS_F.test(n)) sc += 50; else if (TTS_M.test(n)) sc -= 30;
+        if (/google/i.test(n)) sc += 6;                 /* সাধারণত বেশি স্বাভাবিক */
+        if (v.localService) sc += 2;
+        if (sc > bestScore) { bestScore = sc; best = v; }
+      }
+      return best;
+    }
+    /* কণ্ঠের তালিকা দেখতে/বদলাতে: KHUI.botVoices() · KHUI.botVoice('নাম') */
+    KHUI.botVoices = function () {
+      var vs = []; try { vs = speechSynthesis.getVoices() || []; } catch (e) {}
+      return vs.map(function (v) {
+        return { name: v.name, lang: v.lang, female: TTS_F.test(v.name || '') };
+      });
+    };
+    KHUI.botVoice = function (name) {
+      try { localStorage.setItem('kh_bot_voice', name || ''); } catch (e) {}
+      return name || '(স্বয়ংক্রিয়)';
+    };
+    try {
+      if ('speechSynthesis' in window) speechSynthesis.getVoices();
+      if (window.speechSynthesis && 'onvoiceschanged' in speechSynthesis) {
+        speechSynthesis.addEventListener('voiceschanged', function () { pickVoice(); });
+      }
+    } catch (e) {}
+
+    function talking(on) {
+      speaking = !!on;
+      panel.classList.toggle('kh-speaking', !!on);
+      btn.classList.toggle('kh-speaking', !!on);
+      paintNote();
+    }
+
+    function canSpeak() { return !muted && ('speechSynthesis' in window); }
+
+    /* opts: {onStart, onDone} — onDone(started) সব টুকরো বলা শেষ হলে */
+    function speak(text, opts) {
+      opts = opts || {};
+      var done = opts.onDone || function () {};
+      if (!canSpeak()) { done(false); return; }
+      var clean = ttsClean(text);
+      if (!clean) { done(false); return; }
+      var chunks = ttsChunks(clean, 180);
+      var v = pickVoice();
+      var myTurn = ++speakSeq, started = false, idx = 0;
+      try { speechSynthesis.cancel(); } catch (e) {}
+      function next() {
+        if (myTurn !== speakSeq) return;                /* নতুন কথা শুরু হয়েছে */
+        if (idx >= chunks.length) { talking(false); done(started); return; }
+        var u = new SpeechSynthesisUtterance(chunks[idx++]);
         if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = 'bn-BD'; }
-        u.rate = 0.98;
-        u.onstart = function () { talking(true); };
-        u.onend = u.onerror = function () { talking(false); afterSpeak(); };
-        speechSynthesis.speak(u);
-      } catch (e) { afterSpeak(); }
+        u.rate = 0.95; u.pitch = 1.12; u.volume = 1;    /* নরম ও ধীর */
+        u.onstart = function () {
+          if (myTurn !== speakSeq) return;
+          if (!started) { started = true; if (opts.onStart) opts.onStart(); }
+          talking(true);
+        };
+        u.onend = next;
+        u.onerror = function () { if (myTurn === speakSeq) { talking(false); done(started); } };
+        try { speechSynthesis.speak(u); } catch (e) { talking(false); done(started); }
+      }
+      next();
     }
 
     /* ══ 🎙️ কথা বলে প্রশ্ন — Web Speech API ═══════════════════
@@ -3301,8 +3408,15 @@
                       '" aria-hidden="true"></i>';
       hfB.title = handsFree ? 'হ্যান্ডস-ফ্রি চালু আছে — বন্ধ করতে চাপুন'
                             : 'হ্যান্ডস-ফ্রি: টানা কথোপকথন';
-      note.textContent = listening ? '🎙️ শুনছি… বলা শেষ হলেই নিজে থেকে পাঠিয়ে দেব।' : NOTE_DEFAULT;
-      note.classList.toggle('kh-hear', listening);
+      paintNote();
+    }
+
+    /* নিচের নোটটিই ভয়েস মোডের একমাত্র অবস্থা-সূচক */
+    function paintNote() {
+      if (listening)      note.textContent = '🎙️ শুনছি… বলা শেষ হলেই নিজে থেকে পাঠিয়ে দেব।';
+      else if (speaking)  note.textContent = '🔊 কণ্ঠে উত্তর দিচ্ছি…';
+      else                note.textContent = NOTE_DEFAULT;
+      note.classList.toggle('kh-hear', listening || speaking);
     }
 
     function makeRec() {
@@ -3335,7 +3449,7 @@
         listening = false; paintVoice();
         var t = (heard || input.value || '').trim();
         heard = '';
-        if (t) { input.value = t; ask(); }        /* বলা শেষ → নিজে থেকেই পাঠায় */
+        if (t) { input.value = t; ask('voice'); }  /* বলা শেষ → কণ্ঠ মোডে পাঠায় */
         else if (handsFree && wantListen) { setTimeout(startListen, 250); }
       };
       return r;
@@ -3344,6 +3458,7 @@
     function startListen() {
       if (!SR || listening || busy) return;
       if (!panel.classList.contains('kh-open')) return;
+      speakSeq++;                      /* বাকি টুকরোগুলোও থেমে যাক */
       try { speechSynthesis.cancel(); } catch (e) {}
       talking(false);
       heard = ''; wantListen = true;
@@ -3367,18 +3482,39 @@
         c.type = 'button';
         c.className = 'kh-bot-chip';
         c.textContent = t;
-        c.onclick = function () { input.value = t; ask(); };
+        c.onclick = function () { input.value = t; ask('text'); };
         chips.appendChild(c);
       });
     }
 
-    async function ask() {
+    /* ══ 🔁 অডিওর বিনিময়ে অডিও, লেখার বিনিময়ে লেখা ═══════════════
+       (ব্যবহারকারীর সিদ্ধান্ত, ১৫ সেপ্টেম্বর ২০২৬)
+       • কণ্ঠে প্রশ্ন → পর্দায় কেবল **প্রশ্নটি** বসে, উত্তর শুধু কণ্ঠে
+       • লিখে প্রশ্ন → শুধু লেখা, কণ্ঠ একেবারেই নয়
+       ⚠️ কণ্ঠ যদি কোনো কারণে না চলে (মিউট, পুরনো ব্রাউজার, কণ্ঠ নেই)
+          তখন উত্তরটি লেখায় দেখানো হয় — নাহলে উত্তরটাই হারিয়ে যেত। */
+    function voiceReply(text) {
+      var w = document.createElement('div');
+      w.className = 'kh-bot-vrep';
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<i class="ti ti-volume" aria-hidden="true"></i>' +
+                    '<span>কণ্ঠে উত্তর দেওয়া হয়েছে — লেখায় দেখুন</span>';
+      b.onclick = function () { w.remove(); say(text, 'bot'); };
+      w.appendChild(b);
+      body.appendChild(w);
+      body.scrollTop = body.scrollHeight;
+      return function () { if (w.parentNode) { w.remove(); say(text, 'bot'); } };
+    }
+
+    async function ask(mode) {
       var q = (input.value || '').trim();
       if (!q || busy) return;
+      var voiceMode = (mode === 'voice');
       stopListen();            /* পাঠানোর সময় আর শোনা নয় — নিজের কণ্ঠ ধরত */
       busy = true; send.disabled = true;
       input.value = '';
-      say(q, 'me');
+      say(q, 'me');            /* প্রশ্নটি দুই মোডেই দেখা যায় */
       paintChips();
       typing(true);
 
@@ -3410,17 +3546,38 @@
       }
 
       typing(false);
-      if (!reply) {
-        say('দুঃখিত, এখন উত্তর আনতে পারছি না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', 'err');
-      } else {
-        say(reply, 'bot');
-        history.push({ role: 'user', content: q });
-        history.push({ role: 'assistant', content: reply });
-        if (history.length > 16) history = history.slice(-16);
-        speak(reply);
-      }
       busy = false; send.disabled = false;
-      input.focus();
+
+      if (!reply) {
+        /* ত্রুটির বার্তা সবসময় লেখায় — এটি উত্তর নয়, তাই নিয়মের বাইরে */
+        say('দুঃখিত, এখন উত্তর আনতে পারছি না। ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।', 'err');
+        if (voiceMode) afterSpeak();
+        input.focus();
+        return;
+      }
+
+      history.push({ role: 'user', content: q });
+      history.push({ role: 'assistant', content: reply });
+      if (history.length > 16) history = history.slice(-16);
+
+      if (!voiceMode) {
+        say(reply, 'bot');     /* ⚠️ লেখার প্রশ্নে কণ্ঠ নয় — speak() ডাকা হয় না */
+        input.focus();
+        return;
+      }
+
+      var reveal = voiceReply(reply);
+      if (!canSpeak()) { reveal(); afterSpeak(); return; }
+      /* কণ্ঠ শুরু না হলে ~২ সেকেন্ড পর লেখাটাই দেখিয়ে দেওয়া হয় */
+      var guard = setTimeout(reveal, 2000);
+      speak(reply, {
+        onStart: function () { clearTimeout(guard); },
+        onDone: function (started) {
+          clearTimeout(guard);
+          if (!started) reveal();
+          afterSpeak();
+        }
+      });
     }
 
     function open() {
@@ -3435,6 +3592,7 @@
       panel.classList.remove('kh-open');
       talking(false);
       stopListen();                              /* প্যানেল বন্ধ = মাইকও বন্ধ */
+      speakSeq++;
       try { speechSynthesis.cancel(); } catch (e) {}
     }
 
@@ -3445,7 +3603,7 @@
     muteB.onclick = function () {
       muted = !muted;
       try { localStorage.setItem('kh_bot_mute', muted ? '1' : '0'); } catch (e) {}
-      if (muted) { try { speechSynthesis.cancel(); } catch (e) {} talking(false); }
+      if (muted) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} talking(false); }
       paintMute();
     };
 
@@ -3467,9 +3625,10 @@
       };
     }
 
-    send.onclick = ask;
+    /* ⚠️ লেখার পথ — সবসময় 'text', তাই এখানে কণ্ঠ কখনো চলে না */
+    send.onclick = function () { ask('text'); };
     input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); ask(); }
+      if (e.key === 'Enter') { e.preventDefault(); ask('text'); }
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && panel.classList.contains('kh-open')) close();

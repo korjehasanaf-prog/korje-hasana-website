@@ -3339,6 +3339,22 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 }
 .kh-bot-note.kh-hear { color: #b91c1c; font-weight: 700; }   /* সাদায় ৬.৪:১ */
 
+/* ── 🔊 কণ্ঠে দেওয়া উত্তরের জায়গায় বসা এক লাইনের সূচক ──────────
+   ব্যবহারকারীর সিদ্ধান্ত: কণ্ঠে প্রশ্ন করলে পর্দায় **উত্তরের লেখা
+   আসে না**। তবু দরকার হলে দেখার একটি পথ থাকা চাই — তাই এই ছোট
+   বাটনটি; চাপলে ঐ উত্তরটিই সাধারণ বুদবুদ হয়ে বসে।
+   ⚠️ চ্যাটের বুদবুদের মতো দেখতে নয় — ইচ্ছে করেই ফিকে ও ছোট,
+      যাতে "লেখা ফিরে এসেছে" মনে না হয়। */
+.kh-bot-vrep { display: flex; justify-content: flex-start; margin: 2px 0 4px; }
+.kh-bot-vrep button {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border-radius: 14px; cursor: pointer;
+  border: 1px dashed #c3b8d4; background: #f7f3fc; color: #554a68;
+  font: 600 11.5px/1.4 inherit; min-height: 0;                /* ৬.৮:১ */
+}
+.kh-bot-vrep button:hover { background: #efe7f9; border-color: #a58fc4; color: #3f3550; }
+.kh-bot-vrep button i { font-size: 14px; color: #7048e8; flex-shrink: 0; }
+
 /* ── 🎙️ মাইক (কথা বলে প্রশ্ন) ──────────────────────────────
    ⚠️ ব্রাউজার Web Speech API না চিনলে JS বাটনটি বসায়ই না —
    তাই নিষ্ক্রিয় বাটন দেখিয়ে বিভ্রান্ত করা হয় না। */
