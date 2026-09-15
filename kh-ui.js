@@ -3146,6 +3146,20 @@
     'আজ পর্যন্ত মোট দান কত?'
   ];
 
+  /* ══════════════════════════════════════════════════════════
+     🧕 হাসানা সহায়িকার এভাটার — ব্যবহারকারীর দেওয়া ছবি।
+     ছবিটি বসে **CSS-এ** (`.kh-av`-এর background), এখানে কেবল ঘরটুকু
+     ও কথা বলার শব্দতরঙ্গের ব্যাজ। দুই জায়গায় ব্যবহৃত হয়:
+     লঞ্চ বাটন ও প্যানেলের মাথা।
+     ⚠️ ছবি বলে ঠোঁট নড়ানো যায় না — তাই `.kh-speaking` ক্লাসে
+        মাথা-কাঁধ নরমভাবে দোলে ও ব্যাজটি ফুটে ওঠে; `.kh-listening`-এ
+        চারপাশে লাল স্পন্দন। বিস্তারিত ও কারণ kh-ui.css-এ। */
+  function khAvatarHTML() {
+    return '<span class="kh-av" aria-hidden="true">' +
+             '<span class="kh-av-wave"><b></b><b></b><b></b></span>' +
+           '</span>';
+  }
+
   KHUI.mountAssistant = function () {
     if (document.body.dataset.khBot === 'off') return;
     if (document.querySelector('.kh-bot-launch')) return;
@@ -3170,7 +3184,7 @@
     btn.className = 'kh-bot-launch';
     btn.setAttribute('aria-label', 'হাসানা সহায়িকা');
     btn.title = 'হাসানা সহায়িকা — প্রশ্ন করুন';
-    btn.innerHTML = '<i class="ti ti-message-chatbot" aria-hidden="true"></i>';
+    btn.innerHTML = khAvatarHTML();
 
     var panel = document.createElement('div');
     panel.className = 'kh-bot-panel';
@@ -3178,14 +3192,12 @@
     panel.setAttribute('aria-label', 'হাসানা সহায়িকা');
     panel.innerHTML =
       '<div class="kh-bot-head">' +
-        '<div class="kh-bot-face" aria-hidden="true">' +
-          '<span class="kh-bot-eye l"></span><span class="kh-bot-eye r"></span>' +
-          '<span class="kh-bot-mouth"></span>' +
-        '</div>' +
+        '<div class="kh-bot-face" aria-hidden="true">' + khAvatarHTML() + '</div>' +
         '<div style="flex:1;min-width:0">' +
           '<b>হাসানা সহায়িকা</b>' +
           '<span>কর্জে হাসানা ফাউন্ডেশন সম্পর্কে জিজ্ঞেস করুন</span>' +
         '</div>' +
+        '<button type="button" class="kh-bot-hf" aria-label="হ্যান্ডস-ফ্রি" aria-pressed="false" hidden></button>' +
         '<button type="button" class="kh-bot-mute" aria-label="কণ্ঠস্বর"></button>' +
         '<button type="button" class="kh-bot-head-x" aria-label="বন্ধ করুন">' +
           '<i class="ti ti-x" aria-hidden="true"></i></button>' +
@@ -3193,6 +3205,8 @@
       '<div class="kh-bot-body"></div>' +
       '<div class="kh-bot-chips"></div>' +
       '<div class="kh-bot-foot">' +
+        '<button type="button" class="kh-bot-mic" aria-label="কথা বলে প্রশ্ন করুন" aria-pressed="false" hidden>' +
+          '<i class="ti ti-microphone" aria-hidden="true"></i></button>' +
         '<input type="text" placeholder="আপনার প্রশ্ন লিখুন…" aria-label="প্রশ্ন">' +
         '<button type="button" class="kh-bot-send" aria-label="পাঠান">' +
           '<i class="ti ti-send" aria-hidden="true"></i></button>' +
@@ -3207,6 +3221,10 @@
     var input = panel.querySelector('.kh-bot-foot input');
     var send  = panel.querySelector('.kh-bot-send');
     var muteB = panel.querySelector('.kh-bot-mute');
+    var micB  = panel.querySelector('.kh-bot-mic');
+    var hfB   = panel.querySelector('.kh-bot-hf');
+    var note  = panel.querySelector('.kh-bot-note');
+    var NOTE_DEFAULT = note.textContent;
 
     function paintMute() {
       muteB.innerHTML = '<i class="ti ' + (muted ? 'ti-volume-off' : 'ti-volume') + '" aria-hidden="true"></i>';
@@ -3237,8 +3255,13 @@
 
     /* ব্রাউজারের নিজস্ব কণ্ঠস্বর — সম্পূর্ণ ফ্রি, কোনো সেবা লাগে না।
        ⚠️ বাংলা ভয়েস সব ডিভাইসে থাকে না; না থাকলে চুপচাপ কিছুই হয় না। */
+    function talking(on) {
+      panel.classList.toggle('kh-speaking', !!on);
+      btn.classList.toggle('kh-speaking', !!on);
+    }
+
     function speak(text) {
-      if (muted || !('speechSynthesis' in window)) return;
+      if (muted || !('speechSynthesis' in window)) { afterSpeak(); return; }
       try {
         speechSynthesis.cancel();
         var u = new SpeechSynthesisUtterance(String(text).slice(0, 700));
@@ -3247,10 +3270,93 @@
         for (var i = 0; i < vs.length; i++) { if (/^bn/i.test(vs[i].lang)) { v = vs[i]; break; } }
         if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = 'bn-BD'; }
         u.rate = 0.98;
-        u.onstart = function () { panel.classList.add('kh-speaking'); };
-        u.onend = u.onerror = function () { panel.classList.remove('kh-speaking'); };
+        u.onstart = function () { talking(true); };
+        u.onend = u.onerror = function () { talking(false); afterSpeak(); };
         speechSynthesis.speak(u);
-      } catch (e) {}
+      } catch (e) { afterSpeak(); }
+    }
+
+    /* ══ 🎙️ কথা বলে প্রশ্ন — Web Speech API ═══════════════════
+       ⚠️ পুরোটাই ব্রাউজারের ভেতরে — কোনো সার্ভার, খরচ বা API কি লাগে না।
+       ⚠️ ব্রাউজার না চিনলে (যেমন Firefox) বাটন দুটি **বসানোই হয় না** —
+          নিষ্ক্রিয় বাটন দেখিয়ে বিভ্রান্ত করা হয় না।
+       ⚠️⚠️ বট যখন কথা বলে তখন কখনো শোনা হয় না — নাহলে নিজের কণ্ঠস্বরই
+          শুনে ফেলত আর অনন্ত লুপ তৈরি হত। তাই হ্যান্ডস-ফ্রিতে শোনা শুরু
+          হয় কেবল `afterSpeak()` থেকে, অর্থাৎ বলা শেষ হওয়ার পর। */
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var rec = null, listening = false, wantListen = false, heard = '';
+    var handsFree = false;
+    try { handsFree = localStorage.getItem('kh_bot_hf') === '1'; } catch (e) {}
+
+    function paintVoice() {
+      if (!SR) return;
+      micB.classList.toggle('kh-on', listening);
+      micB.setAttribute('aria-pressed', listening ? 'true' : 'false');
+      micB.title = listening ? 'শোনা বন্ধ করুন' : 'কথা বলে প্রশ্ন করুন';
+      panel.classList.toggle('kh-listening', listening);
+      btn.classList.toggle('kh-listening', listening);
+      hfB.classList.toggle('kh-on', handsFree);
+      hfB.setAttribute('aria-pressed', handsFree ? 'true' : 'false');
+      hfB.innerHTML = '<i class="ti ' + (handsFree ? 'ti-headphones' : 'ti-headphones-off') +
+                      '" aria-hidden="true"></i>';
+      hfB.title = handsFree ? 'হ্যান্ডস-ফ্রি চালু আছে — বন্ধ করতে চাপুন'
+                            : 'হ্যান্ডস-ফ্রি: টানা কথোপকথন';
+      note.textContent = listening ? '🎙️ শুনছি… বলা শেষ হলেই নিজে থেকে পাঠিয়ে দেব।' : NOTE_DEFAULT;
+      note.classList.toggle('kh-hear', listening);
+    }
+
+    function makeRec() {
+      var r = new SR();
+      r.lang = window.KH_VOICE_LANG || 'bn-BD';
+      r.interimResults = true;
+      r.continuous = false;               /* এক দমে এক প্রশ্ন — থামলেই শেষ */
+      r.maxAlternatives = 1;
+      r.onstart = function () { listening = true; paintVoice(); };
+      r.onresult = function (ev) {
+        var interim = '';
+        for (var i = ev.resultIndex; i < ev.results.length; i++) {
+          var t = ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) heard += t; else interim += t;
+        }
+        input.value = (heard + interim).trim();   /* বলতে বলতেই লেখা দেখা যায় */
+      };
+      r.onerror = function (ev) {
+        wantListen = false;
+        var e = ev && ev.error;
+        if (e === 'not-allowed' || e === 'service-not-allowed') {
+          handsFree = false;
+          try { localStorage.setItem('kh_bot_hf', '0'); } catch (x) {}
+          say('মাইক ব্যবহারের অনুমতি পাওয়া যায়নি। ঠিকানা বারের পাশের 🔒 আইকনে গিয়ে মাইক্রোফোন "Allow" করে আবার চেষ্টা করুন।', 'err');
+        } else if (e === 'no-speech') {
+          say('কিছু শুনতে পাইনি। আবার চেষ্টা করুন, অথবা লিখে জিজ্ঞেস করুন।', 'err');
+        }
+      };
+      r.onend = function () {
+        listening = false; paintVoice();
+        var t = (heard || input.value || '').trim();
+        heard = '';
+        if (t) { input.value = t; ask(); }        /* বলা শেষ → নিজে থেকেই পাঠায় */
+        else if (handsFree && wantListen) { setTimeout(startListen, 250); }
+      };
+      return r;
+    }
+
+    function startListen() {
+      if (!SR || listening || busy) return;
+      if (!panel.classList.contains('kh-open')) return;
+      try { speechSynthesis.cancel(); } catch (e) {}
+      talking(false);
+      heard = ''; wantListen = true;
+      if (!rec) rec = makeRec();
+      try { rec.start(); } catch (e) {}          /* আগে থেকেই চললে চুপচাপ */
+    }
+    function stopListen() {
+      wantListen = false;
+      if (rec && listening) { try { rec.stop(); } catch (e) {} }
+    }
+    /* বট বলা শেষ করলে — হ্যান্ডস-ফ্রি হলে আবার শোনা শুরু */
+    function afterSpeak() {
+      if (handsFree && panel.classList.contains('kh-open')) setTimeout(startListen, 350);
     }
 
     function paintChips() {
@@ -3269,6 +3375,7 @@
     async function ask() {
       var q = (input.value || '').trim();
       if (!q || busy) return;
+      stopListen();            /* পাঠানোর সময় আর শোনা নয় — নিজের কণ্ঠ ধরত */
       busy = true; send.disabled = true;
       input.value = '';
       say(q, 'me');
@@ -3325,7 +3432,9 @@
       setTimeout(function () { input.focus(); }, 120);
     }
     function close() {
-      panel.classList.remove('kh-open', 'kh-speaking');
+      panel.classList.remove('kh-open');
+      talking(false);
+      stopListen();                              /* প্যানেল বন্ধ = মাইকও বন্ধ */
       try { speechSynthesis.cancel(); } catch (e) {}
     }
 
@@ -3336,9 +3445,28 @@
     muteB.onclick = function () {
       muted = !muted;
       try { localStorage.setItem('kh_bot_mute', muted ? '1' : '0'); } catch (e) {}
-      if (muted) { try { speechSynthesis.cancel(); } catch (e) {} panel.classList.remove('kh-speaking'); }
+      if (muted) { try { speechSynthesis.cancel(); } catch (e) {} talking(false); }
       paintMute();
     };
+
+    /* 🎙️ মাইক ও হ্যান্ডস-ফ্রি — কেবল সমর্থিত ব্রাউজারে দেখা যায় */
+    if (SR) {
+      micB.hidden = false;
+      hfB.hidden = false;
+      paintVoice();
+      micB.onclick = function () {
+        if (listening) stopListen(); else startListen();
+      };
+      hfB.onclick = function () {
+        handsFree = !handsFree;
+        try { localStorage.setItem('kh_bot_hf', handsFree ? '1' : '0'); } catch (e) {}
+        paintVoice();
+        /* চালু করলে সাথে সাথেই শোনা শুরু — এটি ব্যবহারকারীর ক্লিক,
+           তাই মাইকের অনুমতি চাওয়াও এখানেই স্বাভাবিক */
+        if (handsFree) startListen(); else stopListen();
+      };
+    }
+
     send.onclick = ask;
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); ask(); }

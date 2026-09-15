@@ -3151,7 +3151,8 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 
 .kh-bot-launch {
   position: fixed; right: 24px; bottom: 168px; z-index: 9301;
-  width: 60px; height: 60px; border-radius: 50%; border: none;
+  width: 62px; height: 62px; border-radius: 50%; border: none;
+  box-sizing: border-box; padding: 3px;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, #7048e8 0%, #a021c9 52%, #d6336c 100%);
   color: #fff; font-size: 26px; cursor: pointer;
@@ -3159,6 +3160,10 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
   transition: transform .2s, filter .25s;
 }
 .kh-bot-launch i { color: #fff; }
+/* ⚠️ প্যাডিং ৩px = ব্র্যান্ড রঙের রিং; ভেতরে এভাটারের নিজস্ব ক্রিম বৃত্ত,
+   তাই বাটনটি যে পটভূমির উপরেই পড়ুক এভাটার আলাদা হয়ে থাকে।
+   ⚠️ এখানে `background` shorthand দেওয়া যাবে না — সেটি `.kh-av`-এর
+      `background-image` (এভাটারের ছবি) মুছে দিত। */
 .kh-bot-launch:hover  { transform: scale(1.06); filter: brightness(1.08); }
 .kh-bot-launch:active { transform: scale(.94); }
 /* ছোট "নতুন" বিন্দু — প্রথমবার চোখে পড়ার জন্য */
@@ -3201,33 +3206,75 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 .kh-bot-head-x i, .kh-bot-mute i { color: #fff; }
 .kh-bot-head-x:hover, .kh-bot-mute:hover { background: rgba(255, 255, 255, .3); }
 
-/* এভাটার — কথা বলার সময় মুখ নড়ে। সম্পূর্ণ CSS, কোনো ছবি বা সেবা লাগে না। */
+/* ══ এভাটার (`.kh-av`) — হাসানা সহায়িকার ছবি ══════════════
+   ব্যবহারকারীর দেওয়া ছবি (হিজাব ও হেডসেট পরা সেবিকা)।
+   ⚠️ মূল ফাইলটি ছিল ১,৯৬৫ KB — প্রতিটি পেজে বসানোর জন্য অনেক ভারী।
+      তাই মাথা-কাঁধ বরাবর বর্গাকারে কেটে (মূলের ৯%,১% থেকে ৬৪%)
+      ২২৪px ও ৪৪৮px দুটি JPEG বানানো হয়েছে — **১০ KB ও ২৮ KB**।
+   ⚠️ ছবিটি আছে Supabase স্টোরেজে (পাবলিক বাকেট `site-assets`,
+      পথ `bot/`), কারণ বাশ স্যান্ডবক্স বন্ধ থাকায় বাইনারি ফাইল
+      প্রকল্পের ফোল্ডারে কপি করা যায়নি। CDN থেকে আসে, এক বছরের
+      ক্যাশ হেডারসহ। **বদলাতে হলে কেবল নিচের দুটি URL বদলালেই হবে** —
+      অথবা `images/`-এ ফাইল রেখে আপেক্ষিক পথ বসালেও চলবে।
+   ⚠️ বাকেটে **লেখার অনুমতি নেই** (আপলোডের সাময়িক পলিসি ড্রপ করা
+      হয়েছে) — যাচাই: anon আপলোডে `violates row-level security`। */
+.kh-av {
+  display: block; width: 100%; height: 100%; border-radius: 50%;
+  position: relative; background-color: #fff4ea;
+  background-repeat: no-repeat; background-position: center; background-size: cover;
+  /* ফলব্যাক আগে (সব ব্রাউজারে), তারপর রেটিনার জন্য image-set */
+  background-image: url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg");
+  background-image: -webkit-image-set(
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar.jpg") 1x,
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg") 2x);
+  background-image: image-set(
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar.jpg") 1x,
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg") 2x);
+}
+
+/* ⚠️ ছবি বলে ঠোঁট নড়ানো যায় না — তাই "কথা বলা" বোঝানো হয় দুইভাবে:
+   ① মাথা-কাঁধের নরম দোলা (khAvNod), ② কোণে শব্দতরঙ্গের ব্যাজ।
+   দুটো একসাথে দেখলে স্পষ্ট বোঝা যায় সে এখন বলছে। */
+.kh-speaking .kh-av { animation: khAvNod 1.15s ease-in-out infinite; }
+@keyframes khAvNod {
+  0%, 100% { transform: translateY(0)     rotate(0)       scale(1); }
+  30%      { transform: translateY(-2.5%) rotate(-1.3deg) scale(1.015); }
+  65%      { transform: translateY(1.5%)  rotate(1deg)    scale(1.005); }
+}
+.kh-av-wave {
+  position: absolute; right: -3%; bottom: -3%; width: 42%; height: 42%;
+  border-radius: 50%; box-shadow: 0 0 0 2px #fff;
+  background: linear-gradient(135deg, #7048e8, #d6336c);
+  display: none; align-items: center; justify-content: center; gap: 8%;
+}
+.kh-speaking .kh-av-wave { display: flex; }
+.kh-av-wave b {
+  width: 10%; height: 30%; border-radius: 2px; background: #fff;
+  animation: khAvWave .72s ease-in-out infinite;
+}
+.kh-av-wave b:nth-child(2) { animation-delay: .14s; }
+.kh-av-wave b:nth-child(3) { animation-delay: .28s; }
+@keyframes khAvWave {
+  0%, 100% { transform: scaleY(.5); }
+  50%      { transform: scaleY(1.8); }
+}
+/* শোনার সময় — চারপাশে লাল স্পন্দন (মাইক চালু আছে তা এক নজরে বোঝা যায়) */
+.kh-bot-launch.kh-listening,
+.kh-bot-panel.kh-listening .kh-bot-face { animation: khAvListen 1.3s ease-out infinite; }
+@keyframes khAvListen {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, .55); }
+  70%  { box-shadow: 0 0 0 11px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+/* ⚠️ `overflow: hidden` ইচ্ছে করেই নেই — থাকলে কথা বলার শব্দতরঙ্গের
+   ব্যাজটি (কোণায় বসে) কেটে যেত। ছবিটি `.kh-av`-এর নিজের
+   `border-radius: 50%` দিয়েই গোল হয়। */
 .kh-bot-face {
-  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; position: relative;
-  background: linear-gradient(160deg, #ffd9a8, #f5b871);
-  border: 2px solid rgba(255, 255, 255, .7);
+  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+  background-color: #fff4ea;
+  border: 2px solid rgba(255, 255, 255, .75);
   box-shadow: 0 3px 12px rgba(0, 0, 0, .25);
-}
-.kh-bot-face i { display: none; }
-.kh-bot-eye {
-  position: absolute; top: 15px; width: 5px; height: 5px; border-radius: 50%;
-  background: #3a2410; animation: khBotBlink 4.4s infinite;
-}
-.kh-bot-eye.l { left: 10px; }
-.kh-bot-eye.r { right: 10px; }
-@keyframes khBotBlink {
-  0%, 92%, 100% { transform: scaleY(1); }
-  95%           { transform: scaleY(.1); }
-}
-.kh-bot-mouth {
-  position: absolute; left: 50%; bottom: 10px; width: 14px; height: 4px;
-  margin-left: -7px; border-radius: 0 0 8px 8px; background: #3a2410;
-  transform-origin: top center; transition: height .12s;
-}
-.kh-bot-panel.kh-speaking .kh-bot-mouth { animation: khBotTalk .34s infinite; }
-@keyframes khBotTalk {
-  0%, 100% { height: 3px; }
-  50%      { height: 9px; }
 }
 .kh-bot-panel.kh-speaking .kh-bot-face {
   box-shadow: 0 3px 12px rgba(0, 0, 0, .25), 0 0 0 4px rgba(255, 255, 255, .28);
@@ -3290,17 +3337,55 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
   padding: 0 14px 10px; font-size: 11px; color: #6d6379;
   background: #fff; text-align: center; line-height: 1.5;
 }
+.kh-bot-note.kh-hear { color: #b91c1c; font-weight: 700; }   /* সাদায় ৬.৪:১ */
+
+/* ── 🎙️ মাইক (কথা বলে প্রশ্ন) ──────────────────────────────
+   ⚠️ ব্রাউজার Web Speech API না চিনলে JS বাটনটি বসায়ই না —
+   তাই নিষ্ক্রিয় বাটন দেখিয়ে বিভ্রান্ত করা হয় না। */
+.kh-bot-mic {
+  width: 42px; height: 42px; min-height: 42px; border-radius: 50%;
+  border: 1px solid #ddd0ee; background: #f3ecff; color: #5b2c9c;
+  font-size: 18px; cursor: pointer; flex-shrink: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .18s, color .18s, border-color .18s;
+}
+.kh-bot-mic i { color: inherit; }
+.kh-bot-mic:hover { background: #e9dcff; border-color: #a021c9; }
+.kh-bot-mic.kh-on {                       /* শোনার সময় — সাদা লেখায় ৫.৯:১ */
+  background: #dc2626; border-color: #dc2626; color: #fff;
+  animation: khMicPulse 1.3s ease-out infinite;
+}
+@keyframes khMicPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, .5); }
+  70%  { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+/* হ্যান্ডস-ফ্রি টগল — মাথার ভেতরে, মিউট বাটনের পাশে */
+.kh-bot-hf {
+  background: rgba(255, 255, 255, .16); border: none; color: #fff;
+  width: 32px; height: 32px; min-height: 32px; border-radius: 9px;
+  cursor: pointer; font-size: 16px; flex-shrink: 0; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.kh-bot-hf i { color: inherit; }
+.kh-bot-hf:hover { background: rgba(255, 255, 255, .3); }
+.kh-bot-hf.kh-on { background: #fff; color: #5b2c9c; }   /* সাদায় ৮.৯:১ */
 
 /* ⚠️ প্যানেলের ভেতরটা **দুই থীমেই সাদা** — ভাউচার ও প্রোফাইল কার্ডের
    মতোই। গাঢ় করলে প্রতিটি বার্তার রঙ আলাদা করে মাপতে হত; সাদা রেখে
    একবারেই নিশ্চিত (লেখা #2c2440 সাদায় ১২.৮:১)। */
 
 @media (max-width: 640px) {
-  .kh-bot-launch { right: 16px; bottom: 156px; width: 54px; height: 54px; font-size: 23px; }
+  .kh-bot-launch { right: 16px; bottom: 156px; width: 56px; height: 56px; font-size: 23px; }
   .kh-bot-panel  { right: 12px; left: 12px; bottom: 156px; width: auto;
                    height: auto; max-height: calc(100vh - 190px); }
+  .kh-bot-mic    { width: 40px; height: 40px; min-height: 40px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .kh-bot-launch::after, .kh-bot-eye { animation: none; }
-  .kh-bot-panel.kh-speaking .kh-bot-mouth { animation: none; height: 6px; }
+  .kh-bot-launch::after, .kh-bot-mic.kh-on { animation: none; }
+  .kh-speaking .kh-av { animation: none; }
+  .kh-av-wave b { animation: none; height: 45%; }   /* ব্যাজ থাকে, নড়ে না */
+  .kh-bot-launch.kh-listening,
+  .kh-bot-panel.kh-listening .kh-bot-face { animation: none; box-shadow: 0 0 0 3px #dc2626; }
 }
