@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>কর্জে হাসানা ফাউন্ডেশন — দান</title>
+
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  Glassy Payment Checkout — সংযুক্ত ভিডিওর হুবহু নকল।
+
+  ভিডিও থেকে পিক্সেল মেপে নেওয়া রঙ:
+    PAY বাটনের গ্র্যাডিয়েন্ট  #fec40a → #fba208 → #ff8a08
+    চিপ                        #f7ab24
+    লোগো                       #efb627
+    কার্ডের পট                 #191725 → #14151a
+    পেজের পট                   #08060b
+
+  তিনটি অবস্থা:  ফর্ম  →  Processing Secure Transaction…  →  Payment Successful!
+  ═══════════════════════════════════════════════════════════════════
+-->
+
+<style>
+/* ⚠️ Outfit-এ বাংলা বর্ণ নেই — মাথার নামটির জন্য Hind Siliguri,
+      ঠিক যেটি `kh-ui.css`-এ সাইটজুড়ে ব্যবহার হয়। বাকি সব লেখা
+      ইংরেজিই (ব্যবহারকারীর সিদ্ধান্ত), তাই সেখানে Outfit-ই থাকে। */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --ink:        #08060b;
+  --gold:       #f5b93c;
+  --gold-hi:    #fec40a;
+  --gold-mid:   #fba208;
+  --gold-lo:    #ff8a08;
+  --emerald:    #10b981;
+  --card-a:     #1c1a2b;
+  --card-b:     #141420;
+  --glass:      rgba(255,255,255,.045);
+  --glass-line: rgba(255,255,255,.10);
+  --txt:        #f2efe9;
+  --muted:      #9a938c;
+  --muted-2:    #6f6a66;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--txt);
+  font: 400 15px/1.5 Outfit, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: grid; place-items: center;
+  /* ⚠️⚠️ `minmax(0, 1fr)` ছাড়া কলামটি ভেতরের সবচেয়ে চওড়া জিনিসের
+     মাপ ধরে রাখে। বাংলা নামটি ইংরেজির চেয়ে লম্বা হওয়ায় ৩৬০px-এ
+     পুরো পাতটি ৩৭px বেড়ে গিয়ে আড়াআড়ি স্ক্রল এনে দিয়েছিল
+     (মেপে ধরা পড়ে — `scrollWidth − clientWidth = 67`)। */
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh; padding: 34px 20px;
+  overflow-x: hidden;
+}
+
+/* ══ ১. পটভূমি — বয়ে চলা সোনালি রেশমি ফিতা ═══════════════════
+   ⚠️ কোনো ছবি নেই; পুরোটাই ঘোরানো ও ঝাপসা করা উপবৃত্ত, তাই
+      ফাইলটি একা চলে ও যেকোনো মাপে ঝকঝকে থাকে।                  */
+/* ══ পটভূমি — লগইন পেজের ইসলামি ক্যালিগ্রাফি ════════════════
+   ব্যবহারকারীর সিদ্ধান্ত (২১ সেপ্টেম্বর ২০২৬): সোনালি রেশমি ফিতা
+   বাদ, সাইটের বাকি জায়গার মতো `images/auth-bg.jpg` — তাতে
+   লগইন পেজ, কুরআনের স্ট্রিপ ও এই পেজ একই ভাষায় কথা বলে।
+   ⚠️ ছবিটি ১২০ KB ও লগইন পেজেও ব্যবহৃত, তাই বেশির ভাগ দর্শকের
+      কাছে ক্যাশ থেকেই আসে — বাড়তি খরচ প্রায় নেই।               */
+.silk {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: url('images/auth-bg.jpg') center / cover no-repeat fixed;
+}
+/* ⚠️ ব্যাকগ্রাউন্ড স্তরে `opacity` দেওয়া যায় না — তাই ছবির উপরে
+   আলাদা পর্দা। ঘনত্ব মেপে বাছা (নিচের যাচাই দেখুন)। */
+.veil {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 50% 42%, rgba(6,4,10,.62) 0%, rgba(4,3,7,.86) 56%, rgba(2,1,4,.96) 100%),
+    linear-gradient(180deg, rgba(3,2,5,.72), rgba(3,2,5,.40) 26%, rgba(3,2,5,.40) 74%, rgba(2,1,4,.86));
+}
+/* সোনালি আভাটুকু রাখা হয়েছে — নাহলে সোনালি PAY বাটন ও চিপ
+   পর্দায় একা পড়ে যায়, পুরো পাতাটা ঠান্ডা দেখায়। */
+.glow {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(52% 40% at 18% 16%, rgba(240,164,40,.16), transparent 70%),
+    radial-gradient(46% 38% at 84% 82%, rgba(214,51,108,.10), transparent 72%);
+}
+/* ⚠️ iOS-এ `background-attachment: fixed` ঠিকমতো চলে না */
+@media (max-width: 768px) {
+  .silk { background-attachment: scroll; background-position: center top; }
+}
+
+/* ══ ২. কাচের পাত ═══════════════════════════════════════════
+   ⚠️ উপরের-বাঁ ও নিচের-ডান কোণ কাটা — ভিডিওর মতো। কাটা কোণ
+      clip-path দিয়ে, তাই বেড়টাও ::before দিয়ে আলাদা আঁকা হয়।  */
+.wrap { position: relative; z-index: 2; width: min(1120px, 100%); }
+
+.pane {
+  position: relative;
+  padding: 26px 34px 30px;
+  /* ⚠️ কাচটি **গাঢ়** — পেছনের সোনালি আলো কেবল আভা হয়ে আসে,
+        নাহলে পুরো পাতটাই কমলা দেখায় (ভিডিওতে পাতটি কালচে)। */
+  background: linear-gradient(152deg, rgba(14,12,18,.72), rgba(10,9,14,.80) 48%, rgba(16,13,20,.70));
+  backdrop-filter: blur(26px) saturate(115%) brightness(.9);
+  -webkit-backdrop-filter: blur(26px) saturate(115%) brightness(.9);
+  border-radius: 22px;
+  clip-path: polygon(88px 0, 100% 0, 100% calc(100% - 88px), calc(100% - 88px) 100%, 0 100%, 0 88px);
+  box-shadow: 0 40px 120px -50px #000, inset 0 1px 0 rgba(255,255,255,.07);
+}
+.pane::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  border-radius: 22px;
+  background: linear-gradient(140deg, rgba(255,255,255,.22), rgba(255,255,255,.04) 30%, transparent 55%, rgba(255,255,255,.10));
+  clip-path: polygon(88px 0, 100% 0, 100% calc(100% - 88px), calc(100% - 88px) 100%, 0 100%, 0 88px,
+                     0 88px, 1px 88px, 1px calc(100% - 1px), calc(100% - 88px - .4px) calc(100% - 1px),
+                     calc(100% - 1px) calc(100% - 88px), calc(100% - 1px) 1px, 88.4px 1px, 1px 88.4px, 1px 88px, 0 88px);
+}
+/* ⚠️⚠️ বন্ধনী দুটি `.pane`-এর **বাইরে** রাখতে হয়েছে — `.pane`-এ
+      clip-path আছে, আর clip-path সব সন্তানকেও কেটে দেয়, তাই
+      ভেতরে রাখলে একেবারেই দেখা যেত না (পরীক্ষায় ধরা পড়েছে)। */
+.bracket {
+  position: absolute; z-index: 3; width: 128px; height: 128px; pointer-events: none;
+  border: 1px solid rgba(255,255,255,.15);
+}
+.bracket--tl {
+  left: -30px; top: -30px;
+  border-right: 0; border-bottom: 0;
+  border-radius: 22px 0 0 0;
+}
+.bracket--tl::after {
+  content: ''; position: absolute; left: -1px; top: 100%; width: 128px; height: 1px;
+  background: rgba(255,255,255,.15);
+  transform-origin: 0 0; transform: rotate(-45deg);
+}
+.bracket--br {
+  right: -30px; bottom: -30px;
+  border-left: 0; border-top: 0;
+  border-radius: 0 0 22px 0;
+}
+.bracket--br::after {
+  content: ''; position: absolute; right: -1px; bottom: 100%; width: 128px; height: 1px;
+  background: rgba(255,255,255,.15);
+  transform-origin: 100% 100%; transform: rotate(-45deg);
+}
+
+/* ══ ৩. মাথা ═══════════════════════════════════════════════ */
+.head { display: flex; align-items: center; gap: 14px; padding-bottom: 20px; }
+.logo {
+  width: 38px; height: 38px; border-radius: 11px; flex: none;
+  display: grid; place-items: center;
+  background: linear-gradient(140deg, #ffd35c, #efb627 45%, #d98c10);
+  box-shadow: 0 8px 22px -10px rgba(245,185,60,.9);
+}
+.logo svg { width: 20px; height: 20px; color: #3a2506; }
+/* ⚠️⚠️ মূল ভিডিওতে "CHECKOUT" অক্ষরগুলো ফাঁকা ফাঁকা করে বসানো
+      (`letter-spacing: .22em`) — **বাংলায় এই কৌশল খাটে না**:
+      যুক্তাক্ষর ভেঙে যায় ও কার-মাত্রা তার অক্ষর থেকে সরে পড়ে।
+      তাই "দান" ফাঁক ছাড়া, কেবল হালকা ওজন ও ফিকে রঙে আলাদা করা। */
+.brand {
+  font: 700 17px/1.45 'Hind Siliguri', Outfit, sans-serif;
+  letter-spacing: 0; white-space: nowrap;
+}
+.brand span {
+  font-weight: 400; font-size: 14px; letter-spacing: 0;
+  color: var(--muted); margin-left: 9px;
+}
+
+.steps { margin-left: auto; display: flex; align-items: center; gap: 24px; }
+.step { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--muted); }
+.step b { font-weight: 400; }
+.step i {
+  width: 19px; height: 19px; border-radius: 50%; flex: none;
+  display: grid; place-items: center;
+  border: 1.4px solid rgba(16,185,129,.55); color: var(--emerald);
+}
+.step i svg { width: 10px; height: 10px; }
+.step.is-now { color: var(--gold); }
+.step.is-now b { font-weight: 600; }
+.step.is-now i {
+  border: 0; background: linear-gradient(140deg, #ffd35c, #efb627);
+  color: #3a2506; font: 700 11px/1 Outfit, sans-serif;
+}
+.rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.13) 12%, rgba(255,255,255,.13) 88%, transparent); }
+
+/* ══ ৪. দুই কলাম ═══════════════════════════════════════════ */
+.cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 46px;
+  padding-top: 30px; align-items: start;
+}
+/* ⚠️ `min-width: 0` না দিলে গুটিয়ে যাওয়া কলামটিও তার ভেতরের
+      লেখার সর্বনিম্ন প্রস্থ ধরে রাখে, তাই `0fr` শূন্যে নামে না। */
+.cols > * { min-width: 0; }
+
+/* ── কার্ড ─────────────────────────────────────────────────── */
+.cardwrap { display: grid; justify-items: center; gap: 18px; perspective: 1400px; }
+.card3d {
+  width: 100%; max-width: 396px; aspect-ratio: 1.62 / 1;
+  position: relative; transform-style: preserve-3d;
+  transition: transform .82s cubic-bezier(.4,.1,.2,1);
+}
+.cardwrap.is-flipped .card3d { transform: rotateY(180deg); }
+
+.face {
+  position: absolute; inset: 0;
+  border-radius: 20px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: linear-gradient(145deg, var(--card-a), var(--card-b) 62%, #191622);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 30px 60px -30px #000, inset 0 1px 0 rgba(255,255,255,.07);
+  overflow: hidden;
+  padding: 22px 24px;
+  display: flex; flex-direction: column;
+}
+/* ⚠️ কার্ডের গায়েও একই ক্যালিগ্রাফি — কিন্তু **খুব চাপা** (.14)।
+   বেশি দিলে নম্বর ও নামের পেছনে নকশা ফুটে উঠে পড়া কঠিন করে দেয়;
+   কার্ডের লেখাগুলো ছোট ও পাতলা, তাই এখানে পর্দা মোটা রাখতেই হয়। */
+/* ⚠️⚠️ `mix-blend-mode` দেওয়া যাবে না — সেটি সোনালি চিপ ও
+   PLATINUM লেখার রঙ ধুয়ে ধূসর করে দেয় (পরীক্ষায় ধরা পড়ে)।
+   সাধারণ opacity + `z-index: 0` যথেষ্ট; লেখাগুলো z-index 2-এ। */
+.face::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: url('images/auth-bg.jpg') center / cover no-repeat;
+  opacity: .11;
+}
+.face::after {                                  /* কাচের তির্যক ঝিলিক */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(118deg, rgba(255,255,255,.10) 0%, transparent 34%, transparent 66%, rgba(255,255,255,.05) 100%);
+}
+/* ভেতরের সব লেখা নকশার উপরে */
+.crow, .pan, .foot { position: relative; z-index: 2; }
+.face--back { transform: rotateY(180deg); padding: 0; }
+
+.crow { display: flex; align-items: center; gap: 11px; }
+.chip {
+  width: 42px; height: 31px; border-radius: 7px; flex: none;
+  background: linear-gradient(140deg, #ffd35c, #f7ab24 48%, #d2870d);
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
+}
+.chip::before, .chip::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 1.4px;
+  background: rgba(90,55,5,.55);
+}
+.chip::before { top: 9.5px; } .chip::after { top: 20px; }
+.chipbar { position: absolute; top: 0; bottom: 0; left: 14px; width: 1.4px; background: rgba(90,55,5,.55); }
+.chipbar + .chipbar { left: 28px; }
+.wave { color: rgba(255,255,255,.42); }
+.wave svg { width: 17px; height: 17px; display: block; }
+.tier {
+  margin-left: auto; color: var(--gold);
+  font: 600 11px/1 Outfit, sans-serif; letter-spacing: .26em;
+}
+.pan {
+  margin-top: auto; padding-bottom: 20px;
+  font: 500 21px/1 "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: .055em; color: #eef1f6;
+  text-shadow: 0 2px 10px rgba(0,0,0,.5);
+  min-height: 21px;
+}
+.foot { display: flex; align-items: flex-end; gap: 34px; }
+.foot small { display: block; font-size: 8.5px; letter-spacing: .17em; color: var(--muted-2); text-transform: uppercase; margin-bottom: 5px; }
+.foot b { font: 600 13.5px/1 Outfit, sans-serif; color: #e9ecf2; letter-spacing: .04em; }
+.visa {
+  margin-left: auto; font: 800 19px/1 Outfit, sans-serif;
+  font-style: italic; letter-spacing: .01em; color: #fff;
+}
+
+/* কার্ডের পিঠ */
+.mag { height: 46px; margin-top: 26px; background: #0b0a10; }
+.cvvrow { display: flex; align-items: center; gap: 12px; padding: 22px 24px 0; }
+.cvvbar { flex: 1; height: 34px; border-radius: 5px; background: linear-gradient(90deg,#e9e5dc,#cfcac0); }
+.cvvbox {
+  min-width: 62px; height: 34px; border-radius: 5px; background: #fff;
+  display: grid; place-items: center;
+  font: 700 15px/1 "JetBrains Mono", monospace; color: #17151c; letter-spacing: .12em;
+}
+.backnote { padding: 14px 24px; font-size: 10.5px; color: var(--muted-2); letter-spacing: .04em; }
+
+.flip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: #cfc9c2; font: 500 12.5px/1 Outfit, sans-serif;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+}
+.flip:hover { background: rgba(255,255,255,.09); color: #fff; border-color: rgba(255,255,255,.2); }
+.flip svg { width: 13px; height: 13px; }
+
+.badges { display: flex; gap: 22px; font-size: 11.5px; color: var(--muted-2); }
+.badges span { display: inline-flex; align-items: center; gap: 6px; }
+.badges svg { width: 12px; height: 12px; }
+.badges .ok { color: var(--emerald); }
+.badges .lk { color: var(--gold); }
+
+/* ── ফর্ম ──────────────────────────────────────────────────── */
+.form h2 { margin: 0; font: 700 24px/1.2 Outfit, sans-serif; letter-spacing: -.01em; }
+.form p.sub { margin: 6px 0 22px; font-size: 13px; color: var(--muted-2); }
+
+.field { margin-bottom: 15px; }
+.field > label { display: block; margin-bottom: 7px; font-size: 12.5px; color: var(--muted); }
+.box {
+  position: relative; display: flex; align-items: center; gap: 11px;
+  height: 46px; padding: 0 15px;
+  border-radius: 11px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.09);
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.box:focus-within {
+  border-color: rgba(245,185,60,.8);
+  background: rgba(245,185,60,.05);
+  box-shadow: 0 0 0 3px rgba(245,185,60,.10), 0 0 22px -6px rgba(245,185,60,.7);
+}
+.box > svg.ic { width: 16px; height: 16px; color: var(--muted-2); flex: none; }
+.box:focus-within > svg.ic { color: var(--gold); }
+/* ⚠️ Luhn চেকসাম না মিললে লাল বেড় — ভুল নম্বর নীরবে যেতে দেওয়া হয় না */
+.box.is-bad { border-color: rgba(248,113,113,.75); background: rgba(248,113,113,.06); }
+.box.is-bad:focus-within { box-shadow: 0 0 0 3px rgba(248,113,113,.12); }
+.box input {
+  flex: 1; min-width: 0; height: 100%;
+  border: 0; outline: 0; background: none; color: var(--txt);
+  font: 500 14.5px/1 Outfit, sans-serif; letter-spacing: .02em;
+}
+.box input::placeholder { color: #55504c; font-weight: 400; }
+.box input.mono { font-family: "JetBrains Mono", monospace; font-size: 13.5px; letter-spacing: .07em; }
+.tag { font: 700 12px/1 Outfit, sans-serif; letter-spacing: .05em; color: #c9c3bc; font-style: italic; }
+.eye { border: 0; background: none; padding: 0; cursor: pointer; color: var(--muted-2); display: grid; place-items: center; }
+.eye:hover { color: var(--gold); }
+.eye svg { width: 16px; height: 16px; }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+/* ⚠️ এখানেও `min-width: 0` লাগে — নাহলে CVV-র ঘরটি (আইকন + ইনপুট
+   + চোখের বাটন) নিজের min-content প্রস্থ ধরে রাখে ও ১০২৪px-এ
+   ডান দিকে ৫২px বেরিয়ে যায় (মেপে ধরা পড়ে)। */
+.pair > * { min-width: 0; }
+
+/* ══ দানের পরিমাণ ══════════════════════════════════════════
+   ⚠️ আগে অঙ্কটি হার্ডকোড ছিল ($1,234.00) — দাতা নিজের ইচ্ছেমতো
+      অঙ্ক দিতে পারতেন না (ব্যবহারকারীর পর্যবেক্ষণ)।            */
+.amt .box { padding-left: 13px; }
+.amt .cur {
+  font: 700 17px/1 'Hind Siliguri', Outfit, sans-serif;
+  color: var(--gold); flex: none;
+}
+.amt input { font: 600 17px/1 Outfit, sans-serif; letter-spacing: .01em; }
+/* ⚠️⚠️ নাম `.amt-chip` — `.chip` **আগে থেকেই দখলে**, ওটি কার্ডের
+   সোনালি চিপ (`width:42px; height:31px; সোনালি গ্র্যাডিয়েন্ট`)।
+   প্রথমে `.chip` নাম দেওয়ায় অঙ্কের চিপগুলো ৪২px-এ কেটে গিয়েছিল
+   **আর কার্ডের সোনালি চিপটিও ধূসর হয়ে গিয়েছিল** — একই নামের
+   দুটি নিয়ম পরস্পরকে চাপা দিচ্ছিল (পরীক্ষায় ধরা পড়ে)।
+   নিয়ম: নতুন ক্লাস বানানোর আগে নামটি ফাইলে আছে কি না দেখে নিতে হবে। */
+.amt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+.amt-chip {
+  flex: none; white-space: nowrap;
+  padding: 6px 13px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.11);
+  background: rgba(255,255,255,.04); color: #b9b2ab;
+  font: 500 12.5px/1 'Hind Siliguri', Outfit, sans-serif;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.amt-chip:hover { background: rgba(255,255,255,.09); color: #fff; }
+.amt-chip.is-on {
+  background: linear-gradient(120deg, rgba(254,196,10,.18), rgba(255,138,8,.16));
+  border-color: rgba(245,185,60,.6); color: var(--gold); font-weight: 600;
+}
+
+/* ══ কার্ডের ধরনের চিহ্ন ═══════════════════════════════════
+   ⚠️ কোনো ছবি নয় — প্রতিটি মার্ক CSS/SVG-তে আঁকা, তাই ফাইলটি
+      একা চলে ও ব্র্যান্ডের লোগো-ফাইল ব্যবহারের প্রশ্নও ওঠে না। */
+.mark { display: inline-flex; align-items: center; gap: 5px; flex: none; height: 20px; }
+.mark--none { display: none; }
+.mark b {
+  font: 800 12.5px/1 Outfit, sans-serif; font-style: italic;
+  letter-spacing: .02em; color: #e7e2db;
+}
+.mark--amex b, .mark--jcb b, .mark--unionpay b, .mark--diners b, .mark--maestro b, .mark--discover b {
+  font-style: normal; font-weight: 700; font-size: 10.5px; letter-spacing: .08em;
+  padding: 3.5px 6px; border-radius: 4px; color: #0f1116;
+}
+.mark--amex b      { background: #1f72cd; color: #fff; }
+.mark--discover b  { background: #f27712; color: #fff; }
+.mark--diners b    { background: #0079be; color: #fff; }
+.mark--jcb b       { background: #0b4ea2; color: #fff; }
+.mark--unionpay b  { background: #d8232a; color: #fff; }
+.mark--maestro b   { background: #6c6bbd; color: #fff; }
+.mark--visa b      { color: #f4f1ec; font-size: 14px; }
+/* মাস্টারকার্ডের দুটি বৃত্ত */
+.mark--mc i {
+  width: 30px; height: 19px; display: block; position: relative; flex: none;
+}
+.mark--mc i::before, .mark--mc i::after {
+  content: ''; position: absolute; top: 0; width: 19px; height: 19px; border-radius: 50%;
+}
+.mark--mc i::before { left: 0;  background: #eb001b; }
+.mark--mc i::after  { right: 0; background: #f79e1b; mix-blend-mode: multiply; }
+.mark--mc b { display: none; }
+/* কার্ডের গায়ের বড় চিহ্ন */
+.visa .mark b { font-size: 19px; color: #fff; }
+.visa .mark--mc i { width: 44px; height: 28px; }
+.visa .mark--mc i::before, .visa .mark--mc i::after { width: 28px; height: 28px; }
+.visa .mark--amex b, .visa .mark--discover b, .visa .mark--diners b,
+.visa .mark--jcb b, .visa .mark--unionpay b, .visa .mark--maestro b {
+  font-size: 12px; padding: 4.5px 8px;
+}
+
+.total {
+  display: flex; align-items: center; margin: 20px 0 16px;
+  height: 52px; padding: 0 18px; border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  font-size: 13.5px; color: var(--muted);
+}
+.total b { margin-left: auto; font: 700 20px/1 Outfit, sans-serif; color: var(--gold); letter-spacing: .01em; }
+
+.pay {
+  width: 100%; height: 54px; border: 0; cursor: pointer;
+  border-radius: 13px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  background: linear-gradient(90deg, var(--gold-hi), var(--gold-mid) 52%, var(--gold-lo));
+  color: #2a1a02;
+  font: 700 15px/1 Outfit, sans-serif; letter-spacing: .06em;
+  box-shadow: 0 16px 38px -16px rgba(251,162,8,.85);
+  transition: transform .18s ease, box-shadow .25s ease, filter .25s ease;
+}
+.pay:hover { transform: translateY(-1px); box-shadow: 0 22px 46px -16px rgba(251,162,8,1); filter: brightness(1.05); }
+.pay:active { transform: translateY(0); }
+.pay:disabled { cursor: default; filter: saturate(.5) brightness(.8); box-shadow: none; }
+.pay svg { width: 16px; height: 16px; }
+
+.back {
+  display: block; margin: 14px auto 0; border: 0; background: none; cursor: pointer;
+  color: var(--muted-2); font: 400 12.5px/1 Outfit, sans-serif;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px; border-radius: 999px; transition: color .2s ease, background .2s ease;
+}
+.back:hover { color: #cfc9c2; background: rgba(255,255,255,.04); }
+.back svg { width: 13px; height: 13px; }
+.backrow { display: grid; place-items: center; }
+
+/* ══ ৫. অবস্থা বদল ═══════════════════════════════════════════
+   ⚠️ ফর্মটি DOM থেকে সরে না — উচ্চতা ও স্বচ্ছতা দিয়ে গুটিয়ে যায়,
+      তাই কার্ডটি মাঝখানে সরে আসার সময় লাফ দেয় না।              */
+/* ⚠️ পাতের উচ্চতা স্থির রাখা — নাহলে ফর্ম গুটিয়ে গেলে পুরো
+      পাতটি হঠাৎ ছোট হয়ে লাফ দেয় (প্রথম চেষ্টায় ধরা পড়ে)। */
+/* ⚠️⚠️ `.pane`-এ clip-path আছে, আর clip-path সন্তানদেরও কাটে —
+      তাই ফলাফলের লেখা পাতের নিচের কিনারা ছাড়ালে **অদৃশ্য** হয়ে
+      যায় (পরীক্ষায় ধরা পড়েছে)। min-height তাই কার্ড + বাটন +
+      ব্যাজ + ফলাফল — সবটুকুর জায়গা ধরে রাখে।                   */
+.stage { position: relative; min-height: 476px; }
+.form { transition: opacity .4s ease, transform .5s cubic-bezier(.4,0,.2,1); }
+
+/* ⚠️⚠️ **দ্বিতীয়** কলামটি (ফর্ম) গুটোতে হবে, প্রথমটি নয় —
+      `0fr 1fr` দিলে উল্টো কার্ডের ঘরটাই মুছে যেত। */
+.cols { transition: grid-template-columns .65s cubic-bezier(.5,0,.15,1), gap .65s ease; }
+body.busy .cols, body.done .cols { grid-template-columns: 1fr 0fr; gap: 0; }
+body.busy .form, body.done .form {
+  opacity: 0; transform: translateY(12px); pointer-events: none;
+  visibility: hidden; overflow: hidden; height: 0;
+  transition: opacity .3s ease, transform .3s ease, visibility .3s, height 0s .3s;
+}
+body.busy .card3d, body.done .card3d { max-width: 452px; }
+.card3d { transition: transform .82s cubic-bezier(.4,.1,.2,1), max-width .65s cubic-bezier(.4,0,.2,1); }
+
+.flip, .badges { transition: opacity .3s ease, visibility .3s; }
+body.busy .flip, body.busy .badges,
+body.done .flip, body.done .badges { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* প্রক্রিয়াধীন অবস্থায় কার্ডের চারপাশে সোনালি আভা */
+body.busy .face { border-color: rgba(245,185,60,.75); box-shadow: 0 0 34px -6px rgba(245,185,60,.45), 0 30px 60px -30px #000; }
+body.done .face--front {
+  background: linear-gradient(145deg, #1f9d6d, #12b981 48%, #0d7a58);
+  border-color: rgba(255,255,255,.22);
+  box-shadow: 0 0 40px -8px rgba(16,185,129,.55), 0 30px 60px -30px #000;
+}
+body.done .pan, body.done .foot b, body.done .visa { color: #fff; }
+body.done .foot small { color: rgba(255,255,255,.62); }
+body.done .tier { color: #eaffd8; }
+
+/* ⚠️ ফলাফলের অংশটি কার্ডের ঘরের **ভেতরে**, ঠিক কার্ডের নিচে —
+      absolute হলে ফর্ম গুটিয়ে যাওয়ার পর ভুল জায়গায় পড়ত। */
+.result {
+  display: grid; justify-items: center; gap: 9px;
+  margin-top: -6px;
+  opacity: 0; visibility: hidden; transform: translateY(10px);
+  height: 0; overflow: visible;
+  transition: opacity .45s ease .15s, transform .45s ease .15s, visibility .45s;
+}
+body.busy .result, body.done .result { opacity: 1; visibility: visible; transform: none; height: auto; }
+
+.spin { width: 40px; height: 40px; }
+.spin circle { fill: none; stroke-width: 3.2; }
+.spin .trk { stroke: rgba(255,255,255,.10); }
+.spin .arc { stroke: var(--gold); stroke-linecap: round; stroke-dasharray: 34 96; transform-origin: 50% 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+body.done .spin { display: none; }
+
+.tick { width: 44px; height: 44px; display: none; color: var(--emerald); }
+body.done .tick { display: block; }
+.tick circle, .tick path { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.tick circle { stroke-dasharray: 126; stroke-dashoffset: 126; animation: draw .5s ease forwards; }
+.tick path { stroke-dasharray: 32; stroke-dashoffset: 32; animation: draw .3s ease .38s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.result h3 { margin: 4px 0 0; font: 700 19px/1.2 Outfit, sans-serif; }
+.result p  { margin: 0; font-size: 12.5px; color: var(--muted-2); }
+.result p b { color: var(--gold); font-weight: 600; }
+/* প্রক্রিয়াধীন অবস্থায় কেবল ঘূর্ণি ও "Processing…", সফল হলে কেবল
+   টিক, শিরোনাম ও বার্তা — ⚠️ দুটো একসাথে দেখা যাবে না। */
+body.busy .result h3, body.busy .result p:not(#stat), body.busy .again { display: none; }
+body.done #stat { display: none; }
+
+.again {
+  margin-top: 8px; display: none;
+  align-items: center; gap: 8px;
+  padding: 9px 18px; border-radius: 999px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.05);
+  color: #cfc9c2; font: 500 12.5px/1 Outfit, sans-serif;
+}
+body.done .again { display: inline-flex; }
+.again:hover { background: rgba(255,255,255,.1); color: #fff; }
+.again svg { width: 13px; height: 13px; }
+
+/* ══ ৬. ছোট পর্দা ═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .pane { padding: 22px 20px 26px; clip-path: polygon(56px 0, 100% 0, 100% calc(100% - 56px), calc(100% - 56px) 100%, 0 100%, 0 56px); }
+  .cols { grid-template-columns: 1fr; gap: 28px; }
+  body.busy .cols, body.done .cols { grid-template-columns: 1fr; }
+  .steps { gap: 14px; }
+  .step b { display: none; }
+  .step.is-now b { display: inline; }
+  .head { gap: 10px; }
+}
+@media (max-width: 700px) {
+  /* ⚠️ বাংলা নামটি ইংরেজি "CODEXR"-এর চেয়ে অনেক লম্বা, তাই ছোট
+     পর্দায় ফন্ট নামিয়ে আনা ও `nowrap` তুলে দেওয়া — নাহলে নামটি
+     পুরো পাতটাকেই চওড়া করে ফেলে। */
+  .brand { font-size: 14.5px; white-space: normal; }
+  .brand span { font-size: 12.5px; margin-left: 7px; }
+  .head { flex-wrap: wrap; row-gap: 10px; }
+  .steps { margin-left: auto; }
+}
+
+/* ⚠️ বন্ধনী দুটি পাতের **বাইরে** ৩০px বসে। পর্দা ১১৬০px-এর নিচে
+   নামলেই পাতটি বডির ২০px প্যাডিং ছুঁয়ে ফেলে, তখন বন্ধনী ১০px
+   বাইরে বেরিয়ে যায়। তাই ঐ মাপ থেকেই ভেতরে টেনে আনা হয়। */
+@media (max-width: 1180px) {
+  .bracket { width: 84px; height: 84px; }
+  .bracket--tl { left: -13px; top: -13px; }
+  .bracket--br { right: -13px; bottom: -13px; }
+  .bracket::after { width: 84px; }
+}
+@media (max-width: 560px) {
+  .brand span { display: none; }
+  .pair { grid-template-columns: 1fr; }
+  .pan { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .silk i { animation: none; }
+  .spin .arc { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="silk" aria-hidden="true"></div>
+<div class="veil" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+
+<div class="wrap">
+  <span class="bracket bracket--tl" aria-hidden="true"></span>
+  <span class="bracket bracket--br" aria-hidden="true"></span>
+
+  <div class="pane">
+
+    <!-- ── মাথা ── -->
+    <div class="head">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2.6 13.6 8l5.4 1.6L13.6 11 12 16.4 10.4 11 5 9.6 10.4 8z"/>
+          <circle cx="18.6" cy="17.4" r="2.1"/><circle cx="6.4" cy="16.6" r="1.5"/>
+        </svg>
+      </span>
+      <span class="brand">কর্জে হাসানা ফাউন্ডেশন<span>দান</span></span>
+
+      <!-- ⚠️ ধাপের নাম দুটি বদলানো: দানে "Cart"/"Shipping"-এর কোনো
+           মানে নেই। ভাষা ইংরেজিই রাখা হয়েছে (ব্যবহারকারীর সিদ্ধান্ত),
+           কেবল শব্দ দুটি অর্থপূর্ণ করা হলো। -->
+      <nav class="steps">
+        <span class="step"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></i><b>Amount</b></span>
+        <span class="step"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"
+          stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></i><b>Details</b></span>
+        <span class="step is-now"><i>3</i><b>Payment</b></span>
+      </nav>
+    </div>
+    <div class="rule"></div>
+
+    <div class="stage">
+      <div class="cols">
+
+        <!-- ── বাঁ: কার্ড ── -->
+        <div class="cardwrap" id="cardwrap">
+          <div class="card3d">
+
+            <div class="face face--front">
+              <div class="crow">
+                <span class="chip"><span class="chipbar"></span><span class="chipbar"></span></span>
+                <span class="wave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round"><path d="M8.5 8a6 6 0 0 1 0 8"/><path d="M12 5.5a10 10 0 0 1 0 13"/>
+                  <path d="M5 10.5a3 3 0 0 1 0 3"/></svg></span>
+                <span class="tier">PLATINUM</span>
+              </div>
+
+              <div class="pan" id="pan">•••• •••• •••• ••••</div>
+
+              <div class="foot">
+                <span><small>Cardholder Name</small><b id="fName">YOUR NAME</b></span>
+                <span><small>Expires</small><b id="fExp">••/••</b></span>
+                <span class="visa"><span class="mark mark--none" id="cardMark"><i></i><b></b></span></span>
+              </div>
+            </div>
+
+            <div class="face face--back">
+              <div class="mag"></div>
+              <div class="cvvrow">
+                <span class="cvvbar"></span>
+                <span class="cvvbox" id="bCvv">•••</span>
+              </div>
+              <p class="backnote">Authorised signature — not valid unless signed.<br>
+                 This card remains the property of the issuing bank.</p>
+            </div>
+
+          </div>
+
+          <button class="flip" id="flip" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+              <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            <span id="flipTxt">Flip to CVV</span>
+          </button>
+
+          <div class="badges">
+            <span><svg class="ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M16 9.5 10.8 15 8 12.4"/></svg>
+              256-Bit SSL Encrypted</span>
+            <span><svg class="lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.4"/>
+              <path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              PCI-DSS Level 1</span>
+          </div>
+
+          <!-- ── ফল: প্রক্রিয়াধীন → সফল ── -->
+          <div class="result" id="result">
+            <svg class="spin" viewBox="0 0 44 44"><circle class="trk" cx="22" cy="22" r="19"/><circle class="arc" cx="22" cy="22" r="19"/></svg>
+            <svg class="tick" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><path d="M15 24.5 21.5 31 33 19"/></svg>
+            <p id="stat">Processing Secure Transaction…</p>
+            <h3>Donation Successful!</h3>
+            <p>Your donation of <b id="doneAmt">৳1,000</b> was processed securely.</p>
+            <button class="again" id="again" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+                <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              Make Another Donation
+            </button>
+          </div>
+        </div>
+
+        <!-- ── ডান: ফর্ম ── -->
+        <form class="form" id="form" autocomplete="off" novalidate>
+          <h2>Payment Details</h2>
+          <p class="sub">Enter your card credentials to complete transaction</p>
+
+          <div class="field amt">
+            <label for="amount">Donation Amount</label>
+            <div class="box">
+              <span class="cur">৳</span>
+              <input id="amount" type="text" inputmode="numeric" placeholder="1,000" maxlength="9">
+            </div>
+            <div class="amt-chips" id="chips">
+              <button class="amt-chip" type="button" data-amt="500">৳500</button>
+              <button class="amt-chip" type="button" data-amt="1000">৳1,000</button>
+              <button class="amt-chip" type="button" data-amt="2500">৳2,500</button>
+              <button class="amt-chip" type="button" data-amt="5000">৳5,000</button>
+              <button class="amt-chip" type="button" data-amt="10000">৳10,000</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="name">Cardholder Name</label>
+            <div class="box">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/>
+                <path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+              <input id="name" type="text" placeholder="MD ABDULLAH" maxlength="26">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="num">Card Number</label>
+            <div class="box">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.6"/>
+                <path d="M2.5 10h19"/></svg>
+              <input id="num" class="mono" type="text" inputmode="numeric" placeholder="4111 1111 1111 1111" maxlength="23">
+              <span class="mark mark--none" id="mark"><i></i><b></b></span>
+            </div>
+          </div>
+
+          <div class="pair">
+            <div class="field">
+              <label for="exp">Expiry Date</label>
+              <div class="box">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2.6"/>
+                  <path d="M8 3v4M16 3v4M3.5 10h17"/></svg>
+                <input id="exp" class="mono" type="text" inputmode="numeric" placeholder="12 / 28" maxlength="7">
+              </div>
+            </div>
+            <div class="field">
+              <label for="cvv">CVV / CVC</label>
+              <div class="box">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.4"/>
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <input id="cvv" class="mono" type="password" inputmode="numeric" placeholder="•••" maxlength="4">
+                <button class="eye" id="eye" type="button" aria-label="Show CVV">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/>
+                    <circle cx="12" cy="12" r="2.8"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="total">Total Donation Amount: <b id="totalTxt">৳1,000</b></div>
+
+          <button class="pay" id="pay" type="submit">
+            <span id="payTxt">DONATE ৳1,000 NOW</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13"/><path d="m13 6 6 6-6 6"/></svg>
+          </button>
+
+          <div class="backrow">
+            <button class="back" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H6"/><path d="m11 6-6 6 6 6"/></svg>
+              Return to Portal
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+  var body = document.body;
+  var name = $('name'), num = $('num'), exp = $('exp'), cvv = $('cvv');
+  var pan  = $('pan'),  fName = $('fName'), fExp = $('fExp'), bCvv = $('bCvv');
+  var cardwrap = $('cardwrap'), flip = $('flip'), flipTxt = $('flipTxt');
+  var mark = $('mark'), cardMark = $('cardMark');
+  var amount = $('amount'), chips = $('chips');
+  var totalTxt = $('totalTxt'), payTxt = $('payTxt'), doneAmt = $('doneAmt');
+
+  var DOTS = '•••• •••• •••• ••••';
+
+  /* ══ কার্ডের ধরন নিজে থেকে চেনা ═══════════════════════════
+     ব্যবহারকারীর অনুরোধ (২১ সেপ্টেম্বর ২০২৬): প্রথম অঙ্কগুলো
+     বসালেই ভিসা / মাস্টারকার্ড / অ্যামেক্স … নিজে থেকে বসবে।
+
+     ⚠️ ক্রম গুরুত্বপূর্ণ — Maestro-র `6759` ইত্যাদি Discover-এর
+        `65`-এর সাথে মিলে যায়, তাই সরু নিয়মগুলো আগে।
+     `len`  = বৈধ মোট অঙ্ক-সংখ্যা
+     `gaps` = কোন কোন জায়গায় ফাঁক বসবে (Amex 4-6-5, Diners 4-6-4)
+     `cvv`  = নিরাপত্তা কোডের দৈর্ঘ্য (Amex-এ ৪)                  */
+  var BRANDS = [
+    { id:'amex',     name:'AMEX',       re:/^3[47]/,                             len:[15],       gaps:[4,10],       cvv:4 },
+    { id:'diners',   name:'DINERS',     re:/^3(?:0[0-5]|095|6|8|9)/,             len:[14,16,19], gaps:[4,10],       cvv:3 },
+    { id:'jcb',      name:'JCB',        re:/^35(?:2[89]|[3-8]\d)/,               len:[16,17,18,19], gaps:[4,8,12],  cvv:3 },
+    { id:'maestro',  name:'MAESTRO',    re:/^(?:5018|5020|5038|6304|6759|676[1-3])/, len:[12,13,14,15,16,17,18,19], gaps:[4,8,12], cvv:3 },
+    { id:'unionpay', name:'UNIONPAY',   re:/^62/,                                len:[16,17,18,19], gaps:[4,8,12],  cvv:3 },
+    { id:'discover', name:'DISCOVER',   re:/^(?:6011|64[4-9]|65)/,               len:[16,19],    gaps:[4,8,12],     cvv:3 },
+    { id:'mc',       name:'MASTERCARD', re:/^(?:5[1-5]|2[2-7])/,                 len:[16],       gaps:[4,8,12],     cvv:3 },
+    { id:'visa',     name:'VISA',       re:/^4/,                                 len:[13,16,19], gaps:[4,8,12],     cvv:3 }
+  ];
+  var DEFAULT_CARD = { id:'', name:'', len:[16,19], gaps:[4,8,12], cvv:3 };
+
+  function detect(digits) {
+    for (var i = 0; i < BRANDS.length; i++) if (BRANDS[i].re.test(digits)) return BRANDS[i];
+    return DEFAULT_CARD;
+  }
+
+  /* Luhn — শেষ অঙ্কটি চেকসাম; ভুল নম্বর টাইপ করলে ধরা পড়ে */
+  function luhnOk(d) {
+    var sum = 0, dbl = false;
+    for (var i = d.length - 1; i >= 0; i--) {
+      var n = +d[i];
+      if (dbl) { n *= 2; if (n > 9) n -= 9; }
+      sum += n; dbl = !dbl;
+    }
+    return d.length > 0 && sum % 10 === 0;
+  }
+
+  function spaced(d, gaps) {
+    var out = '', g = 0;
+    for (var i = 0; i < d.length; i++) {
+      if (g < gaps.length && i === gaps[g]) { out += ' '; g++; }
+      out += d[i];
+    }
+    return out;
+  }
+
+  /* চিহ্নটি দুই জায়গায় বসে — ঘরের ভেতরে ও কার্ডের গায়ে */
+  function paintMark(el, brand) {
+    el.className = 'mark ' + (brand.id ? 'mark--' + brand.id : 'mark--none');
+    el.querySelector('b').textContent = brand.id === 'mc' ? '' : brand.name;
+  }
+
+  var card = DEFAULT_CARD;
+
+  /* ── কার্ডের গায়ে লাইভ প্রতিফলন ────────────────────────────
+     ⚠️ ঘরগুলো ফাঁকা হলে কার্ডে placeholder ফিরে আসে, ফাঁকা থাকে না */
+  function groups(v) { return (v.match(/.{1,4}/g) || []).join(' '); }
+
+  num.addEventListener('input', function () {
+    var maxLen = Math.max.apply(null, DEFAULT_CARD.len.concat([19]));
+    var digits = num.value.replace(/\D/g, '').slice(0, 19);
+    card = detect(digits);
+    digits = digits.slice(0, Math.max.apply(null, card.len));
+    num.value = spaced(digits, card.gaps);
+    paintMark(mark, card);
+    paintMark(cardMark, card);
+
+    /* CVV-র দৈর্ঘ্য ধরনভেদে বদলায় (Amex ৪) */
+    cvv.maxLength = card.cvv;
+    cvv.placeholder = card.cvv === 4 ? '••••' : '•••';
+    if (cvv.value.length > card.cvv) {
+      cvv.value = cvv.value.slice(0, card.cvv);
+      bCvv.textContent = cvv.value || cvv.placeholder;
+    }
+
+    pan.textContent = digits ? spaced(digits, card.gaps) : DOTS;
+
+    /* পুরো নম্বর বসানো হলে Luhn দেখে জানানো — ভুল হলে লাল বেড় */
+    var full = card.len.indexOf(digits.length) >= 0;
+    num.closest('.box').classList.toggle('is-bad', full && !luhnOk(digits));
+  });
+
+  name.addEventListener('input', function () {
+    fName.textContent = name.value.trim() ? name.value.toUpperCase() : 'YOUR NAME';
+  });
+
+  exp.addEventListener('input', function () {
+    var d = exp.value.replace(/\D/g, '').slice(0, 4);
+    exp.value = d.length > 2 ? d.slice(0, 2) + ' / ' + d.slice(2) : d;
+    fExp.textContent = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : (d || '••/••');
+  });
+
+  cvv.addEventListener('input', function () {
+    cvv.value = cvv.value.replace(/\D/g, '').slice(0, card.cvv);
+    bCvv.textContent = cvv.value || (card.cvv === 4 ? '••••' : '•••');
+  });
+
+  /* ══ দানের পরিমাণ ══════════════════════════════════════════
+     ⚠️ অঙ্কটি এক জায়গা থেকেই আসে (`amt`) — মোটের সারি, PAY বাটন
+        ও সফলতার বার্তা তিনটিই `paintAmount()` লেখে, তাই কোথাও
+        পুরনো সংখ্যা রয়ে যাওয়ার সুযোগ নেই।                        */
+  var MIN = 10, MAX = 500000, amt = 1000;
+
+  function bdt(n) { return '৳' + n.toLocaleString('en-US'); }
+
+  function paintAmount() {
+    var txt = bdt(amt);
+    totalTxt.textContent = txt;
+    payTxt.textContent   = 'DONATE ' + txt + ' NOW';
+    doneAmt.textContent  = txt;
+    Array.prototype.forEach.call(chips.children, function (c) {
+      c.classList.toggle('is-on', +c.dataset.amt === amt);
+    });
+    $('pay').disabled = !(amt >= MIN) || body.classList.contains('busy');
+  }
+
+  amount.addEventListener('input', function () {
+    var d = amount.value.replace(/\D/g, '').slice(0, 7);
+    amt = d ? Math.min(MAX, parseInt(d, 10)) : 0;
+    amount.value = d ? amt.toLocaleString('en-US') : '';
+    paintAmount();
+  });
+  amount.addEventListener('blur', function () {
+    if (amt && amt < MIN) { amt = MIN; amount.value = amt.toLocaleString('en-US'); paintAmount(); }
+  });
+
+  chips.addEventListener('click', function (e) {
+    var b = e.target.closest('.amt-chip'); if (!b) return;
+    amt = +b.dataset.amt;
+    amount.value = amt.toLocaleString('en-US');
+    paintAmount();
+  });
+  /* CVV ঘরে গেলে কার্ড নিজে থেকেই উল্টে যায় — আসল ব্যাংকের মতো */
+  cvv.addEventListener('focus', function () { setFlip(true); });
+  cvv.addEventListener('blur',  function () { setFlip(false); });
+
+  function setFlip(on) {
+    cardwrap.classList.toggle('is-flipped', on);
+    flipTxt.textContent = on ? 'Flip to Front' : 'Flip to CVV';
+  }
+  flip.addEventListener('click', function () { setFlip(!cardwrap.classList.contains('is-flipped')); });
+
+  $('eye').addEventListener('click', function () {
+    cvv.type = cvv.type === 'password' ? 'text' : 'password';
+  });
+
+  /* ── কার্ডে হালকা ৩D হেলান (মাউস অনুসরণ) ────────────────── */
+  var card3d = document.querySelector('.card3d');
+  cardwrap.addEventListener('pointermove', function (e) {
+    if (body.classList.contains('busy') || body.classList.contains('done')) return;
+    if (cardwrap.classList.contains('is-flipped')) return;
+    var r = card3d.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width - .5;
+    var y = (e.clientY - r.top) / r.height - .5;
+    card3d.style.transform = 'rotateY(' + (x * 13).toFixed(2) + 'deg) rotateX(' + (-y * 11).toFixed(2) + 'deg)';
+  });
+  cardwrap.addEventListener('pointerleave', function () {
+    if (!cardwrap.classList.contains('is-flipped')) card3d.style.transform = '';
+  });
+
+  /* ── জমা দেওয়া ───────────────────────────────────────────── */
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (body.classList.contains('busy')) return;
+
+    /* ⚠️ অঙ্ক ও কার্ড নম্বর — দুটোই যাচাই করে তবেই এগোনো */
+    if (!(amt >= MIN)) { amount.focus(); return; }
+    var digits = num.value.replace(/\D/g, '');
+    if (card.len.indexOf(digits.length) < 0 || !luhnOk(digits)) {
+      num.closest('.box').classList.add('is-bad');
+      num.focus(); return;
+    }
+
+    setFlip(false);
+    card3d.style.transform = '';
+    body.classList.add('busy');
+    $('pay').disabled = true;
+
+    /* ⚠️ এটি কেবল দেখার জন্য — কোনো কার্ডের তথ্য কোথাও পাঠানো হয় না। */
+    setTimeout(function () {
+      body.classList.remove('busy');
+      body.classList.add('done');
+    }, 2400);
+  });
+
+  $('again').addEventListener('click', function () {
+    body.classList.remove('done');
+    [name, num, exp, cvv].forEach(function (el) { el.value = ''; });
+    card = DEFAULT_CARD;
+    paintMark(mark, card); paintMark(cardMark, card);
+    num.closest('.box').classList.remove('is-bad');
+    pan.textContent = DOTS; fName.textContent = 'YOUR NAME'; fExp.textContent = '••/••'; bCvv.textContent = '•••';
+    amt = 1000; amount.value = '1,000'; paintAmount();
+    amount.focus();
+  });
+
+  /* ── শুরুর অবস্থা ──────────────────────────────────────── */
+  amount.value = '1,000';
+  paintAmount();
+  paintMark(mark, card);
+  paintMark(cardMark, card);
+
+  /* ── ভিডিওর মতো করে নমুনা তথ্য বসানো (প্রথম দর্শনে) ──────
+     ⚠️ নম্বরটি Luhn-বৈধ একটি **পরীক্ষামূলক** ভিসা নম্বর —
+        আসল কোনো কার্ডের নয়।                                    */
+  function demo() {
+    var steps = [
+      [name, 'MD ABDULLAH'], [num, '4111111111111111'], [exp, '1228'], [cvv, '123']
+    ];
+    var si = 0, ci = 0;
+    (function tick() {
+      if (si >= steps.length) return;
+      var el = steps[si][0], txt = steps[si][1];
+      if (ci === 0) el.focus();
+      el.value = (el === num || el === exp) ? txt.slice(0, ci + 1) : el.value + txt[ci];
+      if (el === num || el === exp) el.value = txt.slice(0, ci + 1);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      ci++;
+      if (ci >= txt.length) { si++; ci = 0; setTimeout(tick, 380); }
+      else setTimeout(tick, 62);
+    })();
+  }
+  window.__demo = demo;
+})();
+</script>
+</body>
+</html>

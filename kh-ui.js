@@ -3635,6 +3635,213 @@
     });
   };
 
+  /* ══════════════════════════════════════════════════════════
+     ✉️ ফুটারের সাবস্ক্রিপশন — কাগজের উড়োজাহাজ (`plume`)
+
+     ফুটারের পুরনো `.ft-nl` ঘরটিকেই বদলে দেয়, তাই কোনো HTML-এ
+     হাত দিতে হয় না। বাদ দিতে `<body data-kh-sub="off">`।
+
+     ⚠️ জ্যামিতিটি ভিডিও থেকে হুবহু নেওয়া — `HALF[]`-এ `a` হলো
+        উল্লম্ব ভাঁজরেখা থেকে দূরত্ব (০ = রেখা, ১ = বাইরের কিনারা,
+        মাপ W/2), `b` হলো উপর-নিচ (+.5 উপরে)। তাই `r` = বাটনের
+        অর্ধেক আয়তক্ষেত্র, `t` = নিচে খাঁজসহ অন্তর্লিখিত ত্রিভুজ।
+     ══════════════════════════════════════════════════════════ */
+  var PLUME_HALF = [
+    { r: [0,  .5], t: [0,     .5 ] },   /* A — চূড়া */
+    { r: [1,  .5], t: [1,    -.5 ] },   /* Q — বাইরের নিচের কোণ */
+    { r: [1, -.5], t: [ .242, -.5] },   /* P — খাঁজের বাইরের দিক */
+    { r: [0, -.5], t: [ .048, -.44] }   /* D — খাঁজের ভিতরের দিক */
+  ];
+  var PLUME_TRI = [[0, 1, 2], [0, 2, 3]];
+  var PL_D = Math.PI / 180;
+  var PL_DIH = 72 * PL_D, PL_AX = 50 * PL_D, PL_AY = 30 * PL_D, PL_AZ = 62 * PL_D;
+  var PL_CAM = 300;
+
+  KHUI.mountSubscribe = function () {
+    if (document.body.dataset.khSub === 'off') return;
+    var host = document.getElementById('khSubscribe') || document.querySelector('.ft-nl');
+    if (!host || host.dataset.khPlume) return;
+
+    /* পুরনো ঘরের placeholder থাকলে সেটিই রাখা হয় */
+    var old = host.querySelector('input');
+    var ph  = (old && old.getAttribute('placeholder')) || 'your@email.com';
+    host.dataset.khPlume = '1';
+    /* ⚠️ `ft-nl` ক্লাসটি সরাতেই হবে — `index.html`-এর ইনলাইন
+       `<style>`-এ `.ft-nl input` (০,১,১) ও `.ft-nl button` আছে, যা
+       `.plume__input` (০,১,০)-কে হারিয়ে দেয় এবং পুরনো সোনালি
+       বাটন-চেহারাই ফিরিয়ে আনে। ক্লাস সরালে ঐ নিয়মগুলো আর মেলে না। */
+    host.classList.remove('ft-nl');
+    host.classList.add('plume', 'plume--gold');
+    host.innerHTML =
+      /* ⚠️ `data-kh-skip="1"` — নাহলে `enhanceEmails()` এখানে প্রিমিয়াম
+         ই-মেইল UI বসায়: টিক চিহ্নটি `position:absolute` হয়ে `.plume`-এর
+         ডান কিনারায় গিয়ে Subscribe বাটনের উপর পড়ে, আর ডোমেইন-চিপগুলো
+         পিলের ভেতর আঁটে না। লাইভে পরীক্ষা করে ধরা পড়েছে (`.ft-nl`-এ
+         `kh-email-host` ক্লাস বসে গিয়েছিল)। */
+      '<input class="plume__input" type="email" data-kh-skip="1" autocomplete="email" spellcheck="false" placeholder="' +
+        String(ph).replace(/"/g, '&quot;') + '" aria-label="ই-মেইল ঠিকানা">' +
+      '<span class="plume__seat">' +
+        '<button class="plume__btn" type="button">' +
+          '<span class="plume__face"></span>' +
+          '<span class="plume__words"><span>Subscribe</span><span>আবার দিন</span></span>' +
+        '</button>' +
+        '<svg class="plume__plane" viewBox="0 0 1 1" aria-hidden="true">' +
+          '<polygon class="plume__facet"/><polygon class="plume__facet"/>' +
+          '<polygon class="plume__facet"/><polygon class="plume__facet"/></svg>' +
+      '</span>' +
+      '<svg class="plume__trail" viewBox="0 0 1 1" aria-hidden="true"></svg>' +
+      '<span class="plume__done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+        'stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/>' +
+        '</svg>হয়ে গেছে</span>';
+
+    /* নোটের ঘরটি pill-এর বাইরে, ঠিক নিচে */
+    var note = document.createElement('p');
+    note.className = 'plume__note';
+    note.setAttribute('aria-live', 'polite');
+    if (host.parentNode) host.parentNode.insertBefore(note, host.nextSibling);
+
+    var input  = host.querySelector('.plume__input');
+    var btn    = host.querySelector('.plume__btn');
+    var plane  = host.querySelector('.plume__plane');
+    var trail  = host.querySelector('.plume__trail');
+    var facets = plane.querySelectorAll('.plume__facet');
+    var seat   = host.querySelector('.plume__seat');
+
+    var cs   = getComputedStyle(host);
+    var LIT  = (cs.getPropertyValue('--paper-lit')  || '#f7b23f').trim();
+    var DARK = (cs.getPropertyValue('--paper-dark') || '#a25c10').trim();
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function rot3(p, ax, ay, az) {
+      var x = p.x, y = p.y, z = p.z, c, s, t;
+      c = Math.cos(ax); s = Math.sin(ax); t = y * c - z * s; z = y * s + z * c; y = t;
+      c = Math.cos(ay); s = Math.sin(ay); t = x * c + z * s; z = -x * s + z * c; x = t;
+      c = Math.cos(az); s = Math.sin(az); t = x * c - y * s; y = x * s + y * c; x = t;
+      return { x: x, y: y, z: z };
+    }
+    function project(p) { var s = PL_CAM / (PL_CAM - p.z); return { x: p.x * s, y: p.y * s }; }
+    function shade(p0, p1, p2) {
+      var ux = p1.x - p0.x, uy = p1.y - p0.y, uz = p1.z - p0.z;
+      var vx = p2.x - p0.x, vy = p2.y - p0.y, vz = p2.z - p0.z;
+      var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+      var len = Math.hypot(nx, ny, nz) || 1;
+      return Math.abs((nx * -0.32 + ny * -0.46 + nz * 0.83) / len);
+    }
+    function hex(c) { return [parseInt(c.substr(1,2),16), parseInt(c.substr(3,2),16), parseInt(c.substr(5,2),16)]; }
+    function mix(c1, c2, t) {
+      var A = hex(c1), B = hex(c2);
+      return 'rgb(' + Math.round(lerp(A[0],B[0],t)) + ',' + Math.round(lerp(A[1],B[1],t)) + ',' + Math.round(lerp(A[2],B[2],t)) + ')';
+    }
+
+    function paint(k, dih, ax, ay, az) {
+      var box = seat.getBoundingClientRect(), W = box.width, H = box.height;
+      var cos = Math.cos(dih), sin = Math.sin(dih), quads = [];
+      for (var s = 0; s < 2; s++) {
+        var sign = s ? -1 : 1, row = [];
+        for (var i = 0; i < PLUME_HALF.length; i++) {
+          var v = PLUME_HALF[i];
+          var a = lerp(v.r[0], v.t[0], k) * sign;
+          var b = lerp(v.r[1], v.t[1], k);
+          var xf = a * (W / 2);
+          row.push({ x: xf * cos, y: -b * H, z: Math.abs(xf) * sin });
+        }
+        for (var t = 0; t < 2; t++) {
+          var idx = PLUME_TRI[t];
+          var vv = [row[idx[0]], row[idx[1]], row[idx[2]]].map(function (p) { return rot3(p, ax, ay, az); });
+          quads.push({ v: vv, depth: (vv[0].z + vv[1].z + vv[2].z) / 3 });
+        }
+      }
+      /* ⚠️ পেছনেরটা আগে আঁকা — নাহলে ঘোরার সময় ভুল মুখ উপরে পড়ে */
+      quads.sort(function (m, n) { return m.depth - n.depth; });
+      for (var q = 0; q < quads.length; q++) {
+        var a2 = project(quads[q].v[0]), b2 = project(quads[q].v[1]), c2 = project(quads[q].v[2]);
+        facets[q].setAttribute('points',
+          a2.x.toFixed(2)+','+a2.y.toFixed(2)+' '+b2.x.toFixed(2)+','+b2.y.toFixed(2)+' '+c2.x.toFixed(2)+','+c2.y.toFixed(2));
+        facets[q].setAttribute('fill',
+          mix(DARK, LIT, Math.min(1, shade(quads[q].v[0], quads[q].v[1], quads[q].v[2]) * 1.18)));
+      }
+    }
+
+    function eOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function eInOut(t) { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+    function eIn(t) { return t * t * t; }
+
+    var VALID = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+    var busy = false;
+
+    function arm() { if (!busy) host.classList.toggle('is-armed', VALID.test(input.value.trim())); }
+    input.addEventListener('input', function () { host.classList.remove('is-retry', 'is-done'); note.textContent = ''; note.classList.remove('kh-bad'); arm(); });
+    input.addEventListener('focus', function () { host.classList.add('is-live'); });
+    input.addEventListener('blur',  function () { if (!busy && !input.value) host.classList.remove('is-live'); });
+
+    function run() {
+      if (busy) return;
+      var value = input.value.trim();
+      if (!VALID.test(value)) {
+        host.classList.add('is-live', 'is-retry');
+        note.textContent = 'ঠিকানাটি একবার দেখে নিন।';
+        note.classList.add('kh-bad');
+        input.focus(); return;
+      }
+      busy = true;
+      host.classList.add('is-live', 'is-folding');
+      host.classList.remove('is-done', 'is-retry');
+      note.textContent = ''; note.classList.remove('kh-bad');
+      input.disabled = true; btn.disabled = true;
+
+      var FOLD = 280, TURN = 240, HOLD = 380, FLY = 280;
+      var T1 = FOLD, T2 = T1 + TURN, T3 = T2 + HOLD, T4 = T3 + FLY;
+      var t0 = performance.now();
+
+      trail.innerHTML = '';
+      var dashes = [];
+      for (var i = 0; i < 4; i++) {
+        var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        trail.appendChild(ln); dashes.push(ln);
+      }
+      function pose(px, py, sc) {
+        plane.style.setProperty('--px', px.toFixed(2) + 'px');
+        plane.style.setProperty('--py', py.toFixed(2) + 'px');
+        plane.style.setProperty('--sc', sc.toFixed(3));
+      }
+      function frame(now) {
+        var el = now - t0;
+        if (el < T1) { var p = el / T1; paint(eOut(p), PL_DIH * eInOut(p), 0, 0, 0); pose(0, 0, 1); return requestAnimationFrame(frame); }
+        if (el < T2) { var q = eInOut((el - T1) / TURN); paint(1, PL_DIH, PL_AX*q, PL_AY*q, PL_AZ*q); pose(0, 0, 1 - .10*q); return requestAnimationFrame(frame); }
+        if (el < T3) { var h = (el - T2) / HOLD; paint(1, PL_DIH, PL_AX, PL_AY, PL_AZ + Math.sin(h*Math.PI*2)*.045);
+                       pose(Math.sin(h*Math.PI*2)*1.8, -Math.sin(h*Math.PI*3)*1.4, .90); return requestAnimationFrame(frame); }
+        if (el < T4) {
+          host.classList.add('is-flying');
+          var f = (el - T3) / FLY, e = eIn(f);
+          paint(1, PL_DIH, PL_AX, PL_AY, PL_AZ - .07 * e);
+          pose(190 * e, -130 * e, .90 - .42 * e);
+          plane.style.opacity = f > .70 ? String(Math.max(0, 1 - (f - .70) / .30)) : '1';
+          for (var j = 0; j < dashes.length; j++) {
+            var back = (j + 1) * 0.10;
+            var s1 = Math.max(0, e - back), s2 = Math.max(0, e - back - 0.055);
+            dashes[j].setAttribute('x1', (190*s1).toFixed(1)); dashes[j].setAttribute('y1', (-130*s1).toFixed(1));
+            dashes[j].setAttribute('x2', (190*s2).toFixed(1)); dashes[j].setAttribute('y2', (-130*s2).toFixed(1));
+            dashes[j].style.opacity = String(Math.max(0, .5 - j * .1) * (1 - f));
+          }
+          return requestAnimationFrame(frame);
+        }
+        plane.style.opacity = '';
+        host.classList.remove('is-folding', 'is-flying', 'is-armed');
+        trail.innerHTML = '';
+        host.classList.add('is-done');
+        note.textContent = 'ধন্যবাদ! নতুন খবর ' + value + ' ঠিকানায় যাবে।';
+        input.disabled = false;
+        setTimeout(function () { busy = false; btn.disabled = false; }, 200);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    btn.addEventListener('click', run);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); run(); } });
+    paint(0, 0, 0, 0, 0);
+    window.addEventListener('resize', function () { if (!busy) paint(0, 0, 0, 0, 0); });
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -3645,6 +3852,11 @@
     if (document.body.dataset.khGlow !== 'off') KHUI.mountGlow();
     if (document.body.dataset.khUser !== 'off') KHUI.mountUserChip();
     KHUI.enhancePasswords(document);
+    /* ✉️ ফুটারের সাবস্ক্রিপশন — `.ft-nl` বা `#khSubscribe` ঘর থাকলেই বসে।
+       ⚠️ `enhanceEmails()`-এর **আগে** চলতে হবে: পুরনো `.ft-nl`-এর ঘরটি
+       আগে প্রিমিয়াম ই-মেইল UI পেয়ে যেত, আর `innerHTML` বদলালে সেই
+       মোড়ক ছিঁড়ে গিয়ে `kh-email-host` ক্লাসটি পড়ে থাকত। */
+    try { KHUI.mountSubscribe(); } catch (e) {}
     KHUI.enhanceEmails(document);
     KHUI.makeTablesScrollable(document);
     KHUI._watchTables();

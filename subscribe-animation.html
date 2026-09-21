@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>আমাদের সাথে থাকুন — কর্জে হাসানা ফাউন্ডেশন</title>
+
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  Subscribe Button Animation — "plume"
+  সংযুক্ত ভিডিওর হুবহু নকল।
+
+  ভিডিওর ভেতরের কোড-প্যানেল থেকে যা হুবহু নেওয়া হয়েছে:
+    • ক্লাসনাম: plume__seat · plume__btn · plume__face · plume__words
+                plume__plane · plume__facet
+    • রঙ:  --field #12151c · --accent #2bffc8 · --accent-off #232c36
+           --on-ink #04150f · --paper-lit #2bffc8 · --paper-dark #12937a
+    • জ্যামিতি: HALF[] — চারটি শীর্ষবিন্দুর r (আয়তক্ষেত্র) → t (কাগজের
+      উড়োজাহাজ) অবস্থান; --k বিন্দুগুলো হাঁটায়, --dih দুই অর্ধেক বন্ধ করে।
+      "the tent is EXACTLY the inscribed triangle, dihedral closes to 72°"
+
+  ⚠️ চারটি ফ্যাসেট, অর্ধেকে দুটি। --k 0 হলে আটটি বিন্দু বাটনের
+     আয়তক্ষেত্রের উপরেই বসে ও সেটি ঢেকে দেয় — কাগজটিই বাটনের মুখ।
+  ═══════════════════════════════════════════════════════════════════
+-->
+
+<style>
+/* ── ফন্ট ─────────────────────────────────────────────────── */
+/* ⚠️ Inter-এ বাংলা বর্ণ নেই — শিরোনামের জন্য Hind Siliguri, ঠিক
+      যেটি `kh-ui.css`-এ সাইটজুড়ে ব্যবহার হয়। উইজেটের ভেতরের
+      লেখা ইংরেজিই (ভিডিওর হুবহু), তাই সেখানে Inter-ই থাকে। */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --page:      #0a0d12;
+  --page-2:    #0d1117;
+  --heading:   #ffffff;
+  --sub:       #2bffc8;
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(120% 90% at 50% 0%, #10141b 0%, var(--page) 55%, #06080c 100%);
+  color: #e8edf3;
+  font: 400 15px/1.5 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 40px 20px;
+}
+
+/* ⚠️ বাংলা শিরোনামে `letter-spacing` ঋণাত্মক দেওয়া যাবে না —
+      যুক্তাক্ষর ও কার একটির ঘাড়ে আরেকটি উঠে যায়। আর `line-height`
+      ১.১৬ দিলে উপরের-নিচের কার কেটে যায়, তাই ১.৩৮।              */
+h1 {
+  margin: 0 0 54px; text-align: center;
+  font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+  font-size: clamp(26px, 4.6vw, 38px); font-weight: 700; letter-spacing: 0;
+  line-height: 1.38; color: var(--heading);
+}
+h1 em { display: block; font-style: normal; font-weight: 600; color: var(--sub); }
+
+/* ── কার্ড (বাটনের পেছনের কাচের পাত) ───────────────────────── */
+.stage {
+  width: min(560px, 100%);
+  padding: 46px 40px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+  border: 1px solid rgba(255,255,255,.055);
+  box-shadow: 0 30px 80px -40px #000;
+}
+
+/* ══ ১. মাঠ (field) ══════════════════════════════════════════
+   গোটা উইজেটটি একটি বড় pill। ভিতরে বাঁয়ে ইনপুট, ডানে বাটন।     */
+.plume {
+  --field:      #12151c;
+  --accent:     #2bffc8;
+  --accent-off: #232c36;
+  /* paper on neon is 1.4:1, so the label goes to ink — the arming
+     does not brighten, it INVERTS */
+  --on-ink:     #04150f;
+  --paper-lit:  #2bffc8;
+  --paper-dark: #12937a;
+
+  --h: 56px;                    /* pill-এর উচ্চতা */
+  --pad: 5px;                   /* ভিতরের ফাঁক */
+  --btn-w: 112px;
+  --btn-h: calc(var(--h) - var(--pad) * 2);
+
+  position: relative;
+  display: flex; align-items: center;
+  width: 100%; height: var(--h);
+  padding: var(--pad);
+  border-radius: 999px;
+  background: var(--field);
+  border: 1px solid #222a33;
+  transition: border-color .32s ease, box-shadow .32s ease;
+}
+/* ⚠️ ফোকাস/সক্রিয় অবস্থায় বেড় নিয়ন সবুজ ও বাইরে আভা */
+.plume.is-live {
+  border-color: color-mix(in srgb, var(--accent) 62%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 9%, transparent),
+              0 0 26px -6px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.plume__input {
+  flex: 1; min-width: 0; height: 100%;
+  padding: 0 14px 0 18px;
+  border: 0; outline: 0; background: none;
+  color: #dbe7ee;
+  font: 500 14.5px/1 Inter, system-ui, sans-serif;
+  letter-spacing: .01em;
+}
+.plume__input::placeholder { color: #6b7684; font-weight: 400; }
+.plume__input:disabled { color: #9fb0bd; }
+
+/* ══ ২. আসন (seat) ════════════════════════════════════════════
+   বাটন ও কাগজের উড়োজাহাজ — দুটোই এই ঘরের ভেতরে, একই জায়গায়।  */
+.plume__seat {
+  position: relative;
+  width: var(--btn-w); height: var(--btn-h);
+  flex: none;
+  perspective: 520px;            /* ⚠️ তাঁবুটি ঘুরে পাশ ফিরলে যেন গভীরতা থাকে */
+  perspective-origin: 50% 50%;
+}
+
+.plume__btn {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  border: 0; padding: 0; margin: 0;
+  background: none; cursor: pointer;
+  font: 600 13.5px/1 Inter, system-ui, sans-serif;
+  border-radius: calc(var(--btn-h) / 2);
+  -webkit-tap-highlight-color: transparent;
+}
+.plume__btn:disabled { cursor: default; }
+
+/* মুখ = বাটনের রঙিন পাত। কাগজ ঠিক এই আয়তক্ষেত্রটিই। */
+.plume__face {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: var(--accent-off);
+  transition: background .4s cubic-bezier(.4,0,.2,1);
+}
+.plume.is-armed .plume__face { background: var(--accent); }
+
+.plume__words {
+  position: relative; z-index: 2;
+  display: grid; place-items: center;
+  transition: color .4s cubic-bezier(.4,0,.2,1), opacity .18s linear;
+  color: #8e9aa7;
+}
+.plume__words > span { grid-area: 1 / 1; transition: opacity .22s ease, transform .22s ease; }
+.plume__words > span:nth-child(2) { opacity: 0; transform: translateY(6px); }
+/* ⚠️ সশস্ত্র হলে লেখা উজ্জ্বল হয় না — উল্টে যায় (কালি হয়ে যায়) */
+.plume.is-armed .plume__words { color: var(--on-ink); }
+
+.plume.is-retry .plume__words > span:nth-child(1) { opacity: 0; transform: translateY(-6px); }
+.plume.is-retry .plume__words > span:nth-child(2) { opacity: 1; transform: none; }
+
+/* ভাঁজ শুরু হলে বাটনের নিজের পাত ও লেখা মুহূর্তেই মিলিয়ে যায় —
+   তখন যা দেখা যায় তার পুরোটাই কাগজ। */
+.plume.is-folding .plume__face,
+.plume.is-folding .plume__words { opacity: 0; transition-duration: .12s; }
+.plume.is-folding .plume__btn { pointer-events: none; }
+
+/* ⚠️ সফল হওয়ার পর বাটনটি আর ফিরে আসে না — ভিডিওতেও pill-এর ডানে
+      কেবল "✓ Done" থাকে। নাহলে "Subscribe" ও "Done" একে অপরের
+      উপরে বসে যায় (পরীক্ষায় ধরা পড়েছে)। */
+.plume.is-done .plume__btn { opacity: 0; pointer-events: none; }
+.plume.is-done .plume__seat { width: 0; transition: width .3s ease .05s; }
+
+/* ══ ৩. কাগজের উড়োজাহাজ ══════════════════════════════════════
+   ⚠️ 1×1 viewBox, overflow দৃশ্যমান; এক ইউনিট = এক পিক্সেল, তাই
+      বিন্দুগুলো আসন থেকে মাপা সাধারণ পিক্সেল।                   */
+.plume__plane {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 1px; height: 1px;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0;
+  transform:
+    translate3d(var(--px, 0px), var(--py, 0px), 0)
+    rotateY(var(--ry, 0deg))
+    rotate(var(--rot, 0deg))
+    scale(var(--sc, 1));
+  transform-origin: 0 0;
+  transform-style: preserve-3d;
+}
+.plume.is-folding .plume__plane { opacity: 1; }
+.plume__facet { stroke: none; }
+
+/* ধোঁয়ার রেখা — উড়ে যাওয়ার সময় পেছনে ছোট ছোট দাগ */
+.plume__trail {
+  position: absolute; left: 50%; top: 50%;
+  width: 1px; height: 1px; overflow: visible;
+  pointer-events: none; opacity: 0;
+}
+.plume.is-flying .plume__trail { opacity: 1; }
+.plume__trail line {
+  stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round;
+  opacity: .5;
+}
+
+/* ══ ৪. "Done" ════════════════════════════════════════════════ */
+.plume__done {
+  position: absolute; right: 22px; top: 50%;
+  display: flex; align-items: center; gap: 7px;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font: 700 13px/1 Inter, system-ui, sans-serif;
+  opacity: 0; visibility: hidden;
+  transition: opacity .34s ease, transform .34s cubic-bezier(.34,1.3,.64,1);
+}
+.plume.is-done .plume__done { opacity: 1; visibility: visible; transform: translateY(-50%); }
+.plume:not(.is-done) .plume__done { transform: translateY(-50%) translateX(6px); }
+.plume__done svg { width: 15px; height: 15px; flex: none; }
+
+/* ── নিচের হাতছানি ─────────────────────────────────────────── */
+.hint {
+  margin: 26px 0 0; text-align: center;
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+  font-size: 13.5px; line-height: 1.6; color: #5b6673;
+}
+.hint b { color: #8d9aa7; font-weight: 600; }
+
+@media (prefers-reduced-motion: reduce) {
+  .plume__plane, .plume__trail { display: none; }
+}
+</style>
+</head>
+<body>
+
+<h1>সুদমুক্ত সমাজ গড়ার পথে<em>আমাদের সাথে থাকুন</em></h1>
+
+<div class="stage">
+  <div class="plume plume--neon" id="plume">
+    <input class="plume__input" id="email" type="email" placeholder="Email address"
+           autocomplete="email" spellcheck="false">
+
+    <!-- four facets, two per half.
+         at --k 0 their eight points sit ON the button's rect and
+         tile it: the paper IS the button's face -->
+    <span class="plume__seat">
+      <button class="plume__btn" id="btn" type="button">
+        <span class="plume__face"></span>
+        <span class="plume__words">
+          <span>Subscribe</span>
+          <span>Try again</span>
+        </span>
+      </button>
+
+      <svg class="plume__plane" id="plane" viewBox="0 0 1 1" aria-hidden="true">
+        <polygon class="plume__facet"/>
+        <polygon class="plume__facet"/>
+        <polygon class="plume__facet"/>
+        <polygon class="plume__facet"/>
+      </svg>
+    </span>
+
+    <svg class="plume__trail" id="trail" viewBox="0 0 1 1" aria-hidden="true"></svg>
+
+    <span class="plume__done" id="done">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+           stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      Done
+    </span>
+  </div>
+</div>
+
+<p class="hint">ই-মেইল ঠিকানা লিখে <b>Subscribe</b> চাপুন।</p>
+
+<script>
+(function () {
+  'use strict';
+
+  var plume = document.getElementById('plume');
+  var input = document.getElementById('email');
+  var btn   = document.getElementById('btn');
+  var plane = document.getElementById('plane');
+  var trail = document.getElementById('trail');
+  var facets = plane.querySelectorAll('.plume__facet');
+
+  /* ── রঙ ─────────────────────────────────────────────────── */
+  var CS = getComputedStyle(plume);
+  var LIT  = CS.getPropertyValue('--paper-lit').trim()  || '#2bffc8';
+  var DARK = CS.getPropertyValue('--paper-dark').trim() || '#12937a';
+
+  /* ═══ জ্যামিতি ════════════════════════════════════════════
+     measured off the reference at 60fps: the tent is EXACTLY the
+     inscribed triangle, and the dihedral closes to 72°
+
+     r = সমতল আয়তক্ষেত্রে বিন্দুর অবস্থান
+     t = ভাঁজ করা উড়োজাহাজে সেই বিন্দুর অবস্থান
+
+     ⚠️⚠️ a = ভাঁজরেখা (উল্লম্ব, বাটনের মাঝবরাবর) থেকে দূরত্ব —
+              0 = ভাঁজরেখা, 1 = বাইরের কিনারা, মাপ W/2
+          b = উপর-নিচ — +.5 উপরে, −.5 নিচে, মাপ H
+     তাই r = বাটনের **অর্ধেক আয়তক্ষেত্র**, আর t = অন্তর্লিখিত
+     ত্রিভুজ, নিচে মাঝখানে একটি খাঁজসহ (উড়োজাহাজের লেজ)।        */
+  var HALF = [
+    { r: [0,  .5], t: [0,     .5 ] },  // A — চূড়া (উপরে, ভাঁজরেখায়)
+    { r: [1,  .5], t: [1,    -.5 ] },  // Q — বাইরের নিচের কোণ (ডানা)
+    { r: [1, -.5], t: [ .242, -.5] },  // P — নিচে, খাঁজের বাইরের দিক
+    { r: [0, -.5], t: [ .048, -.44] }  // D — নিচে, খাঁজের ভিতরের দিক
+  ];
+
+  var DIH_MAX = 72 * Math.PI / 180;   // dihedral closes to 72°
+
+  /* তাঁবু থেকে উড়োজাহাজে — শেষ অবস্থানের তিনটি কোণ।
+     এগুলো ভিডিওর ১১৩–১১৬ নম্বর ফ্রেমের সাথে মিলিয়ে বাছা। */
+  var AX = 50 * Math.PI / 180;
+  var AY = 30 * Math.PI / 180;
+  var AZ = 62 * Math.PI / 180;
+
+  /* আসনের মাপ (পিক্সেল) — প্রতিবার নতুন করে মাপা হয়, তাই
+     ব্রেকপয়েন্ট বদলালেও জ্যামিতি ঠিক থাকে। */
+  function seatBox() {
+    var s = plume.querySelector('.plume__seat').getBoundingClientRect();
+    return { w: s.width, h: s.height };
+  }
+
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+
+  /* k = ভাঁজের অগ্রগতি (0 সমতল → 1 উড়োজাহাজ)
+     dih = দুই অর্ধেকের মধ্যেকার কোণ (0 → DIH_MAX)
+     ⚠️ --k walks the vertices, --dih closes the halves. ONE number
+        for both makes the tent grow while it narrows, so it ends up
+        a spike — তাই দুটি আলাদা রাখা হয়েছে। */
+  function build(k, dih, box) {
+    var W = box.w, H = box.h;
+    var cos = Math.cos(dih), sin = Math.sin(dih);
+
+    var pts = [];                            /* [half][vertex] = {x,y,z} */
+    for (var s = 0; s < 2; s++) {
+      var sign = s ? -1 : 1;                 /* ডান অর্ধেক / বাঁ অর্ধেক */
+      var row = [];
+      for (var i = 0; i < HALF.length; i++) {
+        var v = HALF[i];
+        var a = lerp(v.r[0], v.t[0], k) * sign;
+        var b = lerp(v.r[1], v.t[1], k);
+        var xFlat = a * (W / 2);
+        /* ⚠️ উল্লম্ব ভাঁজরেখার চারপাশে ঘোরে — তাই x সংকুচিত হয়,
+           আর যত দূরে তত বেশি সামনে (z) আসে। এতেই তাঁবুটি তৈরি হয়। */
+        row.push({ x: xFlat * cos, y: -b * H, z: Math.abs(xFlat) * sin });
+      }
+      pts.push(row);
+    }
+    return pts;
+  }
+
+  /* ── ৩D ঘোরানো ও প্রক্ষেপণ ─────────────────────────────────
+     ⚠️ CSS-এর rotateY দিয়ে হয় না — SVG সমতল, ৯০°-তে মিলিয়ে যায়।
+        তাই বিন্দুগুলো নিজেরাই ঘোরানো হয়, তারপর perspective ভাগ।
+        এতেই তাঁবুটি ঘুরে গিয়ে কাগজের উড়োজাহাজ হয়ে ওঠে।        */
+  var CAM = 300;
+  function rot3(p, ax, ay, az) {
+    var x = p.x, y = p.y, z = p.z, c, s, t;
+    c = Math.cos(ax); s = Math.sin(ax);
+    t = y * c - z * s; z = y * s + z * c; y = t;
+    c = Math.cos(ay); s = Math.sin(ay);
+    t = x * c + z * s; z = -x * s + z * c; x = t;
+    c = Math.cos(az); s = Math.sin(az);
+    t = x * c - y * s; y = x * s + y * c; x = t;
+    return { x: x, y: y, z: z };
+  }
+  function project(p) {
+    var s = CAM / (CAM - p.z);
+    return { x: p.x * s, y: p.y * s, z: p.z };
+  }
+
+  /* একটি ত্রিভুজের আলো — নিজের normal দেখে।
+     a skin is TWO TONES AND A LIGHT: app.js shades every facet by
+     its own normal, so the fold's colours are its geometry. */
+  function shade(p0, p1, p2) {
+    var ux = p1.x - p0.x, uy = p1.y - p0.y, uz = p1.z - p0.z;
+    var vx = p2.x - p0.x, vy = p2.y - p0.y, vz = p2.z - p0.z;
+    var nx = uy * vz - uz * vy,
+        ny = uz * vx - ux * vz,
+        nz = ux * vy - uy * vx;
+    var len = Math.hypot(nx, ny, nz) || 1;
+    /* আলো সামনে ও একটু উপর-বাঁ দিক থেকে */
+    var L = [-0.32, -0.46, 0.83];
+    var d = (nx * L[0] + ny * L[1] + nz * L[2]) / len;
+    return Math.abs(d);
+  }
+
+  function mix(c1, c2, t) {
+    function hex(c) { return [parseInt(c.substr(1,2),16), parseInt(c.substr(3,2),16), parseInt(c.substr(5,2),16)]; }
+    var A = hex(c1), B = hex(c2);
+    return 'rgb(' + Math.round(lerp(A[0],B[0],t)) + ',' + Math.round(lerp(A[1],B[1],t)) + ',' + Math.round(lerp(A[2],B[2],t)) + ')';
+  }
+
+  /* প্রতি অর্ধেকে দুটি ত্রিভুজ: A-Q-P ও A-P-D */
+  var TRI = [[0, 1, 2], [0, 2, 3]];
+
+  function paint(k, dih, ax, ay, az) {
+    ax = ax || 0; ay = ay || 0; az = az || 0;
+    var box = seatBox();
+    var P = build(k, dih, box);
+
+    var quads = [];
+    for (var s = 0; s < 2; s++) {
+      for (var t = 0; t < 2; t++) {
+        var idx = TRI[t];
+        var v = [P[s][idx[0]], P[s][idx[1]], P[s][idx[2]]].map(function (p) {
+          return rot3(p, ax, ay, az);
+        });
+        quads.push({ v: v, depth: (v[0].z + v[1].z + v[2].z) / 3 });
+      }
+    }
+    /* ⚠️ পেছনেরটা আগে আঁকা — নাহলে ঘোরার সময় ভুল মুখ উপরে পড়ে */
+    quads.sort(function (a, b) { return a.depth - b.depth; });
+
+    for (var n = 0; n < quads.length; n++) {
+      var q = quads[n];
+      var a = project(q.v[0]), b = project(q.v[1]), c = project(q.v[2]);
+      var el = facets[n];
+      el.setAttribute('points',
+        a.x.toFixed(2) + ',' + a.y.toFixed(2) + ' ' +
+        b.x.toFixed(2) + ',' + b.y.toFixed(2) + ' ' +
+        c.x.toFixed(2) + ',' + c.y.toFixed(2));
+      el.setAttribute('fill', mix(DARK, LIT, Math.min(1, shade(q.v[0], q.v[1], q.v[2]) * 1.18)));
+    }
+  }
+
+  /* ── ইজিং ────────────────────────────────────────────────── */
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInOut(t)    { return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+  function easeInCubic(t)  { return t * t * t; }
+
+  /* ── অবস্থা ──────────────────────────────────────────────── */
+  var VALID = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+  var busy = false;
+
+  function syncArm() {
+    if (busy) return;
+    plume.classList.toggle('is-armed', VALID.test(input.value.trim()));
+  }
+  input.addEventListener('input', function () { plume.classList.remove('is-retry', 'is-done'); syncArm(); });
+  input.addEventListener('focus', function () { plume.classList.add('is-live'); });
+  input.addEventListener('blur',  function () { if (!busy && !input.value) plume.classList.remove('is-live'); });
+
+  /* ── উড়ান ────────────────────────────────────────────────── */
+  function run() {
+    if (busy) return;
+    var value = input.value.trim();
+    if (!VALID.test(value)) {
+      input.focus();
+      plume.classList.add('is-live');
+      return;
+    }
+    busy = true;
+    plume.classList.add('is-live', 'is-folding');
+    plume.classList.remove('is-done', 'is-retry');
+    input.disabled = true; btn.disabled = true;
+
+    /* ⏱️ সময়গুলো ভিডিও থেকে গুনে নেওয়া (২৯.২৩ fps):
+         ফ্রেম ৯৮→১০৬  ভাঁজ         ≈ ২৮০ms
+         ফ্রেম ১০৬→১১৩ পাশ ফেরা     ≈ ২৪০ms
+         ফ্রেম ১১৩→১২৪ স্থির, দোলে   ≈ ৩৮০ms
+         ফ্রেম ১২৪→১৩২ উড়ে যাওয়া    ≈ ২৮০ms                     */
+    var FOLD = 280, TURN = 240, HOLD = 380, FLY = 280;
+    var T1 = FOLD, T2 = T1 + TURN, T3 = T2 + HOLD, T4 = T3 + FLY;
+    var t0 = performance.now();
+
+    /* ট্রেইলের দাগগুলো আগেই বানিয়ে রাখা */
+    trail.innerHTML = '';
+    var dashes = [];
+    for (var i = 0; i < 4; i++) {
+      var ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      trail.appendChild(ln); dashes.push(ln);
+    }
+
+    function pose(px, py, sc) {
+      plane.style.setProperty('--px', px.toFixed(2) + 'px');
+      plane.style.setProperty('--py', py.toFixed(2) + 'px');
+      plane.style.setProperty('--sc', sc.toFixed(3));
+    }
+
+    function frame(now) {
+      var el = now - t0;
+
+      /* ── ১. ভাঁজ: আয়তক্ষেত্র → অন্তর্লিখিত ত্রিভুজ (তাঁবু) ── */
+      if (el < T1) {
+        var p = el / T1;
+        paint(easeOutCubic(p), DIH_MAX * easeInOut(p), 0, 0, 0);
+        pose(0, 0, 1);
+        requestAnimationFrame(frame); return;
+      }
+
+      /* ── ২. পাশ ফেরা: তাঁবুটি ঘুরে যায়, উপর থেকে দেখা মেলে —
+             তখনই সেটি কাগজের উড়োজাহাজ হয়ে ওঠে ── */
+      if (el < T2) {
+        var q = easeInOut((el - T1) / TURN);
+        paint(1, DIH_MAX, AX * q, AY * q, AZ * q);
+        pose(0, 0, 1 - .10 * q);
+        requestAnimationFrame(frame); return;
+      }
+
+      /* ── ৩. স্থির — সামান্য দোলে (উড়ানের আগে গা ঝাড়া) ── */
+      if (el < T3) {
+        var h = (el - T2) / HOLD;
+        paint(1, DIH_MAX, AX, AY, AZ + Math.sin(h * Math.PI * 2) * .045);
+        pose(Math.sin(h * Math.PI * 2) * 1.8, -Math.sin(h * Math.PI * 3) * 1.4, .90);
+        requestAnimationFrame(frame); return;
+      }
+
+      /* ── ৪. উড়ান: উপরে-ডানে, পেছনে ধোঁয়ার দাগ ── */
+      if (el < T4) {
+        plume.classList.add('is-flying');
+        var f = (el - T3) / FLY, e = easeInCubic(f);
+        var dx = 230 * e, dy = -165 * e;
+        paint(1, DIH_MAX, AX, AY, AZ - .07 * e);
+        pose(dx, dy, .90 - .42 * e);
+        plane.style.opacity = f > .70 ? String(Math.max(0, 1 - (f - .70) / .30)) : '1';
+
+        for (var i = 0; i < dashes.length; i++) {
+          var back = (i + 1) * 0.10;
+          var s1 = Math.max(0, e - back), s2 = Math.max(0, e - back - 0.055);
+          dashes[i].setAttribute('x1', (230 * s1).toFixed(1));
+          dashes[i].setAttribute('y1', (-165 * s1).toFixed(1));
+          dashes[i].setAttribute('x2', (230 * s2).toFixed(1));
+          dashes[i].setAttribute('y2', (-165 * s2).toFixed(1));
+          dashes[i].style.opacity = String(Math.max(0, .5 - i * .1) * (1 - f));
+        }
+        requestAnimationFrame(frame); return;
+      }
+
+      /* ── ৫. শেষ — "✓ Done" ── */
+      plane.style.opacity = '';
+      plume.classList.remove('is-folding', 'is-flying', 'is-armed');
+      trail.innerHTML = '';
+      plume.classList.add('is-done');
+      input.disabled = false;
+      setTimeout(function () { busy = false; btn.disabled = false; }, 200);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  btn.addEventListener('click', run);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+
+  paint(0, 0);
+  window.addEventListener('resize', function () { if (!busy) paint(0, 0); });
+
+  /* পরীক্ষার জন্য — নির্দিষ্ট k ও dih-এ ছবি আটকে দেখা যায় */
+  var D = Math.PI / 180;
+  window.__plumeFreeze = function (k, dihDeg, axDeg, ayDeg, azDeg, sc) {
+    plume.classList.add('is-folding');
+    paint(k, (dihDeg === undefined ? 72 : dihDeg) * D,
+          (axDeg || 0) * D, (ayDeg || 0) * D, (azDeg || 0) * D);
+    plane.style.setProperty('--sc', (sc || 1));
+  };
+})();
+</script>
+</body>
+</html>
