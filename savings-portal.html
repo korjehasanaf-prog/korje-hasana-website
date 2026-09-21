@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=31">
+  <link rel="stylesheet" href="kh-ui.css?v=32">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -860,10 +860,10 @@
         <div class="section-card-head">
           <h3><i class="ti ti-piggy-bank" style="color:var(--green)"></i> সঞ্চয় জমা করুন</h3>
         </div>
-        <div class="modal-info-box" style="border-radius:10px;margin-bottom:16px;">
-          <i class="ti ti-info-circle"></i>
-          <div>প্রথমে bKash/Nagad-এ ফাউন্ডেশনের নম্বরে পাঠান, তারপর রেফারেন্স নম্বর দিয়ে নিশ্চিত করুন।<br><strong>bKash/Nagad: 01711-515952</strong></div>
-        </div>
+        <!-- ⚠️ আগে এখানে হার্ডকোড করা লেখা ছিল "bKash/Nagad: 01711-515952" ও
+             কোনো মাধ্যম বাছার উপায় ছিল না — তাই "কীভাবে দিলেন" প্রশ্নের
+             উত্তর কোথাও জমাই হত না। এখন `KHUI.payPicker()` (২১ সেপ্টে ২০২৬);
+             নম্বর ও হিসাবের তথ্য আসে `app_settings.pay_methods` থেকে। -->
         <div class="msg-box" id="depositMsgPanel"></div>
 
         <!-- কোন হিসাবে, কত টাকা, কোন মাসের কিস্তি — সবই এখানে নিশ্চিত হয় -->
@@ -877,11 +877,12 @@
             <input type="number" id="depositAmountPanel" placeholder="০.০০" min="10" step="1">
           </div>
         </div>
-        <div class="form-group">
-          <label>লেনদেন রেফারেন্স নম্বর <span style="color:red">*</span></label>
-          <input type="text" id="depositRefPanel" placeholder="bKash/Nagad TrxID">
-          <div class="hint">bKash বা Nagad-এর ট্রানজেকশন আইডি লিখুন</div>
-        </div>
+        <!-- টাকা কীভাবে দিয়েছেন — মাধ্যম + ফাউন্ডেশনের তথ্য + TrxID -->
+        <div id="depPay" style="margin-bottom:16px"></div>
+        <!-- ⚠️ পুরনো ঘরটি রাখা হয়েছে কিন্তু লুকানো: `submitDepositPanel()`
+             ছাড়াও অন্য কোড এটি পড়তে পারে, আর অটোফিল/ব্রাউজার এক্সটেনশন
+             হঠাৎ null পেলে ক্র্যাশ করত। মান এখন payPicker থেকে আসে। -->
+        <input type="hidden" id="depositRefPanel">
         <div class="form-group">
           <label>মন্তব্য (ঐচ্ছিক)</label>
           <input type="text" id="depositNotePanel" placeholder="প্রয়োজনে মন্তব্য লিখুন">
@@ -1328,6 +1329,19 @@ async function doLogout() {
 var ACCOUNTS = [];          /* my_savings_accounts() থেকে */
 var CUR = null;             /* এখন যে হিসাবটি নির্বাচিত */
 
+/* ── টাকা দেওয়ার মাধ্যম (২১ সেপ্টেম্বর ২০২৬) ──
+   ⚠️ একবারই বসানো হয় — প্যানেল বদলালে আবার বসালে দাতার লেখা
+   TrxID মুছে যেত। `KHUI.payPicker()` async, তাই হ্যান্ডেলটি
+   গ্লোবালে রাখা হয় ও `submitDepositPanel()` সেটিই দেখে। */
+var DEP_PAY = null;
+async function mountDepositPay() {
+  if (DEP_PAY || !window.KHUI || !KHUI.payPicker) return;
+  var host = document.getElementById('depPay');
+  if (!host) return;
+  try { DEP_PAY = await KHUI.payPicker(host, { title: 'টাকা কীভাবে দিয়েছেন?' }); }
+  catch (e) { DEP_PAY = null; }
+}
+
 function accLabel(a) {
   var s = (SCHEME_LABELS[a.scheme] || a.scheme);
   return s + ' · ' + a.account_no +
@@ -1756,6 +1770,10 @@ async function loadHeroStats() {
 // ─── On page load ─────────────────────────────────────────────────
 (async () => {
   loadHeroStats();
+  /* ⚠️ `kh-ui.js` `</body>`-এর আগে লোড হয়, তাই এই IIFE-র সময় KHUI
+     থাকতে পারে আবার না-ও পারে — দুই দিক সামলানো হয়েছে। */
+  if (window.KHUI) mountDepositPay();
+  else window.addEventListener('load', mountDepositPay);
   const { data: { session } } = await _db.auth.getSession();
   if(session?.user) {
     await loadPortal(session.user);
@@ -2455,14 +2473,21 @@ function printStatement() {
 // ─── Panel deposit submit ─────────────────────────────────────────
 async function submitDepositPanel() {
   if (!CUR) { showMsg('depositMsgPanel','আগে একটি হিসাব নির্বাচন করুন।','error'); return; }
-  const ref  = document.getElementById('depositRefPanel').value.trim();
   const note = document.getElementById('depositNotePanel').value.trim();
   const d    = CUR.due || {};
   const free = !d.has_schedule;                 /* "যখন খুশি" হলেই অঙ্ক নিজে লিখতে হয় */
   const typed = parseFloat(document.getElementById('depositAmountPanel').value);
 
   if (free && (!typed || typed < 10)) { showMsg('depositMsgPanel','কমপক্ষে ১০ টাকা জমা দিন।','error'); return; }
-  if (!ref) { showMsg('depositMsgPanel','রেফারেন্স নম্বর আবশ্যক।','error'); return; }
+
+  /* ⚠️ মাধ্যম ও রেফারেন্স এখন payPicker থেকে — সে নিজেই লাল বেড় ও
+     বার্তা দেখায়, তাই এখানে আলাদা করে বলার দরকার নেই। */
+  if (!DEP_PAY) { showMsg('depositMsgPanel','টাকা দেওয়ার মাধ্যমের তালিকা এখনো আসেনি — একটু পরে আবার দেখুন।','error'); return; }
+  if (DEP_PAY.empty) { showMsg('depositMsgPanel','টাকা পাঠানোর কোনো মাধ্যম চালু নেই — ফাউন্ডেশনের সাথে যোগাযোগ করুন।','error'); return; }
+  const pay = DEP_PAY.validate();
+  if (!pay) { showMsg('depositMsgPanel','টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন।','error'); return; }
+  const ref = pay.reference;
+  document.getElementById('depositRefPanel').value = ref;   /* পুরনো কোডের জন্য */
 
   showMsg('depositMsgPanel','পাঠানো হচ্ছে…','info');
   let res;
@@ -2470,7 +2495,7 @@ async function submitDepositPanel() {
     /* ⚠️ সরাসরি insert নয় — অঙ্ক ও মাস সার্ভারই ঠিক করে (deposit_to_savings) */
     const r = await _db.rpc('deposit_to_savings', {
       p_account: CUR.id, p_reference: ref, p_notes: note || null,
-      p_amount: free ? typed : null
+      p_amount: free ? typed : null, p_method: pay.method
     });
     if (r.error) throw r.error;
     res = r.data;
@@ -2487,9 +2512,11 @@ async function submitDepositPanel() {
   document.getElementById('depositAmountPanel').value='';
   document.getElementById('depositRefPanel').value='';
   document.getElementById('depositNotePanel').value='';
+  if (DEP_PAY && DEP_PAY.reset) DEP_PAY.reset();
 
   showSavingsVoucher({
     kind: 'deposit', amount: amount, reference: ref, note: note,
+    method: pay.method,
     id: res && res.id, date: new Date().toISOString(),
     period: res && res.period_month
   });
@@ -2596,6 +2623,11 @@ async function showSavingsVoucher(tx) {
     ['হিসাব নম্বর / Account', (CUR && CUR.account_no) || '—'],
     ['আমানত স্কীম / Scheme', SCHEME_BN[dep.scheme_type] || '—']
   ];
+  /* মাধ্যমের বাংলা নাম — `KHUI.PAY_METHODS` থেকে, যাতে নাম এক জায়গায় থাকে */
+  if (tx.method && window.KHUI && KHUI.PAY_METHODS) {
+    const pm = KHUI.PAY_METHODS.filter(m => m.id === tx.method)[0];
+    if (pm) rows.push(['মাধ্যম / Method', pm.name]);
+  }
   rows.push(
     ['রেফারেন্স / Reference', tx.reference || '—'],
     ['অবস্থা / Status', 'অনুমোদনের অপেক্ষায় (Pending)']
@@ -2644,6 +2676,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=31"></script>
+<script src="kh-ui.js?v=32"></script>
 </body>
 </html>

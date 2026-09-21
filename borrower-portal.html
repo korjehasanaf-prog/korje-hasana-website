@@ -302,7 +302,7 @@
   .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=31">
+  <link rel="stylesheet" href="kh-ui.css?v=32">
 </head>
 <body data-kh-nav="on">
 
@@ -664,13 +664,10 @@ function openPayInstallment(btn) {
       <div id="payMsg" style="display:none;padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
       <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">পরিমাণ (৳)</label>
       <input id="payAmt" type="number" value="${amt}" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:13px">
-      <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">পরিশোধের মাধ্যম</label>
-      <select id="payMethod" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:13px">
-        <option value="bkash">বিকাশ</option><option value="nagad">নগদ</option>
-        <option value="bank">ব্যাংক</option><option value="cash">নগদ টাকা</option><option value="other">অন্যান্য</option>
-      </select>
-      <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">ট্রানজেকশন আইডি</label>
-      <input id="payRef" placeholder="যেমন: 8A7B6C5D" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:18px">
+      <!-- ⚠️ আগে এখানে একটি সাদামাটা `<select>` (বিকাশ/নগদ/ব্যাংক/ক্যাশ/অন্য)
+           ও একটি TrxID ঘর ছিল। এখন `KHUI.payPicker()` — ফাউন্ডেশনের নম্বর
+           ও হিসাবের তথ্য ৩D কার্ডে দেখায়, কপি বাটনও আছে (২১ সেপ্টে ২০২৬)। -->
+      <div id="payPick" style="margin-bottom:18px"></div>
       <div style="display:flex;gap:9px">
         <button id="payGo" style="flex:1;padding:13px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(112deg,#0d6e56,#1d9e75);color:#fff;font-family:inherit;font-size:15px;font-weight:700">
           <i class="ti ti-check"></i> জমা দিন</button>
@@ -690,13 +687,23 @@ function openPayInstallment(btn) {
   box.querySelector('#payCancel').onclick = close;
   box.addEventListener('click', e => { if (e.target === box) close(); });
 
+  /* মাধ্যমের পিকার — মোডালটি প্রতিবার নতুন করে বসে, তাই এখানেই বসানো */
+  let PICK = null;
+  (async () => {
+    if (!(window.KHUI && KHUI.payPicker)) return;
+    try { PICK = await KHUI.payPicker(box.querySelector('#payPick'),
+                    { title: 'কিস্তির টাকা কীভাবে দিয়েছেন?' }); } catch (e) {}
+  })();
+
   box.querySelector('#payGo').onclick = async function () {
     const b = this;
     const val = parseFloat(box.querySelector('#payAmt').value);
-    const method = box.querySelector('#payMethod').value;
-    const ref = box.querySelector('#payRef').value.trim();
     if (!val || val <= 0) { say('সঠিক পরিমাণ লিখুন।', false); return; }
-    if (!ref) { say('ট্রানজেকশন আইডি দিন।', false); return; }
+    if (!PICK)       { say('মাধ্যমের তালিকা এখনো আসেনি — একটু পরে আবার দেখুন।', false); return; }
+    if (PICK.empty)  { say('টাকা পাঠানোর কোনো মাধ্যম চালু নেই — ফাউন্ডেশনের সাথে যোগাযোগ করুন।', false); return; }
+    const pay = PICK.validate();
+    if (!pay) { say('টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন।', false); return; }
+    const method = pay.method, ref = pay.reference;
 
     b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> জমা হচ্ছে…';
     try {
@@ -711,7 +718,12 @@ function openPayInstallment(btn) {
       if (window.KHUI && KHUI.voucher) {
         let prof = null;
         try { prof = await KHUI.getMyProfile(); } catch (e) {}
-        const METHOD = { bkash:'বিকাশ', nagad:'নগদ', bank:'ব্যাংক', cash:'নগদ টাকা', other:'অন্যান্য' };
+        /* ⚠️ নামের তালিকা আর এখানে নয় — `KHUI.PAY_METHODS`-ই একমাত্র উৎস,
+           নাহলে নতুন মাধ্যম যোগ করলে ভাউচারে কাঁচা id ("bqr") দেখা যেত। */
+        const mName = id => {
+          const m = (KHUI.PAY_METHODS || []).filter(x => x.id === id)[0];
+          return m ? m.name : id;
+        };
         KHUI.voucher({
           title: 'কিস্তি পরিশোধ রশিদ',
           no: (d.loan_no || 'KH-L') + '-' + KHUI.bn(d.installment_no || no),
@@ -722,7 +734,7 @@ function openPayInstallment(btn) {
             ['লেনদেনের ধরন', 'ঋণের কিস্তি পরিশোধ'],
             ['ঋণ নং', d.loan_no || '—'],
             ['কিস্তি নং', KHUI.bn(d.installment_no || no)],
-            ['পরিশোধ মাধ্যম', METHOD[method] || method],
+            ['পরিশোধ মাধ্যম', mName(method)],
             ['ট্রানজেকশন আইডি', ref],
             ['অবস্থা', 'অ্যাডমিন যাচাইয়ের অপেক্ষায়']
           ],
@@ -1055,6 +1067,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=31"></script>
+<script src="kh-ui.js?v=32"></script>
 </body>
 </html>

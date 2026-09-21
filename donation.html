@@ -151,6 +151,157 @@
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .form-hint { font-size:12.5px; color:var(--muted); }
 
+    /* ══════════════════════════════════════════════════════════
+       💳 কার্ড পেমেন্ট — `card-payment.html` থেকে আনা
+       (২১ সেপ্টেম্বর ২০২৬ · ব্যবহারকারী: "দানের ক্ষেত্রে কার্ড
+       সিলেক্ট করলে কার্ড পেমেন্ট এর নতুন ফিচার আসছে না")
+
+       আগে এখানে কেবল তিনটি সাদামাটা ঘর ছিল — কোনো ব্র্যান্ড
+       শনাক্তকরণ, কোনো কার্ড দেখা যেত না। এখন ৩D কার্ড + আটটি
+       ব্র্যান্ড নিজে থেকে চেনা।
+
+       ⚠️ সব ক্লাসে `cp-` প্রিফিক্স — `card-payment.html`-এ নাম ছিল
+          `.chip`/`.face`/`.pan`/`.mark`, যেগুলো এই পেজের `.card`,
+          `.card-body`-র মত সাধারণ নামের পাশে ভবিষ্যতে সংঘর্ষ
+          বাধাতে পারত (ঐ পেজেই `.chip` নিয়ে একবার হয়েছিল)।
+       ⚠️ কার্ডটি **নিজের গাঢ় গ্র্যাডিয়েন্ট বহন করে**, তাই দুই
+          থীমে হুবহু এক — ভাউচার ও প্রোফাইল কার্ডের মতোই।
+       ══════════════════════════════════════════════════════════ */
+    .cp-wrap { display:grid; justify-items:center; gap:12px; perspective:1200px; margin-bottom:16px; }
+    .cp-3d {
+      width:100%; max-width:340px; aspect-ratio:1.62/1;
+      position:relative; transform-style:preserve-3d;
+      transition:transform .8s cubic-bezier(.4,.1,.2,1);
+    }
+    .cp-wrap.is-flipped .cp-3d { transform:rotateY(180deg); }
+    .cp-face {
+      position:absolute; inset:0; border-radius:16px;
+      backface-visibility:hidden; -webkit-backface-visibility:hidden;
+      background:linear-gradient(145deg,#2c2138,#191622 62%,#14151a);
+      border:1px solid rgba(255,255,255,.09);
+      box-shadow:0 18px 38px -20px rgba(20,10,30,.7), inset 0 1px 0 rgba(255,255,255,.07);
+      overflow:hidden; padding:16px 18px; display:flex; flex-direction:column;
+    }
+    /* ⚠️ লগইন পেজের ক্যালিগ্রাফি, কিন্তু **খুব চাপা** (.11) — বেশি
+       দিলে নম্বরের পেছনে নকশা ফুটে উঠে পড়া কঠিন করে দেয়।
+       ⚠️⚠️ `mix-blend-mode` দেওয়া যাবে না — সোনালি চিপ ও PLATINUM
+       লেখার রঙ ধুয়ে ধূসর করে দেয় (card-payment.html-এ ধরা পড়েছে)। */
+    .cp-face::before {
+      content:''; position:absolute; inset:0; pointer-events:none; z-index:0;
+      background:url('images/auth-bg.jpg') center / cover no-repeat; opacity:.11;
+    }
+    .cp-face::after {
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(118deg,rgba(255,255,255,.10) 0%,transparent 34%,transparent 66%,rgba(255,255,255,.05) 100%);
+    }
+    .cp-top, .cp-pan, .cp-foot { position:relative; z-index:2; }
+    .cp-face--back { transform:rotateY(180deg); padding:0; }
+
+    .cp-top { display:flex; align-items:center; gap:9px; }
+    .cp-chip {
+      width:34px; height:25px; border-radius:6px; flex:none;
+      background:linear-gradient(140deg,#ffd35c,#f7ab24 48%,#d2870d);
+      position:relative; overflow:hidden;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);
+    }
+    .cp-chip::before, .cp-chip::after {
+      content:''; position:absolute; left:0; right:0; height:1.2px; background:rgba(90,55,5,.55);
+    }
+    .cp-chip::before { top:7.5px; } .cp-chip::after { top:16px; }
+    .cp-chipbar { position:absolute; top:0; bottom:0; left:11px; width:1.2px; background:rgba(90,55,5,.55); }
+    .cp-chipbar + .cp-chipbar { left:23px; }
+    .cp-nfc { color:rgba(255,255,255,.42); display:flex; }
+    .cp-nfc svg { width:15px; height:15px; display:block; }
+    .cp-tier { margin-left:auto; color:#f0a428; font-size:9.5px; font-weight:700; letter-spacing:.24em; }
+    .cp-pan {
+      margin-top:auto; padding-bottom:14px;
+      font:500 17px/1 ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+      letter-spacing:.05em; color:#eef1f6; text-shadow:0 2px 10px rgba(0,0,0,.5); min-height:17px;
+    }
+    .cp-foot { display:flex; align-items:flex-end; gap:22px; }
+    .cp-foot small { display:block; font-size:7.5px; letter-spacing:.16em; color:rgba(255,255,255,.55); text-transform:uppercase; margin-bottom:4px; }
+    .cp-foot b { font-size:11.5px; font-weight:600; color:#e9ecf2; letter-spacing:.04em; }
+    /* ⚠️ লম্বা নাম দিলে ব্র্যান্ডের চিহ্নটি কার্ডের বাইরে ঠেলে দিত —
+       `min-width:0` ছাড়া flex আইটেম তার min-content প্রস্থ ধরে রাখে
+       (card-payment.html-এ দুবার এই ফাঁদে পড়া হয়েছে)। নাম এখন
+       জায়গা না পেলে `…` দিয়ে কাটা যায়। */
+    .cp-foot > span:first-child { min-width:0; }
+    .cp-foot > span:first-child b { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .cp-brandbig { margin-left:auto; flex:none; }
+
+    /* কার্ডের পিঠ */
+    .cp-mag { height:36px; margin-top:20px; background:#0b0a10; }
+    .cp-cvvrow { display:flex; align-items:center; gap:10px; padding:16px 18px 0; }
+    .cp-cvvbar { flex:1; height:27px; border-radius:4px; background:linear-gradient(90deg,#e9e5dc,#cfcac0); }
+    .cp-cvvbox {
+      min-width:52px; height:27px; border-radius:4px; background:#fff;
+      display:grid; place-items:center; letter-spacing:.12em;
+      font:700 13px/1 ui-monospace, 'SFMono-Regular', Menlo, monospace; color:#17151c;
+    }
+    .cp-backnote { padding:10px 18px; font-size:9.5px; color:rgba(255,255,255,.55); letter-spacing:.03em; }
+
+    /* ⚠️ বাটনটি নিজের রঙ বহন করে (সাদা লেখা = রঙিন পটভূমি — প্রকল্পের
+       ২ নম্বর নিয়ম); ফর্মের সাদা কার্ডে কনট্রাস্ট ৮.৭:১ */
+    .cp-flip {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:8px 16px; border-radius:999px; cursor:pointer; border:0;
+      background:#332845; color:#ece7f4;
+      font:600 12.5px/1 inherit; font-family:inherit;
+    }
+    .cp-flip:hover { background:#41345a; }
+    .cp-flip svg { width:13px; height:13px; }
+
+    /* ── নম্বরের ঘরে ব্র্যান্ডের চিহ্ন ── */
+    .cp-numwrap { position:relative; display:flex; }
+    .cp-numwrap .form-input { flex:1; padding-right:64px; letter-spacing:.04em; }
+    .cp-numwrap .cp-brand { position:absolute; right:12px; top:50%; transform:translateY(-50%); }
+    /* ⚠️ Luhn চেকসাম ভুল হলে লাল বেড় — কেবল **পূর্ণ দৈর্ঘ্যে** */
+    .cp-numwrap.is-bad .form-input { border-color:var(--error); box-shadow:0 0 0 3px rgba(220,38,38,.1); }
+    .cp-bad-note { display:none; font-size:12.5px; color:var(--error); }
+    .cp-numwrap.is-bad ~ .cp-bad-note { display:block; }
+
+    /* ══ ব্র্যান্ডের চিহ্ন — কোনো ছবি নয়, সবই CSS-এ আঁকা ══ */
+    .cp-brand { display:inline-flex; align-items:center; gap:4px; flex:none; height:19px; }
+    .cp-brand--none { display:none; }
+    .cp-brand b { font-size:12px; font-weight:800; font-style:italic; letter-spacing:.02em; color:#4b4459; }
+    .cp-brand--amex b, .cp-brand--jcb b, .cp-brand--unionpay b,
+    .cp-brand--diners b, .cp-brand--maestro b, .cp-brand--discover b {
+      font-style:normal; font-weight:700; font-size:9.5px; letter-spacing:.07em;
+      padding:3.5px 6px; border-radius:4px; color:#fff;
+    }
+    .cp-brand--amex b     { background:#1f72cd; }
+    .cp-brand--discover b { background:#d96208; }
+    .cp-brand--diners b   { background:#0079be; }
+    .cp-brand--jcb b      { background:#0b4ea2; }
+    .cp-brand--unionpay b { background:#c81f26; }
+    .cp-brand--maestro b  { background:#5b5aa8; }
+    .cp-brand--visa b     { color:#1a1f71; font-size:14px; }
+    /* মাস্টারকার্ডের দুটি বৃত্ত */
+    .cp-brand--mc i { width:28px; height:18px; display:block; position:relative; flex:none; }
+    .cp-brand--mc i::before, .cp-brand--mc i::after {
+      content:''; position:absolute; top:0; width:18px; height:18px; border-radius:50%;
+    }
+    .cp-brand--mc i::before { left:0;  background:#eb001b; }
+    .cp-brand--mc i::after  { right:0; background:#f79e1b; mix-blend-mode:multiply; }
+    .cp-brand--mc b { display:none; }
+    /* কার্ডের গায়ের বড় চিহ্ন — গাঢ় পটভূমি, তাই লেখা সাদা */
+    .cp-brandbig .cp-brand b { font-size:17px; color:#fff; }
+    .cp-brandbig .cp-brand--mc i { width:40px; height:25px; }
+    .cp-brandbig .cp-brand--mc i::before, .cp-brandbig .cp-brand--mc i::after { width:25px; height:25px; }
+    .cp-brandbig .cp-brand--amex b, .cp-brandbig .cp-brand--discover b,
+    .cp-brandbig .cp-brand--diners b, .cp-brandbig .cp-brand--jcb b,
+    .cp-brandbig .cp-brand--unionpay b, .cp-brandbig .cp-brand--maestro b {
+      font-size:11px; padding:4px 7px;
+    }
+    .cp-note { font-size:12.5px; color:var(--muted); display:flex; align-items:center; gap:6px; margin-top:2px; }
+    .cp-note i { color:#2f9e5f; font-size:15px; }
+
+    @media (max-width:480px) {
+      .cp-3d { max-width:100%; }
+      .cp-foot { gap:14px; }
+      .cp-pan { font-size:15px; }
+    }
+
     /* ── ANON TOGGLE ── */
     .anon-toggle { display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; color:var(--muted); margin-bottom:14px; }
     .anon-toggle input { width:15px; height:15px; cursor:pointer; accent-color:var(--green); }
@@ -289,7 +440,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=31">
+  <link rel="stylesheet" href="kh-ui.css?v=32">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -428,76 +579,110 @@
           </div>
         </div>
 
-        <!-- PAYMENT METHOD -->
-        <div style="font-size:13.5px;font-weight:600;color:var(--green);margin-bottom:8px">Payment method</div>
-        <div class="pay-methods">
-          <div class="pay-btn active" onclick="selectPay(this,'bkash')">
-            <div class="pay-logo bkash">bK</div>
-            <div><div class="pay-name">bKash</div><div class="pay-sub">Mobile banking</div></div>
-          </div>
-          <div class="pay-btn" onclick="selectPay(this,'nagad')">
-            <div class="pay-logo nagad">N</div>
-            <div><div class="pay-name">Nagad</div><div class="pay-sub">Mobile banking</div></div>
-          </div>
-          <div class="pay-btn" onclick="selectPay(this,'rocket')">
-            <div class="pay-logo rocket">🚀</div>
-            <div><div class="pay-name">Rocket</div><div class="pay-sub">DBBL mobile</div></div>
-          </div>
-          <div class="pay-btn" onclick="selectPay(this,'card')">
-            <div class="pay-logo card"><i class="ti ti-credit-card" style="font-size:17px"></i></div>
-            <div><div class="pay-name">Debit / Credit Card</div><div class="pay-sub">Visa, Mastercard</div></div>
-          </div>
-          <div class="pay-btn" onclick="selectPay(this,'bank')">
-            <div class="pay-logo bank"><i class="ti ti-building-bank" style="font-size:17px"></i></div>
-            <div><div class="pay-name">Bank Transfer</div><div class="pay-sub">Direct deposit</div></div>
-          </div>
-          <div class="pay-btn" onclick="selectPay(this,'intl')">
-            <div class="pay-logo intl"><i class="ti ti-world" style="font-size:16px"></i></div>
-            <div><div class="pay-name">International</div><div class="pay-sub">PayPal / Wire — coming soon</div></div>
-          </div>
-        </div>
+        <!-- ══ PAYMENT METHOD — শেয়ার্ড কম্পোনেন্ট (২১ সেপ্টেম্বর ২০২৬) ══
+             ⚠️ আগে এখানে ছয়টি হার্ডকোড করা `.pay-btn` ছিল, আর তাদের
+             তিনটি আলাদা সেকশন (`#mobilePaySection`, `#cardSection`,
+             `#bankSection`)। ব্যাংকের হিসাব নম্বরটি পেজেই লেখা ছিল
+             ("1234567890" — placeholder), আর "International" কখনো
+             কাজ করত না। এখন সবই `KHUI.payPicker()` — মাধ্যমের তালিকা ও
+             ফাউন্ডেশনের তথ্য আসে `app_settings.pay_methods` থেকে, তাই
+             নতুন মাধ্যম যোগ করতে কোড বদলাতে হয় না।
+             পুরনো তিনটি সেকশন ও `selectPay()` মুছে ফেলা হয়েছে। -->
+        <div id="donPay" style="margin-bottom:18px"></div>
 
-        <!-- MOBILE NUMBER INPUT (bKash/Nagad/Rocket) -->
-        <div class="pay-input-section show" id="mobilePaySection">
-          <div class="form-group">
-            <label class="form-label">Your <span id="payMethodLabel">bKash</span> number <span class="req">*</span></label>
-            <input type="tel" class="form-input" id="mobilePayInput" placeholder="01XXXXXXXXX" maxlength="11" style="font-size:16px;font-weight:700;letter-spacing:1px">
-            <span class="otp-note"><i class="ti ti-info-circle" style="font-size:14.5px;vertical-align:-1px"></i> You will receive a payment request on this number</span>
-          </div>
-        </div>
+        <!-- ⚠️⚠️ দাতার কার্ড নম্বর নেওয়া **বন্ধ করা হয়েছে**
+             (সিদ্ধান্ত: ২১ সেপ্টেম্বর ২০২৬)। কারণ সাইটে কোনো
+             পেমেন্ট গেটওয়ে নেই — নম্বর/CVV নিয়ে কোথাও পাঠানো হত না,
+             অথচ দাতা ভাবতেন পেমেন্ট হয়ে গেছে; আর গেটওয়ে থাকলেও
+             নিজের পেজে কার্ড নম্বর নেওয়া PCI-DSS-এর সবচেয়ে কঠিন
+             স্তরে ফেলে দেয়। এখন "কার্ড / POS" মাধ্যমটি ফাউন্ডেশনের
+             ব্যবস্থার কথা বলে ও কেবল অনুমোদন নম্বর নেয়।
+             ⚠️ ব্র্যান্ড শনাক্তকরণের কোড (`CP_BRANDS`, `cpInit()`)
+             **মুছে ফেলা হয়নি** — `cpInit()` `#cardNum` না পেলে চুপচাপ
+             ফিরে যায়। গেটওয়ে এলে শুধু ঘরগুলো ফিরিয়ে আনলেই চলবে।
+             হুবহু নকশাটি `card-payment.html`-এও রয়ে গেল। -->
+        <div class="pay-input-section" id="cardSection" hidden>
 
-        <!-- CARD INPUT -->
-        <div class="pay-input-section" id="cardSection">
-          <div class="form-group">
-            <label class="form-label">Card number <span class="req">*</span></label>
-            <input type="text" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19" id="cardNum" oninput="formatCard(this)">
+          <div class="cp-wrap" id="cpWrap">
+            <div class="cp-3d">
+
+              <div class="cp-face cp-face--front">
+                <div class="cp-top">
+                  <span class="cp-chip"><span class="cp-chipbar"></span><span class="cp-chipbar"></span></span>
+                  <span class="cp-nfc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" aria-hidden="true"><path d="M8.5 8a6 6 0 0 1 0 8"/><path d="M12 5.5a10 10 0 0 1 0 13"/>
+                    <path d="M5 10.5a3 3 0 0 1 0 3"/></svg></span>
+                  <span class="cp-tier">PLATINUM</span>
+                </div>
+
+                <div class="cp-pan" id="cpPan">•••• •••• •••• ••••</div>
+
+                <div class="cp-foot">
+                  <span><small>Cardholder name</small><b id="cpName">YOUR NAME</b></span>
+                  <span><small>Expires</small><b id="cpExp">••/••</b></span>
+                  <span class="cp-brandbig"><span class="cp-brand cp-brand--none" id="cpBrandBig"><i></i><b></b></span></span>
+                </div>
+              </div>
+
+              <div class="cp-face cp-face--back">
+                <div class="cp-mag"></div>
+                <div class="cp-cvvrow">
+                  <span class="cp-cvvbar"></span>
+                  <span class="cp-cvvbox" id="cpCvvBox">•••</span>
+                </div>
+                <p class="cp-backnote">Authorised signature — not valid unless signed.<br>
+                  This card remains the property of the issuing bank.</p>
+              </div>
+
+            </div>
+
+            <button class="cp-flip" id="cpFlip" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2v6h-6"/>
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              <span id="cpFlipTxt">CVV দেখতে ঘুরিয়ে দিন</span>
+            </button>
           </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cardNum">Card number <span class="req">*</span></label>
+            <div class="cp-numwrap" id="cpNumWrap">
+              <input type="text" class="form-input" inputmode="numeric" autocomplete="cc-number"
+                     placeholder="1234 5678 9012 3456" maxlength="23" id="cardNum">
+              <span class="cp-brand cp-brand--none" id="cpBrand"><i></i><b></b></span>
+            </div>
+            <div class="cp-bad-note">কার্ড নম্বরটি একবার দেখে নিন — শেষ অঙ্কটি মিলছে না।</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cardName">Cardholder name <span class="req">*</span></label>
+            <input type="text" class="form-input" id="cardName" autocomplete="cc-name"
+                   placeholder="নাম — কার্ডে যেভাবে লেখা আছে">
+          </div>
+
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Expiry <span class="req">*</span></label>
-              <input type="text" class="form-input" placeholder="MM / YY" maxlength="7">
+              <label class="form-label" for="cardExp">Expiry <span class="req">*</span></label>
+              <input type="text" class="form-input" id="cardExp" inputmode="numeric"
+                     autocomplete="cc-exp" placeholder="MM / YY" maxlength="7">
             </div>
             <div class="form-group">
-              <label class="form-label">CVV <span class="req">*</span></label>
-              <input type="text" class="form-input" placeholder="•••" maxlength="4">
+              <label class="form-label" for="cardCvv">CVV <span class="req">*</span></label>
+              <input type="text" class="form-input" id="cardCvv" inputmode="numeric"
+                     autocomplete="cc-csc" placeholder="•••" maxlength="3">
             </div>
           </div>
+
+          <div class="cp-note"><i class="ti ti-lock"></i> কার্ডের তথ্য এই পর্দাতেই থাকে — কোথাও পাঠানো হয় না।</div>
         </div>
 
-        <!-- BANK TRANSFER INFO -->
-        <div class="pay-input-section" id="bankSection">
-          <div style="background:#f7f2fb;border:1px solid #c8e6d4;border-radius:10px;padding:14px;font-size:13.5px">
-            <div style="font-weight:700;color:var(--green);margin-bottom:8px"><i class="ti ti-building-bank"></i> Bank transfer details</div>
-            <div style="display:grid;gap:4px">
-              <div>Account name: <strong>Korje Hasana Foundation</strong></div>
-              <div>Bank: <strong>Dutch-Bangla Bank Ltd (DBBL)</strong></div>
-              <div>Account no: <strong>1234567890</strong></div>
-              <div>Branch: <strong>Mirpur 10, Dhaka</strong></div>
-              <div>Routing: <strong>090260285</strong></div>
-            </div>
-            <div style="margin-top:8px;color:var(--muted)">Please send a screenshot of the transfer to our WhatsApp: <strong>+880 1711-515952</strong></div>
-          </div>
-        </div>
+        <!-- ⚠️⚠️ পুরনো "Bank transfer details" ব্লকটি **মুছে ফেলা হয়েছে**।
+             সেখানে হিসাব নম্বর "1234567890" ও শাখা "Mirpur 10, Dhaka"
+             হার্ডকোড করা ছিল — স্পষ্ট placeholder, অথচ দাতা সেটিকেই
+             আসল ভেবে টাকা পাঠাতে পারতেন। ফাউন্ডেশনের আসল হিসাবের তথ্য
+             এখন কেবল `app_settings.pay_methods`-এ থাকে, সুপার অ্যাডমিন
+             বসান, আর `payPicker`-এর ব্যাংক কার্ডে দেখা যায়।
+             **নিয়ম: আর্থিক তথ্য কখনো পেজে হার্ডকোড করা যাবে না।** -->
 
         <!-- DONOR DETAILS -->
         <div style="font-size:13.5px;font-weight:600;color:var(--green);margin:16px 0 8px">Your details</div>
@@ -1054,29 +1239,192 @@ function setFreq(el, freq) {
   donationFreq = freq;
 }
 
-/* ── PAYMENT METHOD ── */
-function selectPay(el, method) {
-  document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  selectedPay = method;
-  document.getElementById('mobilePaySection').classList.remove('show');
-  document.getElementById('cardSection').classList.remove('show');
-  document.getElementById('bankSection').classList.remove('show');
-  if (['bkash','nagad','rocket'].includes(method)) {
-    document.getElementById('mobilePaySection').classList.add('show');
-    document.getElementById('payMethodLabel').textContent = {bkash:'bKash',nagad:'Nagad',rocket:'Rocket'}[method];
-  } else if (method === 'card') {
-    document.getElementById('cardSection').classList.add('show');
-  } else if (method === 'bank') {
-    document.getElementById('bankSection').classList.add('show');
+/* ══ PAYMENT METHOD — `KHUI.payPicker()` (২১ সেপ্টেম্বর ২০২৬) ══
+   ⚠️ পুরনো `selectPay()` মুছে ফেলা হয়েছে — সেটি ছয়টি হার্ডকোড করা
+   বাটন ও তিনটি সেকশনের `.show` ক্লাস নাড়াচাড়া করত। এখন মাধ্যমের
+   তালিকাই ডাটাবেজ থেকে আসে, তাই ঐ যুক্তির আর দরকার নেই। */
+var DON_PAY = null;
+async function mountDonationPay() {
+  if (DON_PAY || !window.KHUI || !KHUI.payPicker) return;
+  var host = document.getElementById('donPay');
+  if (!host) return;
+  try {
+    DON_PAY = await KHUI.payPicker(host, { title: 'দানের টাকা কীভাবে দিয়েছেন?' });
+    /* মাধ্যম বদলালে ভাউচারের লেখাও যেন মিলে যায় */
+    if (DON_PAY && DON_PAY.onChange) DON_PAY.onChange(function (id) { selectedPay = id; });
+    if (DON_PAY && !DON_PAY.empty) selectedPay = DON_PAY.method();
+  } catch (e) { DON_PAY = null; }
+}
+window.addEventListener('load', mountDonationPay);
+
+/* ══════════════════════════════════════════════════════════════
+   💳 কার্ডের ধরন নিজে থেকে চেনা + ৩D কার্ডে লাইভ প্রতিফলন
+   (২১ সেপ্টেম্বর ২০২৬ · `card-payment.html` থেকে হুবহু আনা)
+
+   আগে এখানে ছিল কেবল `formatCard()` — সবসময় ৪-৪-৪-৪ ফাঁক, ১৬
+   অঙ্কের সীমা, কোনো ব্র্যান্ড চেনা হত না। ফলে AMEX-এর ১৫ অঙ্ক
+   কাটা পড়ত ও তার ৪-ঘরের CVV নেওয়ার উপায় ছিল না।
+
+   ⚠️ ক্রম গুরুত্বপূর্ণ — সরু প্রিফিক্স আগে, চওড়া পরে।
+      VISA (`^4`) সবার শেষে; JCB (`^35…`) অবশ্যই AMEX (`^3[47]`) ও
+      DINERS (`^36|38|39`)-এর পরে; Maestro-র `6759` Discover-এর
+      `65`-এর সাথে মিলে যায়, তাই Maestro আগে।
+   `len` = বৈধ মোট অঙ্ক · `gaps` = ফাঁকের জায়গা · `cvv` = কোডের দৈর্ঘ্য
+   ⚠️ এই তালিকাটি `card-payment.html`-এও আছে — একটি বদলালে দুটোই
+      বদলাতে হবে।
+   ══════════════════════════════════════════════════════════════ */
+const CP_BRANDS = [
+  { id:'amex',     name:'AMEX',       re:/^3[47]/,                                 len:[15],                      gaps:[4,10],    cvv:4 },
+  { id:'diners',   name:'DINERS',     re:/^3(?:0[0-5]|095|6|8|9)/,                 len:[14,16,19],                gaps:[4,10],    cvv:3 },
+  { id:'jcb',      name:'JCB',        re:/^35(?:2[89]|[3-8]\d)/,                   len:[16,17,18,19],             gaps:[4,8,12],  cvv:3 },
+  { id:'maestro',  name:'MAESTRO',    re:/^(?:5018|5020|5038|6304|6759|676[1-3])/, len:[12,13,14,15,16,17,18,19], gaps:[4,8,12],  cvv:3 },
+  { id:'unionpay', name:'UNIONPAY',   re:/^62/,                                    len:[16,17,18,19],             gaps:[4,8,12],  cvv:3 },
+  { id:'discover', name:'DISCOVER',   re:/^(?:6011|64[4-9]|65)/,                   len:[16,19],                   gaps:[4,8,12],  cvv:3 },
+  { id:'mc',       name:'MASTERCARD', re:/^(?:5[1-5]|2[2-7])/,                     len:[16],                      gaps:[4,8,12],  cvv:3 },
+  { id:'visa',     name:'VISA',       re:/^4/,                                     len:[13,16,19],                gaps:[4,8,12],  cvv:3 }
+];
+const CP_ANY  = { id:'', name:'', len:[16,19], gaps:[4,8,12], cvv:3 };
+const CP_DOTS = '•••• •••• •••• ••••';
+let cpCard = CP_ANY;
+
+function cpDetect(d) {
+  for (let i = 0; i < CP_BRANDS.length; i++) if (CP_BRANDS[i].re.test(d)) return CP_BRANDS[i];
+  return CP_ANY;
+}
+/* Luhn — শেষ অঙ্কটি চেকসাম */
+function cpLuhn(d) {
+  let sum = 0, dbl = false;
+  for (let i = d.length - 1; i >= 0; i--) {
+    let n = +d[i];
+    if (dbl) { n *= 2; if (n > 9) n -= 9; }
+    sum += n; dbl = !dbl;
   }
+  return d.length > 0 && sum % 10 === 0;
+}
+function cpSpaced(d, gaps) {
+  let out = '', g = 0;
+  for (let i = 0; i < d.length; i++) {
+    if (g < gaps.length && i === gaps[g]) { out += ' '; g++; }
+    out += d[i];
+  }
+  return out;
+}
+/* চিহ্নটি দুই জায়গায় বসে — ঘরের ভেতরে ও কার্ডের গায়ে */
+function cpPaintBrand(el, brand) {
+  el.className = 'cp-brand ' + (brand.id ? 'cp-brand--' + brand.id : 'cp-brand--none');
+  el.querySelector('b').textContent = brand.id === 'mc' ? '' : brand.name;
 }
 
-/* ── CARD FORMAT ── */
-function formatCard(input) {
-  let v = input.value.replace(/\D/g,'').substring(0,16);
-  input.value = v.replace(/(.{4})/g,'$1 ').trim();
-}
+(function cpInit() {
+  const num  = document.getElementById('cardNum');
+  const nm   = document.getElementById('cardName');
+  const exp  = document.getElementById('cardExp');
+  const cvv  = document.getElementById('cardCvv');
+  if (!num) return;                       /* পেজে কার্ড অংশ নেই */
+  const wrap = document.getElementById('cpWrap');
+  const nWrap = document.getElementById('cpNumWrap');
+  const pan  = document.getElementById('cpPan');
+  const fNm  = document.getElementById('cpName');
+  const fExp = document.getElementById('cpExp');
+  const bCvv = document.getElementById('cpCvvBox');
+  const mark = document.getElementById('cpBrand');
+  const big  = document.getElementById('cpBrandBig');
+
+  /* ══ ইনপুট যাচাই (২১ সেপ্টেম্বর ২০২৬ · ব্যবহারকারীর অনুরোধ) ══
+     নাম → শুধু অক্ষর ও স্পেস · নম্বর ও CVV → শুধু সংখ্যা।
+
+     ⚠️ **তিনটি পথ বন্ধ করতে হয়, একটি নয়:**
+     ① `keypress`/`beforeinput` — কীবোর্ড থেকে টাইপ
+     ② `paste` — ক্লিপবোর্ড (keypress ধরে না)
+     ③ `input` — ড্র্যাগ-ড্রপ, অটোফিল, ভয়েস টাইপিং, IME
+     শুধু `input`-এ পরিষ্কার করলেও চলে, কিন্তু তখন অক্ষরটি এক পলকের
+     জন্য দেখা যায় ও কার্সর লাফায় — তাই আগেই আটকানো হয়।
+
+     ⚠️ নামের নিয়মে **বাংলা অক্ষর ও কার/ফলা (`\p{M}`) রাখতেই হবে** —
+     নাহলে "তৌহিদুজ্জামান" হয়ে যেত "তহদজজামান" (চ্যাটবটের শব্দ
+     মেলানোর সময় ঠিক এই ফাঁদেই পড়া হয়েছিল)। হাইফেন, অ্যাপস্ট্রফি ও
+     ডট রাখা হয়েছে — "Md. Abdur Rahman-Khan", "D'Souza" বৈধ নাম। */
+  var NAME_OK  = /[\p{L}\p{M}\s.'-]/u;                 /* একটি অক্ষর বৈধ? */
+  var NAME_BAD = /[^\p{L}\p{M}\s.'-]/gu;               /* বাতিলগুলো মোছা */
+
+  function guard(el, okChar, strip) {
+    /* ① টাইপ */
+    el.addEventListener('beforeinput', function (e) {
+      if (e.data && !okChar.test(e.data)) e.preventDefault();
+    });
+    /* ② পেস্ট — পরিষ্কার করে নিজেই বসিয়ে দেওয়া হয়, যাতে বৈধ
+          অংশটুকু হারিয়ে না যায় (পুরো পেস্ট বাতিল করলে বিরক্তিকর) */
+    el.addEventListener('paste', function (e) {
+      var t = (e.clipboardData || window.clipboardData).getData('text') || '';
+      var clean = strip(t);
+      e.preventDefault();
+      var s = el.selectionStart, n = el.selectionEnd;
+      el.setRangeText(clean, s, n, 'end');
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    /* ③ বাকি সব পথ — কার্সর যেন না লাফায় তাই অবস্থান হিসাব করে রাখা */
+    el.addEventListener('input', function () {
+      var clean = strip(el.value);
+      if (clean === el.value) return;
+      var pos = el.selectionStart - (el.value.length - clean.length);
+      el.value = clean;
+      try { el.setSelectionRange(pos, pos); } catch (e) {}
+    });
+  }
+  guard(nm,  NAME_OK,  function (s) { return s.replace(NAME_BAD, ''); });
+  guard(num, /[0-9]/,  function (s) { return s.replace(/[^\d ]/g, ''); });
+  guard(exp, /[0-9]/,  function (s) { return s.replace(/[^\d\/ ]/g, ''); });
+  guard(cvv, /[0-9]/,  function (s) { return s.replace(/\D/g, ''); });
+
+  num.addEventListener('input', () => {
+    let d = num.value.replace(/\D/g, '').slice(0, 19);
+    cpCard = cpDetect(d);
+    d = d.slice(0, Math.max.apply(null, cpCard.len));
+    num.value = cpSpaced(d, cpCard.gaps);
+    cpPaintBrand(mark, cpCard);
+    cpPaintBrand(big,  cpCard);
+
+    /* CVV-র দৈর্ঘ্য ধরনভেদে বদলায় (AMEX-এ ৪) */
+    cvv.maxLength = cpCard.cvv;
+    cvv.placeholder = cpCard.cvv === 4 ? '••••' : '•••';
+    if (cvv.value.length > cpCard.cvv) {
+      cvv.value = cvv.value.slice(0, cpCard.cvv);
+      bCvv.textContent = cvv.value || cvv.placeholder;
+    }
+    pan.textContent = d ? cpSpaced(d, cpCard.gaps) : CP_DOTS;
+
+    /* ⚠️ Luhn কেবল **পূর্ণ দৈর্ঘ্যে** — নাহলে টাইপ করার মাঝপথেই
+       বৈধ কার্ডকেও ভুল দেখাত */
+    const full = cpCard.len.indexOf(d.length) >= 0;
+    nWrap.classList.toggle('is-bad', full && !cpLuhn(d));
+  });
+
+  nm.addEventListener('input', () => {
+    fNm.textContent = nm.value.trim() ? nm.value.toUpperCase() : 'YOUR NAME';
+  });
+
+  exp.addEventListener('input', () => {
+    const d = exp.value.replace(/\D/g, '').slice(0, 4);
+    exp.value = d.length > 2 ? d.slice(0, 2) + ' / ' + d.slice(2) : d;
+    fExp.textContent = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : (d || '••/••');
+  });
+
+  cvv.addEventListener('input', () => {
+    cvv.value = cvv.value.replace(/\D/g, '').slice(0, cpCard.cvv);
+    bCvv.textContent = cvv.value || (cpCard.cvv === 4 ? '••••' : '•••');
+  });
+
+  /* কার্ড উল্টানো — বাটনে, আর CVV ঘরে গেলে নিজে থেকেই */
+  function cpFlip(on) {
+    wrap.classList.toggle('is-flipped', on);
+    document.getElementById('cpFlipTxt').textContent =
+      on ? 'সামনের দিক দেখুন' : 'CVV দেখতে ঘুরিয়ে দিন';
+  }
+  document.getElementById('cpFlip').addEventListener('click',
+    () => cpFlip(!wrap.classList.contains('is-flipped')));
+  cvv.addEventListener('focus', () => cpFlip(true));
+  cvv.addEventListener('blur',  () => cpFlip(false));
+})();
 
 /* ── PROCESS DONATION ── */
 function processDonation() {
@@ -1092,8 +1440,16 @@ function processDonation() {
     if (!mobile) { alert('Please enter your mobile number.'); return; }
   }
   if (!amt || amt < 100)  { alert('Minimum donation amount is ৳100.'); return; }
-  if (['bkash','nagad','rocket'].includes(selectedPay) && !document.getElementById('mobilePayInput').value.trim())
-    { alert('Please enter your ' + selectedPay + ' number.'); return; }
+
+  /* ⚠️ মাধ্যম ও রেফারেন্স এখন `payPicker` থেকে। আগে শুধু
+     bkash/nagad/rocket-এ মোবাইল নম্বর চাওয়া হত, আর কার্ড/ব্যাংকে
+     `p_transaction_ref` সবসময় null যেত — তাই অ্যাডমিন মিলিয়ে দেখার
+     কিছুই পেতেন না। এখন সব মাধ্যমেই রেফারেন্স আবশ্যক। */
+  if (!DON_PAY) { alert('টাকা দেওয়ার মাধ্যমের তালিকা এখনো আসেনি — একটু পরে আবার চেষ্টা করুন।'); return; }
+  if (DON_PAY.empty) { alert('টাকা পাঠানোর কোনো মাধ্যম এখনো চালু নেই — ফাউন্ডেশনের সাথে যোগাযোগ করুন।'); return; }
+  const payInfo = DON_PAY.validate();
+  if (!payInfo) { document.getElementById('donPay').scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+  selectedPay = payInfo.method;
 
   // Process donation
   const btn = document.querySelector('.donate-btn-main');
@@ -1108,8 +1464,8 @@ function processDonation() {
     // Try saving to Supabase if configured
     /* দান সংরক্ষণ — নিরাপদ RPC (RLS বাইপাস করে দাতা তৈরি ও প্রোফাইল লিংক করে) */
     if (window._db && window._db.rpc) {
-      const payMethod = selectedPay || 'bkash';
-      const txRef = document.getElementById('mobilePayInput') ? document.getElementById('mobilePayInput').value.trim() : '';
+      const payMethod = payInfo.method;
+      const txRef = payInfo.reference;
       const isAnon = document.getElementById('anonCheck')?.checked || false;
       try {
         const r = await _db.rpc('record_donation', {
@@ -1273,7 +1629,13 @@ function openVoucher() {
   const name = document.getElementById('anonCheck').checked ? 'Anonymous Donor' : (document.getElementById('donorName').value || '—');
   const mob  = document.getElementById('donorMobile').value || '—';
   const email= document.getElementById('donorEmail').value || '—';
-  const methodMap = {bkash:'bKash',nagad:'Nagad',rocket:'Rocket',card:'Debit/Credit Card',bank:'Bank Transfer',intl:'International'};
+  /* ⚠️ নামের তালিকা আর এখানে নয় — `KHUI.PAY_METHODS`-ই একমাত্র উৎস।
+     আগে হার্ডকোড করা `methodMap`-এ নতুন মাধ্যম (বাংলা QR, উপায়,
+     এজেন্ট ব্যাংকিং) না থাকায় ভাউচারে কাঁচা id দেখা যেত। */
+  const methodName = id => {
+    const m = ((window.KHUI && KHUI.PAY_METHODS) || []).filter(x => x.id === id)[0];
+    return m ? m.name : (id || '—');
+  };
   const freqMap   = {'one-time':'One-time','monthly':'Monthly','yearly':'Yearly'};
   document.getElementById('v_ref').textContent     = ref;
   document.getElementById('v_ref2').textContent    = ref;
@@ -1283,7 +1645,7 @@ function openVoucher() {
   document.getElementById('v_name').textContent    = name;
   document.getElementById('v_mobile').textContent  = mob;
   document.getElementById('v_email').textContent   = email;
-  document.getElementById('v_method').textContent  = methodMap[selectedPay] || selectedPay;
+  document.getElementById('v_method').textContent  = methodName(selectedPay);
   document.getElementById('v_freq').textContent    = freqMap[donationFreq] || donationFreq;
   document.getElementById('v_datetime').textContent= now.toLocaleString('en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
@@ -1295,7 +1657,7 @@ function openVoucher() {
   try {
     const shortName = name.substring(0, 20);
     new QRCode(qrEl, {
-      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodMap[selectedPay] || selectedPay) + '&name=' + encodeURIComponent(shortName),
+      text: 'https://korje-hasana-website.vercel.app/verify.html?ref=' + ref + '&amt=' + amt + '&method=' + encodeURIComponent(methodName(selectedPay)) + '&name=' + encodeURIComponent(shortName),
       width: 110, height: 110,
       colorDark: '#241539', colorLight: '#ffffff',
       correctLevel: QRCode.CorrectLevel.L
@@ -1483,7 +1845,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=31"></script>
+<script src="kh-ui.js?v=32"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

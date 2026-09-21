@@ -3559,3 +3559,310 @@ html[data-theme="light"] .plume__note.plume__note.kh-bad { color: #b3261e !impor
 @media (prefers-reduced-motion: reduce) {
   .plume__plane, .plume__trail { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   ২৫. টাকা দেওয়ার মাধ্যম — `KHUI.payPicker()` (২১ সেপ্টেম্বর ২০২৬)
+
+   ব্যবহারকারীর সিদ্ধান্ত: ① টাকা সাইটে কাটা হয় না — সদস্য বাইরে
+   পাঠিয়ে TrxID লেখেন, অ্যাডমিন মিলিয়ে অনুমোদন করেন; ② ৩D কার্ডটি
+   **ফাউন্ডেশনের** তথ্য দেখায়, দাতার কার্ড নম্বর কখনো নেওয়া হয় না
+   (PCI-DSS ঝুঁকি); ③ চারটি গুচ্ছ — MFS · বাংলা QR · ব্যাংক/কার্ড ·
+   নগদ/এজেন্ট।
+
+   ⚠️ কম্পোনেন্টটি **নিজের হালকা সারফেস বহন করে** — ভাউচার ও
+   প্রোফাইল কার্ডের মতোই। কারণ এটি চার জায়গায় বসে যার দুটির
+   পটভূমি সাদা (দান, সঞ্চয় পোর্টাল) আর একটির গাঢ় (অ্যাডমিন
+   ড্যাশবোর্ড)। হোস্টের রঙের উপর ছেড়ে দিলে প্রতিটি জায়গায় আলাদা
+   করে কনট্রাস্ট মাপতে হত — আর অ্যাডমিন পর্দায় লেখা মিলিয়ে যেত।
+   তাই **দুই থীমে ও চার জায়গায় হুবহু এক**।
+
+   ⚠️ প্রিফিক্স `.kh-pay-` — `.pay-btn`/`.pay-methods`/`.pay-logo`
+   নামগুলো `donation.html`-এর নিজের দখলে, মিলিয়ে ফেলা যাবে না।
+   ══════════════════════════════════════════════════════════ */
+.kh-pay {
+  --pay-ink:   #2a2338;                    /* #fbf9fd-এ ১৩.৫:১ */
+  --pay-mute:  #5d5470;                    /* #fbf9fd-এ ৫.৯:১  */
+  --pay-line:  #e9e1f1;
+  --pay-surf:  #fbf9fd;
+  background: var(--pay-surf);
+  border: 1px solid var(--pay-line);
+  border-radius: 16px;
+  padding: 14px;
+  font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+  color: var(--pay-ink);
+}
+.kh-pay * { box-sizing: border-box; }
+.kh-pay-h {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 13px; font-weight: 700; color: var(--pay-ink);
+  margin: 0 0 10px;
+}
+.kh-pay-h i { font-size: 16px; color: #7048e8; }
+.kh-pay-h small { margin-left: auto; font-size: 11.5px; font-weight: 400; color: var(--pay-mute); }
+
+/* ── মাধ্যমের টাইল ───────────────────────────────────────── */
+.kh-pay-tiles {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px; margin-bottom: 14px;
+}
+.kh-pay-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 10px 6px 9px; border-radius: 12px; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--pay-line);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  text-align: center; min-height: 76px;
+}
+.kh-pay-tile:hover { border-color: #c9b6ee; transform: translateY(-1px); }
+.kh-pay-tile.is-on {
+  border-color: #7048e8;
+  box-shadow: 0 0 0 3px rgba(112, 72, 232, .13);
+}
+.kh-pay-tile b { font-size: 12.5px; font-weight: 600; color: var(--pay-ink); line-height: 1.25; }
+/* ══ ব্র্যান্ডের **আসল** রঙ (ব্যবহারকারীর নির্দেশ: ২১ সেপ্টে ২০২৬) ══
+   ⚠️ উৎস যাচাই করা: বিকাশের নিজের প্যালেট `#e2136e · #d12053 ·
+   #9e1638` + charcoal `#231f20`; নগদের `#ec1c24 · #f6921e` +
+   charcoal `#231f20` (logotyp.us-এর ব্র্যান্ড পাতা)। রকেট ও উপায়ের
+   হেক্স কোনো নির্ভরযোগ্য সূত্রে পাওয়া যায়নি — প্রচলিত মানই বসানো
+   (রকেট `#8c3494`, উপায় `#6f2c91`/`#f58220`); **আসল ব্র্যান্ড গাইড
+   পেলে এই দুটি বদলাতে হবে।**
+
+   ⚠️⚠️ **আগের ভুলটি এভাবে সারানো হয়েছে।** প্রথমে আসল রঙে সাদা লেখা
+   বসানো হয়েছিল — নগদে ২.৬২:১, উপায়ে ২.৫৯:১ (AA ফেল)। তারপর রঙ
+   গাঢ় করা হয়েছিল, কিন্তু তাতে ব্র্যান্ড আর চেনা যেত না।
+   **এখন তৃতীয় পথ:** আসল রঙ থাকে একটি **ব্যান্ডে** (কার্ডের মাথায়),
+   আর সব তথ্য বসে নিচের **গাঢ় দেহে** (`#1b1719` — বিকাশ ও নগদ
+   দুই ব্র্যান্ডেরই নিজের charcoal ঘরানা, সাদা লেখায় ১৭.৭:১)।
+   ব্যান্ডের লেখার রঙ ব্র্যান্ডভেদে আলাদা — **মেপে বাছা**:
+   বিকাশ সাদা ৪.৬১ · রকেট সাদা ৬.৯২ · উপায় সাদা ৮.৫৯ ·
+   নগদ **কালি** `#231f20` ৭.০২ (নগদের লালে সাদা ৪.৪১ — ফেল, তাই
+   ব্যান্ডে তার **কমলা** প্রান্ত ব্যবহার করা হয়, লাল থাকে যেখানে
+   কোনো লেখা নেই)।
+   **নিয়ম: ব্র্যান্ড রঙ ব্যান্ডে, লেখা গাঢ় দেহে — তাহলে আসল রঙ
+   রাখা যায় আর কনট্রাস্টও ভাঙে না।** */
+.kh-pay-mk {
+  width: 30px; height: 30px; border-radius: 8px; flex: none;
+  display: grid; place-items: center;
+  font: 800 12px/1 'Inter', system-ui, sans-serif; color: #fff;
+  letter-spacing: -.01em;
+}
+.kh-pay-mk i { font-size: 16px; }
+/* টাইলের ছোট চিহ্ন — আসল ব্র্যান্ড রঙ; লেখা টাইলে নয়, নিচে */
+.kh-mk-bkash  { background: linear-gradient(140deg, #e2136e, #9e1638); }
+.kh-mk-nagad  { background: linear-gradient(140deg, #f6921e, #ec1c24); }
+.kh-mk-rocket { background: linear-gradient(140deg, #9c46a4, #8c3494); }
+.kh-mk-upay   { background: linear-gradient(140deg, #f58220, #6f2c91); }
+.kh-mk-bqr    { background: linear-gradient(140deg, #16916a, #0b5d3b); }
+.kh-mk-bank   { background: linear-gradient(140deg, #3b6fb5, #1b3a6b); }
+.kh-mk-card   { background: linear-gradient(140deg, #6a5f86, #332845); }
+.kh-mk-cash   { background: linear-gradient(140deg, #34a853, #1a7a3c); }
+.kh-mk-agent  { background: linear-gradient(140deg, #6b7280, #3f4652); }
+/* ⚠️ `.kh-pay-mk`-এ শুধু অক্ষর/আইকন বসে, কোনো তথ্য নয় — তাই এখানে
+   আসল রঙ হুবহু রাখা নিরাপদ (অক্ষরটি সাজসজ্জা, `aria-hidden` নয় বলে
+   টাইলের নামটিই স্ক্রিন রিডার পড়ে)। */
+
+/* ── ৩D কার্ডের মঞ্চ ─────────────────────────────────────── */
+.kh-pay-stage { perspective: 1200px; display: grid; justify-items: center; margin-bottom: 13px; }
+.kh-pay-card {
+  position: relative; width: 100%; max-width: 344px; min-height: 196px;
+  border-radius: 17px; padding: 16px 18px 15px;
+  display: flex; flex-direction: column;
+  color: #fff;                                     /* রঙিন পটভূমি — নিয়ম ২ */
+  box-shadow: 0 18px 38px -20px rgba(20, 10, 30, .62), inset 0 1px 0 rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, .1);
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+/* ⚠️ মাধ্যম বদলালে কার্ডটি **সত্যিই ঘুরে** আসে (rotateY), শুধু
+   fade নয় — `.kh-pay-card` প্রতিবার নতুন করে বসানো হয়, তাই
+   অ্যানিমেশনটি `animation`, `transition` নয়। */
+.kh-pay-card { animation: khPayIn .46s cubic-bezier(.22, .9, .3, 1) both; }
+@keyframes khPayIn {
+  from { opacity: 0; transform: rotateY(-46deg) translateZ(-40px) scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+/* লগইন পেজের ক্যালিগ্রাফি — খুব চাপা, নাহলে তথ্য পড়া কঠিন হয় */
+.kh-pay-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: url('images/auth-bg.jpg') center / cover no-repeat; opacity: .1;
+}
+.kh-pay-card::after {                              /* কাচের তির্যক ঝিলিক */
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(118deg, rgba(255,255,255,.12) 0%, transparent 36%,
+                              transparent 64%, rgba(255,255,255,.06) 100%);
+}
+.kh-pay-card > * { position: relative; z-index: 2; }
+
+/* কার্ডের দেহ — সব মাধ্যমে একই গাঢ় সারফেস, তাই তথ্যের কনট্রাস্ট
+   একবার মেপলেই হয় (সাদা ১৭.৭৫:১ · সাদা@.৭৮ ১১.০৭:১) */
+.kh-pay-card { background: linear-gradient(160deg, #241f22, #1b1719 58%, #151214); }
+
+/* ── মাথার ব্যান্ড — এখানেই ব্র্যান্ডের আসল রঙ ── */
+.kh-pay-band {
+  margin: -16px -18px 14px; padding: 13px 18px;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--band, #3a3340);
+  color: var(--on-band, #fff);
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .18);
+}
+.kh-pay-band .kh-pay-mk {
+  width: 34px; height: 34px; background: rgba(255, 255, 255, .22);
+  color: var(--on-band, #fff);
+}
+/* ⚠️ নগদ/উপায়ের কমলা ব্যান্ডে চিহ্নের ঘরটি সাদা আভা দিলে ফ্যাকাশে
+   হয়ে যায় — কালি-লেখার ব্র্যান্ডে তাই কালচে আভা */
+.kh-pay-band.on-ink .kh-pay-mk { background: rgba(0, 0, 0, .16); }
+.kh-pay-band b { font-size: 14.5px; font-weight: 700; letter-spacing: .01em; }
+/* ⚠️ এখানে `opacity` দেওয়া যাবে না। `opacity: .82` দিলে লেখাটি
+   ব্যান্ডের রঙের দিকে ফিকে হয়ে যায় ও কনট্রাস্ট নেমে আসে — অথচ
+   `getComputedStyle().color` পুরো রঙই দেখায়, তাই **মাপেও ধরা পড়ে না**
+   (এই ফাঁদে একবার পড়া হয়েছে)। ব্যাজটি ছোট ও all-caps, তাই পূর্ণ
+   শক্তিতেই রাখা হলো — আলাদা করে ফিকে করার দরকার নেই। */
+.kh-pay-band span {
+  margin-left: auto; font-size: 9.5px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* আসল ব্র্যান্ড রঙ — কোনোটিই গাঢ় করা হয়নি */
+.kh-pc-bkash  { --band: linear-gradient(100deg, #e2136e, #9e1638); --on-band: #fff; }
+.kh-pc-nagad  { --band: linear-gradient(100deg, #f6921e, #ec1c24 78%); --on-band: #231f20; }
+.kh-pc-rocket { --band: linear-gradient(100deg, #8c3494, #5f1f66);    --on-band: #fff; }
+.kh-pc-upay   { --band: linear-gradient(100deg, #f58220, #6f2c91 70%); --on-band: #231f20; }
+/* ⚠️ QR-এর সবুজ কোনো ব্র্যান্ড রঙ নয় (বাংলা QR একটি জাতীয় স্কিম),
+   তাই এটি অবাধে গাঢ় করা যায় — `#16916a`-এ সাদা ছিল ৩.৯৭:১ (ফেল) */
+.kh-pc-bqr    { --band: linear-gradient(100deg, #0d7052, #06462f);    --on-band: #fff; }
+.kh-pc-bank   { --band: linear-gradient(100deg, #2f5ea0, #16305a);    --on-band: #fff; }
+.kh-pc-card   { --band: linear-gradient(100deg, #5b5170, #332845);    --on-band: #fff; }
+.kh-pc-cash   { --band: linear-gradient(100deg, #1a7a3c, #0f5228);    --on-band: #fff; }
+.kh-pc-agent  { --band: linear-gradient(100deg, #5b616e, #3a3f49);    --on-band: #fff; }
+
+/* ⚠️⚠️ ডেমো তথ্যের সতর্কবার্তা — **আর্থিক কারণে বাধ্যতামূলক**।
+   ভুয়া হিসাব নম্বরে কেউ সত্যিই টাকা পাঠিয়ে দিলে সেটি হারিয়ে যাবে।
+   `app_settings.pay_methods.<id>.demo` সত্য হলেই বসে; আসল তথ্য
+   বসিয়ে `demo` মুছে দিলে নিজে থেকেই চলে যায়। */
+.kh-pay-demo {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 -18px 12px; padding: 8px 18px;
+  background: #4a1114; color: #ffd9d6;                /* ৯.১:১ */
+  font-size: 11.5px; font-weight: 600; line-height: 1.5;
+}
+.kh-pay-demo i { font-size: 15px; color: #ff9d94; flex: none; }  /* ৬.৪:১ */
+.kh-pay-tile .kh-pay-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 7px; height: 7px; border-radius: 50%; background: #d64545;
+}
+.kh-pay-tile { position: relative; }
+/* ⚠️ আলফা তিনটিই মেপে বাছা — গাঢ় করা গ্র্যাডিয়েন্টের হালকা
+   প্রান্তে ব্যাজ ৪.৮:১ · লেবেল ৪.৫:১ · নোট ৫.৪:১ (সবচেয়ে খারাপ
+   কার্ডেও)। আলফা কমালে সাথে সাথেই AA ভেঙে যাবে। */
+.kh-pay-top span {
+  margin-left: auto; font-size: 9.5px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: rgba(255, 255, 255, .82);
+}
+
+/* একটি সারি — লেবেল, মান, কপি বাটন */
+.kh-pay-row { display: flex; align-items: flex-end; gap: 10px; padding: 6px 0; }
+.kh-pay-row + .kh-pay-row { border-top: 1px solid rgba(255, 255, 255, .11); }
+.kh-pay-row > div { min-width: 0; }                /* ⚠️ লম্বা মানে কপি বাটন ঠেলে দিত */
+.kh-pay-row small {
+  display: block; font-size: 8.5px; letter-spacing: .15em; text-transform: uppercase;
+  color: rgba(255, 255, 255, .78); margin-bottom: 3px;
+}
+.kh-pay-row b {
+  display: block; font-size: 14.5px; font-weight: 600; letter-spacing: .02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.kh-pay-row b.kh-pay-mono {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 16px; letter-spacing: .05em;
+}
+/* ⚠️ কপি বাটনের পটভূমি **কালচে**, সাদা নয়। সাদা আভা দিলে পিলটি
+   কার্ডের চেয়ে হালকা হয়ে যায় ও তার উপর সাদা লেখা দুর্বলতম হয়ে পড়ে
+   (নগদে মেপে ৩.১২:১ পাওয়া গিয়েছিল)। কালচে পটভূমিতে সাদা লেখা
+   সবসময় কার্ডের চেয়ে **ভালো** — তাই আর আলাদা করে মাপতে হয় না। */
+.kh-pay-copy {
+  flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px; border: 0; border-radius: 999px; cursor: pointer;
+  background: rgba(0, 0, 0, .26); color: #fff;
+  font: 600 11.5px/1 'Hind Siliguri', system-ui, sans-serif;
+  transition: background .2s ease;
+}
+.kh-pay-copy:hover { background: rgba(0, 0, 0, .38); }
+.kh-pay-copy i { font-size: 13px; }
+.kh-pay-copy.is-done { background: #eafaf0; color: #10603a; }   /* ৭.২:১ */
+
+.kh-pay-note {
+  margin-top: auto; padding-top: 10px;
+  font-size: 11.5px; line-height: 1.55; color: rgba(255, 255, 255, .9);
+}
+
+/* বাংলা QR — সাদা ঘরে ছবিটি, নাহলে স্ক্যানার পড়তে পারে না */
+.kh-pay-qr {
+  align-self: center; width: 132px; height: 132px; border-radius: 12px;
+  background: #fff center / contain no-repeat; padding: 7px;
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .5);
+}
+.kh-pay-qr-wrap { display: grid; justify-items: center; gap: 9px; }
+/* ⚠️ আসল QR না থাকলে স্ক্যানযোগ্য নকল আঁকা হয় না — স্পষ্ট প্লেসহোল্ডার */
+.kh-pay-qr--ph {
+  display: grid; place-items: center; gap: 4px;
+  background: #fff; color: #7a2d2d;                  /* সাদায় ৭.৮:১ */
+  border: 2px dashed #c98b8b;
+}
+.kh-pay-qr--ph i { font-size: 46px; opacity: .55; }
+.kh-pay-qr--ph em { font-style: normal; font-size: 11.5px; font-weight: 700; }
+
+/* ── রেফারেন্সের ঘর ─────────────────────────────────────── */
+.kh-pay-fields { display: grid; gap: 10px; }
+.kh-pay-f label {
+  display: block; font-size: 12.5px; font-weight: 600;
+  color: var(--pay-ink); margin-bottom: 5px;
+}
+.kh-pay-f label em { font-style: normal; color: #c0281f; }      /* #fbf9fd-এ ৫.৮:১ */
+.kh-pay-f input {
+  width: 100%; height: 44px; padding: 0 13px;
+  border: 1.5px solid #ded4ec; border-radius: 10px; background: #fff;
+  font: 500 15px/1 'Hind Siliguri', 'Inter', system-ui, sans-serif; color: var(--pay-ink);
+}
+.kh-pay-f input::placeholder { color: #8d84a0; font-weight: 400; }  /* ৩.৯:১ — placeholder, AA-র বাইরে */
+.kh-pay-f input:focus { outline: 0; border-color: #7048e8; box-shadow: 0 0 0 3px rgba(112,72,232,.12); }
+.kh-pay-f.is-bad input { border-color: #c0281f; box-shadow: 0 0 0 3px rgba(192,40,31,.1); }
+.kh-pay-hint { font-size: 11.5px; color: var(--pay-mute); margin-top: 5px; line-height: 1.5; }
+
+/* কোনো মাধ্যম চালু না থাকলে */
+.kh-pay-empty {
+  display: flex; gap: 9px; padding: 13px 14px; border-radius: 11px;
+  background: #fff6e8; border: 1px solid #f3d9b0;
+  font-size: 12.5px; line-height: 1.6; color: #6b4310;            /* ৭.১:১ */
+}
+.kh-pay-empty i { font-size: 17px; color: #b3700d; flex: none; }
+
+/* ⚠️ লাইট থীমের ঢালাও নিয়ম (সেকশন ৯, ওজন (০,২,২)) কিছু হোস্টে
+   এই উইজেটের ভেতরের `div/span/b/small/label`-ও ধরে ফেলে ও
+   `color:#35204f !important` বসিয়ে দেয় — গাঢ় কার্ডে সেটি কার্যত
+   অদৃশ্য। তাই কার্ডের ভেতরের সাদা লেখাগুলো **ওজন বাড়িয়ে** ফেরানো
+   হলো (`.kh-pay .kh-pay-card …` → (০,৩,১))। নতুন কোনো লেখা যোগ
+   করলে এখানেও তার রঙ ফিরিয়ে দিতে হবে। */
+html[data-theme="light"] .kh-pay .kh-pay-card,
+html[data-theme="light"] .kh-pay .kh-pay-card b,
+html[data-theme="light"] .kh-pay .kh-pay-top b { color: #fff !important; }
+html[data-theme="light"] .kh-pay .kh-pay-top span { color: rgba(255,255,255,.82) !important; }
+html[data-theme="light"] .kh-pay .kh-pay-row small { color: rgba(255,255,255,.78) !important; }
+html[data-theme="light"] .kh-pay .kh-pay-note { color: rgba(255,255,255,.9) !important; }
+html[data-theme="light"] .kh-pay .kh-pay-copy { color: #fff !important; }
+html[data-theme="light"] .kh-pay .kh-pay-copy.is-done { color: #10603a !important; }
+html[data-theme="light"] .kh-pay .kh-pay-tile b,
+html[data-theme="light"] .kh-pay .kh-pay-f label { color: #2a2338 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-hint,
+html[data-theme="light"] .kh-pay .kh-pay-h small { color: #5d5470 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-empty,
+html[data-theme="light"] .kh-pay .kh-pay-empty div { color: #6b4310 !important; }
+
+@media (max-width: 480px) {
+  .kh-pay { padding: 12px; }
+  .kh-pay-tiles { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 7px; }
+  .kh-pay-card { max-width: 100%; padding: 14px 15px; }
+  .kh-pay-row b.kh-pay-mono { font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-pay-card { animation: none; }
+}
