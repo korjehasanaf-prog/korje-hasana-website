@@ -302,7 +302,7 @@
   .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=32">
+  <link rel="stylesheet" href="kh-ui.css?v=33">
 </head>
 <body data-kh-nav="on">
 
@@ -691,8 +691,23 @@ function openPayInstallment(btn) {
   let PICK = null;
   (async () => {
     if (!(window.KHUI && KHUI.payPicker)) return;
-    try { PICK = await KHUI.payPicker(box.querySelector('#payPick'),
-                    { title: 'কিস্তির টাকা কীভাবে দিয়েছেন?' }); } catch (e) {}
+    try {
+      PICK = await KHUI.payPicker(box.querySelector('#payPick'), {
+        title:   'কিস্তির টাকা কীভাবে দিতে চান?',
+        purpose: 'repayment',
+        /* ⚠️ অঙ্ক সার্ভারই ঠিক করে — বকেয়া (amount_due − amount_paid)।
+           এখানে যা লেখা থাকে তা কেবল বাটনে দেখানোর জন্য। */
+        amount:  function () { return parseFloat(box.querySelector('#payAmt').value) || 0; },
+        payload: function () { return { repayment_id: repId }; },
+        beforePay: function () {
+          var v = parseFloat(box.querySelector('#payAmt').value);
+          if (!v || v <= 0) { say('সঠিক পরিমাণ লিখুন।', false); return false; }
+          return true;
+        }
+      });
+      var amtIn = box.querySelector('#payAmt');
+      if (amtIn && PICK && PICK.refresh) amtIn.addEventListener('input', PICK.refresh);
+    } catch (e) {}
   })();
 
   box.querySelector('#payGo').onclick = async function () {
@@ -1067,6 +1082,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=32"></script>
+<script src="kh-ui.js?v=33"></script>
 </body>
 </html>

@@ -440,7 +440,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=32">
+  <link rel="stylesheet" href="kh-ui.css?v=33">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1244,15 +1244,65 @@ function setFreq(el, freq) {
    বাটন ও তিনটি সেকশনের `.show` ক্লাস নাড়াচাড়া করত। এখন মাধ্যমের
    তালিকাই ডাটাবেজ থেকে আসে, তাই ঐ যুক্তির আর দরকার নেই। */
 var DON_PAY = null;
+
+/* দাতার ঘরগুলো ঠিক আছে কি না — গেটওয়েতে যাওয়ার আগেও এটিই দেখা হয়,
+   নাহলে টাকা কেটে ফিরে এসে দেখা যেত নাম/মোবাইল ফাঁকা। */
+function donorFormOk() {
+  const name   = document.getElementById('donorName').value.trim();
+  const mobile = document.getElementById('donorMobile').value.trim();
+  const amt    = parseInt(document.getElementById('amountInput').value);
+  if (window.KHUI && KHUI.checkRequired) {
+    const missing = KHUI.checkRequired({ full_name:'donorName', mobile:'donorMobile', email:'donorEmail' });
+    if (missing) {
+      document.getElementById(missing).focus();
+      alert('তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক।');
+      return false;
+    }
+  } else {
+    if (!name)   { alert('অনুগ্রহ করে আপনার নাম লিখুন।'); return false; }
+    if (!mobile) { alert('অনুগ্রহ করে মোবাইল নম্বর লিখুন।'); return false; }
+  }
+  if (!amt || amt < 100) {
+    alert('সর্বনিম্ন দানের পরিমাণ ৳১০০।');
+    document.getElementById('amountInput').focus();
+    return false;
+  }
+  return true;
+}
+
 async function mountDonationPay() {
   if (DON_PAY || !window.KHUI || !KHUI.payPicker) return;
   var host = document.getElementById('donPay');
   if (!host) return;
   try {
-    DON_PAY = await KHUI.payPicker(host, { title: 'দানের টাকা কীভাবে দিয়েছেন?' });
+    DON_PAY = await KHUI.payPicker(host, {
+      title:   'দানের টাকা কীভাবে দিতে চান?',
+      purpose: 'donation',
+      /* ⚠️ অঙ্ক এই পেজের উপরের ঘরটিই — গেটওয়েতেও সেটিই যায়।
+         কিন্তু সার্ভার (`start_payment`) আবার সীমা মিলিয়ে নেয়, তাই
+         ব্রাউজারে কেউ কারচুপি করলেও লাভ নেই। */
+      amount:  function () { return parseInt(document.getElementById('amountInput').value) || 0; },
+      payload: function () {
+        return {
+          name:         document.getElementById('donorName').value.trim(),
+          mobile:       document.getElementById('donorMobile').value.trim(),
+          email:        (document.getElementById('donorEmail')?.value || '').trim(),
+          is_anonymous: document.getElementById('anonCheck')?.checked || false
+        };
+      },
+      beforePay: donorFormOk
+    });
     /* মাধ্যম বদলালে ভাউচারের লেখাও যেন মিলে যায় */
     if (DON_PAY && DON_PAY.onChange) DON_PAY.onChange(function (id) { selectedPay = id; });
     if (DON_PAY && !DON_PAY.empty) selectedPay = DON_PAY.method();
+    /* অঙ্ক বদলালে পরিশোধের বাটনে লেখা অঙ্কও বদলাতে হবে */
+    var amtIn = document.getElementById('amountInput');
+    if (amtIn && DON_PAY && DON_PAY.refresh) {
+      amtIn.addEventListener('input', DON_PAY.refresh);
+      document.querySelectorAll('.amount-btn, [data-amount]').forEach(function (b) {
+        b.addEventListener('click', function () { setTimeout(DON_PAY.refresh, 0); });
+      });
+    }
   } catch (e) { DON_PAY = null; }
 }
 window.addEventListener('load', mountDonationPay);
@@ -1431,15 +1481,9 @@ function processDonation() {
   const name   = document.getElementById('donorName').value.trim();
   const mobile = document.getElementById('donorMobile').value.trim();
   const amt    = parseInt(document.getElementById('amountInput').value);
-  /* অ্যাডমিন-নির্ধারিত বাধ্যতামূলক ফিল্ড (জেনারেল সেটিংস) */
-  if (window.KHUI && KHUI.checkRequired) {
-    const missing = KHUI.checkRequired({ full_name:'donorName', mobile:'donorMobile', email:'donorEmail' });
-    if (missing) { document.getElementById(missing).focus(); alert('তারকা (*) চিহ্নিত ঘরগুলো পূরণ করা বাধ্যতামূলক।'); return; }
-  } else {
-    if (!name)   { alert('Please enter your name.'); return; }
-    if (!mobile) { alert('Please enter your mobile number.'); return; }
-  }
-  if (!amt || amt < 100)  { alert('Minimum donation amount is ৳100.'); return; }
+  /* অ্যাডমিন-নির্ধারিত বাধ্যতামূলক ফিল্ড + অঙ্কের সীমা — একই যাচাই
+     গেটওয়েতে যাওয়ার আগেও চলে (`beforePay`), তাই এক জায়গায় রাখা হলো। */
+  if (!donorFormOk()) return;
 
   /* ⚠️ মাধ্যম ও রেফারেন্স এখন `payPicker` থেকে। আগে শুধু
      bkash/nagad/rocket-এ মোবাইল নম্বর চাওয়া হত, আর কার্ড/ব্যাংকে
@@ -1845,7 +1889,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=32"></script>
+<script src="kh-ui.js?v=33"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

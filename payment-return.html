@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পরিশোধের অবস্থা | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ⚠️ প্রকল্পের ১ নম্বর নিয়ম — সুপাবেসের দুটি স্ক্রিপ্ট kh-ui.js-এর আগে -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{ --pink:#d6336c; --violet:#7048e8; --ink:#241539; --muted:#6b6280; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:26px 16px 96px; position:relative; overflow-x:hidden;
+      color:#f3edfb; background:#150c24;
+    }
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+        background:url('images/auth-bg.jpg') center/cover no-repeat}
+
+    .card{
+      position:relative; z-index:1; width:100%; max-width:470px;
+      background:rgba(26,14,45,.9); border:1px solid rgba(255,255,255,.17);
+      border-radius:24px; padding:30px 26px;
+      backdrop-filter:blur(22px) saturate(155%);
+      box-shadow:0 24px 70px rgba(0,0,0,.5);
+    }
+    html[data-theme="light"] .card{
+      background:rgba(255,255,255,.95); border-color:#ece2f4; color:var(--ink);
+      box-shadow:0 24px 70px rgba(112,72,232,.28);
+    }
+
+    /* প্রতিটি অবস্থার আইকন নিজের রঙ বহন করে, তাই দুই থীমেই এক */
+    .ico{
+      width:74px;height:74px;border-radius:50%;margin:0 auto 15px;
+      display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;
+    }
+    .ico.wait{background:linear-gradient(135deg,#7048e8,#a021c9);box-shadow:0 8px 24px rgba(112,72,232,.42)}
+    .ico.ok  {background:linear-gradient(135deg,#0f7a43,#0a5c33);box-shadow:0 8px 24px rgba(15,122,67,.42)}
+    .ico.bad {background:linear-gradient(135deg,#c2255c,#8a1338);box-shadow:0 8px 24px rgba(194,37,92,.42)}
+    .ico.warn{background:linear-gradient(135deg,#c87a0c,#8a5208);box-shadow:0 8px 24px rgba(200,122,12,.42)}
+
+    h1{font-size:22px;text-align:center;margin-bottom:6px}
+    .sub{font-size:13.5px;text-align:center;color:#cbbfdd;margin-bottom:20px;line-height:1.75}
+    html[data-theme="light"] .sub{color:var(--muted)}
+
+    /* অঙ্কের ঘরটি নিজের গাঢ় গ্র্যাডিয়েন্ট বহন করে — সাদা লেখা ৫.৪–৮.১:১ */
+    .amt{
+      margin:0 auto 18px; max-width:300px; padding:15px 18px; border-radius:16px;
+      text-align:center; background:linear-gradient(135deg,#241539,#0d3b2e); color:#fff;
+    }
+    .amt small{display:block;font-size:11.5px;letter-spacing:.06em;opacity:.95;margin-bottom:3px}
+    .amt b{font-size:28px;font-weight:800;letter-spacing:.01em}
+
+    .rows{border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.14);margin-bottom:18px}
+    html[data-theme="light"] .rows{border-color:#ece2f4}
+    .row{display:flex;justify-content:space-between;gap:12px;padding:11px 14px;font-size:13px}
+    .row + .row{border-top:1px solid rgba(255,255,255,.1)}
+    html[data-theme="light"] .row + .row{border-top-color:#f1eaf7}
+    .row span{color:#cbbfdd}
+    html[data-theme="light"] .row span{color:var(--muted)}
+    .row b{font-weight:700;text-align:right;word-break:break-word}
+    .mono{font-family:'Inter',ui-monospace,monospace;letter-spacing:.02em}
+
+    .msg{padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.7;margin-bottom:16px}
+    .msg.info{background:rgba(112,72,232,.18);border:1px solid rgba(112,72,232,.42);color:#ddd0ff}
+    .msg.warn{background:rgba(240,140,40,.16);border:1px solid rgba(240,140,40,.42);color:#fde68a}
+    html[data-theme="light"] .msg.info{background:#f1ecff;border-color:#cdbcfa;color:#3f2a86}
+    html[data-theme="light"] .msg.warn{background:#fff4e6;border-color:#fcd9a0;color:#7a4a08}
+
+    .acts{display:grid;gap:9px}
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      padding:14px;border:none;border-radius:12px;cursor:pointer;
+      font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;
+      background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#7048e8);color:#fff;
+      box-shadow:0 8px 24px rgba(139,31,176,.36);
+    }
+    .btn:hover{filter:brightness(1.08)}
+    /* দ্বিতীয় বাটনটি আউটলাইন — তাই নিজের লেখার রঙ দুই থীমে আলাদা */
+    .btn2{
+      background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.22);
+      color:#f0e9fa;box-shadow:none;
+    }
+    html[data-theme="light"] .btn2{background:#faf7fd;border-color:#e3d8ee;color:#4a3568}
+
+    .sp{animation:sp .9s linear infinite;display:inline-block}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion: reduce){ .sp{animation:none} }
+  </style>
+</head>
+<!-- ⚠️ নেভবার সব পেজেই (প্রকল্পের ৬ নম্বর নিয়ম) — `data-kh-nav="off"` কখনো নয় -->
+<body data-kh-nav="on">
+
+<div class="bg"></div>
+
+<div class="card">
+  <div class="ico wait" id="ico"><i class="ti ti-loader-2 sp"></i></div>
+  <h1 id="ttl">পরিশোধ যাচাই করা হচ্ছে…</h1>
+  <div class="sub" id="sub">গেটওয়ে থেকে নিশ্চিতকরণ আসছে — কয়েক সেকেন্ড অপেক্ষা করুন।</div>
+
+  <div id="amtBox" style="display:none" class="amt"><small id="amtLbl">পরিমাণ</small><b id="amtVal"></b></div>
+  <div id="msg" style="display:none" class="msg info"></div>
+  <div id="rows" class="rows" style="display:none"></div>
+  <div class="acts" id="acts"></div>
+</div>
+
+<link rel="stylesheet" href="kh-ui.css?v=33">
+<script src="kh-ui.js?v=33"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   গেটওয়ে থেকে ফেরার পেজ (২২ সেপ্টেম্বর ২০২৬)
+
+   ⚠️⚠️ এই পেজ **কোনো সিদ্ধান্ত নেয় না**। টাকা এসেছে কি না তা ঠিক
+   করে সার্ভার — `pay-callback` Edge Function গেটওয়ের Order
+   Validation API-তে জিজ্ঞাসা করে, অঙ্ক ও মুদ্রা মিলিয়ে দেখে,
+   তারপর হিসাবে বসায়। এখানে কেবল `payment_status(tran_id)` পড়ে
+   দেখানো হয়। URL-এর `r=success` একটি **ইঙ্গিত**, প্রমাণ নয়।
+
+   ⚠️ IPN সাধারণত দর্শকের ফেরার **আগেই** পৌঁছায় (ডকুমেন্টেশনের কথা),
+   কিন্তু সবসময় নয়। তাই ১৪ বার, ১.৫ সেকেন্ড পর পর দেখা হয় —
+   মোট ~২১ সেকেন্ড। তারপরও অমীমাংসিত থাকলে "কিছুক্ষণ পর দেখুন"
+   বলা হয়, কখনো "ব্যর্থ" বলা হয় না — টাকা কেটে গিয়ে "ব্যর্থ"
+   দেখানো সবচেয়ে খারাপ ভুল।
+   ══════════════════════════════════════════════════════════════ */
+(function () {
+  var Q = new URLSearchParams(location.search);
+  var tran = (Q.get('tran') || '').trim();
+  var hint = (Q.get('r') || '').toLowerCase();
+
+  /* গেটওয়ে কোনো কারণে tran_id না ফেরালে ব্রাউজারের মনে রাখা মানটি */
+  if (!tran) { try { tran = localStorage.getItem('kh_pay_tran') || ''; } catch (e) {} }
+
+  var ico = document.getElementById('ico');
+  var ttl = document.getElementById('ttl');
+  var sub = document.getElementById('sub');
+  var msg = document.getElementById('msg');
+  var rowsB = document.getElementById('rows');
+  var acts = document.getElementById('acts');
+  var amtBox = document.getElementById('amtBox');
+  var amtVal = document.getElementById('amtVal');
+  var amtLbl = document.getElementById('amtLbl');
+
+  var bn = function (s) { return (window.KHUI && KHUI.bn) ? KHUI.bn(s) : String(s); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  };
+
+  var PURPOSE = {
+    donation:  { label:'দান',            back:'donation.html',        backTxt:'দানের পাতায় ফিরে যান' },
+    savings:   { label:'সঞ্চয় জমা',      back:'savings-portal.html',  backTxt:'আমানত পোর্টালে যান' },
+    repayment: { label:'ঋণের কিস্তি',    back:'borrower-portal.html', backTxt:'ঋণ পোর্টালে যান' }
+  };
+
+  function setIco(kind, icon) {
+    ico.className = 'ico ' + kind;
+    ico.innerHTML = '<i class="ti ' + icon + '"></i>';
+  }
+  function say(text, kind) {
+    msg.className = 'msg ' + (kind || 'info');
+    msg.textContent = text;
+    msg.style.display = 'block';
+  }
+  function showRows(list) {
+    rowsB.innerHTML = list.map(function (r) {
+      return '<div class="row"><span>' + esc(r[0]) + '</span>' +
+             '<b class="' + (r[2] ? 'mono' : '') + '">' + esc(r[1]) + '</b></div>';
+    }).join('');
+    rowsB.style.display = 'block';
+  }
+  /* দুটি বাটন — উপরেরটি ভরাট, নিচেরটি আউটলাইন */
+  function acts2(primary, secondary) {
+    var h = '';
+    if (primary) {
+      h += '<a class="btn" href="' + esc(primary.href) + '">' +
+           '<i class="ti ' + esc(primary.icon || 'ti-arrow-right') + '"></i>' +
+           esc(primary.text) + '</a>';
+    }
+    if (secondary) {
+      h += '<a class="btn btn2" href="' + esc(secondary.href) + '">' +
+           '<i class="ti ' + esc(secondary.icon || 'ti-home') + '"></i>' +
+           esc(secondary.text) + '</a>';
+    }
+    acts.innerHTML = h;
+  }
+
+  function fail(title, detail) {
+    setIco('bad', 'ti-circle-x');
+    ttl.textContent = title;
+    sub.textContent = detail || '';
+    acts2({ text:'আবার চেষ্টা করুন', href:'donation.html', icon:'ti-refresh' },
+          { text:'হোম পেজে যান',    href:'index.html',    icon:'ti-home' });
+  }
+
+  if (!tran) {
+    fail('কোন লেনদেনটি বোঝানো হচ্ছে তা জানা গেল না',
+         'ঠিকানায় লেনদেনের পরিচয় নেই। দান বা জমা আবার শুরু করুন — টাকা কেটে থাকলে ফাউন্ডেশনের সাথে যোগাযোগ করুন।');
+    return;
+  }
+  if (!window._db) {
+    fail('সংযোগ পাওয়া যাচ্ছে না', 'পেজটি একবার রিফ্রেশ করুন।');
+    return;
+  }
+
+  var tries = 0, MAX = 14;
+
+  function paintPaid(s) {
+    var p = PURPOSE[s.purpose] || PURPOSE.donation;
+    setIco('ok', 'ti-circle-check');
+    ttl.textContent = 'পরিশোধ সম্পন্ন হয়েছে';
+    sub.textContent = p.label + ' গ্রহণ করা হয়েছে। রশিদ আপনার ই-মেইলে চলে যাবে।';
+    msg.style.display = 'none';
+
+    amtLbl.textContent = p.label;
+    amtVal.textContent = '৳' + bn(Number(s.amount).toLocaleString('en-US'));
+    amtBox.style.display = 'block';
+
+    var res = s.result || {};
+    var rows = [['লেনদেন নং', s.tran_id, 1]];
+    if (res.donation_no) rows.push(['রশিদ নং', res.donation_no, 1]);
+    if (res.voucher_no)  rows.push(['ভাউচার নং', res.voucher_no, 1]);
+    if (res.account_no)  rows.push(['হিসাব নম্বর', res.account_no, 1]);
+    if (res.loan_no)     rows.push(['ঋণ নং', res.loan_no, 1]);
+    if (s.method && window.KHUI && KHUI.PAY_METHODS) {
+      var m = KHUI.PAY_METHODS.filter(function (x) { return x.id === s.method; })[0];
+      if (m) rows.push(['মাধ্যম', m.name, 0]);
+    }
+    showRows(rows);
+
+    /* ⚠️ সঞ্চয়ের জমা `pending` অবস্থাতেই রশিদ পান — অনুমোদন আসতে
+       সময় লাগতে পারে, সেটি স্পষ্ট করে বলা হয় (মিথ্যা আশ্বাস নয়) */
+    if (s.purpose === 'savings') {
+      say('জমাটি অ্যাডমিনের অনুমোদনের অপেক্ষায় আছে — অনুমোদনের পর হিসাবের স্থিতি হালনাগাদ হবে ও আলাদা একটি নিশ্চিতকরণ মেইল যাবে।', 'info');
+    }
+    if (s.sandbox) {
+      say('⚠️ এটি ছিল একটি পরীক্ষামূলক (স্যান্ডবক্স) লেনদেন — আসল কোনো টাকা কাটা হয়নি।', 'warn');
+    }
+
+    acts2({ text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard' },
+          { text:p.backTxt,         href:p.back,              icon:'ti-arrow-left' });
+    try { localStorage.removeItem('kh_pay_tran'); } catch (e) {}
+  }
+
+  function paintStopped(s) {
+    var cancelled = s.status === 'cancelled';
+    setIco(cancelled ? 'warn' : 'bad', cancelled ? 'ti-hand-stop' : 'ti-circle-x');
+    ttl.textContent = cancelled ? 'পরিশোধ বাতিল করা হয়েছে' : 'পরিশোধ সম্পন্ন হয়নি';
+    sub.textContent = cancelled
+      ? 'আপনি লেনদেনটি বাতিল করেছেন — কোনো টাকা কাটা হয়নি।'
+      : 'গেটওয়ে লেনদেনটি সম্পন্ন করতে পারেনি। কোনো টাকা কাটা হয়নি; কেটে থাকলে তা নিজে থেকেই ফেরত যাবে।';
+    if (s.reason) say('কারণ: ' + s.reason, 'warn');
+    showRows([['লেনদেন নং', s.tran_id, 1]]);
+    var p = PURPOSE[s.purpose] || PURPOSE.donation;
+    acts2({ text:'আবার চেষ্টা করুন', href:p.back,       icon:'ti-refresh' },
+          { text:'হোম পেজে যান',    href:'index.html', icon:'ti-home' });
+  }
+
+  function paintPending(s) {
+    setIco('warn', 'ti-clock-hour-4');
+    ttl.textContent = 'নিশ্চিতকরণ এখনো আসেনি';
+    sub.textContent = 'গেটওয়ে থেকে চূড়ান্ত বার্তা পেতে কিছুটা সময় লাগছে।';
+    /* ⚠️ এখানে কখনো "ব্যর্থ" লেখা হয় না — টাকা কেটে গিয়ে থাকলে
+       সার্ভার পরে নিজেই হিসাবে বসাবে (IPN), তাই ভয় দেখানো ভুল হবে। */
+    say('আপনার টাকা কেটে থাকলে চিন্তার কিছু নেই — গেটওয়ের নিশ্চিতকরণ এলে হিসাবটি নিজে থেকেই বসে যাবে ও রশিদ ই-মেইলে যাবে। কিছুক্ষণ পর "আমার ড্যাশবোর্ড" দেখে নিন; সন্দেহ থাকলে নিচের লেনদেন নম্বরটি নিয়ে ফাউন্ডেশনের সাথে যোগাযোগ করুন।', 'warn');
+    showRows([
+      ['লেনদেন নং', (s && s.tran_id) || tran, 1],
+      ['অবস্থা', (s && s.status === 'launched') ? 'গেটওয়েতে পাঠানো হয়েছে' : 'অপেক্ষমাণ', 0]
+    ]);
+    acts2({ text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard' },
+          { text:'হোম পেজে যান',    href:'index.html',        icon:'ti-home' });
+  }
+
+  async function look() {
+    tries++;
+    var s = null;
+    /* ⚠️ `rpc()`-এ `.catch()` নেই (প্রকল্পের ৪ নম্বর নিয়ম) */
+    try {
+      var r = await _db.rpc('payment_status', { p_tran_id: tran });
+      if (r && !r.error && r.data) s = r.data;
+    } catch (e) {}
+
+    if (s && s.ok) {
+      if (s.status === 'paid') { paintPaid(s); return; }
+      if (s.status === 'failed' || s.status === 'cancelled' || s.status === 'expired') {
+        paintStopped(s); return;
+      }
+    }
+
+    /* বাতিল/ব্যর্থতার ইঙ্গিত থাকলে অপেক্ষা করার মানে নেই */
+    if ((hint === 'cancel' || hint === 'fail') && tries >= 2) {
+      paintStopped(s && s.ok ? s : { status: hint === 'cancel' ? 'cancelled' : 'failed',
+                                     tran_id: tran, purpose: (s && s.purpose) || 'donation' });
+      return;
+    }
+
+    if (tries >= MAX) { paintPending(s && s.ok ? s : null); return; }
+    setTimeout(look, 1500);
+  }
+
+  look();
+})();
+</script>
+</body>
+</html>

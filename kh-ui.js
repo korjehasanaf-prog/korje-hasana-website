@@ -3670,9 +3670,13 @@
     { id:'card',   name:'কার্ড / POS',      mk:'ti-credit-card', grp:'bank', ref:'অনুমোদন নম্বর',
       hint:'কার্ড বা POS-এ পরিশোধের পর স্লিপের অনুমোদন (approval) নম্বরটি লিখুন।' },
     { id:'cash',   name:'কার্যালয়ে নগদ',    mk:'ti-cash', grp:'cash', ref:'রশিদ নম্বর',
-      hint:'কার্যালয়ে নগদ দিলে যে রশিদ পেয়েছেন, তার নম্বরটি লিখুন।' },
+      hint:'কার্যালয়ে নগদ দিলে যে রশিদ পেয়েছেন, তার নম্বরটি লিখুন।',
+      offline:'এটি অনলাইনে হয় না — কার্যালয়ে গিয়ে নগদ দিতে হয়। ঠিকানা নিচের ' +
+              '“প্রতিষ্ঠানের হিসাব বিবরণী”-তে আছে; রশিদ পেলে তার নম্বরটি এখানে লিখুন।' },
     { id:'agent',  name:'এজেন্ট ব্যাংকিং',  mk:'ti-building-store', grp:'cash', ref:'রশিদ নম্বর',
-      hint:'এজেন্ট আউটলেটে জমা দিয়ে রশিদের নম্বরটি লিখুন।' }
+      hint:'এজেন্ট আউটলেটে জমা দিয়ে রশিদের নম্বরটি লিখুন।',
+      offline:'এটি অনলাইনে হয় না — এজেন্ট আউটলেটে জমা দিতে হয়। আউটলেট ও হিসাব ' +
+              'নম্বর নিচের “প্রতিষ্ঠানের হিসাব বিবরণী”-তে; রশিদের নম্বরটি এখানে লিখুন।' }
   ];
   KHUI.PAY_METHODS = PAY_DEF;
 
@@ -3716,8 +3720,8 @@
     return '<span class="kh-pay-mk kh-mk-' + def.id + '">' + inner + '</span>';
   }
 
-  /* ── একটি মাধ্যমের ৩D কার্ড ─────────────────────────────── */
-  function payCardHTML(def, info) {
+  /* ── ফাউন্ডেশনের হিসাবের সারিগুলো (বাটনের আড়ালে থাকে) ───── */
+  function payRowsHTML(def, info) {
     var rows = '', list = PAY_ROWS[def.id] || [];
     for (var i = 0; i < list.length; i++) {
       var k = list[i][0], label = list[i][1], mono = list[i][2];
@@ -3729,51 +3733,135 @@
         '<button type="button" class="kh-pay-copy" data-copy="' + payEsc(v) + '">' +
         '<i class="ti ti-copy" aria-hidden="true"></i>কপি</button></div>';
     }
-    /* বাংলা QR — ছবিটিই মূল জিনিস।
-       ⚠️ ছবি না থাকলে **স্ক্যানযোগ্য নকল QR আঁকা হয় না** — সেটি
-       স্ক্যান করে কেউ বিভ্রান্ত হতেন। বদলে স্পষ্ট প্লেসহোল্ডার
-       ("ডেমো QR"), যাতে দেখেই বোঝা যায় আসল কোড এখনো বসেনি। */
-    var qr = '';
-    if (def.id === 'bqr') {
-      qr = '<div class="kh-pay-qr-wrap">' + (
-        (info.image || '').trim()
-          ? '<span class="kh-pay-qr" role="img" aria-label="বাংলা কিউআর কোড" ' +
-            'style="background-image:url(&quot;' + payEsc(info.image) + '&quot;)"></span>'
-          : '<span class="kh-pay-qr kh-pay-qr--ph" role="img" ' +
-            'aria-label="ডেমো কিউআর — আসল কোড এখনো বসানো হয়নি">' +
-            '<i class="ti ti-qrcode" aria-hidden="true"></i><em>ডেমো QR</em></span>'
-      ) + '</div>';
-    }
-    var note = (info.note || '').trim();
-    /* ⚠️⚠️ ডেমো তথ্য হলে লাল সতর্কবার্তা — আর্থিক কারণে বাধ্যতামূলক।
-       ভুয়া নম্বরে কেউ সত্যিই টাকা পাঠিয়ে দিলে তা ফেরানো যাবে না। */
-    var demo = info.demo === true
+    return rows;
+  }
+
+  /* ── ⚠️⚠️ ডেমো তথ্যের লাল সতর্কবার্তা — আর্থিক কারণে বাধ্যতামূলক।
+        ভুয়া নম্বরে কেউ সত্যিই টাকা পাঠিয়ে দিলে তা ফেরানো যাবে না। ── */
+  function payDemoHTML(info) {
+    return info && info.demo === true
       ? '<div class="kh-pay-demo"><i class="ti ti-alert-triangle" aria-hidden="true"></i>' +
         '<span>এটি <b>ডেমো</b> তথ্য — এই নম্বর/হিসাবে টাকা পাঠাবেন না। ' +
         'আসল তথ্য বসানো হলে এই বার্তাটি চলে যাবে।</span></div>'
       : '';
-    /* ব্যান্ডে কালি-লেখা হলে চিহ্নের আভাও কালচে হয় (নগদ · উপায়) */
-    var inkBand = (def.id === 'nagad' || def.id === 'upay') ? ' on-ink' : '';
-    return '<div class="kh-pay-card kh-pc-' + def.id + '">' +
-      '<div class="kh-pay-band' + inkBand + '">' + payMk(def) +
-        '<b>' + payEsc(def.name) + '</b><span>পাঠান এখানে</span></div>' +
-      demo + qr + rows +
-      '<div class="kh-pay-note">' + payEsc(note || def.hint) + '</div>' +
+  }
+
+  /* ── বাংলা QR — **সবসময় খোলা** (ব্যবহারকারীর সিদ্ধান্ত: ২১ সেপ্টে ২০২৬)
+        অন্য মাধ্যম বাছা থাকলেও এই ঘরটি লুকানো হয় না, কারণ QR
+        স্ক্যান করা সবচেয়ে সহজ পথ।
+     ⚠️ ছবি না থাকলে **স্ক্যানযোগ্য নকল QR আঁকা হয় না** — সেটি
+        স্ক্যান করে কেউ বিভ্রান্ত হতেন। বদলে স্পষ্ট প্লেসহোল্ডার। ── */
+  function payQrHTML(info) {
+    info = info || {};
+    var img = (info.image || '').trim();
+    return '<div class="kh-pay-qrbox' + (info.demo === true ? ' is-demo' : '') + '">' +
+      '<div class="kh-pay-qrhead">' +
+        '<span class="kh-pay-mk kh-mk-bqr"><i class="ti ti-qrcode" aria-hidden="true"></i></span>' +
+        '<div><b>বাংলা কিউআর</b>' +
+        '<small>' + payEsc(info.merchant || 'কর্জে হাসানা ফাউন্ডেশন') + '</small></div>' +
+      '</div>' +
+      payDemoHTML(info) +
+      '<div class="kh-pay-qr-wrap">' + (
+        img
+          ? '<span class="kh-pay-qr" role="img" aria-label="বাংলা কিউআর কোড" ' +
+            'style="background-image:url(&quot;' + payEsc(img) + '&quot;)"></span>'
+          : '<span class="kh-pay-qr kh-pay-qr--ph" role="img" ' +
+            'aria-label="ডেমো কিউআর — আসল কোড এখনো বসানো হয়নি">' +
+            '<i class="ti ti-qrcode" aria-hidden="true"></i><em>ডেমো QR</em></span>'
+      ) + '</div>' +
+      '<p class="kh-pay-qrnote">যেকোনো ব্যাংক বা MFS অ্যাপ খুলে এই কোডটি স্ক্যান করুন।</p>' +
     '</div>';
   }
 
+  /* ── নির্বাচিত মাধ্যমের ৩D কার্ড ─────────────────────────────
+     ⚠️ কার্ডটি এখন **গেটওয়েতে যাওয়ার** কার্ড — দাতার কার্ড নম্বর,
+        Expiry বা CVV কখনো চাওয়া হয় না। সেগুলো টাইপ হয় গেটওয়ের
+        নিজের পাতায় (PCI-DSS — নিজের পাতায় নিলে SAQ-D স্তরে পড়তে হয়,
+        যা একটি দাতব্য ফাউন্ডেশনের পক্ষে বহন করা অসম্ভব)।           */
+  function payCardHTML(def, info, st) {
+    info = info || {}; st = st || {};
+    var inkBand = (def.id === 'nagad' || def.id === 'upay') ? ' on-ink' : '';
+    var online  = info.online === true && st.gwOn;
+    var body;
+
+    if (online) {
+      body =
+        '<div class="kh-pay-go-wrap">' +
+          '<p class="kh-pay-golead">' + payEsc(def.name) +
+            '-এর নিজের পাতায় নিয়ে যাওয়া হবে, সেখানেই পরিশোধ সম্পন্ন হবে।</p>' +
+          '<button type="button" class="kh-pay-go">' +
+            '<i class="ti ti-lock" aria-hidden="true"></i>' +
+            '<span class="kh-pay-gotxt">এখনই পরিশোধ করুন</span>' +
+            '<b class="kh-pay-goamt"></b>' +
+          '</button>' +
+          (st.sandbox
+            ? '<p class="kh-pay-sbx"><i class="ti ti-flask" aria-hidden="true"></i>' +
+              '<span><b>পরীক্ষামূলক (স্যান্ডবক্স)</b> — এখানে আসল টাকা কাটা হয় না। ' +
+              'ফাউন্ডেশনের মার্চেন্ট অ্যাকাউন্ট চালু হলে এই বার্তাটি চলে যাবে।</span></p>'
+            : '') +
+          '<p class="kh-pay-goerr" role="alert"></p>' +
+        '</div>';
+    } else {
+      body =
+        '<div class="kh-pay-go-wrap">' +
+          '<p class="kh-pay-golead">' + payEsc(def.offline || def.hint) + '</p>' +
+        '</div>';
+    }
+
+    return '<div class="kh-pay-card kh-pc-' + def.id + '">' +
+      '<div class="kh-pay-band' + inkBand + '">' + payMk(def) +
+        '<b>' + payEsc(def.name) + '</b>' +
+        '<span>' + (online ? 'অনলাইনে পরিশোধ' : 'নিজে পাঠিয়ে দিন') + '</span></div>' +
+      (online ? '' : payDemoHTML(info)) +
+      body +
+    '</div>';
+  }
+
+  /* গেটওয়ের অবস্থা — মাধ্যম ও গেটওয়ে একবারেই আনা হয় */
+  var payCfg = null;
+  KHUI.payConfig = async function (force) {
+    if (payCfg && !force) return payCfg;
+    var db = sb();
+    if (!db) return (payCfg = { methods: {}, gateway: { enabled: false, manual_enabled: true } });
+    /* ⚠️ `rpc()`-এ `.catch()` নেই (প্রকল্পের ৪ নম্বর নিয়ম) */
+    try {
+      var r = await db.rpc('public_pay_config');
+      payCfg = (r && !r.error && r.data) ? r.data
+             : { methods: {}, gateway: { enabled: false, manual_enabled: true } };
+    } catch (e) {
+      payCfg = { methods: {}, gateway: { enabled: false, manual_enabled: true } };
+    }
+    payCache = payCfg.methods || {};
+    return payCfg;
+  };
+
   /* ══ মূল ফাংশন ══════════════════════════════════════════════
      `KHUI.payPicker(host, opts)` → একটি হ্যান্ডেল:
-       .value()   → {method, reference} · কিছু বাছা না হলে method ''
-       .validate()→ ঠিক থাকলে value, নাহলে null (+ ঘরে লাল বেড়)
-       .reset()   · .method() · .onChange(fn)
-     opts: { title, refRequired (ডিফল্ট true), only:[ids], compact }   */
+       .value()    → {method, reference}
+       .validate() → ম্যানুয়াল পথের যাচাই; ঠিক থাকলে value, নাহলে null
+       .pay()      → গেটওয়েতে পাঠায় (অনলাইন মাধ্যম হলে)
+       .online()   → নির্বাচিত মাধ্যমে গেটওয়ে চলে কি না
+       .reset() · .method() · .onChange(fn)
+
+     opts:
+       title, refRequired (ডিফল্ট true), only:[ids]
+       purpose  : 'donation' | 'savings' | 'repayment'
+       amount   : সংখ্যা অথবা ফাংশন (গেটওয়েতে পাঠানোর আগে ডাকা হয়)
+       payload  : অবজেক্ট অথবা ফাংশন — start_payment-এ যাবে
+       beforePay: ফাংশন → false দিলে গেটওয়েতে যাওয়া আটকে যায়
+                  (যেমন দানের ফর্ম অসম্পূর্ণ থাকলে)
+     ══════════════════════════════════════════════════════════ */
   KHUI.payPicker = async function (host, opts) {
     opts = opts || {};
     host = typeof host === 'string' ? document.getElementById(host) : host;
     if (!host) return null;
 
-    var info = await KHUI.payMethodsInfo();
+    var cfg  = await KHUI.payConfig();
+    var info = cfg.methods || {};
+    var gwc  = cfg.gateway || {};
+    var st   = { gwOn: gwc.enabled === true, sandbox: gwc.mode !== 'live' };
+    var manualOn = gwc.manual_enabled !== false;
+
     var defs = PAY_DEF.filter(function (d) {
       if (opts.only && opts.only.indexOf(d.id) < 0) return false;
       return !!info[d.id];
@@ -3781,8 +3869,8 @@
 
     host.classList.add('kh-pay');
     var head = '<p class="kh-pay-h"><i class="ti ti-wallet" aria-hidden="true"></i>' +
-      payEsc(opts.title || 'টাকা কীভাবে দিয়েছেন / দিবেন?') +
-      '<small>রেকর্ডের জন্য</small></p>';
+      payEsc(opts.title || 'টাকা কীভাবে দিতে চান?') +
+      '<small>' + (st.gwOn ? 'মাধ্যম বাছুন' : 'রেকর্ডের জন্য') + '</small></p>';
 
     /* ⚠️ কোনো মাধ্যম চালু না থাকলে ফাঁকা পর্দা দেখানো হয় না —
        স্পষ্ট করে বলা হয় কী করতে হবে। */
@@ -3795,61 +3883,77 @@
         'থেকে নম্বর ও হিসাবের তথ্য বসিয়ে দিন।</div></div>';
       return { value: function () { return { method: '', reference: '' }; },
                validate: function () { return null; },
+               pay: function () {}, online: function () { return false; },
                reset: function () {}, method: function () { return ''; },
                onChange: function () {}, empty: true };
     }
 
     var refReq = opts.refRequired !== false;
+    var qrInfo = info.bqr;
+
     host.innerHTML = head +
       '<div class="kh-pay-tiles" role="radiogroup" aria-label="টাকা দেওয়ার মাধ্যম">' +
         defs.map(function (d, i) {
           /* ডেমো মাধ্যমে টাইলের কোণে ছোট লাল বিন্দু — তালিকা দেখেই
              বোঝা যায় কোনগুলোর তথ্য এখনো আসল নয় */
-          var dot = (info[d.id] && info[d.id].demo === true)
+          var im  = info[d.id] || {};
+          var dot = im.demo === true && im.online !== true
             ? '<span class="kh-pay-dot" title="ডেমো তথ্য"></span>' : '';
+          var bolt = (st.gwOn && im.online === true)
+            ? '<i class="ti ti-bolt kh-pay-bolt" title="অনলাইনে সাথে সাথে" aria-hidden="true"></i>' : '';
           return '<div class="kh-pay-tile' + (i === 0 ? ' is-on' : '') + '" role="radio" tabindex="0" ' +
-                 'aria-checked="' + (i === 0) + '" data-pm="' + d.id + '">' + dot +
+                 'aria-checked="' + (i === 0) + '" data-pm="' + d.id + '">' + dot + bolt +
                  payMk(d) + '<b>' + payEsc(d.name) + '</b></div>';
         }).join('') +
       '</div>' +
       '<div class="kh-pay-stage"></div>' +
-      '<div class="kh-pay-fields"><div class="kh-pay-f">' +
-        '<label for="' + host.id + '_ref">রেফারেন্স / TrxID' +
-        (refReq ? ' <em>*</em>' : '') + '</label>' +
-        '<input id="' + host.id + '_ref" type="text" autocomplete="off" spellcheck="false" ' +
-        'inputmode="text" placeholder="যেমন 9F2K7X1A0B">' +
-        '<p class="kh-pay-hint"></p>' +
-      '</div></div>';
+      /* বাংলা QR — সবক্ষেত্রেই খোলা */
+      (qrInfo ? payQrHTML(qrInfo) : '') +
+      /* প্রতিষ্ঠানের হিসাব বিবরণী — বাটনের আড়ালে */
+      '<details class="kh-pay-acc"><summary>' +
+        '<i class="ti ti-receipt-2" aria-hidden="true"></i>' +
+        'প্রতিষ্ঠানের হিসাব বিবরণী<em>নিজে পাঠাতে চাইলে</em></summary>' +
+        '<div class="kh-pay-accbody"></div>' +
+      '</details>' +
+      /* ম্যানুয়াল পথ — নিজে পাঠিয়ে TrxID লেখা */
+      (manualOn
+        ? '<div class="kh-pay-manual"><div class="kh-pay-f">' +
+            '<label for="' + host.id + '_ref">রেফারেন্স / TrxID' +
+            (refReq ? ' <em>*</em>' : '') + '</label>' +
+            '<input id="' + host.id + '_ref" type="text" autocomplete="off" spellcheck="false" ' +
+            'inputmode="text" placeholder="যেমন 9F2K7X1A0B">' +
+            '<p class="kh-pay-hint"></p>' +
+          '</div></div>'
+        : '');
 
     var tiles = host.querySelectorAll('.kh-pay-tile');
     var stage = host.querySelector('.kh-pay-stage');
+    var accB  = host.querySelector('.kh-pay-accbody');
     var fld   = host.querySelector('.kh-pay-f');
     var input = host.querySelector('.kh-pay-f input');
     var label = host.querySelector('.kh-pay-f label');
     var hint  = host.querySelector('.kh-pay-hint');
     var cur   = defs[0];
     var cbs   = [];
+    var busy  = false;
 
     /* ⚠️ রেফারেন্সে শুধু অক্ষর-সংখ্যা-হাইফেন — TrxID-তে বাংলা বা
        বিরামচিহ্ন ঢুকলে অ্যাডমিন মিলিয়ে দেখতে পারেন না। */
-    input.addEventListener('input', function () {
-      var clean = input.value.replace(/[^A-Za-z0-9\-\/]/g, '').toUpperCase().slice(0, 40);
-      if (clean === input.value) return;
-      var pos = input.selectionStart - (input.value.length - clean.length);
-      input.value = clean;
-      try { input.setSelectionRange(pos, pos); } catch (e) {}
-    });
-    input.addEventListener('input', function () { fld.classList.remove('is-bad'); });
+    if (input) {
+      input.addEventListener('input', function () {
+        var clean = input.value.replace(/[^A-Za-z0-9\-\/]/g, '').toUpperCase().slice(0, 40);
+        if (clean !== input.value) {
+          var pos = input.selectionStart - (input.value.length - clean.length);
+          input.value = clean;
+          try { input.setSelectionRange(pos, pos); } catch (e) {}
+        }
+        fld.classList.remove('is-bad');
+      });
+    }
 
-    function paint() {
-      stage.innerHTML = payCardHTML(cur, info[cur.id] || {});
-      label.innerHTML = payEsc(cur.ref) + (refReq ? ' <em>*</em>' : '');
-      hint.textContent = cur.hint;
-      input.placeholder = cur.grp === 'mfs' ? 'যেমন 9F2K7X1A0B'
-                        : cur.id === 'bank' ? 'স্লিপের রেফারেন্স'
-                        : 'রশিদ / অনুমোদন নম্বর';
+    function wireCopy(scope) {
       /* কপি বাটন — `navigator.clipboard` না থাকলেও যেন ভাঙে না */
-      stage.querySelectorAll('.kh-pay-copy').forEach(function (b) {
+      scope.querySelectorAll('.kh-pay-copy').forEach(function (b) {
         b.addEventListener('click', function () {
           var txt = b.dataset.copy || '';
           var done = function () {
@@ -3873,6 +3977,116 @@
           t.remove();
         });
       });
+    }
+
+    function curAmount() {
+      var a = typeof opts.amount === 'function' ? opts.amount() : opts.amount;
+      a = Number(a);
+      return isFinite(a) && a > 0 ? a : 0;
+    }
+
+    function paintAmount() {
+      var b = stage.querySelector('.kh-pay-goamt');
+      if (!b) return;
+      var a = curAmount();
+      b.textContent = a ? '৳' + KHUI.bn(a.toLocaleString('en-US')) : '';
+    }
+
+    /* ── গেটওয়েতে পাঠানো ────────────────────────────────────
+       ⚠️ অঙ্ক এখান থেকে **পাঠানো হয় বটে, কিন্তু সার্ভারই চূড়ান্ত করে**
+          (`start_payment`) — সঞ্চয়ে লক করা কিস্তি, কিস্তিতে বকেয়া,
+          দানে ৳১০–৳৫,০০,০০০ সীমা। ব্রাউজার কিছু বাড়াতে-কমাতে পারে না। */
+    async function pay() {
+      if (busy) return;
+      var err = stage.querySelector('.kh-pay-goerr');
+      var btn = stage.querySelector('.kh-pay-go');
+      var say = function (m) { if (err) err.textContent = m || ''; };
+      say('');
+
+      if (typeof opts.beforePay === 'function') {
+        var ok = false;
+        try { ok = await opts.beforePay(cur.id); } catch (e) { ok = false; }
+        if (ok === false) return;
+      }
+
+      var db = sb();
+      if (!db) { say('সংযোগ পাওয়া যাচ্ছে না — পেজটি রিফ্রেশ করুন।'); return; }
+
+      busy = true;
+      if (btn) {
+        btn.classList.add('is-busy');
+        btn.querySelector('.kh-pay-gotxt').textContent = 'গেটওয়েতে নিয়ে যাচ্ছি…';
+      }
+      var unbusy = function () {
+        busy = false;
+        if (btn) {
+          btn.classList.remove('is-busy');
+          btn.querySelector('.kh-pay-gotxt').textContent = 'এখনই পরিশোধ করুন';
+        }
+      };
+
+      try {
+        var pl = typeof opts.payload === 'function' ? opts.payload() : opts.payload;
+        var r = await db.rpc('start_payment', {
+          p_purpose: opts.purpose || 'donation',
+          p_method:  cur.id,
+          p_amount:  curAmount() || null,
+          p_payload: pl || {}
+        });
+        if (r.error) throw new Error(r.error.message || 'সেশন তৈরি হয়নি');
+        var tran = r.data && r.data.tran_id;
+        if (!tran) throw new Error('লেনদেনের পরিচয় পাওয়া যায়নি');
+
+        /* ফেরার পেজ যেন জানে কোন লেনদেন — গেটওয়ে থেকে ফিরতে সময় লাগে */
+        try { localStorage.setItem('kh_pay_tran', tran); } catch (e) {}
+
+        var f = await db.functions.invoke('pay-start', { body: { tran_id: tran } });
+        var out = f.data || {};
+        /* ⚠️ supabase-js নন-2xx উত্তরে `data` null করে দেয় — তাই ফাংশনের
+           নিজের বাংলা বার্তাটি হারিয়ে যেত। `error.context` হলো আসল
+           Response, ওখান থেকে বার্তাটি তুলে আনা হয়। */
+        if (f.error) {
+          var m = '';
+          try {
+            if (f.error.context && typeof f.error.context.json === 'function') {
+              var j = await f.error.context.json();
+              m = (j && j.error) || '';
+            }
+          } catch (e2) {}
+          throw new Error(m || 'গেটওয়েতে পৌঁছানো যাচ্ছে না');
+        }
+        if (!out.ok || !out.url) throw new Error(out.error || 'গেটওয়ে সেশন তৈরি হয়নি');
+
+        location.href = out.url;       /* এখানেই পেজ ছেড়ে যাওয়া */
+      } catch (e) {
+        say(String((e && e.message) || e) || 'কিছু একটা ভুল হয়েছে');
+        unbusy();
+      }
+    }
+
+    function paint() {
+      stage.innerHTML = payCardHTML(cur, info[cur.id] || {}, st);
+      paintAmount();
+      wireCopy(stage);
+      var go = stage.querySelector('.kh-pay-go');
+      if (go) go.addEventListener('click', pay);
+
+      /* হিসাব বিবরণীতে নির্বাচিত মাধ্যমের সারিগুলো */
+      var rows = payRowsHTML(cur, info[cur.id] || {});
+      accB.innerHTML = rows
+        ? payDemoHTML(info[cur.id]) + rows +
+          '<p class="kh-pay-accnote">' + payEsc((info[cur.id] || {}).note || cur.hint) + '</p>'
+        : '<p class="kh-pay-accnote">এই মাধ্যমে আলাদা কোনো হিসাব নম্বর নেই — ' +
+          'উপরের অনলাইন পরিশোধ অথবা বাংলা QR ব্যবহার করুন।</p>';
+      wireCopy(accB);
+
+      if (label) label.innerHTML = payEsc(cur.ref) + (refReq ? ' <em>*</em>' : '');
+      if (hint)  hint.textContent = cur.hint;
+      if (input) {
+        input.placeholder = cur.grp === 'mfs' ? 'যেমন 9F2K7X1A0B'
+                          : cur.id === 'bank' ? 'স্লিপের রেফারেন্স'
+                          : 'রশিদ / অনুমোদন নম্বর';
+      }
       cbs.forEach(function (fn) { try { fn(cur.id); } catch (e) {} });
     }
 
@@ -3897,16 +4111,21 @@
 
     return {
       empty: false,
-      value:  function () { return { method: cur.id, reference: input.value.trim() }; },
+      value:  function () { return { method: cur.id, reference: input ? input.value.trim() : '' }; },
       method: function () { return cur.id; },
-      reset:  function () { input.value = ''; fld.classList.remove('is-bad'); },
+      online: function () { return st.gwOn && (info[cur.id] || {}).online === true; },
+      pay:    pay,
+      refresh: paintAmount,
+      reset:  function () { if (input) { input.value = ''; fld.classList.remove('is-bad'); } },
       onChange: function (fn) { if (typeof fn === 'function') cbs.push(fn); },
       validate: function () {
-        var v = input.value.trim();
+        var v = input ? input.value.trim() : '';
         if (refReq && !v) {
-          fld.classList.add('is-bad');
-          hint.textContent = cur.ref + 'টি লিখুন — এটি ছাড়া অ্যাডমিন মিলিয়ে দেখতে পারবেন না।';
-          input.focus();
+          if (fld) fld.classList.add('is-bad');
+          if (hint) hint.textContent = cur.ref +
+            'টি লিখুন — এটি ছাড়া অ্যাডমিন মিলিয়ে দেখতে পারবেন না। ' +
+            'অথবা উপরের “এখনই পরিশোধ করুন” দিয়ে অনলাইনে দিন।';
+          if (input) input.focus();
           return null;
         }
         return { method: cur.id, reference: v };

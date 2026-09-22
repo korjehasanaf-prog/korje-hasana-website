@@ -3811,6 +3811,107 @@ html[data-theme="light"] .plume__note.plume__note.kh-bad { color: #b3261e !impor
 .kh-pay-qr--ph i { font-size: 46px; opacity: .55; }
 .kh-pay-qr--ph em { font-style: normal; font-size: 11.5px; font-weight: 700; }
 
+/* ══════════════════════════════════════════════════════════
+   গেটওয়েতে যাওয়ার অংশ (২২ সেপ্টেম্বর ২০২৬)
+
+   ব্যবহারকারীর নির্দেশ: "নির্বাচিত মাধ্যমের পোর্টালে গিয়ে সরাসরি
+   টাকা পরিশোধ বা জমা দেয়া যাবে।" তাই ৩D কার্ডটি এখন **গেটওয়েতে
+   যাওয়ার** কার্ড — ভেতরে ফাউন্ডেশনের নম্বর নয়, একটি পরিশোধের বাটন।
+
+   ⚠️ বাটনটি **নিজের সবুজ গ্র্যাডিয়েন্ট বহন করে**, তাই দুই থীমেই এক।
+      সাদা লেখা: #0f7a43-এ ৫.৪০:১, #0a5c33-এ ৮.১০:১ — দুটোই AA পাস।
+   ══════════════════════════════════════════════════════════ */
+.kh-pay-go-wrap { display: grid; gap: 10px; margin-top: 4px; }
+.kh-pay-golead {
+  font-size: 12.5px; line-height: 1.6; color: rgba(255, 255, 255, .9);
+}
+.kh-pay-go {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; min-height: 50px; padding: 0 16px; border: 0; border-radius: 12px;
+  cursor: pointer; color: #fff;
+  background: linear-gradient(112deg, #0f7a43, #0a5c33);
+  font: 700 15px/1 'Hind Siliguri', system-ui, sans-serif;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, .65);
+  transition: transform .18s ease, filter .18s ease;
+}
+.kh-pay-go:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.kh-pay-go:active { transform: translateY(0); }
+.kh-pay-go i { font-size: 17px; }
+.kh-pay-goamt { font-size: 16px; font-weight: 800; }
+.kh-pay-go.is-busy { pointer-events: none; opacity: .82; }
+.kh-pay-go.is-busy i { animation: khPaySpin 1s linear infinite; }
+@keyframes khPaySpin { to { transform: rotate(360deg); } }
+
+/* ⚠️ স্যান্ডবক্সের সতর্কবার্তা — নিজের অ্যাম্বার পটভূমি বহন করে (৯.১৮:১)।
+   মার্চেন্ট অ্যাকাউন্ট না থাকা পর্যন্ত দাতাকে স্পষ্ট জানানো হয় যে
+   এখানে আসল টাকা কাটা হয় না — নাহলে "দান হয়ে গেছে" ভেবে চলে যেতেন। */
+.kh-pay-sbx {
+  display: flex; gap: 8px; padding: 9px 11px; border-radius: 10px;
+  background: #4a3410; color: #ffe0a3;
+  font-size: 11.5px; line-height: 1.55;
+}
+.kh-pay-sbx i { font-size: 15px; flex: none; color: #ffcf70; }
+.kh-pay-goerr:empty { display: none; }
+.kh-pay-goerr {
+  font-size: 12px; line-height: 1.55; color: #ffb4a2;             /* গাঢ় কার্ডে ~১০.৫:১ */
+}
+
+/* টাইলের কোণে বিদ্যুতের চিহ্ন — কোনগুলোতে অনলাইনে সাথে সাথে হয় */
+.kh-pay-tile .kh-pay-bolt {
+  position: absolute; top: 5px; left: 6px; font-size: 12px; color: #0f7a43;  /* সাদায় ৫.৪:১ */
+}
+
+/* ══ বাংলা QR — সবসময় খোলা ঘর ═════════════════════════════
+   ব্যবহারকারীর শর্ত: "বাংলা কিউআরটি সবক্ষেত্রেই অপেন রাখা প্রয়োজন।"
+   তাই এটি নির্বাচনের বাইরে, নিজের ঘরে।
+   ⚠️ ঘরটি **নিজের সাদা পটভূমি বহন করে** — QR সাদা ছাড়া স্ক্যান হয় না,
+      আর তাতেই দুই থীমে মাপ এক থাকে।                                */
+.kh-pay-qrbox {
+  margin-top: 12px; padding: 14px; border-radius: 14px;
+  background: #fff; border: 1px solid #e9e1f1; color: #2a2338;
+  box-shadow: 0 8px 22px -16px rgba(40, 24, 70, .4);
+  display: grid; gap: 10px;
+}
+.kh-pay-qrhead { display: flex; align-items: center; gap: 10px; }
+.kh-pay-qrhead b { font-size: 14px; display: block; color: #2a2338; }   /* ১৩.৫:১ */
+.kh-pay-qrhead small { font-size: 11.5px; color: #5d5470; }             /* ৭.০:১ */
+.kh-pay-qrnote {
+  font-size: 11.5px; line-height: 1.55; color: #5d5470; text-align: center;
+}
+
+/* ══ প্রতিষ্ঠানের হিসাব বিবরণী — বাটনের আড়ালে ══════════════
+   ব্যবহারকারীর শর্ত: "অন্যান্য তথ্যগুলো কোন বাটনের আড়ালে রাখলেও"। */
+.kh-pay-acc {
+  margin-top: 12px; border-radius: 12px; overflow: hidden;
+  background: #fff; border: 1px solid #e9e1f1;
+}
+.kh-pay-acc > summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 12px 14px; list-style: none;
+  font: 600 13px/1.3 'Hind Siliguri', system-ui, sans-serif; color: #2a2338;
+}
+.kh-pay-acc > summary::-webkit-details-marker { display: none; }
+.kh-pay-acc > summary i { font-size: 16px; color: #7048e8; }            /* সাদায় ৫.১:১ */
+.kh-pay-acc > summary em {
+  font-style: normal; margin-left: auto; font-size: 11.5px;
+  font-weight: 500; color: #5d5470;                                     /* ৭.০:১ */
+}
+.kh-pay-acc[open] > summary { border-bottom: 1px solid #f0eaf7; }
+.kh-pay-accbody { padding: 12px 14px 14px; display: grid; gap: 9px; }
+.kh-pay-accnote { font-size: 11.5px; line-height: 1.6; color: #5d5470; }
+
+/* ⚠️ সারিগুলো আগে গাঢ় কার্ডের ভেতরে ছিল (সাদা লেখা); এখন এই হালকা
+   ঘরে বসে, তাই রঙ উল্টে দিতে হয়েছে — নাহলে সাদায় সাদা হয়ে যেত। */
+.kh-pay-accbody .kh-pay-row { border-color: #efe9f7; }
+.kh-pay-accbody .kh-pay-row small { color: #5d5470; }                   /* ৭.০:১ */
+.kh-pay-accbody .kh-pay-row b { color: #2a2338; }                       /* ১৩.৫:১ */
+/* ⚠️ কপি বাটনের `rgba(0,0,0,.26)` সাদা ঘরে কার্যত ধূসর হয়ে যায় ও
+   সাদা লেখা ১.৬:১-এ নামে — তাই এখানে ভরাট গাঢ় (১১.৬৯:১)। */
+.kh-pay-accbody .kh-pay-copy { background: #3b3450; }
+.kh-pay-accbody .kh-pay-copy:hover { background: #2c2740; }
+
+.kh-pay-manual { margin-top: 12px; }
+
 /* ── রেফারেন্সের ঘর ─────────────────────────────────────── */
 .kh-pay-fields { display: grid; gap: 10px; }
 .kh-pay-f label {
@@ -3856,6 +3957,23 @@ html[data-theme="light"] .kh-pay .kh-pay-hint,
 html[data-theme="light"] .kh-pay .kh-pay-h small { color: #5d5470 !important; }
 html[data-theme="light"] .kh-pay .kh-pay-empty,
 html[data-theme="light"] .kh-pay .kh-pay-empty div { color: #6b4310 !important; }
+/* গেটওয়ের অংশ — গাঢ় কার্ডের ভেতরে, তাই সাদা/অ্যাম্বার ফিরিয়ে দেওয়া */
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-golead { color: rgba(255,255,255,.9) !important; }
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-go,
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-go b,
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-go span { color: #fff !important; }
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-sbx,
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-sbx span { color: #ffe0a3 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-goerr { color: #ffb4a2 !important; }
+/* QR ঘর ও হিসাব বিবরণী — নিজের সাদা পটভূমি, তাই গাঢ় লেখা */
+html[data-theme="light"] .kh-pay .kh-pay-qrhead b,
+html[data-theme="light"] .kh-pay .kh-pay-accbody .kh-pay-row b { color: #2a2338 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-qrhead small,
+html[data-theme="light"] .kh-pay .kh-pay-qrnote,
+html[data-theme="light"] .kh-pay .kh-pay-accnote,
+html[data-theme="light"] .kh-pay .kh-pay-acc > summary em,
+html[data-theme="light"] .kh-pay .kh-pay-accbody .kh-pay-row small { color: #5d5470 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-accbody .kh-pay-copy { color: #fff !important; }
 
 @media (max-width: 480px) {
   .kh-pay { padding: 12px; }

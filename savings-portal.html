@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=32">
+  <link rel="stylesheet" href="kh-ui.css?v=33">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1338,8 +1338,32 @@ async function mountDepositPay() {
   if (DEP_PAY || !window.KHUI || !KHUI.payPicker) return;
   var host = document.getElementById('depPay');
   if (!host) return;
-  try { DEP_PAY = await KHUI.payPicker(host, { title: 'টাকা কীভাবে দিয়েছেন?' }); }
-  catch (e) { DEP_PAY = null; }
+  try {
+    DEP_PAY = await KHUI.payPicker(host, {
+      title:   'কিস্তির টাকা কীভাবে দিতে চান?',
+      purpose: 'savings',
+      /* ⚠️ অঙ্ক এখানে **পাঠানো হয় শুধু "যখন খুশি" স্কীমের জন্য**।
+         বাকি স্কীমে সার্ভার নিজেই লক করা কিস্তি বসায় — ব্রাউজার
+         অঙ্ক বদলাতে পারে না (`start_payment`)। */
+      amount:  function () {
+        if (!CUR) return 0;
+        /* "যখন খুশি" স্কীমে কোনো সূচি নেই, তাই অঙ্ক সদস্য নিজে লেখেন */
+        if (!(CUR.due || {}).has_schedule) {
+          return parseFloat((document.getElementById('depositAmountPanel') || {}).value) || 0;
+        }
+        return parseFloat(CUR.instalment) || 0;
+      },
+      payload: function () { return { account_id: CUR ? CUR.id : null }; },
+      beforePay: function () {
+        if (!CUR) { showMsg('depositMsgPanel','আগে একটি হিসাব নির্বাচন করুন।','error'); return false; }
+        if (!(CUR.due || {}).has_schedule) {
+          var a = parseFloat((document.getElementById('depositAmountPanel') || {}).value) || 0;
+          if (a < 10) { showMsg('depositMsgPanel','কমপক্ষে ১০ টাকা জমা দিন।','error'); return false; }
+        }
+        return true;
+      }
+    });
+  } catch (e) { DEP_PAY = null; }
 }
 
 function accLabel(a) {
@@ -2676,6 +2700,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=32"></script>
+<script src="kh-ui.js?v=33"></script>
 </body>
 </html>
