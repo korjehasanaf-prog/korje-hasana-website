@@ -164,6 +164,33 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .gs-checks{display:flex;gap:18px;flex-wrap:wrap}
 .gs-checks label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
 
+/* ── 📊 স্টেটমেন্ট ও রিপোর্ট ── */
+/* ⚠️ প্রতিটি কার্ড নিজের গ্র্যাডিয়েন্ট বহন করে ও লেখা সাদা — তাই দুই থীমে হুবহু এক */
+.rp-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:18px}
+.rp-card{border-radius:14px;padding:16px 18px;color:#fff;position:relative;overflow:hidden}
+.rp-card b{display:block;font-size:12.5px;font-weight:700;letter-spacing:.02em;opacity:1}
+.rp-card .rp-big{font-size:25px;font-weight:800;margin:6px 0 2px;line-height:1.15;font-family:'Hind Siliguri',sans-serif}
+.rp-card .rp-sub{font-size:12.5px;color:#fff;line-height:1.75}
+.rp-card i{position:absolute;right:12px;top:12px;font-size:30px;opacity:.22}
+.rp-c1{background:linear-gradient(135deg,#c2255c,#8b1fb0)}
+.rp-c2{background:linear-gradient(135deg,#0f7a43,#0a5c33)}
+.rp-c3{background:linear-gradient(135deg,#5b3bbf,#3b2680)}
+.rp-c4{background:linear-gradient(135deg,#1360a8,#0d3f72)}
+.rp-c5{background:linear-gradient(135deg,#b02a37,#7d1d26)}
+.rp-c6{background:linear-gradient(135deg,#9a5b10,#6b3d09)}
+.rp-sec{margin-bottom:18px}
+.rp-sec h3{font-size:16px;font-weight:700;color:#fff;margin:0 0 4px;font-family:'Hind Siliguri',sans-serif;
+  display:flex;align-items:center;gap:8px}
+.rp-sec .rp-note{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.8}
+.rp-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.rp-empty{font-size:13px;color:var(--muted);padding:14px 0}
+.rp-tot{font-weight:700;color:#fff}
+.rp-chip{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px}
+.rp-chip.ok{background:#0f3d28;color:#a7f0c6}     /* ৯.৩:১ */
+.rp-chip.wait{background:#4a3410;color:#ffe0a3}   /* ৯.২:১ */
+.rp-chip.no{background:#5a1512;color:#ffd9d4}     /* ১০.৪:১ */
+@media(max-width:820px){.rp-cards{grid-template-columns:1fr}}
+
 /* ── টাকা নেওয়ার মাধ্যম (সেটিংস) ── */
 .pm-row{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.13);border-radius:11px;overflow:hidden}
 .pm-row[open]{border-color:rgba(255,255,255,.26)}
@@ -401,6 +428,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
 
       <div class="sb-section">রিপোর্ট</div>
+      <div class="sb-item" id="mi-reports" onclick="switchPanel('reports')">
+        <i class="ti ti-report-analytics"></i> স্টেটমেন্ট ও রিপোর্ট
+      </div>
       <div class="sb-item" id="mi-log" onclick="switchPanel('log')">
         <i class="ti ti-list-check"></i> অনুমোদন লগ
       </div>
@@ -883,6 +913,40 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
       </div>
 
+      <!-- ══════════════ PANEL: STATEMENTS & REPORTS ══════════════ -->
+      <div class="panel" id="panel-reports">
+        <div class="panel-title">📊 স্টেটমেন্ট ও রিপোর্ট</div>
+        <div class="panel-sub">দৈনিক · সাপ্তাহিক · মাসিক · বাৎসরিক · এ পর্যন্ত — উপরে সারসংক্ষেপ, নিচে বিস্তারিত</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="filter-pills" id="rpPills" style="margin-bottom:12px">
+            <button class="filter-pill active" data-rp="today">আজ</button>
+            <button class="filter-pill" data-rp="week">এই সপ্তাহ</button>
+            <button class="filter-pill" data-rp="month">এই মাস</button>
+            <button class="filter-pill" data-rp="year">এই বছর</button>
+            <button class="filter-pill" data-rp="all">এ পর্যন্ত</button>
+          </div>
+          <div class="form-grid col3" style="align-items:end">
+            <div class="fld"><label>তারিখ থেকে</label><input id="rpFrom" type="date"></div>
+            <div class="fld"><label>তারিখ পর্যন্ত</label><input id="rpTo" type="date"></div>
+            <div class="fld">
+              <button class="btn-primary" style="width:100%" onclick="loadReport('custom')">
+                <i class="ti ti-filter"></i> এই সময়সীমায় দেখুন
+              </button>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px">
+            <button class="btn btn-gold" onclick="printReport()">
+              <i class="ti ti-printer"></i> A4 কাগজে ছাপান / PDF সংরক্ষণ
+            </button>
+            <span id="rpRange" style="font-size:13px;color:var(--muted)"></span>
+          </div>
+        </div>
+
+        <div id="rpCards" class="rp-cards"></div>
+        <div id="rpDetail"></div>
+      </div>
+
       <div class="panel" id="panel-settings">
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
@@ -1346,6 +1410,7 @@ const PANEL_TITLES = {
   'expense':'তহবিল ও খরচ', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় জমা ও উত্তোলন অনুমোদন',
   'cards':'সদস্যের পরিচয়পত্র',
+  'reports':'স্টেটমেন্ট ও রিপোর্ট',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
@@ -1419,6 +1484,8 @@ function switchPanel(name) {
   if (name === 'prod-loans') loadProdLoans();
   if (name === 'prod-donations') loadProdDonations();
   pmFillSelects();
+  /* প্রথমবার খুললে "আজ" দেখায়; পরে আগের নির্বাচনই থাকে (বারবার RPC ডাকা হয় না) */
+  if (name === 'reports' && !RP) loadReport('today');
   if (name === 'settings') { loadGeneralSettings(); loadPayMethods(); }
   if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
@@ -1629,6 +1696,319 @@ async function saveGeneralSettings() {
     gsMsg.style.color = '#f87171';
     gsMsg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only' ? 'শুধুমাত্র সুপার অ্যাডমিন সেটিংস বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
   }
+}
+
+// ════════════════════════════════════════
+//  📊 স্টেটমেন্ট ও রিপোর্ট
+//  ⚠️ কোনো যোগফল এখানে কষা হয় না — সব অঙ্ক admin_report() থেকেই আসে।
+//     (আর্থিক সংখ্যা ডাটাবেজে তৈরি হবে, ক্লায়েন্ট কেবল দেখাবে।)
+// ════════════════════════════════════════
+var RP = null;          /* সর্বশেষ ফলাফল — ছাপানোর সময় এটিই ব্যবহার হয় */
+var RP_KIND = 'today';
+
+/* ঢাকার আজকের তারিখ — ব্রাউজারের টাইমজোন যাই হোক (en-CA = YYYY-MM-DD) */
+function rpToday() {
+  try { return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }); }
+  catch (e) { return new Date().toISOString().slice(0, 10); }
+}
+function rpShift(iso, days) {
+  var d = new Date(iso + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+/* ⚠️ সপ্তাহ শনিবার থেকে শুক্রবার — বাংলাদেশের প্রচলিত সপ্তাহ, রবিবার নয় */
+function rpRange(kind) {
+  var t = rpToday(), y = +t.slice(0, 4), m = +t.slice(5, 7);
+  if (kind === 'today') return { from: t, to: t, label: 'আজ' };
+  if (kind === 'week') {
+    var dow = new Date(t + 'T12:00:00Z').getUTCDay();      /* 0=রবি … 6=শনি */
+    return { from: rpShift(t, -((dow + 1) % 7)), to: t, label: 'এই সপ্তাহ (শনিবার থেকে)' };
+  }
+  if (kind === 'month') return { from: t.slice(0, 8) + '01', to: t, label: 'এই মাস' };
+  if (kind === 'year')  return { from: y + '-01-01', to: t, label: 'এই বছর' };
+  if (kind === 'all')   return { from: null, to: t, label: 'শুরু থেকে এ পর্যন্ত' };
+  return { from: null, to: t, label: '' };
+}
+
+async function loadReport(kind) {
+  RP_KIND = kind || 'today';
+  var cards = document.getElementById('rpCards');
+  var det = document.getElementById('rpDetail');
+  var rangeEl = document.getElementById('rpRange');
+  var r;
+
+  if (kind === 'custom') {
+    r = { from: document.getElementById('rpFrom').value || null,
+          to:   document.getElementById('rpTo').value   || rpToday(),
+          label: 'নির্বাচিত সময়সীমা' };
+    document.querySelectorAll('#rpPills .filter-pill').forEach(function (p) { p.classList.remove('active'); });
+  } else {
+    r = rpRange(RP_KIND);
+    document.getElementById('rpFrom').value = r.from || '';
+    document.getElementById('rpTo').value = r.to || '';
+    document.querySelectorAll('#rpPills .filter-pill').forEach(function (p) {
+      p.classList.toggle('active', p.getAttribute('data-rp') === RP_KIND);
+    });
+  }
+
+  cards.innerHTML = '';
+  det.innerHTML = '<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>হিসাব কষা হচ্ছে…</p></div>';
+  rangeEl.textContent = '';
+
+  var res;
+  try { res = await _db.rpc('admin_report', { p_from: r.from, p_to: r.to }); }
+  catch (e) { res = { error: e }; }
+  if (!res || res.error || !res.data) {
+    det.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>' +
+      ((res && res.error && res.error.message === 'admin only')
+        ? 'এই অংশটি কেবল অ্যাডমিনদের জন্য।' : 'রিপোর্ট আনা যায়নি — পরে আবার চেষ্টা করুন।') + '</p></div>';
+    return;
+  }
+  RP = res.data;
+  RP.label = r.label;
+
+  var rg = RP.range || {};
+  rangeEl.textContent = (r.label ? r.label + ' — ' : '') +
+    (rg.all_time ? 'শুরু থেকে' : fmtDate(rg.from)) + ' থেকে ' + fmtDate(rg.to) +
+    ' · তৈরি ' + KHUI.bn(rg.generated_at || '');
+
+  cards.innerHTML = rpCardsHTML(RP.summary || {});
+  det.innerHTML = rpDetailHTML(RP);
+  /* ⚠️ `KHUI.makeTablesScrollable()` ডাকা হয় না — dashboard.html-এর নিজের
+     `.tbl-wrap`-এ আগে থেকেই `overflow-x:auto` আছে (মেপে দেখা), তাই ডাকলে
+     টেবিল দুবার মোড়া হত। */
+}
+
+function rpTk(n) { return '৳' + fmt(n); }
+
+function rpCardsHTML(s) {
+  var d = s.donation || {}, sv = s.savings || {}, l = s.loan || {}, f = s.fund || {};
+  var card = function (cls, icon, title, big, sub) {
+    return '<div class="rp-card ' + cls + '"><i class="ti ' + icon + '"></i>' +
+      '<b>' + esc(title) + '</b><div class="rp-big">' + big + '</div>' +
+      '<div class="rp-sub">' + sub + '</div></div>';
+  };
+  return [
+    card('rp-c1', 'ti-heart', 'দান (নিশ্চিত)', rpTk(d.amount),
+      KHUI.bn(d.count || 0) + 'টি লেনদেন · অপেক্ষমাণ ' + rpTk(d.pending_amount) +
+      ' (' + KHUI.bn(d.pending_count || 0) + ')'),
+    card('rp-c2', 'ti-pig-money', 'সঞ্চয় — নিট জমা',
+      rpTk((sv.deposit_amount || 0) - (sv.withdraw_amount || 0)),
+      'জমা ' + rpTk(sv.deposit_amount) + ' · উত্তোলন ' + rpTk(sv.withdraw_amount) +
+      '<br>মোট স্থিতি ' + rpTk(s.savings_balance)),
+    card('rp-c3', 'ti-wallet', 'ঋণ বিতরণ', rpTk(l.disbursed_amount),
+      KHUI.bn(l.disbursed_count || 0) + 'টি ঋণ · চলমান ' + KHUI.bn(l.active_loans || 0) +
+      '<br>বকেয়া মূল ' + rpTk(l.outstanding)),
+    card('rp-c4', 'ti-cash-banknote', 'ঋণ আদায়', rpTk(l.collected_amount),
+      KHUI.bn(l.collected_count || 0) + 'টি কিস্তি · বিলম্বিত ' +
+      KHUI.bn(l.overdue_count || 0) + ' (' + rpTk(l.overdue_amount) + ')'),
+    card('rp-c5', 'ti-receipt-2', 'খরচ',
+      rpTk((f.operation_out || 0) + (f.revolving_out || 0)),
+      'অপারেশন ' + rpTk(f.operation_out) + ' · রিভলভিং ' + rpTk(f.revolving_out)),
+    card('rp-c6', 'ti-building-bank', 'তহবিলের স্থিতি',
+      rpTk((f.operation_balance || 0) + (f.revolving_balance || 0)),
+      'অপারেশন ' + rpTk(f.operation_balance) + ' · রিভলভিং ' + rpTk(f.revolving_balance) +
+      '<br>দানের ' + KHUI.bn(f.operation_pct) + '% + ' + KHUI.bn(f.revolving_pct) + '%')
+  ].join('');
+}
+
+/* ছোট টেবিল বানানোর হেল্পার — head: [..], rows: [[..],..] */
+function rpTable(head, rows, empty) {
+  if (!rows || !rows.length) return '<div class="rp-empty">' + esc(empty || 'এই সময়সীমায় কিছু নেই।') + '</div>';
+  return '<div class="tbl-wrap"><table><thead><tr>' +
+    head.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') +
+    '</tr></thead><tbody>' +
+    rows.map(function (r) {
+      return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>';
+    }).join('') + '</tbody></table></div>';
+}
+function rpSec(icon, title, note, body) {
+  return '<div class="rp-sec card"><h3><i class="ti ' + icon + '"></i> ' + esc(title) + '</h3>' +
+    (note ? '<div class="rp-note">' + note + '</div>' : '') + body + '</div>';
+}
+function rpStat(s) {
+  var c = (s === 'confirmed' || s === 'approved') ? 'ok' : (s === 'pending' || s === 'review') ? 'wait' : 'no';
+  return '<span class="rp-chip ' + c + '">' + esc(statusBn(s)) + '</span>';
+}
+
+function rpDetailHTML(R) {
+  var d = R.donation || {}, sv = R.savings || {}, l = R.loan || {}, f = R.fund || {};
+  var lim = (R.range || {}).row_limit || 500;
+  var capNote = 'সর্বোচ্চ ' + KHUI.bn(lim) + 'টি সারি দেখানো হয় — এর বেশি হলে সময়সীমা ছোট করুন।';
+  var out = '';
+
+  /* ── দান ── */
+  out += rpSec('ti-heart', 'দান — বিস্তারিত', capNote,
+    '<div class="rp-grid2" style="margin-bottom:14px">' +
+      '<div>' + rpTable(['মাধ্যম', 'সংখ্যা', 'পরিমাণ'],
+        (d.by_method || []).map(function (x) {
+          return [esc(methodBn(x.k)), KHUI.bn(x.n), '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
+        })) + '</div>' +
+      '<div>' + rpTable(['উদ্দেশ্য', 'সংখ্যা', 'পরিমাণ'],
+        (d.by_purpose || []).map(function (x) {
+          return [esc(purposeBn(x.k)), KHUI.bn(x.n), '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
+        })) + '</div>' +
+    '</div>' +
+    rpTable(['তারিখ', 'দান নং', 'দাতা', 'পরিমাণ', 'মাধ্যম', 'রেফারেন্স', 'উদ্দেশ্য', 'অবস্থা'],
+      (d.rows || []).map(function (x) {
+        return [fmtDate(x.d), esc(x.no || '—'), esc(x.nm || '—'),
+                '<span class="rp-tot">' + rpTk(x.amt) + '</span>',
+                esc(methodBn(x.method)), esc(x.ref || '—'),
+                esc(purposeBn(x.purpose)), rpStat(x.status)];
+      })));
+
+  /* ── সঞ্চয় ── */
+  out += rpSec('ti-pig-money', 'সঞ্চয় — বিস্তারিত', capNote,
+    '<div class="rp-grid2" style="margin-bottom:14px">' +
+      '<div>' + rpTable(['স্কীম', 'জমা', 'উত্তোলন'],
+        (sv.by_scheme || []).map(function (x) {
+          return [esc(schemeBn(x.k)),
+                  '<span class="rp-tot">' + rpTk(x.dep_amt) + '</span> <span style="color:var(--muted)">(' + KHUI.bn(x.dep_n) + ')</span>',
+                  rpTk(x.wd_amt) + ' <span style="color:var(--muted)">(' + KHUI.bn(x.wd_n) + ')</span>'];
+        })) + '</div>' +
+      '<div>' + rpTable(['জমার মাধ্যম', 'সংখ্যা', 'পরিমাণ'],
+        (sv.by_method || []).map(function (x) {
+          return [esc(methodBn(x.k)), KHUI.bn(x.n), '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
+        })) + '</div>' +
+    '</div>' +
+    rpTable(['তারিখ', 'হিসাব নং', 'নাম', 'স্কীম', 'ধরন', 'পরিমাণ', 'মাধ্যম', 'রেফারেন্স', 'অবস্থা'],
+      (sv.rows || []).map(function (x) {
+        return [fmtDate(x.d), esc(x.acc || '—'), esc(x.nm || '—'), esc(schemeBn(x.scheme)),
+                x.type === 'deposit' ? 'জমা' : 'উত্তোলন',
+                '<span class="rp-tot">' + (x.type === 'deposit' ? '+' : '−') + rpTk(x.amt) + '</span>',
+                esc(methodBn(x.method)), esc(x.ref || '—'), rpStat(x.status)];
+      })) +
+    (((sv.accounts_opened || []).length)
+      ? '<div class="rp-note" style="margin:14px 0 8px">এই সময়সীমায় খোলা নতুন হিসাব</div>' +
+        rpTable(['তারিখ', 'হিসাব নং', 'নাম', 'স্কীম', 'কিস্তি'],
+          sv.accounts_opened.map(function (x) {
+            return [fmtDate(x.d), esc(x.no || '—'), esc(x.nm || '—'),
+                    esc(schemeBn(x.scheme)), rpTk(x.inst)];
+          }))
+      : ''));
+
+  /* ── ঋণ ── */
+  out += rpSec('ti-wallet', 'ঋণ — বিস্তারিত',
+    capNote + ' <b style="color:inherit">বকেয়ার তালিকাটি সময়সীমার নয়</b> — শেষ তারিখ পর্যন্ত বর্তমান অবস্থা।',
+    '<div class="rp-note" style="margin:0 0 8px">এই সময়সীমায় বিতরণ</div>' +
+    rpTable(['তারিখ', 'ঋণ নং', 'ঋণগ্রহীতা', 'মোবাইল', 'মূল', 'মেয়াদ', 'মাসিক কিস্তি', 'অবস্থা'],
+      (l.disbursed || []).map(function (x) {
+        return [fmtDate(x.d), esc(x.no || '—'), esc(x.nm || '—'), esc(x.mob || '—'),
+                '<span class="rp-tot">' + rpTk(x.amt) + '</span>',
+                KHUI.bn(x.tenure || 0) + ' মাস', rpTk(x.emi), rpStat(x.status)];
+      })) +
+    '<div class="rp-note" style="margin:14px 0 8px">এই সময়সীমায় আদায়</div>' +
+    rpTable(['তারিখ', 'ঋণ নং', 'ঋণগ্রহীতা', 'কিস্তি নং', 'পরিমাণ', 'মাধ্যম', 'রেফারেন্স', 'বিলম্ব'],
+      (l.repayments || []).map(function (x) {
+        return [fmtDate(x.d), esc(x.no || '—'), esc(x.nm || '—'), KHUI.bn(x.inst || 0),
+                '<span class="rp-tot">' + rpTk(x.amt) + '</span>',
+                esc(methodBn(x.method)), esc(x.ref || '—'),
+                x.late ? '<span class="rp-chip no">বিলম্বিত</span>' : '<span class="rp-chip ok">সময়মতো</span>'];
+      })) +
+    '<div class="rp-note" style="margin:14px 0 8px">বকেয়া ঋণ (শেষ তারিখ পর্যন্ত)</div>' +
+    rpTable(['ঋণ নং', 'ঋণগ্রহীতা', 'মোবাইল', 'বিতরণ', 'মূল', 'পরিশোধিত', 'বকেয়া', 'বিলম্বিত কিস্তি'],
+      (l.outstanding || []).map(function (x) {
+        return [esc(x.no || '—'), esc(x.nm || '—'), esc(x.mob || '—'), fmtDate(x.d),
+                rpTk(x.amt), rpTk(x.paid),
+                '<span class="rp-tot">' + rpTk(x.due) + '</span>',
+                (x.overdue_n ? '<span class="rp-chip no">' + KHUI.bn(x.overdue_n) + '</span>' : '০')];
+      }), 'কোনো বকেয়া ঋণ নেই।'));
+
+  /* ── তহবিল ও খরচ ── */
+  out += rpSec('ti-receipt-2', 'তহবিল ও খরচ — বিস্তারিত',
+    'দানের শতকরা অংশ ছাড়াও হাতে লেখা আয় (income) ও ব্যয় (expense/adjustment) এখানে ধরা হয়েছে।',
+    '<div style="margin-bottom:14px">' +
+      rpTable(['বিভাগ', 'তহবিল', 'সংখ্যা', 'পরিমাণ'],
+        (f.by_category || []).map(function (x) {
+          return [esc(catBn(x.k)), x.fund === 'revolving' ? 'রিভলভিং' : 'অপারেশন',
+                  KHUI.bn(x.n), '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
+        })) +
+    '</div>' +
+    rpTable(['তারিখ', 'তহবিল', 'ধরন', 'বিভাগ', 'বিবরণ', 'রেফারেন্স', 'পরিমাণ'],
+      (f.rows || []).map(function (x) {
+        return [fmtDate(x.d), x.fund === 'revolving' ? 'রিভলভিং' : 'অপারেশন',
+                (x.type === 'income' ? 'আয়' : x.type === 'adjustment' ? 'সমন্বয়' : 'ব্যয়'),
+                esc(catBn(x.category)), esc(x.descr || '—'), esc(x.ref || '—'),
+                '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
+      })));
+
+  return out;
+}
+
+/* ── A4 প্রিন্ট-ভিউ ──────────────────────────────────────────
+   ⚠️ ছবি নয়, HTML — তাই বাংলা যুক্তাক্ষর নিখুঁত থাকে, লেখা সার্চ
+   করা যায়, আর লম্বা টেবিল নিজে থেকেই পাতায় পাতায় ভাগ হয়।
+   (ভাউচারের html2canvas+jsPDF পথটি এক পাতার জন্য — রিপোর্টে চলে না।) */
+function printReport() {
+  if (!RP) { alert('আগে একটি সময়সীমা বেছে রিপোর্ট দেখুন।'); return; }
+  var rg = RP.range || {};
+  var head = 'কর্জে হাসানা ফাউন্ডেশন';
+  var sub = (RP.label ? RP.label + ' — ' : '') +
+    (rg.all_time ? 'শুরু থেকে' : fmtDate(rg.from)) + ' থেকে ' + fmtDate(rg.to);
+
+  var w = window.open('', '_blank');
+  if (!w) { alert('পপ-আপ আটকে গেছে — ব্রাউজারে এই সাইটের পপ-আপ চালু করুন।'); return; }
+  var doc =
+'<!doctype html><html lang="bn"><head><meta charset="utf-8">' +
+'<title>' + esc(head) + ' — স্টেটমেন্ট</title>' +
+'<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+'<style>' +
+'@page{size:A4 portrait;margin:14mm 10mm}' +
+'*{box-sizing:border-box}' +
+'body{font-family:"Hind Siliguri",sans-serif;color:#1c1626;background:#fff;margin:0;font-size:11.5px;line-height:1.6}' +
+'.hd{text-align:center;border-bottom:2px solid #7048e8;padding-bottom:10px;margin-bottom:14px}' +
+'.hd h1{margin:0;font-size:19px;color:#241539}' +
+'.hd .s{font-size:12.5px;color:#4a4458;margin-top:3px}' +
+'.hd .g{font-size:11px;color:#6d6379;margin-top:2px}' +
+'.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}' +
+'.c{border:1px solid #d8d2e4;border-radius:7px;padding:8px 10px}' +
+'.c b{display:block;font-size:10.5px;color:#4a4458;font-weight:700}' +   /* ৮.১:১ সাদায় */
+'.c .v{font-size:16px;font-weight:800;color:#241539;margin:2px 0}' +
+'.c .x{font-size:10px;color:#5f566f}' +                                   /* ৬.১:১ */
+'h3{font-size:13.5px;color:#241539;margin:16px 0 4px;padding-bottom:3px;border-bottom:1px solid #d8d2e4;page-break-after:avoid}' +
+'.n{font-size:10px;color:#5f566f;margin-bottom:6px}' +
+'table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:10.5px}' +
+'th{background:#f1ecf9;color:#241539;text-align:left;padding:5px 6px;border:1px solid #d8d2e4;font-weight:700}' +
+'td{padding:4px 6px;border:1px solid #e3ddee;vertical-align:top}' +
+'tr{page-break-inside:avoid}' +
+'thead{display:table-header-group}' +   /* প্রতি পাতায় শিরোনাম সারি ফিরে আসে */
+'.rp-chip{font-size:9.5px;padding:1px 5px;border-radius:9px;border:1px solid #c9c2d8;color:#241539}' +
+'.rp-tot{font-weight:700}' +
+'.rp-empty,.rp-note{font-size:10px;color:#5f566f;margin:4px 0 8px}' +
+'.rp-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}' +
+'.rp-sec{page-break-inside:auto}' +
+'.ft{margin-top:14px;border-top:1px solid #d8d2e4;padding-top:6px;font-size:9.5px;color:#5f566f;text-align:center}' +
+'</style></head><body>' +
+'<div class="hd"><h1>' + esc(head) + '</h1>' +
+  '<div class="s">স্টেটমেন্ট ও রিপোর্ট · ' + esc(sub) + '</div>' +
+  '<div class="g">তৈরি: ' + KHUI.bn(rg.generated_at || '') + ' (ঢাকা) · ' +
+    esc((_adminInfo && (_adminInfo.name_bn || _adminInfo.email)) || 'অ্যাডমিন') + '</div></div>' +
+rpPrintCards(RP.summary || {}) +
+rpDetailHTML(RP) +
+'<div class="ft">এটি একটি সিস্টেম-উৎপাদিত প্রতিবেদন। অঙ্কগুলো তৈরির সময় পর্যন্ত হালনাগাদ।</div>' +
+'</body></html>';
+
+  w.document.open(); w.document.write(doc); w.document.close();
+  /* ফন্ট নামার সময় দিয়ে তারপর প্রিন্ট — নাহলে বাংলা ফলব্যাক ফন্টে ছাপত */
+  setTimeout(function () { try { w.focus(); w.print(); } catch (e) {} }, 900);
+}
+
+/* ছাপানোর কার্ড — সাদা কাগজে, তাই গ্র্যাডিয়েন্ট নয় */
+function rpPrintCards(s) {
+  var d = s.donation || {}, sv = s.savings || {}, l = s.loan || {}, f = s.fund || {};
+  var c = function (t, v, x) {
+    return '<div class="c"><b>' + esc(t) + '</b><div class="v">' + v + '</div><div class="x">' + x + '</div></div>';
+  };
+  return '<div class="cards">' +
+    c('দান (নিশ্চিত)', rpTk(d.amount), KHUI.bn(d.count || 0) + 'টি · অপেক্ষমাণ ' + rpTk(d.pending_amount)) +
+    c('সঞ্চয় — নিট জমা', rpTk((sv.deposit_amount || 0) - (sv.withdraw_amount || 0)),
+      'জমা ' + rpTk(sv.deposit_amount) + ' · উত্তোলন ' + rpTk(sv.withdraw_amount)) +
+    c('মোট সঞ্চয় স্থিতি', rpTk(s.savings_balance), 'হিসাব ' + KHUI.bn(s.accounts_total || 0) + 'টি') +
+    c('ঋণ বিতরণ', rpTk(l.disbursed_amount), KHUI.bn(l.disbursed_count || 0) + 'টি · চলমান ' + KHUI.bn(l.active_loans || 0)) +
+    c('ঋণ আদায়', rpTk(l.collected_amount), KHUI.bn(l.collected_count || 0) + 'টি কিস্তি · বকেয়া ' + rpTk(l.outstanding)) +
+    c('তহবিলের স্থিতি', rpTk((f.operation_balance || 0) + (f.revolving_balance || 0)),
+      'অপারেশন ' + rpTk(f.operation_balance) + ' · রিভলভিং ' + rpTk(f.revolving_balance)) +
+  '</div>';
 }
 
 // ════════════════════════════════════════
@@ -1863,7 +2243,15 @@ function methodBn(id) {
   for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i].name;
   return id === 'other' ? 'অন্যান্য' : esc(id || '—');
 }
-window.addEventListener('load', function () { setTimeout(pmFillSelects, 0); });
+window.addEventListener('load', function () {
+  setTimeout(pmFillSelects, 0);
+  /* রিপোর্টের পিরিয়ড পিল — একটিমাত্র delegated লিসেনার */
+  var pills = document.getElementById('rpPills');
+  if (pills) pills.addEventListener('click', function (e) {
+    var b = e.target.closest('.filter-pill');
+    if (b) loadReport(b.getAttribute('data-rp'));
+  });
+});
 
 // ════════════════════════════════════════
 //  PRODUCT DASHBOARDS (per-product view)
