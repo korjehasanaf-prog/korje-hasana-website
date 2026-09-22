@@ -440,7 +440,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=33">
+  <link rel="stylesheet" href="kh-ui.css?v=34">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1282,6 +1282,11 @@ async function mountDonationPay() {
          কিন্তু সার্ভার (`start_payment`) আবার সীমা মিলিয়ে নেয়, তাই
          ব্রাউজারে কেউ কারচুপি করলেও লাভ নেই। */
       amount:  function () { return parseInt(document.getElementById('amountInput').value) || 0; },
+      /* কাচের পর্দার কার্ডে যে নামটি বসবে */
+      payerName: function () {
+        if (document.getElementById('anonCheck')?.checked) return 'বেনামী দাতা';
+        return document.getElementById('donorName').value.trim() || 'দাতা';
+      },
       payload: function () {
         return {
           name:         document.getElementById('donorName').value.trim(),
@@ -1889,7 +1894,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=33"></script>
+<script src="kh-ui.js?v=34"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

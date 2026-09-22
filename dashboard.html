@@ -163,6 +163,28 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .btn-primary{background:linear-gradient(135deg,#7048e8,#241539);color:#fff;padding:10px 22px;font-size:14.5px;box-shadow:0 4px 14px rgba(112,72,232,.35)}
 .gs-checks{display:flex;gap:18px;flex-wrap:wrap}
 .gs-checks label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+
+/* ── টাকা নেওয়ার মাধ্যম (সেটিংস) ── */
+.pm-row{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.13);border-radius:11px;overflow:hidden}
+.pm-row[open]{border-color:rgba(255,255,255,.26)}
+.pm-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;list-style:none;font-size:14.5px}
+.pm-head::-webkit-details-marker{display:none}
+.pm-head::after{content:'▾';margin-left:auto;color:rgba(255,255,255,.55);font-size:13px;transition:transform .2s}
+.pm-row[open] .pm-head::after{transform:rotate(180deg)}
+.pm-ico{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:14px;background:rgba(255,255,255,.1);flex:none}
+.pm-name{font-weight:700;color:#fff}
+.pm-tag{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;letter-spacing:.2px}
+.pm-tag.on{background:#0f3d28;color:#a7f0c6}          /* ৮.৯:১ */
+.pm-tag.off{background:#3a3446;color:#d6d0e2}         /* ৮.২:১ */
+.pm-tag.demo{background:#5a1512;color:#ffd9d4}        /* ১০.৪:১ */
+.pm-body{padding:4px 14px 16px;border-top:1px solid rgba(255,255,255,.1)}
+.pm-body .form-grid{gap:12px}
+.pm-qr{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}
+.pm-qr img{width:96px;height:96px;object-fit:contain;background:#fff;border-radius:9px;padding:5px}
+.pm-up{background:#3b3450;color:#e8e3f2;border:none;border-radius:8px;padding:9px 15px;
+  font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}  /* ৯.৩:১ */
+.pm-up:hover{background:#4a4266}
+@media(max-width:820px){.pm-head{flex-wrap:wrap}}
 .gs-checks input{width:17px;height:17px;accent-color:#22c55e}
 .btn-primary:hover{box-shadow:0 6px 20px rgba(112,72,232,.55);transform:translateY(-1px)}
 .btn-gold{background:linear-gradient(135deg,#f08c28,#d4900a);color:#000;padding:10px 22px;font-size:14.5px;box-shadow:0 4px 14px rgba(240,140,40,.3)}
@@ -275,7 +297,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=33">
+  <link rel="stylesheet" href="kh-ui.css?v=34">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -329,7 +351,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <div class="sb-section">আর্থিক এন্ট্রি</div>
       <div class="sb-item" id="mi-donation-cash" onclick="switchPanel('donation-cash')">
-        <i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি
+        <i class="ti ti-cash"></i> সরাসরি দান এন্ট্রি
       </div>
       <div class="sb-item" id="mi-savings-entry" onclick="switchPanel('savings-entry')">
         <i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি
@@ -538,8 +560,8 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <!-- ══════════════ PANEL: CASH DONATION ══════════════ -->
       <div class="panel" id="panel-donation-cash">
-        <div class="panel-title">💵 নগদ ডোনেশন এন্ট্রি</div>
-        <div class="panel-sub">সরাসরি নগদ দানের তথ্য নথিভুক্ত করুন</div>
+        <div class="panel-title">💵 সরাসরি দান এন্ট্রি</div>
+        <div class="panel-sub">নগদ, বিকাশ, ব্যাংক — যেভাবেই টাকা এসে থাকুক, এখানে নথিভুক্ত করুন</div>
 
         <div class="card">
           <div class="card-title"><i class="ti ti-forms"></i> দান তথ্য</div>
@@ -560,6 +582,11 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div class="fld"><label>বেনামী দান?</label>
               <select id="dn-anon"><option value="false">না (নাম সহ)</option><option value="true">হ্যাঁ (বেনামী)</option></select>
             </div>
+            <div class="fld"><label>টাকা যেভাবে এসেছে</label>
+              <select id="dn-method" data-pm-select="cash"></select>
+            </div>
+            <div class="fld"><label>TrxID / রশিদ নম্বর</label>
+              <input id="dn-ref" type="text" placeholder="নগদে সরাসরি হলে ফাঁকা রাখুন"></div>
             <div class="fld form-full"><label>মন্তব্য</label><textarea id="dn-notes" placeholder="অতিরিক্ত তথ্য..."></textarea></div>
           </div>
           <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
@@ -570,7 +597,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
 
         <div class="card">
-          <div class="card-title"><i class="ti ti-history"></i> আজকের নগদ দান</div>
+          <div class="card-title"><i class="ti ti-history"></i> আজকের দান</div>
           <div id="todayDonations"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>আজ কোনো নগদ দান নেই</p></div></div>
         </div>
       </div>
@@ -600,6 +627,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div class="form-grid">
             <div class="fld"><label>জমার পরিমাণ (৳) *</label><input id="se-amount" type="number" min="1" placeholder="0.00"></div>
             <div class="fld"><label>তারিখ</label><input id="se-date" type="date"></div>
+            <div class="fld form-full"><label>টাকা যেভাবে এসেছে</label>
+              <select id="se-method" data-pm-select="cash"></select>
+            </div>
             <div class="fld form-full"><label>রেফারেন্স / নোট</label><input id="se-ref" type="text" placeholder="রসিদ নম্বর বা মন্তব্য"></div>
           </div>
           <div style="margin-top:14px;display:flex;gap:10px">
@@ -638,13 +668,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div class="fld"><label>পরিশোধের তারিখ *</label><input id="inst-date" type="date"></div>
             <div class="fld"><label>পরিমাণ (৳) *</label><input id="inst-amount" type="number" min="1" placeholder="0.00"></div>
             <div class="fld"><label>পেমেন্ট পদ্ধতি</label>
-              <select id="inst-method">
-                <option value="cash">নগদ</option>
-                <option value="bkash">বিকাশ</option>
-                <option value="nagad">নগদ (অনলাইন)</option>
-                <option value="bank">ব্যাংক</option>
-                <option value="other">অন্যান্য</option>
-              </select>
+              <select id="inst-method" data-pm-select="cash"></select>
             </div>
             <div class="fld"><label>লেনদেন রেফারেন্স</label><input id="inst-ref" type="text" placeholder="ট্রানজ্যাকশন ID"></div>
             <div class="fld"><label>দেরি হয়েছে?</label>
@@ -958,6 +982,53 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           </div>
         </div>
 
+        <!-- ══════════ টাকা নেওয়ার মাধ্যম ══════════ -->
+        <div class="card" style="margin:16px 0">
+          <div class="card-title"><i class="ti ti-wallet"></i> টাকা নেওয়ার মাধ্যম</div>
+          <div style="font-size:12.5px;color:var(--muted);margin:-4px 0 14px;line-height:1.9">
+            দান, সঞ্চয়ের কিস্তি ও ঋণের কিস্তি — তিন জায়গাতেই এই তথ্যগুলো দেখানো হয়।
+            <b style="color:#ffb4a2">ডেমো তথ্য</b> লেখা থাকলে দর্শক লাল সতর্কবার্তা দেখেন;
+            আসল নম্বর/হিসাব বসিয়ে ঐ টিকচিহ্নটি তুলে দিলেই সতর্কবার্তা চলে যাবে।
+          </div>
+
+          <div id="pmList" style="display:flex;flex-direction:column;gap:10px">
+            <div style="font-size:13px;color:var(--muted)">লোড হচ্ছে…</div>
+          </div>
+
+          <div style="margin-top:18px;border-top:1px solid var(--border);padding-top:16px">
+            <div style="font-size:14px;font-weight:700;margin-bottom:4px">
+              <i class="ti ti-world-bolt"></i> অনলাইন পেমেন্ট গেটওয়ে
+            </div>
+            <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.9">
+              <b style="color:inherit">স্যান্ডবক্স</b> = পরীক্ষামূলক, আসল টাকা কাটা হয় না।
+              মার্চেন্ট অ্যাকাউন্টের <span style="color:#ffd9a3">Store ID ও Password</span> Supabase-এর
+              Edge Function Secrets-এ বসানোর পরেই <b style="color:inherit">লাইভ</b> করবেন —
+              তার আগে লাইভ করলে কোনো পেমেন্টই সফল হবে না।
+            </div>
+            <div class="form-grid">
+              <div class="fld"><label>গেটওয়ের অবস্থা</label>
+                <select id="pmGwMode">
+                  <option value="sandbox">স্যান্ডবক্স — পরীক্ষামূলক</option>
+                  <option value="live">লাইভ — আসল টাকা</option>
+                </select>
+              </div>
+              <div class="fld"><label>সাইটের ঠিকানা (ফেরার লিংক)</label>
+                <input id="pmGwSite" placeholder="https://…"></div>
+            </div>
+            <div class="gs-checks" style="margin-top:12px">
+              <label><input type="checkbox" id="pmGwEnabled"> গেটওয়েতে গিয়ে সরাসরি পরিশোধের বাটন দেখাও</label>
+              <label><input type="checkbox" id="pmGwManual"> নিজে পাঠিয়ে TrxID লেখার পথটিও রাখো</label>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px">
+            <button class="btn-primary" id="pmSave" onclick="savePayMethods()">
+              <i class="ti ti-device-floppy"></i> মাধ্যম ও গেটওয়ে সংরক্ষণ
+            </button>
+            <span id="pmMsg" style="font-size:13px"></span>
+          </div>
+        </div>
+
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-asterisk"></i> বাধ্যতামূলক ফিল্ড — সঞ্চয় হিসাব খোলা</div>
           <div class="gs-checks" id="gsReqSavings">
@@ -1057,7 +1128,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div style="margin-top:16px">
             <div style="font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">অ্যাক্সেস পারমিশন</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="permGrid">
-              <label class="perm-item"><input type="checkbox" name="perm" value="cash_donation"><span><i class="ti ti-cash"></i> নগদ ডোনেশন এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="cash_donation"><span><i class="ti ti-cash"></i> সরাসরি দান এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="savings_entry"><span><i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="installment"><span><i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> তহবিল ও খরচ</span></label>
@@ -1270,7 +1341,7 @@ function showAccessDenied(signedIn) {
 //  PANEL SWITCHING
 // ════════════════════════════════════════
 const PANEL_TITLES = {
-  'dashboard':'ড্যাশবোর্ড', 'donation-cash':'নগদ ডোনেশন এন্ট্রি',
+  'dashboard':'ড্যাশবোর্ড', 'donation-cash':'সরাসরি দান এন্ট্রি',
   'savings-entry':'সঞ্চয় জমা এন্ট্রি', 'installment':'কিস্তি এন্ট্রি',
   'expense':'তহবিল ও খরচ', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় জমা ও উত্তোলন অনুমোদন',
@@ -1347,7 +1418,8 @@ function switchPanel(name) {
   if (name === 'prod-savings') loadProdSavings();
   if (name === 'prod-loans') loadProdLoans();
   if (name === 'prod-donations') loadProdDonations();
-  if (name === 'settings') loadGeneralSettings();
+  pmFillSelects();
+  if (name === 'settings') { loadGeneralSettings(); loadPayMethods(); }
   if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
   if (name === 'committee-apps') loadCommitteeApps('pending');
@@ -1558,6 +1630,240 @@ async function saveGeneralSettings() {
     gsMsg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only' ? 'শুধুমাত্র সুপার অ্যাডমিন সেটিংস বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
   }
 }
+
+// ════════════════════════════════════════
+//  টাকা নেওয়ার মাধ্যম — সেটিংস (super admin)
+//  ⚠️ gw / multi / online / label এখান থেকে পাঠানোই হয় না —
+//     সার্ভারও সেগুলো উপেক্ষা করে (ভুল চ্যানেল কি = ভুল মাধ্যমে টাকা)।
+// ════════════════════════════════════════
+var PM_ORDER = ['bkash','nagad','rocket','upay','bqr','bank','card','cash','agent'];
+var PM_ICON  = { bkash:'৳', nagad:'৳', rocket:'৳', upay:'৳', bqr:'▦',
+                 bank:'🏦', card:'💳', cash:'🏢', agent:'🧾' };
+/* প্রতি মাধ্যমে কোন ঘরগুলো দেখানো হবে — [key, লেবেল, placeholder, textarea?] */
+var PM_MFS = [
+  ['number','মোবাইল নম্বর','01711515952'],
+  ['kind','হিসাবের ধরন','personal অথবা merchant'],
+  ['note','দর্শককে যা বলা হবে','', 1]
+];
+var PM_FIELDS = {
+  bkash: PM_MFS, nagad: PM_MFS, rocket: PM_MFS, upay: PM_MFS,
+  bqr: [
+    ['merchant','মার্চেন্টের নাম','KORJE HASANA FOUNDATION'],
+    ['image','QR ছবির ঠিকানা','https://…'],
+    ['note','দর্শককে যা বলা হবে','', 1]
+  ],
+  bank: [
+    ['account_name','হিসাবের নাম','Korje Hasana Foundation'],
+    ['account_no','হিসাব নম্বর',''],
+    ['bank','ব্যাংকের নাম',''],
+    ['branch','শাখা',''],
+    ['routing','রাউটিং নম্বর',''],
+    ['swift','SWIFT / BIC (ঐচ্ছিক)',''],
+    ['note','দর্শককে যা বলা হবে','', 1]
+  ],
+  card: [['note','দর্শককে যা বলা হবে','', 1]],
+  cash: [
+    ['office','কার্যালয়ের ঠিকানা',''],
+    ['hours','খোলা থাকার সময়','শনি – বৃহস্পতি · সকাল ১০টা – বিকাল ৪টা'],
+    ['note','দর্শককে যা বলা হবে','', 1]
+  ],
+  agent: [
+    ['bank','ব্যাংকের নাম',''],
+    ['outlet','আউটলেটের নাম ও ঠিকানা',''],
+    ['account_no','হিসাব নম্বর',''],
+    ['note','দর্শককে যা বলা হবে','', 1]
+  ]
+};
+var PM_DATA = { methods: {}, gateway: {} };
+
+async function loadPayMethods() {
+  var host = document.getElementById('pmList');
+  if (!host) return;
+  var r;
+  try { r = await _db.rpc('admin_pay_settings'); } catch (e) { r = { error: e }; }
+  if (!r || r.error || !r.data) {
+    host.innerHTML = '<div style="font-size:13px;color:#ffb4a2">' +
+      (r && r.error && r.error.message === 'super admin only'
+        ? 'শুধুমাত্র সুপার অ্যাডমিন এই অংশটি দেখতে ও বদলাতে পারেন।'
+        : 'তথ্য আনা যায়নি — পরে আবার চেষ্টা করুন।') + '</div>';
+    return;
+  }
+  PM_DATA = { methods: r.data.methods || {}, gateway: r.data.gateway || {} };
+
+  var html = '';
+  PM_ORDER.forEach(function (id) {
+    var m = PM_DATA.methods[id];
+    if (!m) return;
+    var on = m.enabled !== false, demo = m.demo === true;
+    html += '<details class="pm-row" data-pm="' + esc(id) + '">' +
+      '<summary class="pm-head">' +
+        '<span class="pm-ico">' + esc(PM_ICON[id] || '৳') + '</span>' +
+        '<span class="pm-name">' + esc(m.label || id) + '</span>' +
+        '<span class="pm-tag ' + (on ? 'on' : 'off') + '">' + (on ? 'চালু' : 'বন্ধ') + '</span>' +
+        (demo ? '<span class="pm-tag demo">ডেমো তথ্য</span>' : '') +
+      '</summary>' +
+      '<div class="pm-body">' +
+        '<div class="gs-checks" style="margin:12px 0 14px">' +
+          '<label><input type="checkbox" data-pm-on ' + (on ? 'checked' : '') + '> সাইটে দেখাও</label>' +
+          '<label><input type="checkbox" data-pm-demo ' + (demo ? 'checked' : '') +
+            '> এগুলো ডেমো তথ্য (লাল সতর্কবার্তা দেখাও)</label>' +
+        '</div>' +
+        '<div class="form-grid">' +
+          (PM_FIELDS[id] || []).map(function (f) {
+            var v = m[f[0]] == null ? '' : m[f[0]];
+            return '<div class="fld' + (f[3] ? ' form-full' : '') + '">' +
+              '<label>' + esc(f[1]) + '</label>' +
+              (f[3]
+                ? '<textarea data-pm-f="' + esc(f[0]) + '" placeholder="' + esc(f[2] || '') + '">' + esc(v) + '</textarea>'
+                : '<input data-pm-f="' + esc(f[0]) + '" value="' + esc(v) + '" placeholder="' + esc(f[2] || '') + '">') +
+            '</div>';
+          }).join('') +
+        '</div>' +
+        (id === 'bqr'
+          ? '<div class="pm-qr">' +
+              (m.image ? '<img src="' + esc(m.image) + '" alt="বাংলা QR">' : '') +
+              '<div>' +
+                '<button type="button" class="pm-up" onclick="pmPickQr()">' +
+                  '<i class="ti ti-upload"></i> QR ছবি আপলোড করুন</button>' +
+                '<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.8;max-width:420px">' +
+                  'PNG বা JPG। আপলোড করলে উপরের ঠিকানার ঘরটি নিজে থেকেই ভরে যায় — তারপর সংরক্ষণ করুন।' +
+                '</div>' +
+              '</div>' +
+              '<input type="file" id="pmQrFile" accept="image/*" hidden onchange="pmUploadQr(this)">' +
+            '</div>'
+          : '') +
+      '</div></details>';
+  });
+  host.innerHTML = html || '<div style="font-size:13px;color:var(--muted)">কোনো মাধ্যম পাওয়া যায়নি।</div>';
+
+  var g = PM_DATA.gateway || {};
+  var sel = document.getElementById('pmGwMode');
+  if (sel) sel.value = (g.mode === 'live') ? 'live' : 'sandbox';
+  var site = document.getElementById('pmGwSite');
+  if (site) site.value = g.site_url || '';
+  var ge = document.getElementById('pmGwEnabled');
+  if (ge) ge.checked = g.enabled !== false;
+  var gm = document.getElementById('pmGwManual');
+  if (gm) gm.checked = g.manual_enabled !== false;
+}
+
+function pmPickQr() {
+  var f = document.getElementById('pmQrFile');
+  if (f) f.click();
+}
+
+async function pmUploadQr(input) {
+  var msg = document.getElementById('pmMsg');
+  var file = input && input.files && input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    msg.style.color = '#ffb4a2';
+    msg.textContent = 'ছবিটি ২ MB-র বেশি — ছোট করে আবার দিন।';
+    input.value = ''; return;
+  }
+  msg.style.color = 'var(--muted)';
+  msg.textContent = 'ছবি আপলোড হচ্ছে…';
+  try {
+    var ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+    var path = 'pay/bqr-' + Date.now() + '.' + ext;
+    var up = await _db.storage.from('site-assets').upload(path, file, { upsert: true, contentType: file.type });
+    if (up.error) throw up.error;
+    var pub = _db.storage.from('site-assets').getPublicUrl(path);
+    var url = pub && pub.data && pub.data.publicUrl;
+    if (!url) throw new Error('ঠিকানা পাওয়া যায়নি');
+    var row = document.querySelector('[data-pm="bqr"]');
+    var fld = row && row.querySelector('[data-pm-f="image"]');
+    if (fld) fld.value = url;
+    var img = row && row.querySelector('.pm-qr img');
+    if (img) { img.src = url; }
+    else {
+      var box = row && row.querySelector('.pm-qr');
+      if (box) box.insertAdjacentHTML('afterbegin', '<img src="' + esc(url) + '" alt="বাংলা QR">');
+    }
+    msg.style.color = '#22c55e';
+    msg.textContent = '✓ ছবি আপলোড হয়েছে — এখন "সংরক্ষণ" চাপুন';
+  } catch (e) {
+    msg.style.color = '#ffb4a2';
+    msg.textContent = 'আপলোড ব্যর্থ: ' + (e.message || 'আবার চেষ্টা করুন');
+  }
+  input.value = '';
+}
+
+async function savePayMethods() {
+  var msg = document.getElementById('pmMsg');
+  msg.style.color = 'var(--muted)';
+  msg.textContent = 'সংরক্ষণ হচ্ছে…';
+
+  var methods = {};
+  document.querySelectorAll('#pmList [data-pm]').forEach(function (row) {
+    var id = row.getAttribute('data-pm'), o = {};
+    var on = row.querySelector('[data-pm-on]'), dm = row.querySelector('[data-pm-demo]');
+    if (on) o.enabled = on.checked;
+    if (dm) o.demo = dm.checked;
+    row.querySelectorAll('[data-pm-f]').forEach(function (el) {
+      o[el.getAttribute('data-pm-f')] = (el.value || '').trim();
+    });
+    methods[id] = o;
+  });
+
+  var modeSel = document.getElementById('pmGwMode');
+  var gateway = {
+    mode:           (modeSel && modeSel.value === 'live') ? 'live' : 'sandbox',
+    enabled:        document.getElementById('pmGwEnabled').checked,
+    manual_enabled: document.getElementById('pmGwManual').checked,
+    site_url:       (document.getElementById('pmGwSite').value || '').trim()
+  };
+
+  /* ⚠️ লাইভ করার আগে স্পষ্ট নিশ্চিতকরণ — ভুল করে লাইভ হলে সব পেমেন্ট ব্যর্থ হবে */
+  if (gateway.mode === 'live' && (PM_DATA.gateway || {}).mode !== 'live') {
+    if (!confirm('গেটওয়ে লাইভ করা হবে — এরপর আসল টাকা কাটা হবে।\n\n' +
+                 'Supabase-এ SSLC_STORE_ID ও SSLC_STORE_PASSWD বসানো আছে তো?\n' +
+                 'না থাকলে কোনো পেমেন্টই সফল হবে না।')) {
+      msg.textContent = 'বাতিল করা হয়েছে';
+      return;
+    }
+  }
+
+  try {
+    var r = await _db.rpc('admin_save_pay_methods', { p_methods: methods, p_gateway: gateway });
+    if (r.error) throw r.error;
+    PM_DATA = { methods: (r.data && r.data.methods) || {}, gateway: (r.data && r.data.gateway) || {} };
+    await loadPayMethods();
+    msg.style.color = '#22c55e';
+    msg.textContent = '✓ সংরক্ষণ হয়েছে — সাইটে এখনই কার্যকর';
+  } catch (e) {
+    msg.style.color = '#ffb4a2';
+    msg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only'
+      ? 'শুধুমাত্র সুপার অ্যাডমিন বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
+  }
+}
+
+/* ── এন্ট্রি ফর্মের মাধ্যম-তালিকা ──────────────────────────────
+   ⚠️ তালিকাটি হার্ডকোড করা যাবে না — একমাত্র উৎস KHUI.PAY_METHODS।
+   আগে `#inst-method`-এ মাত্র ৫টি বিকল্প ছিল, তাই রকেট/উপায়/বাংলা QR/
+   এজেন্টে আসা টাকা অ্যাডমিন নথিভুক্তই করতে পারতেন না।
+   ⚠️ kh-ui.js এই স্ক্রিপ্টের পরে লোড হয়, তাই `load`-এ ও প্যানেল
+   বদলের সময় — দুই জায়গাতেই ডাকা হয় (ফাংশনটি idempotent)। */
+function pmFillSelects() {
+  var list = (window.KHUI && KHUI.PAY_METHODS) || [];
+  if (!list.length) return;
+  document.querySelectorAll('select[data-pm-select]').forEach(function (sel) {
+    if (sel.dataset.pmFilled === '1') return;
+    var want = sel.getAttribute('data-pm-select') || 'cash';
+    sel.innerHTML = list.map(function (m) {
+      return '<option value="' + esc(m.id) + '">' + esc(m.name) + '</option>';
+    }).join('') + '<option value="other">অন্যান্য</option>';
+    sel.value = want;
+    if (!sel.value) sel.value = 'other';
+    sel.dataset.pmFilled = '1';
+  });
+}
+function methodBn(id) {
+  var list = (window.KHUI && KHUI.PAY_METHODS) || [];
+  for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i].name;
+  return id === 'other' ? 'অন্যান্য' : esc(id || '—');
+}
+window.addEventListener('load', function () { setTimeout(pmFillSelects, 0); });
 
 // ════════════════════════════════════════
 //  PRODUCT DASHBOARDS (per-product view)
@@ -1812,13 +2118,17 @@ async function submitCashDonation() {
   const anon = document.getElementById('dn-anon').value === 'true';
   const date = document.getElementById('dn-date').value;
   const notes = document.getElementById('dn-notes').value.trim();
+  /* ⚠️ আগে সবসময় 'cash' লেখা হত — বিকাশ/রকেট/ব্যাংকে আসা টাকাও
+     নগদ হিসেবে জমা পড়ত, অর্থাৎ মাধ্যমের তথ্য হারিয়ে যেত */
+  const method = (document.getElementById('dn-method') || {}).value || 'cash';
+  const ref = ((document.getElementById('dn-ref') || {}).value || '').trim();
 
   if (!name || !amount || amount <= 0) { showMsg('dn-msg','নাম ও পরিমাণ আবশ্যক','err'); return; }
 
   const donNo = 'DON-' + Date.now().toString().slice(-8);
   const {data: don, error} = await _db.from('donations').insert({
     donation_no: donNo, donor_name: name, donor_mobile: mobile||null,
-    amount, payment_method: 'cash', purpose, is_anonymous: anon,
+    amount, payment_method: method, transaction_ref: ref||null, purpose, is_anonymous: anon,
     status: 'confirmed', confirmed_at: new Date(date).toISOString(),
     auth_confirmed_by: _currentUser.id,
     notes: notes||null, created_at: new Date(date).toISOString()
@@ -1832,7 +2142,7 @@ async function submitCashDonation() {
     showEntryVoucher({
       title: 'দান ভাউচার', no: donNo, amount: amount, status: 'নিশ্চিত',
       name: anon ? 'Anonymous' : name, mobile: mobile,
-      rows: [['লেনদেনের ধরন','নগদ দান (Cash)'],
+      rows: [['লেনদেনের ধরন', methodBn(method) + (ref ? ' · ' + ref : '')],
              ['উদ্দেশ্য', ({general:'সাধারণ দান',loan_fund:'ঋণ তহবিল',emergency:'জরুরি সহায়তা',zakat:'যাকাত',sadaqah:'সদকা'})[purpose] || purpose],
              ['গ্রহণকারী', (_adminInfo && (_adminInfo.name_bn || _adminInfo.email)) || 'অ্যাডমিন'],
              ['অবস্থা','নিশ্চিত হয়েছে']].concat(notes ? [['মন্তব্য', notes]] : []),
@@ -1854,13 +2164,15 @@ function resetDonationForm() {
 async function loadTodayDonations() {
   const today = new Date().toISOString().split('T')[0];
   const {data} = await _db.from('donations')
-    .select('donation_no,donor_name,amount,purpose,created_at')
-    .eq('payment_method','cash')
+    /* ⚠️ আগে `.eq('payment_method','cash')` ছিল — এন্ট্রি ফর্মে মাধ্যম বাছার
+       সুযোগ আসার পর ঐ ছাঁকনি রাখলে বিকাশ/ব্যাংকে নেওয়া এন্ট্রি তালিকা
+       থেকে নীরবে হারিয়ে যেত। এখন আজকের সব দানই দেখানো হয়, মাধ্যমসহ। */
+    .select('donation_no,donor_name,amount,purpose,payment_method,transaction_ref,created_at')
     .gte('created_at', today+'T00:00:00').order('created_at',{ascending:false});
   const c = document.getElementById('todayDonations');
-  if (!data||!data.length) { c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>আজ কোনো নগদ দান নেই</p></div>'; return; }
-  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>দান নং</th><th>দাতার নাম</th><th>পরিমাণ</th><th>উদ্দেশ্য</th><th>সময়</th></tr></thead><tbody>
-  ${data.map(r=>`<tr><td style="color:var(--muted);font-size:12.5px">${r.donation_no}</td><td class="td-name">${r.donor_name||'বেনামী'}</td><td class="td-amount">৳${fmt(r.amount)}</td><td>${purposeBn(r.purpose)}</td><td style="font-size:12.5px;color:var(--muted)">${fmtDate(r.created_at)}</td></tr>`).join('')}
+  if (!data||!data.length) { c.innerHTML='<div class="empty-state"><i class="ti ti-receipt-off"></i><p>আজ কোনো দান নেই</p></div>'; return; }
+  c.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>দান নং</th><th>দাতার নাম</th><th>পরিমাণ</th><th>মাধ্যম</th><th>উদ্দেশ্য</th><th>সময়</th></tr></thead><tbody>
+  ${data.map(r=>`<tr><td style="color:var(--muted);font-size:12.5px">${esc(r.donation_no)}</td><td class="td-name">${esc(r.donor_name||'বেনামী')}</td><td class="td-amount">৳${fmt(r.amount)}</td><td style="font-size:12.5px">${methodBn(r.payment_method)}${r.transaction_ref?`<br><span style="color:var(--muted)">${esc(r.transaction_ref)}</span>`:''}</td><td>${purposeBn(r.purpose)}</td><td style="font-size:12.5px;color:var(--muted)">${fmtDate(r.created_at)}</td></tr>`).join('')}
   </tbody></table></div>`;
 }
 
@@ -1896,12 +2208,14 @@ async function submitSavingsEntry() {
   const amount = parseFloat(document.getElementById('se-amount').value);
   const date = document.getElementById('se-date').value;
   const ref = document.getElementById('se-ref').value.trim();
+  /* ⚠️ আগে মাধ্যম লেখাই হত না — `savings_transactions.payment_method` ফাঁকা থাকত */
+  const method = (document.getElementById('se-method') || {}).value || 'cash';
   if (!depId || !amount || amount<=0) { showMsg('se-msg','সঞ্চয়কারী ও পরিমাণ আবশ্যক','err'); return; }
 
   const desig = _adminInfo.designation_bn || _adminInfo.name_bn || _adminInfo.email;
   const {data: trx, error} = await _db.from('savings_transactions').insert({
     depositor_id: depId, type: 'deposit', amount,
-    status: 'approved', reference: ref||null,
+    status: 'approved', reference: ref||null, payment_method: method,
     notes: `এডমিন এন্ট্রি`,
     processed_by: desig,
     processed_at: new Date(date).toISOString(),
@@ -1920,6 +2234,7 @@ async function submitSavingsEntry() {
       title: 'জমা ভাউচার', no: 'KH-SD-' + trx.id.replace(/-/g,'').slice(0,6).toUpperCase(),
       amount: amount, status: 'অনুমোদিত', name: depName,
       rows: [['লেনদেনের ধরন','সঞ্চয় জমা (Deposit)'],
+             ['মাধ্যম', methodBn(method)],
              ['রেফারেন্স', ref || '—'],
              ['গ্রহণকারী', desig],
              ['অবস্থা','অনুমোদিত']],
@@ -2255,7 +2570,10 @@ async function loadDonationApprovals(status) {
   _donFilter = status;
   const c = document.getElementById('donationApproveContainer');
   c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
-  let q = _db.from('donations').select('id,donation_no,donor_name,donor_mobile,amount,payment_method,purpose,transaction_ref,status,created_at').neq('payment_method','cash').order('created_at',{ascending:false}).limit(30);
+  /* ⚠️ আগে `.neq('payment_method','cash')` ছিল — এন্ট্রি ফর্মে মাধ্যম বাছা যায়
+     বলে ঐ ছাঁকনি এখন অর্থহীন ও ক্ষতিকর (নগদে নেওয়া এন্ট্রি "সব" ট্যাবেও
+     দেখা যেত না)। অবস্থার পিলগুলোই আসল ছাঁকনি। */
+  let q = _db.from('donations').select('id,donation_no,donor_name,donor_mobile,amount,payment_method,purpose,transaction_ref,status,created_at').order('created_at',{ascending:false}).limit(30);
   if (status!=='all') q = q.eq('status',status);
   const {data} = await q;
   _allDonations = data||[];
@@ -2781,7 +3099,7 @@ async function loadAdminUsers() {
     const perms = Array.isArray(a.permissions) ? a.permissions : [];
     const isSelf = a.user_id === _currentUser?.id;
     const permLabels = {
-      cash_donation:'নগদ ডোনেশন', savings_entry:'সঞ্চয় জমা', installment:'কিস্তি',
+      cash_donation:'সরাসরি দান এন্ট্রি', savings_entry:'সঞ্চয় জমা', installment:'কিস্তি',
       expense:'তহবিল ও খরচ', loan_approve:'ঋণ অনুমোদন', donation_approve:'ডোনেশন অনুমোদন',
       savings_approve:'সঞ্চয় অনুমোদন', view_log:'লগ', admin_mgmt:'এডমিন ব্যবস্থাপনা'
     };
@@ -3539,6 +3857,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=33"></script>
+<script src="kh-ui.js?v=34"></script>
 </body>
 </html>

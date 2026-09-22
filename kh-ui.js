@@ -3695,6 +3695,13 @@
     agent:  [['bank','ব্যাংক', 0], ['outlet','আউটলেট', 0], ['account_no','হিসাব নম্বর', 1]]
   };
 
+  /* কাচের পর্দার মাথায় কোন কাজটি চলছে তা লেখা হয় */
+  var PURPOSE_LABEL = {
+    donation:  'দান',
+    savings:   'সঞ্চয়ের কিস্তি',
+    repayment: 'ঋণের কিস্তি'
+  };
+
   var payCache = null;                 /* একবার এনে সব পিকারে কাজে লাগে */
 
   KHUI.payMethodsInfo = async function (force) {
@@ -4017,8 +4024,24 @@
         btn.classList.add('is-busy');
         btn.querySelector('.kh-pay-gotxt').textContent = 'গেটওয়েতে নিয়ে যাচ্ছি…';
       }
+
+      /* ⚠️ কাচের পর্দাটি এখানেই ওঠে — এটিই ঐ নকশার "Processing"
+         অবস্থা। গেটওয়েতে পৌঁছানো পর্যন্ত দর্শক এটিই দেখেন। */
+      var stage = null;
+      try {
+        stage = KHUI.payStage({
+          state: 'busy',
+          purposeLabel: PURPOSE_LABEL[opts.purpose || 'donation'] || '',
+          amount: curAmount(),
+          method: cur.id,
+          name: (typeof opts.payerName === 'function' ? opts.payerName() : opts.payerName) || '',
+          sandbox: st.sandbox
+        });
+      } catch (e) {}
+
       var unbusy = function () {
         busy = false;
+        if (stage) { try { stage.close(); } catch (e) {} }
         if (btn) {
           btn.classList.remove('is-busy');
           btn.querySelector('.kh-pay-gotxt').textContent = 'এখনই পরিশোধ করুন';
@@ -4039,6 +4062,8 @@
 
         /* ফেরার পেজ যেন জানে কোন লেনদেন — গেটওয়ে থেকে ফিরতে সময় লাগে */
         try { localStorage.setItem('kh_pay_tran', tran); } catch (e) {}
+        /* লেনদেন নম্বরটি কার্ডের গায়ে বসে (কার্ড নম্বরের জায়গায়) */
+        if (stage) { try { stage.set({ state: 'busy', tran: tran }); } catch (e) {} }
 
         var f = await db.functions.invoke('pay-start', { body: { tran_id: tran } });
         var out = f.data || {};
@@ -4131,6 +4156,181 @@
         return { method: cur.id, reference: v };
       }
     };
+  };
+
+  /* ══════════════════════════════════════════════════════════
+     💳 কাচের পেমেন্ট পর্দা — `KHUI.payStage()` (২২ সেপ্টেম্বর ২০২৬)
+
+     ব্যবহারকারীর প্রশ্ন: *"এত কস্ট করে যে কার্ড পেমেন্ট এর স্ক্রীন
+     তৈরী করা হলো সেটা কোথায়?"* — কার্ডের ঘরগুলো সরানোর সময় পুরো
+     পর্দাটার নতুন ঠিকানা দেওয়া হয়নি, তাই সেটি কার্যত হারিয়ে
+     গিয়েছিল। এখন গেটওয়ের প্রবাহে তার **দুটি অবস্থা** ফিরে এসেছে:
+
+       `busy` — "এখনই পরিশোধ করুন" চাপার পর, গেটওয়েতে যাওয়া পর্যন্ত
+       `done` / `bad` — ফেরার পেজে (`payment-return.html`)
+
+     ⚠️ ফর্ম-অবস্থাটি (কার্ড নম্বর) **ফেরানো যাবে না** — নিজের পাতায়
+        কার্ড নম্বর নিলে PCI-DSS-এর SAQ-D স্তরে পড়তে হয়।
+     ⚠️ কার্ডের গায়ে তাই লেনদেন নম্বর বসে (কার্ড নম্বরের জায়গায়),
+        নাম ও তারিখ আগের ঘরেই — নকশা হুবহু অটুট (ব্যবহারকারীর পছন্দ)।
+
+     ব্যবহার:
+       var st = KHUI.payStage({ state:'busy', amount, tran, name, method });
+       st.set({ state:'done', title, note, actions:[{text,href,main}] });
+       st.close();
+     ══════════════════════════════════════════════════════════ */
+  var CP_ICON = {
+    logo:  'ti-heart-handshake',
+    wave:  'ti-wifi'
+  };
+
+  function cpGroup(s) {
+    /* লেনদেন নম্বরটিকে কার্ড নম্বরের মতো ৪-৪-৪-৪ করে সাজানো */
+    return String(s || '').replace(/(.{4})/g, '$1 ').trim();
+  }
+  function cpToday() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return KHUI.bn(p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2));
+  }
+  function cpMoney(a) {
+    var n = Number(a);
+    return isFinite(n) && n > 0 ? '৳' + KHUI.bn(n.toLocaleString('en-US')) : '';
+  }
+  function cpMethodName(id) {
+    var m = (KHUI.PAY_METHODS || []).filter(function (x) { return x.id === id; })[0];
+    return m ? m.name : '';
+  }
+
+  KHUI.payStage = function (opts) {
+    opts = opts || {};
+    var host = document.createElement('div');
+    host.className = 'kh-cp';
+    host.setAttribute('role', 'dialog');
+    host.setAttribute('aria-modal', 'true');
+    host.setAttribute('aria-live', 'polite');
+
+    host.innerHTML =
+      '<div class="kh-cp-silk" aria-hidden="true"></div>' +
+      '<div class="kh-cp-veil" aria-hidden="true"></div>' +
+      '<div class="kh-cp-glow" aria-hidden="true"></div>' +
+      '<div class="kh-cp-wrap">' +
+        '<span class="kh-cp-br kh-cp-br--tl" aria-hidden="true"></span>' +
+        '<span class="kh-cp-br kh-cp-br--br" aria-hidden="true"></span>' +
+        '<div class="kh-cp-pane">' +
+          '<div class="kh-cp-head">' +
+            '<span class="kh-cp-logo"><i class="ti ' + CP_ICON.logo + '" aria-hidden="true"></i></span>' +
+            '<span class="kh-cp-brand">কর্জে হাসানা ফাউন্ডেশন' +
+              '<span class="kh-cp-sub"></span></span>' +
+          '</div>' +
+          '<div class="kh-cp-rule" aria-hidden="true"></div>' +
+          '<div class="kh-cp-stage">' +
+            '<div class="kh-cp-card3d"><div class="kh-cp-face">' +
+              '<div class="kh-cp-crow">' +
+                '<span class="kh-cp-chip" aria-hidden="true">' +
+                  '<span class="kh-cp-chipbar"></span><span class="kh-cp-chipbar"></span></span>' +
+                '<i class="ti ' + CP_ICON.wave + ' kh-cp-wave" aria-hidden="true"></i>' +
+                '<span class="kh-cp-tier">PLATINUM</span>' +
+              '</div>' +
+              '<div class="kh-cp-pan"></div>' +
+              '<div class="kh-cp-foot">' +
+                '<span><small class="kh-cp-namelab">নাম</small><b class="kh-cp-name">—</b></span>' +
+                '<span><small>তারিখ</small><b class="kh-cp-date">—</b></span>' +
+                '<span class="kh-cp-mk"></span>' +
+              '</div>' +
+            '</div></div>' +
+            '<div class="kh-cp-result">' +
+              '<svg class="kh-cp-spin" viewBox="0 0 44 44" aria-hidden="true">' +
+                '<circle class="trk" cx="22" cy="22" r="19"/><circle class="arc" cx="22" cy="22" r="19"/></svg>' +
+              '<svg class="kh-cp-tick" viewBox="0 0 48 48" aria-hidden="true" style="display:none">' +
+                '<circle cx="24" cy="24" r="20"/><path d="M15 24.5 21.5 31 33 19"/></svg>' +
+              '<h3 class="kh-cp-title"></h3>' +
+              '<p class="kh-cp-note"></p>' +
+              '<p class="kh-cp-sbx" style="display:none">' +
+                '<i class="ti ti-flask" aria-hidden="true"></i><span></span></p>' +
+              '<div class="kh-cp-acts"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(host);
+    /* ব্যাকগ্রাউন্ড স্ক্রল বন্ধ — পর্দাটি পুরো পাতা ঢেকে রাখে */
+    var oldOv = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { host.classList.add('is-in'); });
+
+    var $ = function (s) { return host.querySelector(s); };
+
+    function set(o) {
+      o = o || {};
+      var st = o.state || 'busy';
+      host.classList.toggle('is-busy', st === 'busy');
+      host.classList.toggle('is-done', st === 'done');
+      host.classList.toggle('is-bad',  st === 'bad');
+
+      if (o.purposeLabel !== undefined) $('.kh-cp-sub').textContent = o.purposeLabel || '';
+      if (o.tran !== undefined)  $('.kh-cp-pan').textContent  = cpGroup(o.tran) || '•••• •••• ••••';
+      if (o.nameLabel !== undefined) $('.kh-cp-namelab').textContent = o.nameLabel || 'নাম';
+      if (o.name !== undefined)  $('.kh-cp-name').textContent = (o.name || '').trim() || '—';
+      if (o.date !== undefined || o.tran !== undefined) $('.kh-cp-date').textContent = o.date || cpToday();
+      if (o.method !== undefined) $('.kh-cp-mk').textContent = cpMethodName(o.method) || '';
+
+      /* ⚠️ সব লেখা `textContent`-এ — নাম বা বার্তা কখনো innerHTML-এ নয় */
+      $('.kh-cp-title').textContent = o.title || (st === 'busy' ? '' : '');
+      $('.kh-cp-title').style.display = o.title ? '' : 'none';
+
+      var note = $('.kh-cp-note');
+      note.textContent = o.note || '';
+      note.style.display = o.note ? '' : 'none';
+
+      $('.kh-cp-spin').style.display = st === 'busy' ? '' : 'none';
+      var tick = $('.kh-cp-tick');
+      tick.style.display = st === 'done' || st === 'bad' ? '' : 'none';
+      tick.classList.toggle('is-bad', st === 'bad');
+
+      var sbx = $('.kh-cp-sbx');
+      if (o.sandbox !== undefined) {
+        sbx.style.display = o.sandbox ? '' : 'none';
+        sbx.querySelector('span').textContent =
+          'এটি একটি পরীক্ষামূলক (স্যান্ডবক্স) লেনদেন — আসল কোনো টাকা কাটা হয়নি।';
+      }
+
+      if (o.actions) {
+        $('.kh-cp-acts').innerHTML = o.actions.map(function (a) {
+          return '<a class="' + (a.main ? 'is-main' : '') + '" href="' + payEsc(a.href || '#') + '">' +
+                 (a.icon ? '<i class="ti ' + payEsc(a.icon) + '" aria-hidden="true"></i>' : '') +
+                 payEsc(a.text || '') + '</a>';
+        }).join('');
+      }
+      return api;
+    }
+
+    function close() {
+      host.classList.remove('is-in');
+      document.body.style.overflow = oldOv;
+      setTimeout(function () { if (host.parentNode) host.remove(); }, 300);
+    }
+
+    var api = { el: host, set: set, close: close };
+
+    /* প্রথম অবস্থা */
+    set({
+      state: opts.state || 'busy',
+      purposeLabel: opts.purposeLabel || '',
+      tran: opts.tran || '',
+      nameLabel: opts.nameLabel || 'নাম',
+      name: opts.name || '',
+      method: opts.method || '',
+      sandbox: !!opts.sandbox,
+      title: opts.title || '',
+      note: opts.note || (opts.state === 'busy' || !opts.state
+        ? (cpMoney(opts.amount) ? cpMoney(opts.amount) + ' — নিরাপদ পেমেন্ট পাতায় নিয়ে যাওয়া হচ্ছে…'
+                                : 'নিরাপদ পেমেন্ট পাতায় নিয়ে যাওয়া হচ্ছে…')
+        : ''),
+      actions: opts.actions || []
+    });
+    return api;
   };
 
   /* ══════════════════════════════════════════════════════════

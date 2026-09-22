@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=33">
+  <link rel="stylesheet" href="kh-ui.css?v=34">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1354,6 +1354,7 @@ async function mountDepositPay() {
         return parseFloat(CUR.instalment) || 0;
       },
       payload: function () { return { account_id: CUR ? CUR.id : null }; },
+      payerName: function () { return (CUR && (CUR.holder_name || CUR.account_no)) || 'সদস্য'; },
       beforePay: function () {
         if (!CUR) { showMsg('depositMsgPanel','আগে একটি হিসাব নির্বাচন করুন।','error'); return false; }
         if (!(CUR.due || {}).has_schedule) {
@@ -2700,6 +2701,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=33"></script>
+<script src="kh-ui.js?v=34"></script>
 </body>
 </html>

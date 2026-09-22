@@ -108,8 +108,8 @@
   <div class="acts" id="acts"></div>
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=33">
-<script src="kh-ui.js?v=33"></script>
+<link rel="stylesheet" href="kh-ui.css?v=34">
+<script src="kh-ui.js?v=34"></script>
 <script>
 /* ══════════════════════════════════════════════════════════════
    গেটওয়ে থেকে ফেরার পেজ (২২ সেপ্টেম্বর ২০২৬)
@@ -155,6 +155,20 @@
     savings:   { label:'সঞ্চয় জমা',      back:'savings-portal.html',  backTxt:'আমানত পোর্টালে যান' },
     repayment: { label:'ঋণের কিস্তি',    back:'borrower-portal.html', backTxt:'ঋণ পোর্টালে যান' }
   };
+
+  /* ══ কাচের কার্ডের পর্দা — `KHUI.payStage()` ═══════════════════
+     এটিই ঐ নকশার শেষ দুটি অবস্থা: প্রক্রিয়াধীন → সফল (সবুজ কার্ড +
+     টিক আঁকা)। ⚠️ নিচের সাধারণ কার্ডটি **ফলব্যাক হিসেবেই রাখা** —
+     `kh-ui.js` কোনো কারণে না এলে দর্শক যেন খালি পর্দা না দেখেন। */
+  var STAGE = null;
+  function stage(o) {
+    try {
+      if (!window.KHUI || !KHUI.payStage) return null;
+      if (!STAGE) STAGE = KHUI.payStage(o); else STAGE.set(o);
+      return STAGE;
+    } catch (e) { return null; }
+  }
+  function methodOf(s) { return (s && s.method) || ''; }
 
   function setIco(kind, icon) {
     ico.className = 'ico ' + kind;
@@ -242,6 +256,26 @@
 
     acts2({ text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard' },
           { text:p.backTxt,         href:p.back,              icon:'ti-arrow-left' });
+
+    /* সবুজ কার্ড + টিক */
+    var got = [];
+    if (res.donation_no) got.push('রশিদ নং ' + res.donation_no);
+    else if (res.voucher_no) got.push('ভাউচার নং ' + res.voucher_no);
+    stage({
+      state: 'done',
+      purposeLabel: p.label,
+      title: 'পরিশোধ সম্পন্ন হয়েছে',
+      note: '৳' + bn(Number(s.amount).toLocaleString('en-US')) +
+            (got.length ? ' · ' + got[0] : '') +
+            ' — রশিদ আপনার ই-মেইলে চলে যাবে।',
+      tran: s.tran_id, method: methodOf(s),
+      nameLabel: 'খাত', name: p.label,
+      sandbox: !!s.sandbox,
+      actions: [
+        { text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard', main:true },
+        { text:p.backTxt,         href:p.back,              icon:'ti-arrow-left' }
+      ]
+    });
     try { localStorage.removeItem('kh_pay_tran'); } catch (e) {}
   }
 
@@ -257,6 +291,22 @@
     var p = PURPOSE[s.purpose] || PURPOSE.donation;
     acts2({ text:'আবার চেষ্টা করুন', href:p.back,       icon:'ti-refresh' },
           { text:'হোম পেজে যান',    href:'index.html', icon:'ti-home' });
+
+    stage({
+      state: 'bad',
+      purposeLabel: p.label,
+      title: cancelled ? 'পরিশোধ বাতিল করা হয়েছে' : 'পরিশোধ সম্পন্ন হয়নি',
+      note: (cancelled
+        ? 'আপনি লেনদেনটি বাতিল করেছেন — কোনো টাকা কাটা হয়নি।'
+        : 'গেটওয়ে লেনদেনটি সম্পন্ন করতে পারেনি। কোনো টাকা কাটা হয়নি; কেটে থাকলে তা নিজে থেকেই ফেরত যাবে।') +
+        (s.reason ? ' (' + s.reason + ')' : ''),
+      tran: s.tran_id || tran, method: methodOf(s),
+      nameLabel: 'খাত', name: p.label,
+      actions: [
+        { text:'আবার চেষ্টা করুন', href:p.back,       icon:'ti-refresh', main:true },
+        { text:'হোম পেজে যান',    href:'index.html', icon:'ti-home' }
+      ]
+    });
   }
 
   function paintPending(s) {
@@ -272,7 +322,31 @@
     ]);
     acts2({ text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard' },
           { text:'হোম পেজে যান',    href:'index.html',        icon:'ti-home' });
+
+    /* ⚠️ কার্ডটি **সবুজও নয়, লালও নয়** — সাধারণ অবস্থাতেই থাকে।
+       টাকা কেটে থাকলে পরে নিজে থেকেই বসে যাবে, তাই এখানে কোনো
+       চূড়ান্ত রায় দেখানো হয় না। */
+    stage({
+      state: 'busy',
+      title: 'নিশ্চিতকরণ এখনো আসেনি',
+      note: 'আপনার টাকা কেটে থাকলে চিন্তার কিছু নেই — নিশ্চিতকরণ এলে হিসাবটি নিজে থেকেই বসে যাবে ও রশিদ ই-মেইলে যাবে। কিছুক্ষণ পর "আমার ড্যাশবোর্ড" দেখে নিন।',
+      tran: (s && s.tran_id) || tran,
+      nameLabel: 'অবস্থা', name: 'অপেক্ষমাণ',
+      actions: [
+        { text:'আমার ড্যাশবোর্ড', href:'my-dashboard.html', icon:'ti-layout-dashboard', main:true },
+        { text:'হোম পেজে যান',    href:'index.html',        icon:'ti-home' }
+      ]
+    });
   }
+
+  /* প্রথম মুহূর্ত থেকেই কাচের পর্দা — দর্শক গেটওয়ের পাতা থেকে ফিরে
+     একই ভাষায় কথা বলা একটি পর্দাই দেখেন (প্রক্রিয়াধীন → সফল)। */
+  stage({
+    state: 'busy',
+    tran: tran,
+    nameLabel: 'অবস্থা', name: 'যাচাই চলছে',
+    note: 'গেটওয়ে থেকে নিশ্চিতকরণ আসছে — কয়েক সেকেন্ড অপেক্ষা করুন…'
+  });
 
   async function look() {
     tries++;

@@ -3984,3 +3984,258 @@ html[data-theme="light"] .kh-pay .kh-pay-accbody .kh-pay-copy { color: #fff !imp
 @media (prefers-reduced-motion: reduce) {
   .kh-pay-card { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   ২৬. কাচের পেমেন্ট পর্দা — `KHUI.payStage()` (২২ সেপ্টেম্বর ২০২৬)
+
+   ব্যবহারকারীর প্রশ্ন: *"এত কস্ট করে যে কার্ড পেমেন্ট এর স্ক্রীন
+   তৈরী করা হলো সেটা কোথায়?"* — কার্ড নম্বরের ঘরগুলো সরানোর সময়
+   পুরো পর্দাটার নতুন ঠিকানা দেওয়া হয়নি, তাই সেটি কার্যত হারিয়ে
+   গিয়েছিল। (**এটি সেই একই ভুলের উল্টো পিঠ** — "নতুন UI বানানোর
+   পর কোথা থেকে পাওয়া যাবে সেই পথটিও যোগ করতে হবে"।)
+
+   ঐ নকশার তিনটি অবস্থা ছিল: ফর্ম → Processing → Successful।
+   ⚠️ **ফর্মটি ফেরানো যাবে না** (কার্ড নম্বর = PCI-DSS SAQ-D), কিন্তু
+   বাকি দুটি গেটওয়ের প্রবাহে হুবহু খাপ খায় — তাই সে দুটিই এখানে।
+
+   ⚠️ সব ক্লাসে `kh-cp-` প্রিফিক্স — মূল পেজে নাম ছিল `.pane`/`.face`/
+      `.chip`/`.pan`/`.result`, যেগুলো হোস্ট পেজের ক্লাসের সাথে
+      সংঘর্ষে যেত (`.chip` নিয়ে আগে একবার হয়েছেও)।
+   ⚠️ পুরো পর্দাটি **নিজের গাঢ় পটভূমি বহন করে**, তাই ভেতরের সব মান
+      দুই থীমে হুবহু এক — সেকশন ৯-এর ঢালাও নিয়ম যেন না ধরে তার
+      জন্য নিচে আলাদা ব্লক আছে।
+   ══════════════════════════════════════════════════════════════ */
+.kh-cp {
+  --cp-gold: #f5b93c; --cp-emerald: #10b981;
+  --cp-txt: #f2efe9;  --cp-muted: #9a938c; --cp-muted2: #8b8580;
+  --cp-card-a: #1c1a2b; --cp-card-b: #141420;
+  position: fixed; inset: 0; z-index: 10050;
+  display: grid; place-items: center; padding: 30px 18px;
+  background: #08060b; color: var(--cp-txt);
+  font: 400 15px/1.5 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+  opacity: 0; transition: opacity .28s ease;
+}
+.kh-cp.is-in { opacity: 1; }
+
+/* পটভূমি — সাইটের বাকি জায়গার মতোই লগইন পেজের ক্যালিগ্রাফি */
+.kh-cp-silk {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: url('images/auth-bg.jpg') center / cover no-repeat;
+}
+/* ⚠️ ব্যাকগ্রাউন্ড স্তরে opacity দেওয়া যায় না — তাই আলাদা পর্দা */
+.kh-cp-veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(130% 100% at 50% 42%, rgba(6,4,10,.62) 0%, rgba(4,3,7,.86) 56%, rgba(2,1,4,.96) 100%),
+    linear-gradient(180deg, rgba(3,2,5,.72), rgba(3,2,5,.40) 26%, rgba(3,2,5,.40) 74%, rgba(2,1,4,.86));
+}
+.kh-cp-glow {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(52% 40% at 18% 16%, rgba(240,164,40,.16), transparent 70%),
+    radial-gradient(46% 38% at 84% 82%, rgba(214,51,108,.10), transparent 72%);
+}
+
+.kh-cp-wrap { position: relative; z-index: 2; width: min(560px, 100%); }
+.kh-cp-pane {
+  position: relative;
+  padding: 26px 30px 30px;
+  background: linear-gradient(152deg, rgba(14,12,18,.72), rgba(10,9,14,.80) 48%, rgba(16,13,20,.70));
+  backdrop-filter: blur(26px) saturate(115%) brightness(.9);
+  -webkit-backdrop-filter: blur(26px) saturate(115%) brightness(.9);
+  border-radius: 22px;
+  clip-path: polygon(72px 0, 100% 0, 100% calc(100% - 72px), calc(100% - 72px) 100%, 0 100%, 0 72px);
+  box-shadow: 0 40px 120px -50px #000, inset 0 1px 0 rgba(255,255,255,.07);
+}
+.kh-cp-pane::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 22px;
+  background: linear-gradient(140deg, rgba(255,255,255,.22), rgba(255,255,255,.04) 30%, transparent 55%, rgba(255,255,255,.10));
+  clip-path: polygon(72px 0, 100% 0, 100% calc(100% - 72px), calc(100% - 72px) 100%, 0 100%, 0 72px,
+                     0 72px, 1px 72px, 1px calc(100% - 1px), calc(100% - 72px - .4px) calc(100% - 1px),
+                     calc(100% - 1px) calc(100% - 72px), calc(100% - 1px) 1px, 72.4px 1px, 1px 72.4px, 1px 72px, 0 72px);
+}
+/* ⚠️⚠️ বন্ধনী দুটি `.kh-cp-pane`-এর **বাইরে** — pane-এ clip-path আছে
+   আর clip-path সব সন্তানকেও কেটে দেয় (মূল পেজে ধরা পড়েছিল)। */
+.kh-cp-br { position: absolute; z-index: 3; width: 104px; height: 104px; pointer-events: none; border: 1px solid rgba(255,255,255,.15); }
+.kh-cp-br--tl { left: -26px; top: -26px; border-right: 0; border-bottom: 0; border-radius: 22px 0 0 0; }
+.kh-cp-br--tl::after { content: ''; position: absolute; left: -1px; top: 100%; width: 104px; height: 1px; background: rgba(255,255,255,.15); transform-origin: 0 0; transform: rotate(-45deg); }
+.kh-cp-br--br { right: -26px; bottom: -26px; border-left: 0; border-top: 0; border-radius: 0 0 22px 0; }
+.kh-cp-br--br::after { content: ''; position: absolute; right: -1px; bottom: 100%; width: 104px; height: 1px; background: rgba(255,255,255,.15); transform-origin: 100% 100%; transform: rotate(-45deg); }
+
+.kh-cp-head { display: flex; align-items: center; gap: 13px; padding-bottom: 18px; }
+.kh-cp-logo {
+  width: 38px; height: 38px; border-radius: 11px; flex: none; display: grid; place-items: center;
+  background: linear-gradient(140deg, #ffd35c, #efb627 45%, #d98c10);
+  box-shadow: 0 8px 22px -10px rgba(245,185,60,.9);
+  color: #3a2506; font-size: 19px;
+}
+/* ⚠️ বাংলায় `letter-spacing` দেওয়া যাবে না — যুক্তাক্ষর ভাঙে ও
+   কার-মাত্রা অক্ষর থেকে সরে পড়ে (মূল পেজে ধরা পড়েছিল)। */
+.kh-cp-brand { font: 700 16.5px/1.45 'Hind Siliguri', system-ui, sans-serif; letter-spacing: 0; }
+.kh-cp-brand span { display: block; font-weight: 400; font-size: 12.5px; color: var(--cp-muted); }
+.kh-cp-rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.13) 12%, rgba(255,255,255,.13) 88%, transparent); }
+
+.kh-cp-stage { display: grid; justify-items: center; gap: 18px; padding-top: 26px; }
+.kh-cp-card3d { width: 100%; max-width: 396px; aspect-ratio: 1.62 / 1; position: relative; }
+.kh-cp-face {
+  position: absolute; inset: 0; border-radius: 20px; overflow: hidden;
+  background: linear-gradient(145deg, var(--cp-card-a), var(--cp-card-b) 62%, #191622);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 30px 60px -30px #000, inset 0 1px 0 rgba(255,255,255,.07);
+  padding: 22px 24px; display: flex; flex-direction: column;
+  transition: background .6s ease, border-color .4s ease, box-shadow .4s ease;
+}
+/* ⚠️⚠️ `mix-blend-mode` দেওয়া যাবে না — সোনালি চিপ ও PLATINUM
+   লেখার রঙ ধুয়ে ধূসর করে দেয়। সাধারণ opacity + z-index যথেষ্ট। */
+.kh-cp-face::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: url('images/auth-bg.jpg') center / cover no-repeat; opacity: .11;
+}
+.kh-cp-face::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(118deg, rgba(255,255,255,.10) 0%, transparent 34%, transparent 66%, rgba(255,255,255,.05) 100%);
+}
+.kh-cp-crow, .kh-cp-pan, .kh-cp-foot { position: relative; z-index: 2; }
+
+.kh-cp-crow { display: flex; align-items: center; gap: 11px; }
+.kh-cp-chip {
+  width: 42px; height: 31px; border-radius: 7px; flex: none; position: relative; overflow: hidden;
+  background: linear-gradient(140deg, #ffd35c, #f7ab24 48%, #d2870d);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
+}
+.kh-cp-chip::before, .kh-cp-chip::after { content: ''; position: absolute; left: 0; right: 0; height: 1.4px; background: rgba(90,55,5,.55); }
+.kh-cp-chip::before { top: 9.5px; } .kh-cp-chip::after { top: 20px; }
+.kh-cp-chipbar { position: absolute; top: 0; bottom: 0; left: 14px; width: 1.4px; background: rgba(90,55,5,.55); }
+.kh-cp-chipbar + .kh-cp-chipbar { left: 28px; }
+.kh-cp-wave { color: rgba(255,255,255,.42); font-size: 17px; display: block; }
+.kh-cp-tier { margin-left: auto; color: var(--cp-gold); font: 600 11px/1 'Inter', sans-serif; letter-spacing: .26em; }
+
+.kh-cp-pan {
+  margin-top: auto; padding-bottom: 20px;
+  font: 500 17px/1 ui-monospace, 'JetBrains Mono', monospace;
+  letter-spacing: .055em; color: #eef1f6; text-shadow: 0 2px 10px rgba(0,0,0,.5);
+  min-height: 17px; word-break: break-all;
+}
+.kh-cp-foot { display: flex; align-items: flex-end; gap: 22px; }
+/* ⚠️ `min-width: 0` — নাহলে লম্বা বাংলা নাম কার্ডের বাইরে ঠেলে দেয়
+   (**চতুর্থবার এই ফাঁদ**; flex আইটেম ডিফল্টে min-content প্রস্থ ধরে)। */
+.kh-cp-foot > span:first-child { min-width: 0; }
+.kh-cp-foot small { display: block; font-size: 8.5px; letter-spacing: .12em; color: var(--cp-muted2); text-transform: uppercase; margin-bottom: 5px; }
+.kh-cp-foot b { font: 600 13px/1.25 'Hind Siliguri', system-ui, sans-serif; color: #e9ecf2; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kh-cp-mk { margin-left: auto; flex: none; font: 700 13px/1 'Hind Siliguri', system-ui, sans-serif; color: #fff; }
+
+/* প্রক্রিয়াধীন — কার্ডের চারপাশে সোনালি আভা */
+.kh-cp.is-busy .kh-cp-face { border-color: rgba(245,185,60,.75); box-shadow: 0 0 34px -6px rgba(245,185,60,.45), 0 30px 60px -30px #000; }
+/* সফল — কার্ড সবুজ
+   ⚠️⚠️ মূল `card-payment.html`-এর সবুজ (`#1f9d6d → #12b981 → #0d7a58`)
+   **AA ফেল করে** — ব্রাউজারে মেপে ধরা পড়েছে: সাদা PAN মাত্র ২.৫৪:১,
+   PLATINUM ২.৩৯:১, আর ফিকে সাদা লেবেল ১.৯৪:১। ঐ অবস্থাটি কখনো মাপা
+   হয়নি বলে ত্রুটিটি চোখ এড়িয়ে গিয়েছিল (সবুজ `#12b981` সাদা লেখার
+   জন্য অনেক বেশি উজ্জ্বল)। তাই গ্র্যাডিয়েন্টটি গাঢ় করা হলো —
+   গভীর পান্না, চেনাও যায়, আর সাদা লেখা **৭.১৭ – ১১.৮৭:১**।
+   **নিয়ম: কার্ড/ব্যাজের প্রতিটি অবস্থা আলাদা করে মাপতে হবে — একটি
+   অবস্থা পাস করলেই বাকিগুলো পাস করে না।** */
+.kh-cp.is-done .kh-cp-face {
+  background: linear-gradient(145deg, #0b6347, #085438 48%, #064029);
+  border-color: rgba(255,255,255,.24);
+  box-shadow: 0 0 40px -8px rgba(16,185,129,.5), 0 30px 60px -30px #000;
+}
+.kh-cp.is-done .kh-cp-pan, .kh-cp.is-done .kh-cp-foot b, .kh-cp.is-done .kh-cp-mk { color: #fff; }
+.kh-cp.is-done .kh-cp-foot small { color: rgba(255,255,255,.78); }   /* ৫.০৫:১ */
+.kh-cp.is-done .kh-cp-tier { color: #eaffd8; }                        /* ৬.৭৬:১ */
+/* ব্যর্থ/বাতিল — কার্ড লালচে */
+.kh-cp.is-bad .kh-cp-face {
+  background: linear-gradient(145deg, #8f2033, #6d1526 52%, #4b0f1c);
+  border-color: rgba(255,255,255,.2);
+  box-shadow: 0 0 36px -10px rgba(194,37,92,.5), 0 30px 60px -30px #000;
+}
+.kh-cp.is-bad .kh-cp-pan, .kh-cp.is-bad .kh-cp-foot b, .kh-cp.is-bad .kh-cp-mk { color: #fff; }
+.kh-cp.is-bad .kh-cp-foot small { color: rgba(255,255,255,.72); }
+.kh-cp.is-bad .kh-cp-tier { color: #ffd9d6; }
+
+.kh-cp-result { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.kh-cp-spin { width: 40px; height: 40px; }
+.kh-cp-spin circle { fill: none; stroke-width: 3.2; }
+.kh-cp-spin .trk { stroke: rgba(255,255,255,.10); }
+.kh-cp-spin .arc { stroke: var(--cp-gold); stroke-linecap: round; stroke-dasharray: 34 96; transform-origin: 50% 50%; animation: khCpSpin 1s linear infinite; }
+@keyframes khCpSpin { to { transform: rotate(360deg); } }
+.kh-cp-tick { width: 44px; height: 44px; color: var(--cp-emerald); }
+.kh-cp-tick circle, .kh-cp-tick path { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.kh-cp-tick circle { stroke-dasharray: 126; stroke-dashoffset: 126; animation: khCpDraw .5s ease forwards; }
+.kh-cp-tick path { stroke-dasharray: 32; stroke-dashoffset: 32; animation: khCpDraw .3s ease .38s forwards; }
+@keyframes khCpDraw { to { stroke-dashoffset: 0; } }
+.kh-cp-tick.is-bad { color: #ff8f9a; }
+
+.kh-cp-result h3 { margin: 4px 0 0; font: 700 19px/1.35 'Hind Siliguri', system-ui, sans-serif; color: var(--cp-txt); }
+.kh-cp-result p { margin: 0; font-size: 13px; line-height: 1.7; color: #c6bfb8; }   /* গাঢ় পাতে ৮.৩:১ */
+.kh-cp-result p b { color: var(--cp-gold); font-weight: 700; }                       /* ৮.৭:১ */
+
+/* স্যান্ডবক্সের সতর্কবার্তা — নিজের অ্যাম্বার পটভূমি বহন করে (৯.১৮:১) */
+.kh-cp-sbx {
+  display: flex; gap: 8px; align-items: flex-start; text-align: left;
+  margin-top: 4px; padding: 9px 12px; border-radius: 10px;
+  background: #4a3410; color: #ffe0a3; font-size: 11.5px; line-height: 1.6;
+}
+.kh-cp-sbx i { font-size: 15px; flex: none; color: #ffcf70; }
+
+.kh-cp-acts { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 8px; }
+.kh-cp-acts a, .kh-cp-acts button {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 18px; border-radius: 999px; cursor: pointer; text-decoration: none;
+  border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.06);
+  color: #efe9e2; font: 600 13px/1 'Hind Siliguri', system-ui, sans-serif;   /* ১১.৯:১ */
+}
+.kh-cp-acts a:hover, .kh-cp-acts button:hover { background: rgba(255,255,255,.12); color: #fff; }
+.kh-cp-acts .is-main {
+  border: 0; color: #fff;
+  background: linear-gradient(112deg, #0f7a43, #0a5c33);                      /* ৫.৪–৮.১:১ */
+}
+.kh-cp-acts .is-main:hover { filter: brightness(1.1); }
+
+/* ⚠️ লাইট থীমের ঢালাও নিয়ম (সেকশন ৯, ওজন (০,২,২)) এই গাঢ় পর্দার
+   ভেতরের div/span/b/small/p-ও ধরে ফেলে। পর্দাটি নিজের গাঢ় পটভূমি
+   বহন করে, তাই সব রঙ ওজন বাড়িয়ে (০,৩,১) ফেরানো হলো।
+   **নতুন কোনো লেখা যোগ করলে এখানেও দিতে হবে।** */
+html[data-theme="light"] .kh-cp .kh-cp-brand,
+html[data-theme="light"] .kh-cp .kh-cp-result h3 { color: #f2efe9 !important; }
+html[data-theme="light"] .kh-cp .kh-cp-brand span { color: #9a938c !important; }
+html[data-theme="light"] .kh-cp .kh-cp-result p { color: #c6bfb8 !important; }
+html[data-theme="light"] .kh-cp .kh-cp-result p b { color: #f5b93c !important; }
+html[data-theme="light"] .kh-cp .kh-cp-pan,
+html[data-theme="light"] .kh-cp .kh-cp-foot b,
+html[data-theme="light"] .kh-cp .kh-cp-mk { color: #eef1f6 !important; }
+html[data-theme="light"] .kh-cp.is-done .kh-cp-pan,
+html[data-theme="light"] .kh-cp.is-done .kh-cp-foot b,
+html[data-theme="light"] .kh-cp.is-done .kh-cp-mk,
+html[data-theme="light"] .kh-cp.is-bad .kh-cp-pan,
+html[data-theme="light"] .kh-cp.is-bad .kh-cp-foot b,
+html[data-theme="light"] .kh-cp.is-bad .kh-cp-mk { color: #fff !important; }
+html[data-theme="light"] .kh-cp .kh-cp-foot small { color: #8b8580 !important; }
+html[data-theme="light"] .kh-cp.is-done .kh-cp-foot small { color: rgba(255,255,255,.78) !important; }
+html[data-theme="light"] .kh-cp.is-bad .kh-cp-foot small { color: rgba(255,255,255,.72) !important; }
+html[data-theme="light"] .kh-cp .kh-cp-tier { color: #f5b93c !important; }
+html[data-theme="light"] .kh-cp.is-done .kh-cp-tier { color: #eaffd8 !important; }
+html[data-theme="light"] .kh-cp.is-bad .kh-cp-tier { color: #ffd9d6 !important; }
+html[data-theme="light"] .kh-cp .kh-cp-sbx,
+html[data-theme="light"] .kh-cp .kh-cp-sbx span { color: #ffe0a3 !important; }
+html[data-theme="light"] .kh-cp .kh-cp-acts a,
+html[data-theme="light"] .kh-cp .kh-cp-acts button { color: #efe9e2 !important; }
+html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
+
+@media (max-width: 640px) {
+  .kh-cp { padding: 20px 14px; }
+  .kh-cp-pane { padding: 20px 18px 24px; clip-path: polygon(48px 0, 100% 0, 100% calc(100% - 48px), calc(100% - 48px) 100%, 0 100%, 0 48px); }
+  .kh-cp-pane::before { clip-path: none; border-radius: 22px; opacity: .5; }
+  .kh-cp-br { display: none; }               /* ছোট পর্দায় বন্ধনী ভিউপোর্ট ছাড়ায় */
+  .kh-cp-pan { font-size: 14.5px; }
+  .kh-cp-foot { gap: 14px; }
+  .kh-cp-acts a, .kh-cp-acts button { flex: 1 1 100%; justify-content: center; }
+}
+@media (max-width: 768px) {
+  .kh-cp-silk { background-attachment: scroll; background-position: center top; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-cp-spin .arc { animation: none; }
+  .kh-cp-tick circle, .kh-cp-tick path { animation: none; stroke-dashoffset: 0; }
+  .kh-cp { transition: none; }
+}

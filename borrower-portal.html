@@ -302,7 +302,7 @@
   .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=33">
+  <link rel="stylesheet" href="kh-ui.css?v=34">
 </head>
 <body data-kh-nav="on">
 
@@ -699,6 +699,7 @@ function openPayInstallment(btn) {
            এখানে যা লেখা থাকে তা কেবল বাটনে দেখানোর জন্য। */
         amount:  function () { return parseFloat(box.querySelector('#payAmt').value) || 0; },
         payload: function () { return { repayment_id: repId }; },
+        payerName: function () { return (window.BORROWER && BORROWER.name) || 'ঋণগ্রহীতা'; },
         beforePay: function () {
           var v = parseFloat(box.querySelector('#payAmt').value);
           if (!v || v <= 0) { say('সঠিক পরিমাণ লিখুন।', false); return false; }
@@ -1082,6 +1083,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=33"></script>
+<script src="kh-ui.js?v=34"></script>
 </body>
 </html>
