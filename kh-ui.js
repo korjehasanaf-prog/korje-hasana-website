@@ -4026,10 +4026,16 @@
       }
 
       /* ⚠️ কাচের পর্দাটি এখানেই ওঠে — এটিই ঐ নকশার "Processing"
-         অবস্থা। গেটওয়েতে পৌঁছানো পর্যন্ত দর্শক এটিই দেখেন। */
-      var stage = null;
+         অবস্থা। গেটওয়েতে পৌঁছানো পর্যন্ত দর্শক এটিই দেখেন।
+         ⚠️⚠️ নাম অবশ্যই `cpStage` — `stage` নয়। উপরে (৩৯৩৭ লাইনে)
+         `var stage = host.querySelector('.kh-pay-stage')` আছে, অর্থাৎ
+         পিকারের নিজের ঘর। এখানে `var stage` লিখলে **হয়েস্টিংয়ের কারণে**
+         এই ফাংশনের একদম প্রথম লাইনেই (`stage.querySelector(...)`)
+         `undefined.querySelector` হয়ে ক্র্যাশ করত — পরিশোধের বাটনে
+         চাপলে কিছুই হত না, কাচের পর্দাও উঠত না। */
+      var cpStage = null;
       try {
-        stage = KHUI.payStage({
+        cpStage = KHUI.payStage({
           state: 'busy',
           purposeLabel: PURPOSE_LABEL[opts.purpose || 'donation'] || '',
           amount: curAmount(),
@@ -4041,7 +4047,7 @@
 
       var unbusy = function () {
         busy = false;
-        if (stage) { try { stage.close(); } catch (e) {} }
+        if (cpStage) { try { cpStage.close(); } catch (e) {} }
         if (btn) {
           btn.classList.remove('is-busy');
           btn.querySelector('.kh-pay-gotxt').textContent = 'এখনই পরিশোধ করুন';
@@ -4063,7 +4069,7 @@
         /* ফেরার পেজ যেন জানে কোন লেনদেন — গেটওয়ে থেকে ফিরতে সময় লাগে */
         try { localStorage.setItem('kh_pay_tran', tran); } catch (e) {}
         /* লেনদেন নম্বরটি কার্ডের গায়ে বসে (কার্ড নম্বরের জায়গায়) */
-        if (stage) { try { stage.set({ state: 'busy', tran: tran }); } catch (e) {} }
+        if (cpStage) { try { cpStage.set({ state: 'busy', tran: tran }); } catch (e) {} }
 
         var f = await db.functions.invoke('pay-start', { body: { tran_id: tran } });
         var out = f.data || {};
