@@ -440,7 +440,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=35">
+  <link rel="stylesheet" href="kh-ui.css?v=36">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -1287,6 +1287,12 @@ async function mountDonationPay() {
         if (document.getElementById('anonCheck')?.checked) return 'বেনামী দাতা';
         return document.getElementById('donorName').value.trim() || 'দাতা';
       },
+      /* ⚠️ নাম · মোবাইল · ই-মেইল এই পেজের উপরের ফর্মেই আছে, তাই সেগুলো
+         দাতার তথ্যের ধাপে **দুবার** দেখানো হয় না — কেবল ঠিকানার তিনটি
+         ঘর, যেগুলো SSLCommerz-এ `cus_add1/city/postcode` হয়ে বসে।
+         ⚠️⚠️ কার্ডের নম্বর/Expiry/CVV এখানেও নেই — সেগুলো কেবল
+         গেটওয়ের নিজের পাতায় (PCI-DSS)। */
+      cusFields: ['address', 'city', 'postcode'],
       payload: function () {
         return {
           name:         document.getElementById('donorName').value.trim(),
@@ -1894,7 +1900,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=35"></script>
+<script src="kh-ui.js?v=36"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

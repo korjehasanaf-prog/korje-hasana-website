@@ -3861,6 +3861,47 @@ html[data-theme="light"] .plume__note.plume__note.kh-bad { color: #b3261e !impor
   position: absolute; top: 5px; left: 6px; font-size: 12px; color: #0f7a43;  /* সাদায় ৫.৪:১ */
 }
 
+/* ══ দাতার তথ্য — গেটওয়েতে যাওয়ার আগের ধাপ (২৩ সেপ্টে ২০২৬) ══
+   ব্যবহারকারীর চাওয়া: "প্রথমে ইনফরমেশন ইনপুট দিবে তারপর প্রসেস দিলে
+   এসএসএল-এ যাবে, আর তথ্য অটো ফিল হবে।"
+
+   ⚠️⚠️ এখানে **কার্ডের নম্বর/Expiry/CVV কখনো নয়** — SSLCommerz-এর
+      সেশন API-তে ঐ ধরনের প্যারামিটারই নেই, আর নিজের পাতায় নিলে
+      PCI-DSS SAQ-D স্তরে পড়তে হয়। কেবল গ্রাহকের নাম · মোবাইল ·
+      ই-মেইল · ঠিকানা — SSLCommerz এগুলোই `cus_*` ঘরে গ্রহণ করে।
+   ⚠️ ঘরটি নিজের সাদা পটভূমি বহন করে, তাই দুই থীমে হুবহু এক।        */
+.kh-pay-cus {
+  margin-top: 12px; padding: 14px; border-radius: 14px;
+  background: #fff; border: 1px solid #e9e1f1; color: #2a2338;
+  box-shadow: 0 8px 22px -16px rgba(40, 24, 70, .4);
+  display: grid; gap: 11px;
+}
+.kh-pay-cushead { display: flex; align-items: center; gap: 9px; }
+.kh-pay-cushead i { font-size: 17px; color: #0d7052; flex: none; }   /* সাদায় ৫.৭:১ */
+.kh-pay-cushead b { font-size: 13.5px; display: block; color: #2a2338; }  /* ১৩.৫:১ */
+.kh-pay-cushead small { font-size: 11.5px; color: #5d5470; display: block; } /* ৭.০:১ */
+/* দুই কলাম — ছোট পর্দায় নিজে থেকেই এক কলাম */
+.kh-pay-cusgrid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+.kh-pay-cusgrid .kh-pay-f.is-wide { grid-column: 1 / -1; }
+/* ⚠️ ঘরটি সাদা, আর `.kh-pay-f input` আগে থেকেই সাদা পটভূমি বহন করে —
+   তাই কিনারা একটু গাঢ় করতে হয়েছে, নাহলে ঘর আর কাগজ মিশে যেত। */
+.kh-pay-cus .kh-pay-f input { border-color: #d5c9e6; }
+/* ⚠️ এই নোটটি সাজসজ্জা নয় — দাতা যেন কখনো এই পাতায় কার্ড নম্বর
+   খুঁজতে গিয়ে বিভ্রান্ত না হন, আর ফিশিং পাতার সাথে আমাদের পাতার
+   পার্থক্য স্পষ্ট থাকে। */
+.kh-pay-cusnote {
+  display: flex; gap: 8px; padding: 10px 11px; border-radius: 10px;
+  background: #eef7f2; border: 1px solid #cfe6db;
+  font-size: 11.5px; line-height: 1.6; color: #14503a;            /* ৮.৩:১ */
+}
+.kh-pay-cusnote i { font-size: 15px; color: #0d7052; flex: none; }  /* #eef7f2-এ ৫.৪:১ */
+.kh-pay-cusbad {
+  font-size: 11.5px; line-height: 1.55; color: #c0281f;            /* সাদায় ৬.১:১ */
+}
+
 /* ══ বাংলা QR — সবসময় খোলা ঘর ═════════════════════════════
    ব্যবহারকারীর শর্ত: "বাংলা কিউআরটি সবক্ষেত্রেই অপেন রাখা প্রয়োজন।"
    তাই এটি নির্বাচনের বাইরে, নিজের ঘরে।
@@ -3957,6 +3998,12 @@ html[data-theme="light"] .kh-pay .kh-pay-hint,
 html[data-theme="light"] .kh-pay .kh-pay-h small { color: #5d5470 !important; }
 html[data-theme="light"] .kh-pay .kh-pay-empty,
 html[data-theme="light"] .kh-pay .kh-pay-empty div { color: #6b4310 !important; }
+/* দাতার তথ্যের ঘর — সাদা কাগজ, তাই গাঢ় লেখাই ফিরিয়ে দেওয়া হলো */
+html[data-theme="light"] .kh-pay .kh-pay-cushead b { color: #2a2338 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-cushead small { color: #5d5470 !important; }
+html[data-theme="light"] .kh-pay .kh-pay-cusnote,
+html[data-theme="light"] .kh-pay .kh-pay-cusnote span { color: #14503a !important; }
+html[data-theme="light"] .kh-pay .kh-pay-cusbad { color: #c0281f !important; }
 /* গেটওয়ের অংশ — গাঢ় কার্ডের ভেতরে, তাই সাদা/অ্যাম্বার ফিরিয়ে দেওয়া */
 html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-golead { color: rgba(255,255,255,.9) !important; }
 html[data-theme="light"] .kh-pay .kh-pay-card .kh-pay-go,

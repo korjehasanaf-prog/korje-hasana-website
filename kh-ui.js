@@ -3824,6 +3824,60 @@
     '</div>';
   }
 
+  /* ══ দাতার তথ্যের ধাপ (২৩ সেপ্টেম্বর ২০২৬) ═══════════════════
+     ব্যবহারকারীর চাওয়া ছিল "প্রথমে ইনফরমেশন ইনপুট, তারপর প্রসেস দিলে
+     এসএসএল-এ যাবে ও তথ্য অটো ফিল হবে"।
+
+     ⚠️⚠️ কার্ডের নম্বর/Expiry/CVV এখানে **নেওয়া হয় না এবং নেওয়া যাবে
+        না**। দুটি স্বাধীন কারণ:
+        ① SSLCommerz-এর সেশন API-তে কার্ডের কোনো প্যারামিটারই নেই —
+          তাদের পাতায় ও তথ্য আগেভাগে বসানোর কোনো পথ নেই (হোস্টেড
+          গেটওয়ের পুরো উদ্দেশ্যই সেটি);
+        ② নিজের পাতায় কার্ড নিলে PCI-DSS-এর SAQ-D স্তরে পড়তে হয়, আর
+          CVV সংরক্ষণ/প্রেরণ অনুমোদনের পরে সর্বাবস্থায় নিষিদ্ধ।
+        যা **সত্যিই** অটো-ফিল হয় তা হলো `cus_*` ঘরগুলো — নাম, মোবাইল,
+        ই-মেইল ও ঠিকানা। সেগুলোই এখানে নেওয়া হয়।                     */
+  var PAY_CUS = [
+    ['name',     'নাম',            'আপনার পূর্ণ নাম',        1, 1],
+    ['mobile',   'মোবাইল নম্বর',    '01XXXXXXXXX',           1, 0],
+    ['email',    'ই-মেইল',         'রশিদ এই ঠিকানায় যাবে',   0, 0],
+    ['address',  'ঠিকানা',         'গ্রাম / বাড়ি ও সড়ক',    0, 1],
+    ['city',     'শহর বা জেলা',    'যেমন ফরিদপুর',           0, 0],
+    ['postcode', 'পোস্ট কোড',      'যেমন ৭৮০০',              0, 0]
+  ];
+
+  function payCusHTML(hostId, fields) {
+    return '<div class="kh-pay-cus" hidden>' +
+      '<div class="kh-pay-cushead">' +
+        '<i class="ti ti-user-check" aria-hidden="true"></i>' +
+        '<div><b>আপনার তথ্য</b>' +
+        '<small>গেটওয়ের পাতায় এই ঘরগুলো আগে থেকেই পূরণ অবস্থায় খুলবে</small></div>' +
+      '</div>' +
+      '<div class="kh-pay-cusgrid">' +
+        fields.map(function (f) {
+          var id = hostId + '_cus_' + f[0];
+          return '<div class="kh-pay-f' + (f[4] ? ' is-wide' : '') + '" data-cus="' + f[0] + '">' +
+            '<label for="' + id + '">' + payEsc(f[1]) +
+              (f[3] ? ' <em>*</em>' : '') + '</label>' +
+            '<input id="' + id + '" type="text" autocomplete="' + (
+              f[0] === 'name' ? 'name' : f[0] === 'mobile' ? 'tel' :
+              f[0] === 'email' ? 'email' : f[0] === 'postcode' ? 'postal-code' :
+              f[0] === 'city' ? 'address-level2' : 'street-address'
+            ) + '" ' +
+            (f[0] === 'mobile' ? 'inputmode="numeric" maxlength="11" ' : '') +
+            (f[0] === 'postcode' ? 'inputmode="numeric" maxlength="10" ' : '') +
+            'placeholder="' + payEsc(f[2]) + '">' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+      '<p class="kh-pay-cusbad" role="alert"></p>' +
+      '<p class="kh-pay-cusnote"><i class="ti ti-shield-lock" aria-hidden="true"></i>' +
+        '<span>কার্ডের নম্বর, মেয়াদ বা CVV <b>কখনো এই পাতায় চাওয়া হয় না</b> — ' +
+        'সেগুলো কেবল গেটওয়ের নিজের নিরাপদ পাতায় দেবেন। কেউ এই সাইটে ' +
+        'কার্ডের নম্বর চাইলে বুঝবেন সেটি আমাদের পাতা নয়।</span></p>' +
+    '</div>';
+  }
+
   /* গেটওয়ের অবস্থা — মাধ্যম ও গেটওয়ে একবারেই আনা হয় */
   var payCfg = null;
   KHUI.payConfig = async function (force) {
@@ -3857,6 +3911,10 @@
        payload  : অবজেক্ট অথবা ফাংশন — start_payment-এ যাবে
        beforePay: ফাংশন → false দিলে গেটওয়েতে যাওয়া আটকে যায়
                   (যেমন দানের ফর্ম অসম্পূর্ণ থাকলে)
+       prefill  : অবজেক্ট/ফাংশন → {name, mobile, email, address, city,
+                  postcode} — দাতার তথ্যের ঘরগুলো আগেভাগে ভরে দেয়।
+                  লগইন থাকলে এর পরে `get_my_profile`ও ভরে দেয় (খালি
+                  ঘরই কেবল, ব্যবহারকারীর লেখা কখনো মোছা হয় না)।
      ══════════════════════════════════════════════════════════ */
   KHUI.payPicker = async function (host, opts) {
     opts = opts || {};
@@ -3897,6 +3955,9 @@
 
     var refReq = opts.refRequired !== false;
     var qrInfo = info.bqr;
+    var cusDefs = PAY_CUS.filter(function (f) {
+      return !opts.cusFields || opts.cusFields.indexOf(f[0]) >= 0;
+    });
 
     host.innerHTML = head +
       '<div class="kh-pay-tiles" role="radiogroup" aria-label="টাকা দেওয়ার মাধ্যম">' +
@@ -3914,6 +3975,13 @@
         }).join('') +
       '</div>' +
       '<div class="kh-pay-stage"></div>' +
+      /* দাতার তথ্য — একবারই বসে, অনলাইন মাধ্যম হলে দেখানো হয়।
+         ⚠️ `paint()`-এ নতুন করে আঁকা হয় না, কেবল `hidden` বদলায় —
+            নাহলে মাধ্যম বদলালেই লেখা তথ্য মুছে যেত।
+         ⚠️ `opts.cusFields` দিয়ে কেবল দরকারি ঘরগুলো দেখানো যায় —
+            যেমন `donation.html`-এ নাম/মোবাইল/ই-মেইল আগেই পেজের ফর্মে
+            আছে, তাই সেখানে ঘরগুলো দুবার দেখানো হয় না। */
+      payCusHTML(host.id || 'khpay', cusDefs) +
       /* বাংলা QR — সবক্ষেত্রেই খোলা */
       (qrInfo ? payQrHTML(qrInfo) : '') +
       /* প্রতিষ্ঠানের হিসাব বিবরণী — বাটনের আড়ালে */
@@ -3936,13 +4004,128 @@
     var tiles = host.querySelectorAll('.kh-pay-tile');
     var stage = host.querySelector('.kh-pay-stage');
     var accB  = host.querySelector('.kh-pay-accbody');
-    var fld   = host.querySelector('.kh-pay-f');
-    var input = host.querySelector('.kh-pay-f input');
-    var label = host.querySelector('.kh-pay-f label');
-    var hint  = host.querySelector('.kh-pay-hint');
+    /* ⚠️⚠️ নির্বাচক অবশ্যই `.kh-pay-manual`-এর ভেতরে সীমাবদ্ধ।
+       দাতার তথ্যের ঘরগুলোও `.kh-pay-f` ক্লাস ব্যবহার করে এবং DOM-এ
+       **আগে** বসে — সীমা না দিলে `host.querySelector('.kh-pay-f input')`
+       রেফারেন্সের বদলে **ঠিকানার ঘরটি** ধরে ফেলত। তখন ঠিকানায় লেখা
+       বাংলা অক্ষর TrxID-র নিয়মে (`[^A-Za-z0-9-/]`) কেটে গিয়ে ঘরটি
+       ফাঁকা হয়ে যেত, আর TrxID-র যাচাইও ভুল ঘরে বসত।
+       (লাইভে টাইপ করে ধরা পড়েছে — ২৩ সেপ্টেম্বর ২০২৬।) */
+    var fld   = host.querySelector('.kh-pay-manual .kh-pay-f');
+    var input = host.querySelector('.kh-pay-manual .kh-pay-f input');
+    var label = host.querySelector('.kh-pay-manual .kh-pay-f label');
+    var hint  = host.querySelector('.kh-pay-manual .kh-pay-hint');
     var cur   = defs[0];
     var cbs   = [];
     var busy  = false;
+
+    /* ── দাতার তথ্যের ঘরগুলো ─────────────────────────────────── */
+    var cusBox = host.querySelector('.kh-pay-cus');
+    var cusBad = host.querySelector('.kh-pay-cusbad');
+    var cusIn  = {};
+    if (cusBox) {
+      cusDefs.forEach(function (f) {
+        var w = cusBox.querySelector('[data-cus="' + f[0] + '"]');
+        var i = w && w.querySelector('input');
+        if (!i) return;
+        cusIn[f[0]] = i;
+        i.addEventListener('input', function () {
+          /* ⚠️ মোবাইল ও পোস্ট কোডে **বাংলা অঙ্কও** ইংরেজিতে বদলে দেওয়া হয় —
+             অনেকে বাংলা কী-বোর্ডে ৳/০১৭… লেখেন, আর গেটওয়ে বাংলা অঙ্ক নেয় না। */
+          if (f[0] === 'mobile' || f[0] === 'postcode') {
+            var v = i.value.replace(/[০-৯]/g, function (d) {
+              return String('০১২৩৪৫৬৭৮৯'.indexOf(d));
+            }).replace(/[^0-9]/g, '').slice(0, f[0] === 'mobile' ? 11 : 10);
+            if (v !== i.value) {
+              var p = i.selectionStart - (i.value.length - v.length);
+              i.value = v;
+              try { i.setSelectionRange(p, p); } catch (e) {}
+            }
+          }
+          w.classList.remove('is-bad');
+          if (cusBad) cusBad.textContent = '';
+        });
+      });
+    }
+
+    function cusValues() {
+      var o = {};
+      cusDefs.forEach(function (f) {
+        o[f[0]] = cusIn[f[0]] ? cusIn[f[0]].value.trim() : '';
+      });
+      return o;
+    }
+
+    /* ঘর ভরে দেওয়া — খালি ঘরই কেবল ভরা হয়, ব্যবহারকারীর লেখা মোছা হয় না */
+    function cusFill(src, force) {
+      if (!src) return;
+      cusDefs.forEach(function (f) {
+        var i = cusIn[f[0]];
+        var v = src[f[0]];
+        if (!i || v == null || v === '') return;
+        if (!force && i.value.trim()) return;
+        i.value = String(v).trim();
+      });
+    }
+
+    /* ⚠️ যাচাই ক্লায়েন্টে **ও** সার্ভারে — এখানকারটি কেবল দাতাকে
+       আগেভাগে জানানোর জন্য; আসল সীমা `start_payment`-এ। */
+    function cusValidate() {
+      if (!cusBox || cusBox.hidden) return cusValues();
+      var v = cusValues(), bad = null, msg = '';
+      cusDefs.forEach(function (f) {
+        var w = cusBox.querySelector('[data-cus="' + f[0] + '"]');
+        if (w) w.classList.remove('is-bad');
+      });
+      /* ⚠️ কেবল **দেখানো** ঘরগুলোই যাচাই হয় — `donation.html`-এ নাম ও
+         মোবাইল পেজের নিজের ফর্মে আছে, সেগুলো `donorFormOk()` দেখে। */
+      if ('name' in v && v.name.length < 2) { bad = 'name'; msg = 'আপনার নামটি লিখুন।'; }
+      else if ('mobile' in v && !/^01[3-9]\d{8}$/.test(v.mobile)) {
+        bad = 'mobile'; msg = 'মোবাইল নম্বরটি ১১ সংখ্যার হতে হবে, ০১ দিয়ে শুরু।';
+      } else if (v.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
+        bad = 'email'; msg = 'ই-মেইল ঠিকানাটি ঠিক মনে হচ্ছে না।';
+      }
+      if (bad) {
+        var w2 = cusBox.querySelector('[data-cus="' + bad + '"]');
+        if (w2) w2.classList.add('is-bad');
+        if (cusBad) cusBad.textContent = msg;
+        if (cusIn[bad]) { try { cusIn[bad].focus(); } catch (e) {} }
+        try {
+          cusBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (e) {}
+        return null;
+      }
+      if (cusBad) cusBad.textContent = '';
+      return v;
+    }
+
+    /* প্রোফাইল থেকে অটো-ফিল — লগইন থাকলে।
+       ⚠️ `rpc()`-এ `.catch()` নেই (প্রকল্পের ৪ নম্বর নিয়ম)। */
+    (async function cusPrefill() {
+      if (!cusBox) return;
+      /* আগে পেজের নিজের তথ্য (যেমন দানের ফর্মে লেখা নাম) */
+      try {
+        var p = typeof opts.prefill === 'function' ? await opts.prefill() : opts.prefill;
+        cusFill(p);
+      } catch (e) {}
+      var db = sb();
+      if (!db) return;
+      try {
+        var s = await db.auth.getSession();
+        if (!s || !s.data || !s.data.session) return;
+        var r = await db.rpc('get_my_profile');
+        var d = (r && !r.error && r.data) || null;
+        if (Array.isArray(d)) d = d[0];
+        if (!d) return;
+        cusFill({
+          name:    d.full_name,
+          mobile:  d.mobile,
+          email:   d.email,
+          address: d.address,
+          city:    d.district
+        });
+      } catch (e) {}
+    })();
 
     /* ⚠️ রেফারেন্সে শুধু অক্ষর-সংখ্যা-হাইফেন — TrxID-তে বাংলা বা
        বিরামচিহ্ন ঢুকলে অ্যাডমিন মিলিয়ে দেখতে পারেন না। */
@@ -4016,6 +4199,11 @@
         if (ok === false) return;
       }
 
+      /* ⚠️ দাতার তথ্য আগে যাচাই — ভুল নম্বর নিয়ে গেটওয়েতে পাঠালে
+         দাতা ওখানে গিয়ে আটকে যেতেন, আর লেনদেনের সেশনটিও নষ্ট হত। */
+      var cus = cusValidate();
+      if (cus === null) return;
+
       var db = sb();
       if (!db) { say('সংযোগ পাওয়া যাচ্ছে না — পেজটি রিফ্রেশ করুন।'); return; }
 
@@ -4040,7 +4228,9 @@
           purposeLabel: PURPOSE_LABEL[opts.purpose || 'donation'] || '',
           amount: curAmount(),
           method: cur.id,
-          name: (typeof opts.payerName === 'function' ? opts.payerName() : opts.payerName) || '',
+          /* কার্ডের গায়ে দাতার নিজের লেখা নামটিই বসে */
+          name: cus.name ||
+                (typeof opts.payerName === 'function' ? opts.payerName() : opts.payerName) || '',
           sandbox: st.sandbox
         });
       } catch (e) {}
@@ -4056,6 +4246,16 @@
 
       try {
         var pl = typeof opts.payload === 'function' ? opts.payload() : opts.payload;
+        /* ⚠️ দাতার ঘরগুলো **পরে** বসানো হয় — পেজের পুরনো payload-এ
+           একই নামের ঘর থাকলে (যেমন দানের ফর্মের নাম) দাতার এই ধাপে
+           লেখা মানটিই শেষ কথা, কারণ এটিই গেটওয়েতে দেখা যাবে।
+           ⚠️⚠️ কার্ড-সংক্রান্ত কোনো ঘর এখানে নেই এবং যোগ করা যাবে না —
+           সার্ভারও (`start_payment`) কেবল সাদা-তালিকার ঘরগুলোই রাখে। */
+        var keep = {};
+        Object.keys(cus || {}).forEach(function (k) {
+          if (cus[k] !== '' && cus[k] != null) keep[k] = cus[k];
+        });
+        pl = Object.assign({}, pl || {}, keep);
         var r = await db.rpc('start_payment', {
           p_purpose: opts.purpose || 'donation',
           p_method:  cur.id,
@@ -4102,6 +4302,14 @@
       var go = stage.querySelector('.kh-pay-go');
       if (go) go.addEventListener('click', pay);
 
+      /* দাতার তথ্যের ঘর কেবল অনলাইন মাধ্যমেই দরকার — ম্যানুয়াল পথে
+         (নিজে পাঠিয়ে TrxID লেখা) গেটওয়েতে কিছু যায় না, তাই লুকানো। */
+      if (cusBox) {
+        cusBox.hidden = !cusDefs.length ||
+                        !(st.gwOn && (info[cur.id] || {}).online === true);
+        if (cusBox.hidden && cusBad) cusBad.textContent = '';
+      }
+
       /* হিসাব বিবরণীতে নির্বাচিত মাধ্যমের সারিগুলো */
       var rows = payRowsHTML(cur, info[cur.id] || {});
       accB.innerHTML = rows
@@ -4147,6 +4355,9 @@
       online: function () { return st.gwOn && (info[cur.id] || {}).online === true; },
       pay:    pay,
       refresh: paintAmount,
+      /* দাতার তথ্য — পেজ চাইলে পড়তে বা ভরে দিতে পারে */
+      customer: cusValues,
+      fillCustomer: function (o) { cusFill(o, true); },
       reset:  function () { if (input) { input.value = ''; fld.classList.remove('is-bad'); } },
       onChange: function (fn) { if (typeof fn === 'function') cbs.push(fn); },
       validate: function () {
