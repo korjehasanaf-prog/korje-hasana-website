@@ -1018,7 +1018,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=37">
+  <link rel="stylesheet" href="kh-ui.css?v=38">
 <style>
 /* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
    নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
@@ -1105,6 +1105,20 @@ html .khfc.khfc .khfc-lbl{
 html .khfc.khfc .khfc-date{
   font:400 11px/1.2 var(--mono); letter-spacing:.02em; color:#a3a3a3 !important; min-height:1.2em;
 }
+/* 🟠 ডার্ক থীমে ঘড়ির ফ্রেম কমলা (ব্যবহারকারীর সিদ্ধান্ত, ২৬ সেপ্টে ২০২৬) —
+   গাঢ় হিরোতে কালো ফ্রেম মিলিয়ে যেত। লাইট থীমে আগের গাঢ় ফ্রেমই থাকে।
+   ফ্রেমের লেখা গাঢ় কালি (কমলার দুই প্রান্তে ≥৫.৩:১); অঙ্কের ঘর আগের মতোই গাঢ়। */
+html:not([data-theme="light"]) .khfc.khfc{
+  background:linear-gradient(145deg,#f39a3a 0%,#f08c28 45%,#e95420 100%) !important;
+  border-color:rgba(255,255,255,.28);
+  box-shadow:0 18px 40px rgba(233,84,32,.35), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html:not([data-theme="light"]) .khfc.khfc .khfc-live,
+html:not([data-theme="light"]) .khfc.khfc .khfc-lbl,
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ color:#2a1206 !important; }
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ font-weight:500; }
+html:not([data-theme="light"]) .khfc .khfc-live i{ background:#b3001b; box-shadow:0 0 6px rgba(179,0,27,.7); }
+html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); box-shadow:0 10px 22px rgba(80,20,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
 @media (max-width:480px){
   .khfc{--w:27px;--h:38px;padding:12px 14px 11px;margin-top:18px}
   .khfc-house{gap:6px;padding:8px 10px}
@@ -2620,7 +2634,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   tick();
 })();
 </script>
-<script src="kh-ui.js?v=37"></script>
+<script src="kh-ui.js?v=38"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>

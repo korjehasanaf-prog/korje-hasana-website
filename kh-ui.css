@@ -3377,16 +3377,7 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
   100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 
-/* হ্যান্ডস-ফ্রি টগল — মাথার ভেতরে, মিউট বাটনের পাশে */
-.kh-bot-hf {
-  background: rgba(255, 255, 255, .16); border: none; color: #fff;
-  width: 32px; height: 32px; min-height: 32px; border-radius: 9px;
-  cursor: pointer; font-size: 16px; flex-shrink: 0; padding: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.kh-bot-hf i { color: inherit; }
-.kh-bot-hf:hover { background: rgba(255, 255, 255, .3); }
-.kh-bot-hf.kh-on { background: #fff; color: #5b2c9c; }   /* সাদায় ৮.৯:১ */
+/* (হ্যান্ডস-ফ্রি টগল ২৬ সেপ্টে ২০২৬-এ বাদ — টানা আলাপ এখন কেবল Speak to Me-তে) */
 
 /* ⚠️ প্যানেলের ভেতরটা **দুই থীমেই সাদা** — ভাউচার ও প্রোফাইল কার্ডের
    মতোই। গাঢ় করলে প্রতিটি বার্তার রঙ আলাদা করে মাপতে হত; সাদা রেখে
@@ -3503,6 +3494,16 @@ body.kh-stm-lock { overflow: hidden; }
   animation: khStmBreathe 5.5s ease-in-out infinite;
 }
 .kh-stm.is-photo.is-talking .kh-stm-photo .kh-av { animation: khStmNod 1.2s ease-in-out infinite; }
+/* জীবন্ত প্রতিকৃতি (ক্যানভাস) — ছবি এলে পুরনো ছোট এভাটারটি সরে যায়;
+   না এলে (.is-fallback) পুরনোটিই থাকে। নড়াচড়া JS-এর transform-এ,
+   তাই scale(1.06) দিয়ে কিনারা সবসময় ঢাকা থাকে। */
+.kh-stm-face {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  transform-origin: 50% 88%; will-change: transform;
+  opacity: 0; transition: opacity .35s ease;
+}
+.kh-stm-photo.is-ready .kh-stm-face { opacity: 1; }
+.kh-stm-photo.is-ready .kh-av { display: none; }
 @keyframes khStmBreathe {
   0%, 100% { transform: scale(1.02) translateY(0); }
   50%      { transform: scale(1.035) translateY(-.6%); }

@@ -3197,7 +3197,6 @@
           '<b>হাসানা সহায়িকা</b>' +
           '<span>কর্জে হাসানা ফাউন্ডেশন সম্পর্কে জিজ্ঞেস করুন</span>' +
         '</div>' +
-        '<button type="button" class="kh-bot-hf" aria-label="হ্যান্ডস-ফ্রি" aria-pressed="false" hidden></button>' +
         '<button type="button" class="kh-bot-mute" aria-label="কণ্ঠস্বর"></button>' +
         '<button type="button" class="kh-bot-head-x" aria-label="বন্ধ করুন">' +
           '<i class="ti ti-x" aria-hidden="true"></i></button>' +
@@ -3230,7 +3229,6 @@
     var send  = panel.querySelector('.kh-bot-send');
     var muteB = panel.querySelector('.kh-bot-mute');
     var micB  = panel.querySelector('.kh-bot-mic');
-    var hfB   = panel.querySelector('.kh-bot-hf');
     var stmB  = panel.querySelector('.kh-bot-stm');
     var note  = panel.querySelector('.kh-bot-note');
     var NOTE_DEFAULT = note.textContent;
@@ -3396,6 +3394,9 @@
           if (myTurn === speakSeq) chunkHook(false, u.text);
           next();
         };
+        /* শব্দের সীমা — Speak to Me-র মুখ প্রতিটি শব্দে একটু বেশি খোলে
+           (সব কণ্ঠ এই ঘটনা দেয় না; না দিলে মুখ নিজের ছন্দেই নড়ে) */
+        u.onboundary = function (ev) { if (myTurn === speakSeq && opts.onWord) opts.onWord(ev); };
         u.onerror = function () { if (myTurn === speakSeq) { talking(false); done(started); } };
         try { speechSynthesis.speak(u); } catch (e) { talking(false); done(started); }
       }
@@ -3411,8 +3412,11 @@
           হয় কেবল `afterSpeak()` থেকে, অর্থাৎ বলা শেষ হওয়ার পর। */
     var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     var rec = null, listening = false, wantListen = false, heard = '';
+    /* ⚠️ হ্যান্ডস-ফ্রি টগল বাদ (২৬ সেপ্টে ২০২৬, ব্যবহারকারীর সিদ্ধান্ত:
+       "Speak to Me বাটন থাকলে হ্যান্ডস-ফ্রি বাটনের প্রয়োজন নেই") —
+       টানা কণ্ঠ-আলাপ এখন কেবল Speak to Me-তে। প্যানেলের মাইক এক প্রশ্নের। */
     var handsFree = false;
-    try { handsFree = localStorage.getItem('kh_bot_hf') === '1'; } catch (e) {}
+    try { localStorage.removeItem('kh_bot_hf'); } catch (e) {}
 
     function paintVoice() {
       if (!SR) return;
@@ -3421,12 +3425,6 @@
       micB.title = listening ? 'শোনা বন্ধ করুন' : 'কথা বলে প্রশ্ন করুন';
       panel.classList.toggle('kh-listening', listening);
       btn.classList.toggle('kh-listening', listening);
-      hfB.classList.toggle('kh-on', handsFree);
-      hfB.setAttribute('aria-pressed', handsFree ? 'true' : 'false');
-      hfB.innerHTML = '<i class="ti ' + (handsFree ? 'ti-headphones' : 'ti-headphones-off') +
-                      '" aria-hidden="true"></i>';
-      hfB.title = handsFree ? 'হ্যান্ডস-ফ্রি চালু আছে — বন্ধ করতে চাপুন'
-                            : 'হ্যান্ডস-ফ্রি: টানা কথোপকথন';
       paintNote();
     }
 
@@ -3520,6 +3518,224 @@
     var stmSeq = 0;
     var stmClips = null;         /* null = এখনো দেখা হয়নি · false = ক্লিপ নেই (ছবি-মোড) */
 
+    /* ══ 🧕 জীবন্ত প্রতিকৃতি — ছবি-মোড (সেশন ২ · ২৬ সেপ্টেম্বর ২০২৬) ══════
+       ব্যবহারকারী: "তুমি এআই জেনারেটেড একটি এভাটার তৈরী করে দিবে" — খরচ
+       ছাড়া, তাই কোনো সেবা নয়: Canva-তে তৈরি একটি স্থির প্রতিকৃতিকে
+       ক্যানভাসে জীবন্ত করা হয় —
+         • ঠোঁট/চোয়াল — মুখরেখার নিচের সারিগুলো নিচে সরে (চোয়াল নামে),
+           উপরের ঠোঁট সামান্য ওঠে, ফাঁকে মুখের ভেতর (দাঁত+জিভের আভাস)
+         • চোখের পলক — চোখের ঠিক উপরের পাতার চামড়া টেনে নামানো, ২–৬ সেকেন্ডে
+         • মাথা — শ্বাস, হালকা দোলা, মাথা নাড়া (nod), সালামে কাত, সহানুভূতিতে কাত
+       ⚠️ ঠোঁট শব্দে-শব্দে মেলে না — ছন্দ কৃত্রিম, আর কণ্ঠ শব্দের সীমা
+          (`onboundary`) দিলে প্রতিটি শব্দে মুখ একটু বেশি খোলে।
+       ⚠️⚠️ FACE-এর সংখ্যাগুলো **এই ছবিটির** মাপ (১০৮৮×১৪৫৬) — ছবি বদলালে
+          চোখ, মুখরেখা ও থুতনি নতুন করে মেপে বসাতে হবে, নাহলে ভুল জায়গা নড়বে।
+       ⚠️ পিক্সেল কখনো পড়া হয় না (getImageData নেই) — তাই ছবিটি অন্য
+          ডোমেইনে থাকলেও ক্যানভাস "tainted" হলে কিছু ভাঙে না। */
+    var STM_FACE_SRC = window.KH_STM_FACE ||
+      'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/stm-avatar-v2';
+    /* ⚠️ v2 = ইনার হিজাবে চুল পুরো ঢাকা (ব্যবহারকারীর নির্দেশ, ২৬ সেপ্টে ২০২৬)। ছবি বদলালে
+       নতুন নাম দিতে হবে — ফাইলটি এক বছরের cache-এ যায়, একই নামে বসালে পুরনোটাই দেখাবে।
+       মুখের স্থানাঙ্ক v1 ও v2-তে একই (মেপে দেখা)। */
+    var FACE = {
+      W: 1088,
+      mouthX: 541, mouthY: 691, mouthHalf: 90,   /* মুখরেখা ও ঠোঁটের অর্ধেক প্রস্থ */
+      lipTop: 668, chin: 824, jawEnd: 884, jawHalf: 178,
+      /* [x, y, পাতার উপরের রঙ, নিচের রঙ] — ছবি থেকে মাপা রঙ (y ৪৭০ ও ৫৩৫), সামান্য উজ্জ্বল করা */
+      eyes: [[449, 506, 'rgb(180,130,106)', 'rgb(162,110,90)'],
+             [633, 506, 'rgb(162,114,90)', 'rgb(150,100,80)']],
+      eyeRx: 47, eyeRy: 18, lidFrom: 466
+    };
+
+    function stmFace(host) {
+      var reduce = false;
+      try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      var cv = document.createElement('canvas');
+      cv.className = 'kh-stm-face';
+      cv.setAttribute('aria-hidden', 'true');
+      host.appendChild(cv);
+      var ctx = cv.getContext('2d');
+      var strip = document.createElement('canvas'), sx = strip.getContext('2d');
+      var lid = document.createElement('canvas'), lx = lid.getContext('2d');
+      var img = new Image();
+      var big = (window.devicePixelRatio || 1) * (host.clientWidth || 360) > 760;
+      img.src = STM_FACE_SRC + (big ? '@2x.jpg' : '.jpg');
+      var k = 1, ready = false, alive = true, raf = 0, dirty = true;
+      var st = {
+        talk: false, listen: false, think: false, open: 0, word: 0, t0: performance.now(),
+        blinkAt: -1, nextBlink: 0, dbl: false, mood: 'neutral', gest: '', gestAt: 0, rot: 0
+      };
+
+      function schedBlink(now, soon) {
+        st.nextBlink = now + (soon ? 180 : 2200 + Math.random() * 3800);
+      }
+      img.onload = function () {
+        if (!alive) return;
+        cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        k = cv.width / FACE.W; ready = true;
+        host.classList.add('is-ready');
+        schedBlink(performance.now());
+        raf = requestAnimationFrame(tick);
+      };
+      img.onerror = function () { host.classList.add('is-fallback'); };  /* পুরনো ছোট ছবিটিই থাকে */
+
+      function blinkAmt(now) {
+        if (st.blinkAt < 0) return 0;
+        var t = now - st.blinkAt;
+        if (t < 70) return t / 70;
+        if (t < 95) return 1;
+        if (t < 180) return 1 - (t - 95) / 85;
+        st.blinkAt = -1;
+        /* মাঝে মাঝে পরপর দুবার — মানুষ এভাবেই পলক ফেলে */
+        var again = !st.dbl && Math.random() < 0.18;
+        st.dbl = again;
+        schedBlink(now, again);
+        return 0;
+      }
+
+      function mouth(a) {
+        var cx = FACE.mouthX * k, y0 = FACE.mouthY * k, hw = FACE.jawHalf * k;
+        var up = a * 0.22;                                  /* উপরের ঠোঁট সামান্য ওঠে */
+        var top = (FACE.lipTop - 6) * k, chin = FACE.chin * k, end = FACE.jawEnd * k;
+        var sw = Math.ceil(hw * 2), sh = Math.ceil(end - top + a + 4);
+        if (strip.width !== sw) strip.width = sw;
+        strip.height = sh;                                  /* উচ্চতা বসালেই মুছে যায় */
+        sx.globalCompositeOperation = 'source-over';
+        /* ফাঁকটুকু আগে মুখরেখার রঙ টেনে ভরা — কোণে যেন পুরনো ঠোঁট না দেখায় */
+        sx.drawImage(img, cx - hw, y0 - 1.5 * k, sw, 3 * k, 0, y0 - up - top, sw, a + up + 1);
+        var step = Math.max(1, Math.round(2 * k));
+        for (var y = top; y < end; y += step) {
+          var s = y < y0 ? -up * ((y - top) / (y0 - top))
+                : y < chin ? a
+                : a * (1 - (y - chin) / (end - chin));
+          sx.drawImage(img, cx - hw, y, sw, step, 0, y - top + s, sw, step + 0.6);
+        }
+        /* পাশের দিকে মিলিয়ে দেওয়া — গাল ও হিজাবের কিনারায় জোড়া দেখা যায় না */
+        sx.globalCompositeOperation = 'destination-in';
+        var g = sx.createLinearGradient(0, 0, sw, 0);
+        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.2, '#000');
+        g.addColorStop(0.8, '#000'); g.addColorStop(1, 'rgba(0,0,0,0)');
+        sx.fillStyle = g; sx.fillRect(0, 0, sw, sh);
+        ctx.drawImage(strip, cx - hw, top);
+
+        /* মুখের ভেতর */
+        var mw = FACE.mouthHalf * k * (0.74 + 0.1 * st.open);
+        var my = y0 + (a - up) / 2, mh = (a + up) / 2 + 1.2 * k;
+        ctx.save();
+        ctx.beginPath(); ctx.ellipse(cx, my, mw, mh, 0, 0, Math.PI * 2); ctx.clip();
+        var gi = ctx.createLinearGradient(0, y0 - up, 0, y0 + a);
+        gi.addColorStop(0, '#3d1219'); gi.addColorStop(1, '#1b070b');
+        ctx.fillStyle = gi; ctx.fillRect(cx - mw, my - mh, mw * 2, mh * 2);
+        if (a > 6 * k) {                                    /* উপরের দাঁতের আভাস */
+          ctx.fillStyle = 'rgba(226,216,210,.55)';            /* ফিকে — উজ্জ্বল সাদা রেখার মতো দেখাত */
+          ctx.beginPath(); ctx.ellipse(cx, y0 - up, mw * 0.56, Math.min(a * 0.2, 4 * k), 0, 0, Math.PI); ctx.fill();
+        }
+        if (a > 9 * k) {                                    /* জিভের আভাস */
+          ctx.fillStyle = 'rgba(150,58,68,.5)';
+          ctx.beginPath(); ctx.ellipse(cx, y0 + a, mw * 0.55, a * 0.32, 0, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function eye(e, b) {
+        var ex = e[0] * k, ey = e[1] * k, rx = FACE.eyeRx * k, ry = FACE.eyeRy * k;
+        var srcTop = FACE.lidFrom * k, open = ey - ry - 2 * k;
+        var srcH = Math.max(3, open - srcTop);
+        /* ⚠️ পুরো চোখ ঢাকতে হবে — কম ঢাকলে আধখোলা, ভূতুড়ে চোখ দেখা যায় (পরীক্ষায় ধরা পড়ে) */
+        var cover = (ry * 2 + 10 * k) * b;
+        var w = Math.ceil(rx * 2.5), h = Math.ceil(srcH + cover + 4 * k);
+        lid.width = w; lid.height = h;
+        var x0 = ex - w / 2;
+        /* ⚠️ শুধু চামড়া টেনে নামালে পাপড়ি/ভাঁজও টেনে আসে, আর বন্ধ চোখ ঝাপসা-ভূতুড়ে
+           দেখায় (পরীক্ষায় ধরা পড়ে)। তাই আগে ঐ চোখের পাতার মাপা রঙের ভরাট ঢাল,
+           তার উপরে হালকা করে (৩৫%) চামড়ার বুনট। */
+        var lg = lx.createLinearGradient(0, 0, 0, srcH + cover);
+        lg.addColorStop(0, e[2]); lg.addColorStop(1, e[3]);
+        lx.fillStyle = lg; lx.fillRect(0, 0, w, srcH + cover);
+        lx.globalAlpha = 0.35;
+        lx.drawImage(img, x0, srcTop, w, srcH * 0.6, 0, 0, w, srcH + cover);
+        lx.globalAlpha = 1;
+        if (b > 0.45) {                                     /* পাপড়ির রেখা */
+          lx.strokeStyle = 'rgba(30,18,18,' + (0.55 + 0.35 * b).toFixed(2) + ')';
+          lx.lineWidth = 3.2 * k; lx.lineCap = 'round';
+          var ly = srcH + cover - 5 * k;
+          lx.beginPath(); lx.moveTo(w / 2 - rx * 0.95, ly - 2 * k);
+          lx.quadraticCurveTo(w / 2, ly + 3 * k, w / 2 + rx * 0.95, ly - 2 * k); lx.stroke();
+        }
+        lx.globalCompositeOperation = 'destination-in';
+        var cyl = (srcH + cover) / 2, ryl = cyl + 3 * k, rxl = rx * 1.25;
+        lx.save(); lx.translate(w / 2, cyl); lx.scale(1, ryl / rxl);
+        var gr = lx.createRadialGradient(0, 0, 0, 0, 0, rxl);
+        gr.addColorStop(0, '#000'); gr.addColorStop(0.74, '#000'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+        lx.fillStyle = gr; lx.fillRect(-rxl, -rxl, rxl * 2, rxl * 2);
+        lx.restore();
+        lx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(lid, x0, srcTop);
+      }
+
+      function pose(now, t) {
+        var rot = 0, ty = 0, tx = 0, sc = 1.06;
+        if (!reduce) {
+          rot = Math.sin(t * 0.45) * 0.55 + Math.sin(t * 0.23 + 1) * 0.35;
+          ty = Math.sin(t * 0.9) * 0.35;                    /* শ্বাস */
+          tx = Math.sin(t * 0.31 + 0.7) * 0.3;
+          if (st.talk) { rot += Math.sin(t * 1.7) * 0.45; ty += Math.sin(t * 2.6) * 0.22; }
+          if (st.listen) rot += 1.4;                        /* শোনার সময় মাথা একটু কাত */
+          if (st.think) { rot -= 1.2; ty -= 0.4; }
+          if (st.gest) {
+            var g = (now - st.gestAt) / 1000;
+            if (st.gest === 'nod' && g < 1.2) ty += 1.4 * Math.max(0, Math.sin(g * Math.PI / 0.4));
+            else if (st.gest === 'greet' && g < 1.8) { rot += 3 * Math.sin(g * Math.PI / 1.8); ty += 0.9 * Math.max(0, Math.sin(g * Math.PI / 0.9)); }
+            else if (st.gest === 'explain' && g < 2.4) { rot += 1.2 * Math.sin(g * 4); tx += 0.5 * Math.sin(g * 2.2); }
+            else if (st.gest === 'point' && g < 1.6) { tx += 1.2 * Math.sin(g * Math.PI / 1.6); rot -= 1.5 * Math.sin(g * Math.PI / 1.6); }
+            else if (g > 2.5) st.gest = '';
+          }
+          if (st.mood === 'empathy') rot += 2.2;            /* সহানুভূতিতে মাথা কাত */
+          else if (st.mood === 'smile') rot -= 0.6;
+        }
+        st.rot += (rot - st.rot) * 0.12;
+        cv.style.transform = 'translate(' + tx.toFixed(2) + '%,' + ty.toFixed(2) + '%) rotate(' +
+          st.rot.toFixed(2) + 'deg) scale(' + sc + ')';
+      }
+
+      function tick(now) {
+        if (!alive) return;
+        raf = requestAnimationFrame(tick);
+        if (!ready || document.hidden) return;
+        var t = (now - st.t0) / 1000, tgt = 0;
+        if (st.talk) {
+          /* তিনটি ভিন্ন ছন্দ মিলিয়ে অক্ষরের মতো ওঠানামা, মাঝে মাঝে ছোট বিরতি */
+          var o = 0.5 * Math.sin(t * 2 * Math.PI * 4.4) + 0.32 * Math.sin(t * 2 * Math.PI * 6.9 + 1.3) +
+                  0.22 * Math.sin(t * 2 * Math.PI * 2.3 + 0.5) + 0.28;
+          if (Math.sin(t * 2 * Math.PI * 0.55 + 2) > 0.86) o *= 0.25;
+          tgt = Math.max(0, Math.min(1, o)) * 0.82 + st.word;
+        }
+        st.word *= 0.86;
+        var prev = st.open;
+        st.open += (Math.min(1, tgt) - st.open) * (tgt > st.open ? 0.45 : 0.3);
+        if (st.open < 0.01) st.open = 0;
+        if (st.blinkAt < 0 && now >= st.nextBlink) st.blinkAt = now;
+        var b = blinkAmt(now);
+        if (st.open > 0 || prev > 0 || b > 0 || dirty) {
+          dirty = b > 0 || st.open > 0;                     /* শেষ ফ্রেমটি পরিষ্কার করে আঁকা */
+          ctx.drawImage(img, 0, 0);
+          if (st.open > 0.02) mouth(st.open * 17 * k);
+          if (b > 0.02) FACE.eyes.forEach(function (e) { eye(e, b); });
+        }
+        pose(now, t);
+      }
+
+      return {
+        talk: function (on) { st.talk = !!on; if (!on) st.word = 0; },
+        word: function () { if (st.talk) st.word = Math.min(0.4, st.word + 0.32); },
+        mood: function (m) { st.mood = m || 'neutral'; },
+        gesture: function (g) { if (g && g !== 'none') { st.gest = g; st.gestAt = performance.now(); } },
+        listen: function (on) { st.listen = !!on; },
+        think: function (on) { st.think = !!on; },
+        destroy: function () { alive = false; cancelAnimationFrame(raf); cv.remove(); }
+      };
+    }
+
     function stmAlive(id) { return !!stm && stm.id === id; }
 
     async function stmToken() {
@@ -3567,7 +3783,12 @@
       if (!stm) return;
       stm.state = state;
       stm.stage.setAttribute('data-state', state);
-      if (!stmClips) {                          /* ছবি-মোড: CSS-ই অবস্থা দেখায় */
+      if (!stmClips) {                          /* ছবি-মোড: জীবন্ত প্রতিকৃতি অবস্থা দেখায় */
+        if (stm.face) {
+          stm.face.listen(state === 'listen');
+          stm.face.think(state === 'think');
+          if (STM_GESTS[state]) stm.face.gesture(state);
+        }
         if (opts.once && opts.then) { var id0 = stm.id; setTimeout(function () { if (stmAlive(id0)) opts.then(); }, 1100); }
         return;
       }
@@ -3628,6 +3849,7 @@
       var id = stm.id;
       stm.mood = STM_MOODS[mood] ? mood : 'neutral';
       stm.stage.setAttribute('data-mood', stm.mood);
+      if (stm.face) stm.face.mood(stm.mood);
       stm.speaking = true;
       if (gesture && gesture !== 'none' && STM_GESTS[gesture]) {
         stmShow(gesture, { once: true, then: function () {
@@ -3640,12 +3862,14 @@
       var idleT = null;
       speak(text, {
         force: true,
+        onWord: function () { if (stmAlive(id) && stm.face) stm.face.word(); },
         onChunk: function (on, chunk) {
           if (!stmAlive(id)) return;
           clearTimeout(idleT);
           if (on) {
             stm.speaking = true;
             stm.el.classList.add('is-talking');
+            if (stm.face) stm.face.talk(true);
             stmCaption('হাসানা', chunk);
             if (stm.state === 'idle') stmShow(stmTalkState());
           } else {
@@ -3654,6 +3878,7 @@
               if (!stmAlive(id)) return;
               stm.speaking = false;
               stm.el.classList.remove('is-talking');
+              if (stm.face) stm.face.talk(false);
               if (/^talk/.test(stm.state)) stmShow('idle');
             }, 400);
           }
@@ -3663,6 +3888,7 @@
           if (!stmAlive(id)) return;
           stm.speaking = false;
           stm.el.classList.remove('is-talking');
+          if (stm.face) stm.face.talk(false);
           /* কণ্ঠ চলেনি (ব্রাউজারে কণ্ঠ নেই) — উত্তর যেন হারিয়ে না যায় */
           if (!started) { stm.cap.hidden = false; stm.capWho.textContent = 'হাসানা'; stm.capText.textContent = text; }
           if (done) done(started);
@@ -3825,7 +4051,7 @@
           '</div>' +
         '</div>' +
         '<p class="kh-stm-status" aria-live="polite"></p>' +
-        '<p class="kh-stm-note" hidden>প্রাকদর্শন — সত্যিকারের ভিডিও এভাটার শীঘ্রই যুক্ত হচ্ছে।</p>' +
+        '<p class="kh-stm-note" hidden>AI দিয়ে তৈরি প্রতিকৃতি — কোনো সত্যিকারের ব্যক্তির ছবি নয়।</p>' +
         '<div class="kh-stm-ctrl">' +
           '<button type="button" class="kh-stm-mic" aria-pressed="true"></button>' +
           '<button type="button" class="kh-stm-end"><i class="ti ti-phone-off" aria-hidden="true"></i><span>কথা শেষ</span></button>' +
@@ -3873,7 +4099,7 @@
         if (stm.paused) {
           stm.paused = false; stm.empty = 0; paintStmMic();
           /* কথার মাঝে চাপলে তাঁর কথা থামিয়ে শোনা শুরু */
-          if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stm.speaking = false; stm.el.classList.remove('is-talking'); }
+          if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stm.speaking = false; stm.el.classList.remove('is-talking'); if (stm.face) stm.face.talk(false); }
           if (!stm.busy) stmListen();
         } else {
           stm.paused = true; stmStopListen(); paintStmMic();
@@ -3891,6 +4117,7 @@
       if (!stmAlive(id)) return;
       el.classList.toggle('is-photo', !clips);
       el.querySelector('.kh-stm-note').hidden = !!clips;
+      if (!clips) stm.face = stmFace(el.querySelector('.kh-stm-photo'));
       if (clips && clips._poster) stm.vids.forEach(function (v) { v.poster = STM_BASE + clips._poster; });
       if (clips) stmShow('idle');
 
@@ -3907,6 +4134,7 @@
       speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
       talking(false);
       if (s.rec) { try { s.rec.abort(); } catch (e) {} }
+      if (s.face) { try { s.face.destroy(); } catch (e) {} }
       s.vids.forEach(function (v) {
         try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {}
       });
@@ -4051,18 +4279,9 @@
     /* 🎙️ মাইক ও হ্যান্ডস-ফ্রি — কেবল সমর্থিত ব্রাউজারে দেখা যায় */
     if (SR) {
       micB.hidden = false;
-      hfB.hidden = false;
       paintVoice();
       micB.onclick = function () {
         if (listening) stopListen(); else startListen();
-      };
-      hfB.onclick = function () {
-        handsFree = !handsFree;
-        try { localStorage.setItem('kh_bot_hf', handsFree ? '1' : '0'); } catch (e) {}
-        paintVoice();
-        /* চালু করলে সাথে সাথেই শোনা শুরু — এটি ব্যবহারকারীর ক্লিক,
-           তাই মাইকের অনুমতি চাওয়াও এখানেই স্বাভাবিক */
-        if (handsFree) startListen(); else stopListen();
       };
       /* 🧕 Speak to Me — শোনা ও বলা দুটোই লাগে, তাই কেবল দুটো থাকলেই */
       if ('speechSynthesis' in window) {
