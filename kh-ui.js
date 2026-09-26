@@ -3527,7 +3527,9 @@
        ⚠️ কেবল লগইন করা সদস্য (ব্যবহারকারীর সিদ্ধান্ত) — সার্ভারও যাচাই করে।
        ⚠️ প্রতিটি কলব্যাক `stmAlive(id)` দেখে — বন্ধ করে সাথে সাথে আবার
           খুললে পুরনো সেশনের মাইক/কণ্ঠ যেন নতুন সেশনে কিছু না করে। */
-    var STM_BASE = window.KH_AVATAR_BASE || 'images/avatar/';
+    /* ⚠️ সেশন ৮: ক্লিপ ও manifest এখন Supabase-এর পাবলিক বাকেটে (site-assets/bot/avatar/) —
+       বাশ/স্থানীয় ফোল্ডারে বাইনারি আনা যায় না, আর ব্রাউজার থেকেই সরাসরি তোলা যায়। */
+    var STM_BASE = window.KH_AVATAR_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/';
     var STM_MOODS = { smile: 1, neutral: 1, empathy: 1, serious: 1 };
     var STM_GESTS = { greet: 1, explain: 1, point: 1, nod: 1, none: 1 };
     var stm = null;              /* খোলা থাকলে সেশনের অবস্থা */
@@ -3939,7 +3941,12 @@
       stm.stage.setAttribute('data-mood', stm.mood);
       if (stm.face) stm.face.mood(stm.mood);
       stm.speaking = true;
-      if (gesture && gesture !== 'none' && STM_GESTS[gesture]) {
+      /* ⚠️ সেশন ৮ (ভিডিও ক্লিপ): কণ্ঠ আসার আগে কথা-বলার ক্লিপ চালালে তিনি
+         কয়েক সেকেন্ড নিঃশব্দে ঠোঁট নাড়াতেন। তাই অপেক্ষার সময় 'think' (না থাকলে
+         idle), আর আসল অডিও শুরু হলেই কথা-বলার ক্লিপ। ছবি-মোডে আগের মতোই। */
+      if (stmClips) {
+        stmShow('think');
+      } else if (gesture && gesture !== 'none' && STM_GESTS[gesture]) {
         stmShow(gesture, { once: true, then: function () {
           if (stmAlive(id)) stmShow(stm.speaking ? stmTalkState() : 'idle');
         } });
@@ -3988,7 +3995,7 @@
             stm.el.classList.add('is-talking');
             if (stm.face) stm.face.talk(true);
             stmCaption('হাসানা', text);
-            if (stm.state === 'idle') stmShow(stmTalkState());
+            if (!/^talk/.test(stm.state)) stmShow(stmTalkState());
           }
           stmPlay(buf, id, function () {
             if (stm && stm.face) stm.face.level(0);   /* টুকরোর মাঝে মুখ বন্ধ */
@@ -4144,7 +4151,7 @@
             stm.el.classList.add('is-talking');
             if (stm.face) stm.face.talk(true);
             stmCaption('হাসানা', chunk);
-            if (stm.state === 'idle') stmShow(stmTalkState());
+            if (!/^talk/.test(stm.state)) stmShow(stmTalkState());
           } else {
             /* পরের বাক্য ~৪০০ms-এর মধ্যে না এলে মুখ থামে */
             idleT = setTimeout(function () {

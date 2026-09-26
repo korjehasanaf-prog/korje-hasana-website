@@ -3223,13 +3223,13 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
   position: relative; background-color: #fff4ea;
   background-repeat: no-repeat; background-position: center; background-size: cover;
   /* ফলব্যাক আগে (সব ব্রাউজারে), তারপর রেটিনার জন্য image-set */
-  background-image: url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg");
+  background-image: url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/hasana-avatar@2x.jpg");
   background-image: -webkit-image-set(
-    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar.jpg") 1x,
-    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg") 2x);
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/hasana-avatar.jpg") 1x,
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/hasana-avatar@2x.jpg") 2x);
   background-image: image-set(
-    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar.jpg") 1x,
-    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/hasana-avatar@2x.jpg") 2x);
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/hasana-avatar.jpg") 1x,
+    url("https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/avatar/hasana-avatar@2x.jpg") 2x);
 }
 
 /* ⚠️ ছবি বলে ঠোঁট নড়ানো যায় না — তাই "কথা বলা" বোঝানো হয় দুইভাবে:
