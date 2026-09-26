@@ -3301,8 +3301,8 @@
       return out.filter(Boolean);
     }
 
-    /* ⚠️ ব্যবহারকারীর সিদ্ধান্ত: **ডিফল্টে নরম নারীকণ্ঠ**। বাংলা নারীকণ্ঠ
-       না থাকলে বাংলা পুরুষকণ্ঠ — ভাষা ঠিক থাকাটাই আগে, লিঙ্গ পরে।
+    /* ⚠️ ব্যবহারকারীর সিদ্ধান্ত: **সবসময় নরম নারীকণ্ঠ** (পুরুষকণ্ঠ কখনো নয় —
+       ২৬ সেপ্টে ২০২৬-এর সংশোধন; আগে বাংলা পুরুষকণ্ঠ ফলব্যাক ছিল)।
        ⚠️ `getVoices()` প্রথমবার ফাঁকা আসতে পারে, তাই ক্যাশ করা হয় না। */
     var TTS_F = /(female|woman|girl|নারী|মহিলা|nabanita|tanish|aditi|raveena|kalpana|swara|veena|lekha|heera|sarika|pooja|neerja|kajal|priya|ananya|salma|shruti|isha|zira|hazel|susan|linda|catherine|\beva\b|samantha|karen|fiona|tessa|moira|serena|allison|\bava\b|joanna|kendra|kimberly|salli|nicole|\bamy\b|emma|sonia|libby|maisie|natasha|clara|yasmin)/i;
     var TTS_M = /(\bmale\b|\bman\b|পুরুষ|bashkar|pradeep|prabhat|madhur|hemant|ravi|\bmark\b|david|george|james|\balex\b|daniel|\bfred\b|oliver|thomas|aaron|arthur|ryan|guy|liam|matthew|justin|joey|brian)/i;
@@ -3318,17 +3318,20 @@
           if (vs[k].name === forced || vs[k].voiceURI === forced) return vs[k];
         }
       }
+      /* ⚠️⚠️ সিদ্ধান্ত বদল (২৬ সেপ্টে ২০২৬, ব্যবহারকারী): "এ্যাভাটার ফিমেল তাই ভয়েস
+         সবসময় ফিমেল হতে হবে।" — তাই পুরুষকণ্ঠ **একেবারেই বাদ**, আর অন্য ভাষার
+         কণ্ঠও বাদ (ইংরেজি/হিন্দি কণ্ঠ বাংলা হরফ পড়তে পারে না)। বাংলা নারীকণ্ঠ
+         (বা লিঙ্গ-অজানা বাংলা কণ্ঠ, যেমন "Google বাংলা") না থাকলে null — তখন
+         উত্তর লেখায় আসে। Speak to Me আসলে সার্ভারের নারীকণ্ঠ (kh-tts) চালায়;
+         এটি কেবল ফলব্যাক। */
       var best = null, bestScore = -1e9;
       for (var i = 0; i < vs.length; i++) {
         var v = vs[i], lg = (v.lang || '').replace('_', '-'), n = v.name || '';
-        var sc = 0;
-        if (/^bn/i.test(lg)) sc += 100;                 /* বাংলা সবার আগে */
-        else if (/^hi/i.test(lg)) sc += 40;
-        else if (/^en-IN/i.test(lg)) sc += 26;
-        else if (/^en/i.test(lg)) sc += 10;
-        else sc -= 40;
-        if (TTS_F.test(n)) sc += 50; else if (TTS_M.test(n)) sc -= 30;
-        if (/google/i.test(n)) sc += 6;                 /* সাধারণত বেশি স্বাভাবিক */
+        if (!/^bn/i.test(lg)) continue;
+        if (TTS_M.test(n) && !TTS_F.test(n)) continue;
+        var sc = 100;
+        if (TTS_F.test(n)) sc += 50;
+        if (/google/i.test(n)) sc += 6;
         if (v.localService) sc += 2;
         if (sc > bestScore) { bestScore = sc; best = v; }
       }
@@ -3562,7 +3565,7 @@
       img.src = STM_FACE_SRC + (big ? '@2x.jpg' : '.jpg');
       var k = 1, ready = false, alive = true, raf = 0, dirty = true;
       var st = {
-        talk: false, listen: false, think: false, open: 0, word: 0, t0: performance.now(),
+        talk: false, listen: false, think: false, open: 0, word: 0, ext: -1, t0: performance.now(),
         blinkAt: -1, nextBlink: 0, dbl: false, mood: 'neutral', gest: '', gestAt: 0, rot: 0
       };
 
@@ -3703,7 +3706,10 @@
         raf = requestAnimationFrame(tick);
         if (!ready || document.hidden) return;
         var t = (now - st.t0) / 1000, tgt = 0;
-        if (st.talk) {
+        if (st.ext >= 0) {
+          /* 🎯 আসল অডিওর জোর থেকে (kh-tts) — শব্দ যখন, মুখ তখনই খোলে */
+          tgt = st.ext;
+        } else if (st.talk) {
           /* তিনটি ভিন্ন ছন্দ মিলিয়ে অক্ষরের মতো ওঠানামা, মাঝে মাঝে ছোট বিরতি */
           var o = 0.5 * Math.sin(t * 2 * Math.PI * 4.4) + 0.32 * Math.sin(t * 2 * Math.PI * 6.9 + 1.3) +
                   0.22 * Math.sin(t * 2 * Math.PI * 2.3 + 0.5) + 0.28;
@@ -3712,7 +3718,7 @@
         }
         st.word *= 0.86;
         var prev = st.open;
-        st.open += (Math.min(1, tgt) - st.open) * (tgt > st.open ? 0.45 : 0.3);
+        st.open += (Math.min(1, tgt) - st.open) * (st.ext >= 0 ? (tgt > st.open ? 0.7 : 0.45) : (tgt > st.open ? 0.45 : 0.3));
         if (st.open < 0.01) st.open = 0;
         if (st.blinkAt < 0 && now >= st.nextBlink) st.blinkAt = now;
         var b = blinkAmt(now);
@@ -3726,7 +3732,9 @@
       }
 
       return {
-        talk: function (on) { st.talk = !!on; if (!on) st.word = 0; },
+        talk: function (on) { st.talk = !!on; if (!on) { st.word = 0; st.ext = -1; } },
+        /* ০–১; ঋণাত্মক দিলে আবার নিজের ছন্দে ফেরে */
+        level: function (v) { st.ext = (v == null || v < 0) ? -1 : Math.max(0, Math.min(1, v)); },
         word: function () { if (st.talk) st.word = Math.min(0.4, st.word + 0.32); },
         mood: function (m) { st.mood = m || 'neutral'; },
         gesture: function (g) { if (g && g !== 'none') { st.gest = g; st.gestAt = performance.now(); } },
@@ -3858,7 +3866,121 @@
       } else {
         stmShow(stmTalkState());
       }
-      stmStatus('বলছি…');
+      /* ১ম পথ — সার্ভারের নারীকণ্ঠ (kh-tts): আসল অডিওর জোর দিয়ে ঠোঁট নড়ে।
+         ব্যর্থ হলে (কোটা, নেটওয়ার্ক, কি নেই) ২য় পথ — ব্রাউজারের বাংলা নারীকণ্ঠ। */
+      stmStatus('কণ্ঠ তৈরি হচ্ছে…');
+      stmTtsFetch(text).then(function (buf) {
+        if (!stmAlive(id)) return;
+        if (buf) {
+          stmStatus('বলছি…');
+          stm.el.classList.add('is-talking');
+          if (stm.face) stm.face.talk(true);
+          stmCaption('হাসানা', text);
+          if (stm.state === 'idle') stmShow(stmTalkState());
+          stmPlay(buf, id, function (ok) {
+            if (!stmAlive(id)) return;
+            stm.speaking = false;
+            stm.el.classList.remove('is-talking');
+            if (stm.face) { stm.face.level(-1); stm.face.talk(false); }
+            if (/^talk/.test(stm.state)) stmShow('idle');
+            if (done) done(ok);
+          });
+        } else {
+          stmStatus('বলছি…');
+          stmBrowserSay(text, id, done);
+        }
+      });
+    }
+
+    /* 🎙️ সার্ভারের কণ্ঠ — AudioContext খোলা হয় openStm()-এর ক্লিকেই
+       (ব্রাউজার ব্যবহারকারীর ক্লিক ছাড়া শব্দ বাজাতে দেয় না) */
+    function stmAudio() {
+      if (!stm) return null;
+      if (!stm.ac) {
+        try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) stm.ac = new AC(); } catch (e) {}
+      }
+      if (stm.ac && stm.ac.state === 'suspended') { try { stm.ac.resume(); } catch (e) {} }
+      return stm.ac;
+    }
+    async function stmTtsFetch(text) {
+      var ac = stmAudio();
+      if (!ac || stm.noServerTts) return null;
+      var token = await stmToken();
+      if (!token) return null;
+      var base = window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1';
+      try {
+        var ctl = new AbortController();
+        var tm = setTimeout(function () { ctl.abort(); }, 35000);
+        var res = await fetch(base + '/kh-tts', {
+          method: 'POST', signal: ctl.signal,
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ text: text })
+        });
+        clearTimeout(tm);
+        var out = await res.json();
+        if (!out || !out.ok || !out.audio) {
+          /* কোটা/কি নেই — এই সেশনে আর চেষ্টা নয়, সময় নষ্ট হয় */
+          if (out && (out.reason === 'quota' || out.reason === 'no_key' || out.reason === 'disabled' || out.reason === 'rate')) {
+            if (stm) stm.noServerTts = true;
+          }
+          return null;
+        }
+        var bin = atob(out.audio), off = 0;
+        if (bin.slice(0, 4) === 'RIFF') off = 44;                 /* WAV হলে হেডার বাদ */
+        var n = (bin.length - off) >> 1;
+        if (n < 200) return null;
+        var buf = ac.createBuffer(1, n, out.rate || 24000), ch = buf.getChannelData(0);
+        for (var i = 0; i < n; i++) {                              /* 16-bit little-endian */
+          var s = bin.charCodeAt(off + 2 * i) | (bin.charCodeAt(off + 2 * i + 1) << 8);
+          if (s >= 32768) s -= 65536;
+          ch[i] = s / 32768;
+        }
+        return buf;
+      } catch (e) { return null; }
+    }
+    function stmStopAudio() {
+      if (stm && stm.src) {
+        var s = stm.src; stm.src = null;
+        try { s.onended = null; s.stop(); } catch (e) {}
+      }
+    }
+    /* বাজানো + প্রতি ফ্রেমে জোর মাপা → ঠোঁট। জোরের সীমা নিজে থেকে মানিয়ে নেয়
+       (নরম ও জোরে দুই রকম বাক্যেই মুখ পুরো খোলে-বন্ধ হয়)। */
+    function stmPlay(buf, id, onEnd) {
+      var ac = stm.ac;
+      stmStopAudio();
+      var src = ac.createBufferSource();
+      src.buffer = buf;
+      var an = ac.createAnalyser();
+      an.fftSize = 1024; an.smoothingTimeConstant = 0.1;
+      src.connect(an); an.connect(ac.destination);
+      var fl = an.getFloatTimeDomainData ? new Float32Array(an.fftSize) : null;
+      var by = fl ? null : new Uint8Array(an.fftSize);
+      var peak = 0.08, floor = 0.012, finished = false;
+      stm.src = src;
+      function fin(ok) {
+        if (finished) return; finished = true;
+        if (stm && stm.src === src) stm.src = null;
+        onEnd(ok);
+      }
+      function loop() {
+        if (finished || !stmAlive(id) || stm.src !== src) return;
+        var sum = 0, i, v;
+        if (fl) { an.getFloatTimeDomainData(fl); for (i = 0; i < fl.length; i++) sum += fl[i] * fl[i]; sum /= fl.length; }
+        else { an.getByteTimeDomainData(by); for (i = 0; i < by.length; i++) { v = (by[i] - 128) / 128; sum += v * v; } sum /= by.length; }
+        var rms = Math.sqrt(sum);
+        peak = Math.max(peak * 0.997, rms);
+        var lv = (rms - floor) / Math.max(0.02, peak * 0.85 - floor);
+        if (stm.face) stm.face.level(lv <= 0 ? 0 : Math.pow(Math.min(1, lv), 0.8));
+        requestAnimationFrame(loop);
+      }
+      src.onended = function () { fin(true); };
+      try { src.start(); } catch (e) { fin(false); return; }
+      requestAnimationFrame(loop);
+    }
+
+    /* ২য় পথ — ব্রাউজারের কণ্ঠ (কেবল বাংলা নারীকণ্ঠ; না থাকলে উত্তর লেখায়) */
+    function stmBrowserSay(text, id, done) {
       var idleT = null;
       speak(text, {
         force: true,
@@ -4077,6 +4199,7 @@
         cc: cc, paused: false, listening: false, speaking: false, busy: false, empty: 0
       };
       var id = stm.id;
+      stmAudio();            /* ⚠️ ক্লিকের মধ্যেই — পরে খুললে ব্রাউজার শব্দ আটকে দেয় */
 
       function paintCC() {
         stm.ccB.classList.toggle('is-on', stm.cc);
@@ -4099,7 +4222,7 @@
         if (stm.paused) {
           stm.paused = false; stm.empty = 0; paintStmMic();
           /* কথার মাঝে চাপলে তাঁর কথা থামিয়ে শোনা শুরু */
-          if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stm.speaking = false; stm.el.classList.remove('is-talking'); if (stm.face) stm.face.talk(false); }
+          if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stmStopAudio(); if (stm.face) stm.face.level(-1); stm.speaking = false; stm.el.classList.remove('is-talking'); if (stm.face) stm.face.talk(false); }
           if (!stm.busy) stmListen();
         } else {
           stm.paused = true; stmStopListen(); paintStmMic();
@@ -4130,6 +4253,8 @@
     function closeStm() {
       if (!stm) return;
       var s = stm;
+      if (s.src) { try { s.src.onended = null; s.src.stop(); } catch (e) {} s.src = null; }
+      if (s.ac) { try { s.ac.close(); } catch (e) {} }
       stm = null;                                  /* সব কলব্যাক এখানেই থামে */
       speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
       talking(false);
