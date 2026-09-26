@@ -3621,22 +3621,42 @@
         sx.fillStyle = g; sx.fillRect(0, 0, sw, sh);
         ctx.drawImage(strip, cx - hw, top);
 
-        /* মুখের ভেতর */
-        var mw = FACE.mouthHalf * k * (0.74 + 0.1 * st.open);
-        var my = y0 + (a - up) / 2, mh = (a + up) / 2 + 1.2 * k;
+        /* মুখের ভেতর — ⚠️ কালো ফাঁক নয় (ব্যবহারকারী: "দুই ঠোটের মাঝখানে কালো দাগ
+           আসছে… স্বাভাবিক কথা বলার সময় যেমন দাত দেখা যায়")। স্বাভাবিক কথায়
+           ঠোঁটের ফাঁকে মূলত **উপরের দাঁত** দেখা যায়, নিচে সামান্য গাঢ় লালচে ছায়া,
+           বেশি খুললে নিচের দাঁতের কিনারা। রঙ কখনো কালো নয় — উষ্ণ লালচে-বাদামি। */
+        var mw = FACE.mouthHalf * k * (0.8 + 0.08 * st.open);
+        var top0 = y0 - up, gap = a + up;
+        var my = top0 + gap / 2, mh = gap / 2 + 2 * k;
         ctx.save();
+        try { ctx.filter = 'blur(' + (0.6 * k).toFixed(2) + 'px)'; } catch (e) {}
         ctx.beginPath(); ctx.ellipse(cx, my, mw, mh, 0, 0, Math.PI * 2); ctx.clip();
-        var gi = ctx.createLinearGradient(0, y0 - up, 0, y0 + a);
-        gi.addColorStop(0, '#3d1219'); gi.addColorStop(1, '#1b070b');
+        var gi = ctx.createRadialGradient(cx, my + gap * 0.25, 1, cx, my, mw);
+        gi.addColorStop(0, '#5a2429'); gi.addColorStop(0.7, '#7a3a3c'); gi.addColorStop(1, '#94504c');
         ctx.fillStyle = gi; ctx.fillRect(cx - mw, my - mh, mw * 2, mh * 2);
-        if (a > 6 * k) {                                    /* উপরের দাঁতের আভাস */
-          ctx.fillStyle = 'rgba(226,216,210,.55)';            /* ফিকে — উজ্জ্বল সাদা রেখার মতো দেখাত */
-          ctx.beginPath(); ctx.ellipse(cx, y0 - up, mw * 0.56, Math.min(a * 0.2, 4 * k), 0, 0, Math.PI); ctx.fill();
+        /* উপরের দাঁত — ফাঁকের উপরের ৬০–৭০% জুড়ে, মাঝে উজ্জ্বল, কোণে ছায়া */
+        var th = Math.min(gap * 0.66, 8.5 * k);
+        var tg = ctx.createLinearGradient(0, top0, 0, top0 + th);
+        /* ⚠️ ঝকঝকে সাদা নয় — ছবির আলোয় উজ্জ্বল সাদা পাত বসানো মনে হত (যাচাইয়ে দেখা) */
+        tg.addColorStop(0, '#ebe1d6'); tg.addColorStop(0.7, '#dacdc0'); tg.addColorStop(1, '#b8a597');
+        ctx.fillStyle = tg;
+        ctx.beginPath(); ctx.ellipse(cx, top0, mw * 0.84, th, 0, 0, Math.PI); ctx.fill();
+        /* দাঁতের সারির হালকা ভাঁজ — একটানা সাদা পাত যেন না দেখায় */
+        ctx.strokeStyle = 'rgba(150,120,110,.22)'; ctx.lineWidth = Math.max(0.6, 0.7 * k);
+        for (var tx = -3; tx <= 3; tx++) {
+          var xx = cx + tx * mw * 0.2;
+          ctx.beginPath(); ctx.moveTo(xx, top0); ctx.lineTo(xx, top0 + th * 0.85); ctx.stroke();
         }
-        if (a > 9 * k) {                                    /* জিভের আভাস */
-          ctx.fillStyle = 'rgba(150,58,68,.5)';
-          ctx.beginPath(); ctx.ellipse(cx, y0 + a, mw * 0.55, a * 0.32, 0, 0, Math.PI * 2); ctx.fill();
+        /* নিচের দাঁতের কিনারা — কেবল বেশি খুললে */
+        if (a > 7 * k) {
+          var bh = Math.min((a - 7 * k) * 0.5 + 1.5 * k, 3.5 * k);
+          ctx.fillStyle = 'rgba(214,202,192,.8)';
+          ctx.beginPath(); ctx.ellipse(cx, y0 + a + 0.5 * k, mw * 0.62, bh, 0, Math.PI, Math.PI * 2); ctx.fill();
         }
+        /* কোণের ছায়া — ঠোঁটের কোণে দাঁত মিলিয়ে যায় */
+        var sg = ctx.createRadialGradient(cx, my, mw * 0.55, cx, my, mw);
+        sg.addColorStop(0, 'rgba(90,36,41,0)'); sg.addColorStop(1, 'rgba(90,36,41,.75)');
+        ctx.fillStyle = sg; ctx.fillRect(cx - mw, my - mh, mw * 2, mh * 2);
         ctx.restore();
       }
 
@@ -3725,7 +3745,7 @@
         if (st.open > 0 || prev > 0 || b > 0 || dirty) {
           dirty = b > 0 || st.open > 0;                     /* শেষ ফ্রেমটি পরিষ্কার করে আঁকা */
           ctx.drawImage(img, 0, 0);
-          if (st.open > 0.02) mouth(st.open * 17 * k);
+          if (st.open > 0.02) mouth(st.open * 12 * k);    /* স্বাভাবিক কথায় মুখ বেশি খোলে না */
           if (b > 0.02) FACE.eyes.forEach(function (e) { eye(e, b); });
         }
         pose(now, t);
@@ -3868,28 +3888,90 @@
       }
       /* ১ম পথ — সার্ভারের নারীকণ্ঠ (kh-tts): আসল অডিওর জোর দিয়ে ঠোঁট নড়ে।
          ব্যর্থ হলে (কোটা, নেটওয়ার্ক, কি নেই) ২য় পথ — ব্রাউজারের বাংলা নারীকণ্ঠ। */
-      stmStatus('কণ্ঠ তৈরি হচ্ছে…');
-      stmTtsFetch(text).then(function (buf) {
+      stmStatus('');   /* ⚠️ "কণ্ঠ তৈরি হচ্ছে/বলছি/ভাবছি/শুনছি" লেখা বাদ — ব্যবহারকারীর নির্দেশ (অযাচিত লেখা) */
+      /* ⚡ দেরি কমাতে (ব্যবহারকারী: "সময় বেশী লাগছে") — Gemini-র অডিও তৈরির সময়
+         অডিওর দৈর্ঘ্যের প্রায় সমান (৯.৫ সেকেন্ডের কথা ≈ ৭ সেকেন্ড, মাপা)। তাই উত্তর
+         টুকরো করে **সব টুকরো একসাথে** চাওয়া হয়; প্রথম টুকরোটি ছোট (একটি বাক্য),
+         তাই সেটি আগে আসে ও বাজতে শুরু করে, বাকিগুলো ততক্ষণে তৈরি হয়ে যায়।
+         সালামটি প্রতিবার একই, তাই আগে থেকে বানানো ফাইল (site-assets) থেকে আসে। */
+      var parts = (text === STM_GREET) ? [text] : stmSplit(text);
+      var reqs = parts.map(function (p) { return p === STM_GREET ? stmGreetAudio() : stmTtsFetch(p); });
+      var started = false;
+      function finish(ok) {
         if (!stmAlive(id)) return;
-        if (buf) {
-          stmStatus('বলছি…');
-          stm.el.classList.add('is-talking');
-          if (stm.face) stm.face.talk(true);
-          stmCaption('হাসানা', text);
-          if (stm.state === 'idle') stmShow(stmTalkState());
-          stmPlay(buf, id, function (ok) {
-            if (!stmAlive(id)) return;
-            stm.speaking = false;
-            stm.el.classList.remove('is-talking');
-            if (stm.face) { stm.face.level(-1); stm.face.talk(false); }
-            if (/^talk/.test(stm.state)) stmShow('idle');
-            if (done) done(ok);
+        stm.speaking = false;
+        stm.el.classList.remove('is-talking');
+        if (stm.face) { stm.face.level(-1); stm.face.talk(false); }
+        if (/^talk/.test(stm.state)) stmShow('idle');
+        if (done) done(ok);
+      }
+      function playFrom(i) {
+        if (!stmAlive(id)) return;
+        if (i >= reqs.length) { finish(true); return; }
+        reqs[i].then(function (buf) {
+          if (!stmAlive(id)) return;
+          if (!buf) {                         /* বাকি অংশ ব্রাউজারের নারীকণ্ঠে */
+            stmBrowserSay(parts.slice(i).join(' '), id, done);
+            return;
+          }
+          if (!started) {
+            started = true;
+            stm.el.classList.add('is-talking');
+            if (stm.face) stm.face.talk(true);
+            stmCaption('হাসানা', text);
+            if (stm.state === 'idle') stmShow(stmTalkState());
+          }
+          stmPlay(buf, id, function () {
+            if (stm && stm.face) stm.face.level(0);   /* টুকরোর মাঝে মুখ বন্ধ */
+            playFrom(i + 1);
           });
-        } else {
-          stmStatus('বলছি…');
-          stmBrowserSay(text, id, done);
+        });
+      }
+      playFrom(0);
+    }
+
+    /* সালাম — এক জায়গায়, যাতে আগে-বানানো অডিও ফাইলের সাথে হুবহু মেলে।
+       ⚠️ লেখা বদলালে `bot/greet-*.pcm` নতুন করে বানাতে হবে (নাম বদলে), নাহলে পুরনো কথা বাজবে। */
+    var STM_GREET = 'আসসালামু আলাইকুম! আমি হাসানা। কর্জে হাসানা এবং আপনার হিসাব সম্পর্কে কী জানতে চান, বলুন।';
+    var STM_GREET_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-achernar-v1.pcm';
+
+    /* উত্তর ভাগ — প্রথমটি ছোট (≤৯০ অক্ষর), বাকিগুলো ≤২২০, সর্বোচ্চ ৪ টুকরো */
+    function stmSplit(text) {
+      var clean = ttsClean(text);
+      if (!clean) return [text];
+      var first = ttsChunks(clean, 90)[0] || clean;
+      var rest = clean.slice(first.length).trim();
+      var out = [first];
+      if (rest) out = out.concat(ttsChunks(rest, 220));
+      if (out.length > 4) out = out.slice(0, 3).concat([out.slice(3).join(' ')]);
+      return out;
+    }
+    function stmPcm(bin, rate) {
+      var ac = stm && stm.ac;
+      if (!ac) return null;
+      var off = (bin.slice(0, 4) === 'RIFF') ? 44 : 0;            /* WAV হলে হেডার বাদ */
+      var n = (bin.length - off) >> 1;
+      if (n < 200) return null;
+      var buf = ac.createBuffer(1, n, rate || 24000), ch = buf.getChannelData(0);
+      for (var i = 0; i < n; i++) {                                /* 16-bit little-endian */
+        var s = bin.charCodeAt(off + 2 * i) | (bin.charCodeAt(off + 2 * i + 1) << 8);
+        if (s >= 32768) s -= 65536;
+        ch[i] = s / 32768;
+      }
+      return buf;
+    }
+    async function stmGreetAudio() {
+      if (!stmAudio()) return null;
+      try {
+        var r = await fetch(STM_GREET_URL);
+        if (r.ok) {
+          var ab = new Uint8Array(await r.arrayBuffer()), bin = '', CH = 0x8000;
+          for (var i = 0; i < ab.length; i += CH) bin += String.fromCharCode.apply(null, ab.subarray(i, i + CH));
+          var b = stmPcm(bin, 24000);
+          if (b) return b;
         }
-      });
+      } catch (e) {}
+      return stmTtsFetch(STM_GREET);                  /* ফাইল না থাকলে সাধারণ পথ */
     }
 
     /* 🎙️ সার্ভারের কণ্ঠ — AudioContext খোলা হয় openStm()-এর ক্লিকেই
@@ -3925,17 +4007,7 @@
           }
           return null;
         }
-        var bin = atob(out.audio), off = 0;
-        if (bin.slice(0, 4) === 'RIFF') off = 44;                 /* WAV হলে হেডার বাদ */
-        var n = (bin.length - off) >> 1;
-        if (n < 200) return null;
-        var buf = ac.createBuffer(1, n, out.rate || 24000), ch = buf.getChannelData(0);
-        for (var i = 0; i < n; i++) {                              /* 16-bit little-endian */
-          var s = bin.charCodeAt(off + 2 * i) | (bin.charCodeAt(off + 2 * i + 1) << 8);
-          if (s >= 32768) s -= 65536;
-          ch[i] = s / 32768;
-        }
-        return buf;
+        return stmPcm(atob(out.audio), out.rate || 24000);
       } catch (e) { return null; }
     }
     function stmStopAudio() {
@@ -4031,7 +4103,7 @@
         stm.listening = true;
         stm.el.classList.add('is-listening');
         stmShow('listen');
-        stmStatus('শুনছি… বলুন');
+        stmStatus('');
         paintStmMic();
       };
       r.onresult = function (ev) {
@@ -4089,7 +4161,7 @@
       var id = stm.id;
       stm.busy = true;
       stmShow('think');
-      stmStatus('ভাবছি…');
+      stmStatus('');
       var token = await stmToken();
       var base = window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1';
       var reply = '', mood = 'neutral', gesture = 'none', needLogin = false;
@@ -4155,7 +4227,7 @@
         '<div class="kh-stm-bg" aria-hidden="true"></div>' +
         '<div class="kh-stm-top">' +
           /* ⚠️ দর্শক যেন কখনো মানুষ ভেবে ভুল না করেন — চিহ্নটি সবসময় থাকে */
-          '<span class="kh-stm-badge"><i class="ti ti-sparkles" aria-hidden="true"></i>AI সহায়িকা · হাসানা</span>' +
+          '<span class="kh-stm-badge">হাসানা</span>' +
           '<button type="button" class="kh-stm-cc" aria-pressed="false" title="যা বলা হচ্ছে তা লেখায় দেখান">' +
             '<i class="ti ti-badge-cc" aria-hidden="true"></i><span>লেখা</span></button>' +
           '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
@@ -4173,7 +4245,6 @@
           '</div>' +
         '</div>' +
         '<p class="kh-stm-status" aria-live="polite"></p>' +
-        '<p class="kh-stm-note" hidden>AI দিয়ে তৈরি প্রতিকৃতি — কোনো সত্যিকারের ব্যক্তির ছবি নয়।</p>' +
         '<div class="kh-stm-ctrl">' +
           '<button type="button" class="kh-stm-mic" aria-pressed="true"></button>' +
           '<button type="button" class="kh-stm-end"><i class="ti ti-phone-off" aria-hidden="true"></i><span>কথা শেষ</span></button>' +
@@ -4231,7 +4302,7 @@
       };
       setTimeout(function () { try { el.querySelector('.kh-stm-x').focus(); } catch (e) {} }, 60);
 
-      stmStatus('সংযোগ হচ্ছে…');
+      stmStatus('');
       var token = await stmToken();
       if (!stmAlive(id)) return;
       if (!token) { stmGate(); return; }
@@ -4239,12 +4310,11 @@
       var clips = await stmLoadClips();
       if (!stmAlive(id)) return;
       el.classList.toggle('is-photo', !clips);
-      el.querySelector('.kh-stm-note').hidden = !!clips;
       if (!clips) stm.face = stmFace(el.querySelector('.kh-stm-photo'));
       if (clips && clips._poster) stm.vids.forEach(function (v) { v.poster = STM_BASE + clips._poster; });
       if (clips) stmShow('idle');
 
-      stmSay('আসসালামু আলাইকুম! আমি হাসানা। কর্জে হাসানা ফাউন্ডেশন বা আপনার নিজের হিসাব নিয়ে যা জানতে চান, নির্দ্বিধায় বলুন — আমি শুনছি।',
+      stmSay(STM_GREET,
         'smile', 'greet', function () {
           if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
         });
