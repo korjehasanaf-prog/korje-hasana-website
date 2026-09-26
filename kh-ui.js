@@ -4009,10 +4009,10 @@
     /* সালাম — এক জায়গায়, যাতে আগে-বানানো অডিও ফাইলের সাথে হুবহু মেলে।
        ⚠️ লেখা বদলালে `bot/greet-*.pcm` নতুন করে বানাতে হবে (নাম বদলে), নাহলে পুরনো কথা বাজবে। */
     var STM_GREET = 'আসসালামু আলাইকুম! আমি হাসানা। কর্জে হাসানা এবং আপনার হিসাব সম্পর্কে কী জানতে চান, বলুন।';
-    var STM_GREET_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-achernar-v1.pcm';
+    var STM_GREET_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-azure-bn-v1.pcm';
     /* 🌐 ইংরেজি সালাম — একই কণ্ঠে আগে থেকে বানানো */
     var STM_GREET_EN = 'Assalamu Alaikum! I am Hasana. What would you like to know about Korje Hasana or your account?';
-    var STM_GREET_EN_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-en-achernar-v1.pcm';
+    var STM_GREET_EN_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-azure-en-v1.pcm';
 
     /* উত্তর ভাগ — প্রথমটি ছোট (≤৯০ অক্ষর), বাকিগুলো ≤২২০, সর্বোচ্চ ৪ টুকরো */
     function stmSplit(text) {
