@@ -103,6 +103,16 @@
       outline:none;transition:border-color .2s, box-shadow .2s;
     }
     .fg textarea{min-height:74px;resize:vertical}
+    /* 👩 লিঙ্গ — দুটি পিল (সেশন ৬) · চালু পিল নিজের গাঢ় গ্র্যাডিয়েন্ট বহন করে (সাদা লেখা ≥৫.৩:১) */
+    .gen-seg{display:flex;gap:8px;flex-wrap:wrap}
+    .gen-seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+    .gen-seg label{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;
+      margin:0;cursor:pointer;font-size:14px;font-weight:700;color:#dccfec;
+      background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.18)}
+    .gen-seg input:checked + label{background:linear-gradient(112deg,#c2255c,#8b1fb0);border-color:transparent;color:#fff}
+    .gen-seg input:focus-visible + label{outline:3px solid #c88ae0;outline-offset:2px}
+    html[data-theme="light"] .gen-seg label{background:#faf7fd;border-color:#e3d8ee;color:#4a3568}
+    html[data-theme="light"] .gen-seg input:checked + label{background:linear-gradient(112deg,#c2255c,#8b1fb0);color:#fff;border-color:transparent}
     .fg input:focus,.fg textarea:focus{border-color:#c88ae0;box-shadow:0 0 0 3px rgba(160,33,201,.2)}
     .fg input[readonly]{opacity:.65;cursor:not-allowed}
     html[data-theme="light"] .fg input,html[data-theme="light"] .fg textarea{
@@ -222,6 +232,13 @@
       <div class="fg"><label>পূর্ণ নাম</label><input id="fName"></div>
       <div class="fg"><label>পেশা</label><input id="fOcc" placeholder="যেমন: শিক্ষক, ব্যবসায়ী"></div>
     </div>
+    <div class="fg" role="radiogroup" aria-labelledby="genLbl">
+      <label id="genLbl">লিঙ্গ <span style="font-weight:500">(হাসানা আপনাকে সেভাবে সম্বোধন করবে)</span></label>
+      <div class="gen-seg">
+        <input type="radio" name="fGen" id="fGenF" value="female"><label for="fGenF"><i class="ti ti-gender-female"></i> নারী</label>
+        <input type="radio" name="fGen" id="fGenM" value="male"><label for="fGenM"><i class="ti ti-gender-male"></i> পুরুষ</label>
+      </div>
+    </div>
     <div class="grid2">
       <div class="fg"><label for="fMob">মোবাইল (পরিবর্তনযোগ্য নয়)</label><input id="fMob" inputmode="numeric" readonly></div>
       <div class="fg"><label>ই-মেইল (পরিবর্তনযোগ্য নয়)</label><input id="fEml" readonly></div>
@@ -301,8 +318,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=41">
-<script src="kh-ui.js?v=41"></script>
+<link rel="stylesheet" href="kh-ui.css?v=43">
+<script src="kh-ui.js?v=43"></script>
 <script>
 (function(){
   'use strict';
@@ -479,6 +496,8 @@
 
     el('fName').value = prof.full_name || '';
     el('fOcc').value  = prof.occupation || '';
+    el('fGenF').checked = prof.gender === 'female';
+    el('fGenM').checked = prof.gender === 'male';
     el('fMob').value  = prof.mobile || '';
     el('fEml').value  = prof.email || '';
     el('fAddr').value = prof.address || '';
@@ -707,6 +726,13 @@
           p_mother_name:       el('fMother').value.trim()
         });
         if(r && r.error) throw r.error;
+        /* লিঙ্গ আলাদা RPC-তে — update_my_profile-এর স্বাক্ষর অপরিবর্তিত থাকে */
+        var gv = el('fGenF').checked ? 'female' : (el('fGenM').checked ? 'male' : '');
+        if (gv && gv !== prof.gender) {
+          var rg = await sb().rpc('set_my_gender', { p_gender: gv });
+          if (rg && rg.error) throw rg.error;
+          prof.gender = gv;
+        }
         prof.full_name = el('fName').value.trim();
         prof.occupation = el('fOcc').value.trim();
         prof.address = el('fAddr').value.trim();
