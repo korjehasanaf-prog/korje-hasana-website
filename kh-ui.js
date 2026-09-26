@@ -3202,6 +3202,14 @@
         '<button type="button" class="kh-bot-head-x" aria-label="বন্ধ করুন">' +
           '<i class="ti ti-x" aria-hidden="true"></i></button>' +
       '</div>' +
+      /* 🧕 Speak to Me — হ্যান্ডস-ফ্রি টগলের ঠিক নিচে (ব্যবহারকারীর চাওয়া:
+         "হ্যান্ডস-ফ্রি টগল বাটনের ওখানে")। ⚠️ মাথার সারিতেই বসানো যায়নি —
+         ৩৬৬px প্যানেলে ছবি + নাম + তিনটি বোতাম + এই পিল মিলে নামের জন্য
+         মাত্র ~৩০px থাকত। তাই একই গ্র্যাডিয়েন্টে দ্বিতীয় সারি, ডানে সাজানো। */
+      '<div class="kh-bot-stmrow" hidden>' +
+        '<button type="button" class="kh-bot-stm" aria-label="Speak to Me — হাসানার সাথে মুখোমুখি কথা বলুন">' +
+          '<i class="ti ti-video" aria-hidden="true"></i><span>Speak to Me</span></button>' +
+      '</div>' +
       '<div class="kh-bot-body"></div>' +
       '<div class="kh-bot-chips"></div>' +
       '<div class="kh-bot-foot">' +
@@ -3223,6 +3231,7 @@
     var muteB = panel.querySelector('.kh-bot-mute');
     var micB  = panel.querySelector('.kh-bot-mic');
     var hfB   = panel.querySelector('.kh-bot-hf');
+    var stmB  = panel.querySelector('.kh-bot-stm');
     var note  = panel.querySelector('.kh-bot-note');
     var NOTE_DEFAULT = note.textContent;
 
@@ -3354,11 +3363,17 @@
 
     function canSpeak() { return !muted && ('speechSynthesis' in window); }
 
-    /* opts: {onStart, onDone} — onDone(started) সব টুকরো বলা শেষ হলে */
+    /* opts: {onStart, onDone, onChunk, force}
+         onDone(started) — সব টুকরো বলা শেষ হলে
+         onChunk(on, text) — প্রতিটি বাক্য শুরু (true) ও শেষে (false);
+                             Speak to Me-র মুখ এটি দিয়েই নড়ে-থামে
+         force — মিউট উপেক্ষা (মুখোমুখি আলাপে কণ্ঠই একমাত্র পথ) */
     function speak(text, opts) {
       opts = opts || {};
       var done = opts.onDone || function () {};
-      if (!canSpeak()) { done(false); return; }
+      var chunkHook = opts.onChunk || function () {};
+      var ok = opts.force ? ('speechSynthesis' in window) : canSpeak();
+      if (!ok) { done(false); return; }
       var clean = ttsClean(text);
       if (!clean) { done(false); return; }
       var chunks = ttsChunks(clean, 180);
@@ -3375,8 +3390,12 @@
           if (myTurn !== speakSeq) return;
           if (!started) { started = true; if (opts.onStart) opts.onStart(); }
           talking(true);
+          chunkHook(true, u.text);
         };
-        u.onend = next;
+        u.onend = function () {
+          if (myTurn === speakSeq) chunkHook(false, u.text);
+          next();
+        };
         u.onerror = function () { if (myTurn === speakSeq) { talking(false); done(started); } };
         try { speechSynthesis.speak(u); } catch (e) { talking(false); done(started); }
       }
@@ -3456,6 +3475,7 @@
     }
 
     function startListen() {
+      if (stm) return;                 /* মুখোমুখি আলাপ চলছে — সেটির নিজের মাইক */
       if (!SR || listening || busy) return;
       if (!panel.classList.contains('kh-open')) return;
       speakSeq++;                      /* বাকি টুকরোগুলোও থেমে যাক */
@@ -3472,6 +3492,427 @@
     /* বট বলা শেষ করলে — হ্যান্ডস-ফ্রি হলে আবার শোনা শুরু */
     function afterSpeak() {
       if (handsFree && panel.classList.contains('kh-open')) setTimeout(startListen, 350);
+    }
+
+    /* ══ 🧕 Speak to Me — মুখোমুখি কথা বলার মানব ইন্টারফেস (২৫ সেপ্টে ২০২৬) ══
+       ব্যবহারকারীর চাওয়া: হিজাবি নারী, নরম-মধুর কণ্ঠ, আবেগ, হাতের ইশারা —
+       "দেখে মনে হবে মানুষের সাথে কথা বলছি"। সিদ্ধান্ত: **কোনো মাসিক খরচ
+       নয়**, সাইটের ভেতরেই তৈরি; চেহারা একজন সত্যিকারের নারীর (লিখিত সম্মতিসহ)।
+
+       ⚙️ কৌশল — ভিডিও-ক্লিপের অবস্থা-যন্ত্র:
+         ঐ নারীর ছোট ছোট ক্লিপ (নীরব, শোনা, ভাবা, কথা বলা, সালাম, বুঝিয়ে বলা,
+         দেখানো, সম্মতি, হাসিমুখে ও সহানুভূতিতে কথা বলা)। প্রতিটি ক্লিপ একই
+         "মূল ভঙ্গি"তে শুরু ও শেষ হয়, তাই দুটি <video> ক্রসফেড করলে জোড়া চোখে
+         পড়ে না। কোন ক্লিপ চলবে ঠিক করে বটের নিজের উত্তর — kh-chat
+         `mode:'avatar'` প্রতিটি উত্তরে সাদা-তালিকাভুক্ত `mood` ও `gesture` দেয়।
+       ⚠️ ঠোঁট শব্দে-শব্দে মেলে না। কথা বলার ক্লিপে মুখ স্বাভাবিকভাবে নড়ে,
+          আর প্রতিটি বাক্য শেষ হলে (~৪০০ms) নীরব ক্লিপে ফেরে — তাই চুপ থাকার
+          সময় মুখ নড়তে দেখা যায় না। শব্দ-নির্ভুল লিপ-সিঙ্ক পরের ধাপের কাজ।
+       ⚠️ `images/avatar/manifest.json` না থাকলে ছবি-মোড — বর্তমান এভাটারের
+          ছবিটিই দোল খায়। ক্লিপ রেকর্ড হলে কেবল ফাইল ও manifest বসালেই চলবে।
+       ⚠️ কেবল লগইন করা সদস্য (ব্যবহারকারীর সিদ্ধান্ত) — সার্ভারও যাচাই করে।
+       ⚠️ প্রতিটি কলব্যাক `stmAlive(id)` দেখে — বন্ধ করে সাথে সাথে আবার
+          খুললে পুরনো সেশনের মাইক/কণ্ঠ যেন নতুন সেশনে কিছু না করে। */
+    var STM_BASE = window.KH_AVATAR_BASE || 'images/avatar/';
+    var STM_MOODS = { smile: 1, neutral: 1, empathy: 1, serious: 1 };
+    var STM_GESTS = { greet: 1, explain: 1, point: 1, nod: 1, none: 1 };
+    var stm = null;              /* খোলা থাকলে সেশনের অবস্থা */
+    var stmSeq = 0;
+    var stmClips = null;         /* null = এখনো দেখা হয়নি · false = ক্লিপ নেই (ছবি-মোড) */
+
+    function stmAlive(id) { return !!stm && stm.id === id; }
+
+    async function stmToken() {
+      try {
+        var db = sb();
+        if (db && db.auth) {
+          var s = await db.auth.getSession();
+          return (s && s.data && s.data.session && s.data.session.access_token) || '';
+        }
+      } catch (e) {}
+      return '';
+    }
+
+    /* ক্লিপের তালিকা — manifest.json থেকে; না থাকলে ছবি-মোড */
+    async function stmLoadClips() {
+      if (stmClips !== null) return stmClips;
+      try {
+        var r = await fetch(STM_BASE + 'manifest.json', { cache: 'no-cache' });
+        if (!r.ok) throw new Error('no manifest');
+        var m = await r.json();
+        var c = (m && m.clips) || null;
+        if (!c || !c.idle || !c.idle.length) throw new Error('no idle');
+        c._poster = (m && m.poster) || '';
+        stmClips = c;
+      } catch (e) { stmClips = false; }
+      return stmClips;
+    }
+
+    function stmPick(list, last) {
+      if (!list || !list.length) return '';
+      if (list.length === 1) return list[0];
+      var f, guard = 0;
+      do { f = list[Math.floor(Math.random() * list.length)]; } while (f === last && ++guard < 6);
+      return f;
+    }
+
+    function stmTalkState() {
+      var s = 'talk_' + ((stm && stm.mood) || 'neutral');
+      return (stmClips && stmClips[s] && stmClips[s].length) ? s : 'talk';
+    }
+
+    /* একটি অবস্থা দেখানো। opts.once → একবার চালিয়ে opts.then() */
+    function stmShow(state, opts) {
+      opts = opts || {};
+      if (!stm) return;
+      stm.state = state;
+      stm.stage.setAttribute('data-state', state);
+      if (!stmClips) {                          /* ছবি-মোড: CSS-ই অবস্থা দেখায় */
+        if (opts.once && opts.then) { var id0 = stm.id; setTimeout(function () { if (stmAlive(id0)) opts.then(); }, 1100); }
+        return;
+      }
+      var list = stmClips[state];
+      if (!list || !list.length) {              /* ক্লিপ নেই → কাছাকাছিটি */
+        var fb = /^talk_/.test(state) ? 'talk'
+               : STM_GESTS[state] ? stmTalkState()
+               : (state === 'listen' || state === 'think') ? 'idle' : '';
+        if (fb && fb !== state) stmShow(fb, opts);
+        return;
+      }
+      var file = stmPick(list, stm.lastFile);
+      stm.lastFile = file;
+      var id = stm.id, gen = ++stm.gen;
+      var back = stm.vids[1 - stm.front], front = stm.vids[stm.front];
+      back.loop = !opts.once;
+      back.onended = opts.once ? function () {
+        if (stmAlive(id) && stm.gen === gen && opts.then) opts.then();
+      } : null;
+      back.oncanplay = function () {
+        back.oncanplay = null;
+        if (!stmAlive(id) || stm.gen !== gen) return;
+        var p = back.play(); if (p && p.catch) p.catch(function () {});
+        back.classList.add('is-on'); front.classList.remove('is-on');
+        stm.front = 1 - stm.front;
+        setTimeout(function () {
+          if (stmAlive(id) && stm.gen === gen) { try { front.pause(); } catch (e) {} }
+        }, 340);
+      };
+      back.src = STM_BASE + file;
+      try { back.load(); } catch (e) {}
+    }
+
+    function stmStatus(t) { if (stm) stm.statusEl.textContent = t || ''; }
+
+    /* ⚠️ লেখা সবসময় textContent-এ — মডেলের উত্তর কখনো innerHTML-এ নয় */
+    function stmCaption(who, text) {
+      if (!stm) return;
+      stm.capWho.textContent = who || '';
+      stm.capText.textContent = text || '';
+      stm.cap.hidden = !stm.cc || !text;
+    }
+
+    function paintStmMic() {
+      if (!stm) return;
+      var on = !stm.paused;
+      stm.micB.classList.toggle('is-off', !on);
+      stm.micB.classList.toggle('is-live', !!stm.listening);
+      stm.micB.setAttribute('aria-pressed', on ? 'true' : 'false');
+      stm.micB.innerHTML = '<i class="ti ' + (on ? 'ti-microphone' : 'ti-microphone-off') + '" aria-hidden="true"></i>';
+      stm.micB.setAttribute('aria-label', on ? 'শোনা থামান' : 'আবার শুনুন');
+      stm.micB.title = on ? 'শোনা থামান' : 'আবার শুনুন';
+    }
+
+    /* বলা — মুখের ক্লিপ বাক্যে বাক্যে নড়ে ও থামে */
+    function stmSay(text, mood, gesture, done) {
+      if (!stm) return;
+      var id = stm.id;
+      stm.mood = STM_MOODS[mood] ? mood : 'neutral';
+      stm.stage.setAttribute('data-mood', stm.mood);
+      stm.speaking = true;
+      if (gesture && gesture !== 'none' && STM_GESTS[gesture]) {
+        stmShow(gesture, { once: true, then: function () {
+          if (stmAlive(id)) stmShow(stm.speaking ? stmTalkState() : 'idle');
+        } });
+      } else {
+        stmShow(stmTalkState());
+      }
+      stmStatus('বলছি…');
+      var idleT = null;
+      speak(text, {
+        force: true,
+        onChunk: function (on, chunk) {
+          if (!stmAlive(id)) return;
+          clearTimeout(idleT);
+          if (on) {
+            stm.speaking = true;
+            stm.el.classList.add('is-talking');
+            stmCaption('হাসানা', chunk);
+            if (stm.state === 'idle') stmShow(stmTalkState());
+          } else {
+            /* পরের বাক্য ~৪০০ms-এর মধ্যে না এলে মুখ থামে */
+            idleT = setTimeout(function () {
+              if (!stmAlive(id)) return;
+              stm.speaking = false;
+              stm.el.classList.remove('is-talking');
+              if (/^talk/.test(stm.state)) stmShow('idle');
+            }, 400);
+          }
+        },
+        onDone: function (started) {
+          clearTimeout(idleT);
+          if (!stmAlive(id)) return;
+          stm.speaking = false;
+          stm.el.classList.remove('is-talking');
+          /* কণ্ঠ চলেনি (ব্রাউজারে কণ্ঠ নেই) — উত্তর যেন হারিয়ে না যায় */
+          if (!started) { stm.cap.hidden = false; stm.capWho.textContent = 'হাসানা'; stm.capText.textContent = text; }
+          if (done) done(started);
+        }
+      });
+    }
+
+    function stmListen() {
+      if (!stm || !SR || stm.paused || stm.listening || stm.busy) return;
+      var id = stm.id, got = '';
+      var r = new SR();
+      r.lang = window.KH_VOICE_LANG || 'bn-BD';
+      r.interimResults = true;
+      r.continuous = false;
+      r.maxAlternatives = 1;
+      r.onstart = function () {
+        if (!stmAlive(id)) return;
+        stm.listening = true;
+        stm.el.classList.add('is-listening');
+        stmShow('listen');
+        stmStatus('শুনছি… বলুন');
+        paintStmMic();
+      };
+      r.onresult = function (ev) {
+        if (!stmAlive(id)) return;
+        var intr = '';
+        for (var i = ev.resultIndex; i < ev.results.length; i++) {
+          var t = ev.results[i][0].transcript;
+          if (ev.results[i].isFinal) got += t; else intr += t;
+        }
+        stmCaption('আপনি', (got + intr).trim());
+      };
+      r.onerror = function (ev) {
+        if (!stmAlive(id)) return;
+        var e = ev && ev.error;
+        if (e === 'not-allowed' || e === 'service-not-allowed') {
+          stm.paused = true;
+          stm.denied = true;
+        } else if (e === 'no-speech') {
+          stm.empty = (stm.empty || 0) + 1;
+        }
+      };
+      r.onend = function () {
+        if (!stmAlive(id)) return;
+        stm.listening = false;
+        stm.el.classList.remove('is-listening');
+        stm.rec = null;
+        var t = got.trim();
+        if (t) { stm.empty = 0; paintStmMic(); stmAsk(t); return; }
+        if (stm.denied) {
+          stmShow('idle');
+          stmStatus('মাইকের অনুমতি পাওয়া যায়নি — ঠিকানা বারের 🔒 আইকনে গিয়ে মাইক্রোফোন Allow করুন');
+        } else if (stm.paused) {
+          stmShow('idle');
+          stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন');
+        } else if ((stm.empty || 0) >= 3) {
+          /* টানা তিনবার নীরবতা — মাইক অকারণে খোলা রাখা হয় না */
+          stm.paused = true;
+          stmShow('idle');
+          stmStatus('কিছু শুনতে পাইনি — আবার বলতে মাইকে চাপুন');
+        } else {
+          setTimeout(function () { if (stmAlive(id)) stmListen(); }, 350);
+        }
+        paintStmMic();
+      };
+      stm.rec = r;
+      try { r.start(); } catch (e) {}
+    }
+
+    function stmStopListen() {
+      if (stm && stm.rec) { try { stm.rec.abort(); } catch (e) {} }
+    }
+
+    async function stmAsk(q) {
+      if (!stm) return;
+      var id = stm.id;
+      stm.busy = true;
+      stmShow('think');
+      stmStatus('ভাবছি…');
+      var token = await stmToken();
+      var base = window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1';
+      var reply = '', mood = 'neutral', gesture = 'none', needLogin = false;
+      try {
+        var headers = { 'Content-Type': 'application/json' };
+        if (token) headers.Authorization = 'Bearer ' + token;
+        var ctl = new AbortController();
+        var timer = setTimeout(function () { ctl.abort(); }, 50000);
+        var res = await fetch(base + '/kh-chat', {
+          method: 'POST', headers: headers, signal: ctl.signal,
+          body: JSON.stringify({ q: q, visitor: vid, history: history.slice(-8), mode: 'avatar' })
+        });
+        clearTimeout(timer);
+        var out = await res.json();
+        reply = (out && out.reply) || '';
+        mood = (out && out.mood) || 'neutral';
+        gesture = (out && out.gesture) || 'none';
+        needLogin = !!(out && out.need_login);
+      } catch (e) { reply = ''; }
+      if (!stmAlive(id)) return;
+      stm.busy = false;
+      if (needLogin) { stmGate(); return; }
+      if (!reply) {
+        reply = 'দুঃখিত, এই মুহূর্তে উত্তর আনতে পারছি না। একটু পরে আবার বলুন।';
+        mood = 'empathy'; gesture = 'none';
+      } else {
+        history.push({ role: 'user', content: q });
+        history.push({ role: 'assistant', content: reply });
+        if (history.length > 16) history = history.slice(-16);
+      }
+      stmSay(reply, mood, gesture, function () {
+        if (!stmAlive(id)) return;
+        if (!stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 400);
+        else { stmShow('idle'); stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন'); }
+      });
+    }
+
+    /* লগইন না থাকলে — পর্দা খোলে, কিন্তু আলাপ নয় */
+    function stmGate() {
+      if (!stm) return;
+      stm.gate.hidden = false;
+      stm.el.classList.add('is-gated');
+      stmShow('idle');
+      stmStatus('');
+      stm.ctrl.hidden = true;
+      try { stm.gate.querySelector('a').focus(); } catch (e) {}
+    }
+
+    async function openStm() {
+      if (stm) return;
+      /* চ্যাট প্যানেলের মাইক ও কণ্ঠ থামানো — দুটি মাইক একসাথে নয় */
+      stopListen();
+      speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
+      talking(false);
+
+      var el = document.createElement('div');
+      el.className = 'kh-stm';
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.setAttribute('aria-label', 'হাসানার সাথে মুখোমুখি কথা');
+      var here = encodeURIComponent(location.pathname.split('/').pop() || 'index.html');
+      el.innerHTML =
+        '<div class="kh-stm-bg" aria-hidden="true"></div>' +
+        '<div class="kh-stm-top">' +
+          /* ⚠️ দর্শক যেন কখনো মানুষ ভেবে ভুল না করেন — চিহ্নটি সবসময় থাকে */
+          '<span class="kh-stm-badge"><i class="ti ti-sparkles" aria-hidden="true"></i>AI সহায়িকা · হাসানা</span>' +
+          '<button type="button" class="kh-stm-cc" aria-pressed="false" title="যা বলা হচ্ছে তা লেখায় দেখান">' +
+            '<i class="ti ti-badge-cc" aria-hidden="true"></i><span>লেখা</span></button>' +
+          '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="kh-stm-stage" data-state="idle" data-mood="neutral">' +
+          '<video class="kh-stm-v is-on" muted playsinline preload="auto" aria-hidden="true"></video>' +
+          '<video class="kh-stm-v" muted playsinline preload="auto" aria-hidden="true"></video>' +
+          '<div class="kh-stm-photo" aria-hidden="true"><span class="kh-av"></span></div>' +
+          '<div class="kh-stm-wave" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>' +
+          '<div class="kh-stm-cap" hidden><b></b><span></span></div>' +
+          '<div class="kh-stm-gate" hidden>' +
+            '<i class="ti ti-lock" aria-hidden="true"></i>' +
+            '<p>মুখোমুখি কথা বলার সুবিধাটি কেবল সদস্যদের জন্য।<br>অনুগ্রহ করে লগইন করুন।</p>' +
+            '<a class="kh-stm-login" href="user-login.html?next=' + here + '">লগইন করুন</a>' +
+          '</div>' +
+        '</div>' +
+        '<p class="kh-stm-status" aria-live="polite"></p>' +
+        '<p class="kh-stm-note" hidden>প্রাকদর্শন — সত্যিকারের ভিডিও এভাটার শীঘ্রই যুক্ত হচ্ছে।</p>' +
+        '<div class="kh-stm-ctrl">' +
+          '<button type="button" class="kh-stm-mic" aria-pressed="true"></button>' +
+          '<button type="button" class="kh-stm-end"><i class="ti ti-phone-off" aria-hidden="true"></i><span>কথা শেষ</span></button>' +
+        '</div>';
+      document.body.appendChild(el);
+      document.body.classList.add('kh-stm-lock');
+
+      var cc = false;
+      try { cc = localStorage.getItem('kh_stm_cc') === '1'; } catch (e) {}
+      stm = {
+        id: ++stmSeq, el: el,
+        stage: el.querySelector('.kh-stm-stage'),
+        vids: Array.prototype.slice.call(el.querySelectorAll('.kh-stm-v')),
+        front: 0, gen: 0, state: 'idle', lastFile: '', mood: 'neutral',
+        cap: el.querySelector('.kh-stm-cap'),
+        capWho: el.querySelector('.kh-stm-cap b'),
+        capText: el.querySelector('.kh-stm-cap span'),
+        statusEl: el.querySelector('.kh-stm-status'),
+        gate: el.querySelector('.kh-stm-gate'),
+        ctrl: el.querySelector('.kh-stm-ctrl'),
+        micB: el.querySelector('.kh-stm-mic'),
+        ccB: el.querySelector('.kh-stm-cc'),
+        cc: cc, paused: false, listening: false, speaking: false, busy: false, empty: 0
+      };
+      var id = stm.id;
+
+      function paintCC() {
+        stm.ccB.classList.toggle('is-on', stm.cc);
+        stm.ccB.setAttribute('aria-pressed', stm.cc ? 'true' : 'false');
+        stm.cap.hidden = !stm.cc || !stm.capText.textContent;
+      }
+      paintCC();
+      paintStmMic();
+
+      stm.ccB.onclick = function () {
+        stm.cc = !stm.cc;
+        try { localStorage.setItem('kh_stm_cc', stm.cc ? '1' : '0'); } catch (e) {}
+        paintCC();
+      };
+      el.querySelector('.kh-stm-x').onclick = closeStm;
+      el.querySelector('.kh-stm-end').onclick = closeStm;
+      stm.micB.onclick = function () {
+        if (!stm) return;
+        stm.denied = false;
+        if (stm.paused) {
+          stm.paused = false; stm.empty = 0; paintStmMic();
+          /* কথার মাঝে চাপলে তাঁর কথা থামিয়ে শোনা শুরু */
+          if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stm.speaking = false; stm.el.classList.remove('is-talking'); }
+          if (!stm.busy) stmListen();
+        } else {
+          stm.paused = true; stmStopListen(); paintStmMic();
+          if (!stm.speaking && !stm.busy) { stmShow('idle'); stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন'); }
+        }
+      };
+      setTimeout(function () { try { el.querySelector('.kh-stm-x').focus(); } catch (e) {} }, 60);
+
+      stmStatus('সংযোগ হচ্ছে…');
+      var token = await stmToken();
+      if (!stmAlive(id)) return;
+      if (!token) { stmGate(); return; }
+
+      var clips = await stmLoadClips();
+      if (!stmAlive(id)) return;
+      el.classList.toggle('is-photo', !clips);
+      el.querySelector('.kh-stm-note').hidden = !!clips;
+      if (clips && clips._poster) stm.vids.forEach(function (v) { v.poster = STM_BASE + clips._poster; });
+      if (clips) stmShow('idle');
+
+      stmSay('আসসালামু আলাইকুম! আমি হাসানা। কর্জে হাসানা ফাউন্ডেশন বা আপনার নিজের হিসাব নিয়ে যা জানতে চান, নির্দ্বিধায় বলুন — আমি শুনছি।',
+        'smile', 'greet', function () {
+          if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
+        });
+    }
+
+    function closeStm() {
+      if (!stm) return;
+      var s = stm;
+      stm = null;                                  /* সব কলব্যাক এখানেই থামে */
+      speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
+      talking(false);
+      if (s.rec) { try { s.rec.abort(); } catch (e) {} }
+      s.vids.forEach(function (v) {
+        try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) {}
+      });
+      s.el.remove();
+      document.body.classList.remove('kh-stm-lock');
+      try { stmB.focus(); } catch (e) {}
     }
 
     function paintChips() {
@@ -3623,6 +4064,11 @@
            তাই মাইকের অনুমতি চাওয়াও এখানেই স্বাভাবিক */
         if (handsFree) startListen(); else stopListen();
       };
+      /* 🧕 Speak to Me — শোনা ও বলা দুটোই লাগে, তাই কেবল দুটো থাকলেই */
+      if ('speechSynthesis' in window) {
+        panel.querySelector('.kh-bot-stmrow').hidden = false;
+        stmB.onclick = function () { openStm(); };
+      }
     }
 
     /* ⚠️ লেখার পথ — সবসময় 'text', তাই এখানে কণ্ঠ কখনো চলে না */
@@ -3631,7 +4077,9 @@
       if (e.key === 'Enter') { e.preventDefault(); ask('text'); }
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && panel.classList.contains('kh-open')) close();
+      if (e.key !== 'Escape') return;
+      if (stm) { closeStm(); return; }          /* আগে মুখোমুখি পর্দা, তারপর প্যানেল */
+      if (panel.classList.contains('kh-open')) close();
     });
   };
 

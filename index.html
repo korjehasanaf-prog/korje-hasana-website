@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Korje Hasana Foundation | 0% Interest Loans | কর্জে হাসানা ফাউন্ডেশন</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --green:   #241539;
@@ -1018,7 +1018,102 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=36">
+  <link rel="stylesheet" href="kh-ui.css?v=37">
+<style>
+/* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
+   নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
+   ⚠️ সেকশন ৯-এর ঢালাও লাইট-থীম নিয়ম (০,২,২) div/span-এর রঙ বদলে দেয়,
+   তাই প্রতিটি রঙের নির্বাচক `html .khfc.khfc …` = (০,৩,১)+ ও !important। */
+.khfc{
+  --w:30px; --h:42px;
+  --amber:#ffa52f; --amber-glow:rgba(255,165,47,.5);
+  --font-digit:'Oswald','Bebas Neue','Arial Narrow',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  display:inline-flex; flex-direction:column; align-items:center; gap:9px;
+  margin-top:22px; padding:14px 18px 12px;
+  background:#121212 !important; border-radius:18px;
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03);
+}
+html .khfc.khfc .khfc-live{
+  display:flex; align-items:center; gap:6px;
+  font:500 10px/1 var(--mono); letter-spacing:.22em; color:#9a9a9a !important;
+}
+.khfc-head{display:flex;align-items:center;gap:10px}
+/* AM/PM বাটন — নিজের গাঢ় পটভূমি বহন করে, দুই থীমে এক */
+html .khfc.khfc .khfc-ap{
+  font:500 9.5px/1 var(--mono); letter-spacing:.14em;
+  padding:4px 8px; border-radius:6px; cursor:pointer; min-height:0;
+  background:#1f1f24 !important; color:#c9c9c9 !important;
+  border:1px solid rgba(255,255,255,.1); transition:background .2s,color .2s,border-color .2s;
+}
+html .khfc.khfc .khfc-ap:hover{border-color:rgba(255,165,47,.45)}
+html .khfc.khfc .khfc-ap[aria-pressed="true"]{
+  background:#2a2018 !important; color:var(--amber) !important;
+  border-color:rgba(255,165,47,.4); text-shadow:0 0 8px var(--amber-glow);
+}
+.khfc-ap:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.khfc-live i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;animation:khfcPulse 1.6s ease-in-out infinite}
+@keyframes khfcPulse{50%{opacity:.35;box-shadow:0 0 2px #ef4444}}
+.khfc-house{
+  position:relative; display:flex; align-items:center; gap:7px;
+  padding:9px 12px; border-radius:11px;
+  background:linear-gradient(180deg,#1c1c20,#161619) !important;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 10px 24px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.khfc-screw{position:absolute;width:3px;height:3px;border-radius:50%;background:#34343a}
+.khfc-screw.s1{top:5px;left:5px}.khfc-screw.s2{top:5px;right:5px}
+.khfc-screw.s3{bottom:5px;left:5px}.khfc-screw.s4{bottom:5px;right:5px}
+.khfc-grp{display:flex;gap:3px}
+.khfc-col{display:flex;flex-direction:column;gap:7px;padding:0 1px}
+.khfc-col i{width:3px;height:3px;border-radius:50%;background:#45454c}
+
+/* ── একটি অঙ্ক: উপরের অর্ধেক · নিচের অর্ধেক · উল্টে পড়া পাতা ── */
+.khfc-flip{
+  position:relative; width:var(--w); height:var(--h);
+  perspective:260px;
+  font-family:var(--font-digit); font-weight:700;
+  font-size:calc(var(--h) * .72);
+}
+.khfc-half{position:absolute;left:0;right:0;height:50%;overflow:hidden}
+.khfc-top,.khfc-front{top:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#2b2c31,#25262a) !important}
+.khfc-bot,.khfc-back{bottom:0;border-radius:0 0 5px 5px;background:linear-gradient(180deg,#1f2024,#1b1c1f) !important}
+html .khfc.khfc .khfc-half span{
+  position:absolute; left:0; width:100%; height:var(--h);
+  line-height:var(--h); text-align:center;
+  color:var(--amber) !important; text-shadow:0 0 18px var(--amber-glow);
+}
+.khfc-top span,.khfc-front span{top:0}
+.khfc-bot span{bottom:0}
+/* মাঝের ভাঁজ-রেখা */
+.khfc-flip::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:rgba(0,0,0,.65);z-index:3}
+.khfc-leaf{
+  position:absolute; top:0; left:0; right:0; height:50%;
+  transform-origin:50% 100%; transform-style:preserve-3d; z-index:2;
+}
+.khfc-leaf .khfc-half{height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.khfc-leaf .khfc-back{top:0;bottom:auto;transform:rotateX(180deg)}
+.khfc-leaf .khfc-back span{top:calc(var(--h) * -.5)}
+.khfc-leaf.turning{
+  transition:transform .42s cubic-bezier(.6,.04,.4,1);
+  transform:rotateX(-180deg);
+}
+html .khfc.khfc .khfc-lbl{
+  font:500 8.5px/1 var(--mono); letter-spacing:.24em; color:#8c8c8c !important;
+}
+html .khfc.khfc .khfc-date{
+  font:400 11px/1.2 var(--mono); letter-spacing:.02em; color:#a3a3a3 !important; min-height:1.2em;
+}
+@media (max-width:480px){
+  .khfc{--w:27px;--h:38px;padding:12px 14px 11px;margin-top:18px}
+  .khfc-house{gap:6px;padding:8px 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  .khfc-leaf.turning{transition:none}
+  .khfc-live i{animation:none}
+}
+</style>
 </head>
 <body data-kh-nav="on">
 
@@ -1431,6 +1526,24 @@
       <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
       <a href="savings-portal.html" class="btn-savings-glow"><i class="ti ti-piggy-bank" style="font-size:18px"></i>সুদ বিহীন সঞ্চয় করুন</a>
       <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
+    </div>
+
+    <!-- ⏱ ফ্লিপ ঘড়ি — "digital watch.mp4" ভিডিও থেকে হুবহু (ছোট আকারে)। ঢাকার সময়। -->
+    <div class="khfc" id="khFlipClock" role="timer" aria-label="বর্তমান সময় (ঢাকা)">
+      <div class="khfc-head">
+        <div class="khfc-live"><i></i>LIVE</div>
+        <button type="button" class="khfc-ap" id="khfcAp" aria-pressed="false" title="১২ / ২৪ ঘণ্টা বদলান">24H</button>
+      </div>
+      <div class="khfc-house" aria-hidden="true">
+        <span class="khfc-screw s1"></span><span class="khfc-screw s2"></span><span class="khfc-screw s3"></span><span class="khfc-screw s4"></span>
+        <div class="khfc-grp"><div class="khfc-flip" data-i="0"></div><div class="khfc-flip" data-i="1"></div></div>
+        <div class="khfc-col"><i></i><i></i></div>
+        <div class="khfc-grp"><div class="khfc-flip" data-i="2"></div><div class="khfc-flip" data-i="3"></div></div>
+        <div class="khfc-col"><i></i><i></i></div>
+        <div class="khfc-grp"><div class="khfc-flip" data-i="4"></div><div class="khfc-flip" data-i="5"></div></div>
+      </div>
+      <div class="khfc-lbl" aria-hidden="true">HOURS · MINUTES · SECONDS</div>
+      <div class="khfc-date" id="khfcDate"></div>
     </div>
   </div>
 
@@ -2434,7 +2547,80 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=36"></script>
+<script>
+/* ⏱ ফ্লিপ ঘড়ি — ঢাকার সময়, ২৪ ঘণ্টা। প্রতিটি অঙ্ক নিজে নিজে উল্টায় (.42s)।
+   ⚠️ ট্যাব লুকানো বা reduced-motion হলে অ্যানিমেশন ছাড়াই সরাসরি বসে —
+   নাহলে লুকানো ট্যাবে জমে থাকা টাইমার পরে একসাথে উল্টাত। */
+(function () {
+  var root = document.getElementById('khFlipClock');
+  if (!root) return;
+  var TZ = 'Asia/Dhaka';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var flips = [].slice.call(root.querySelectorAll('.khfc-flip'));
+  var cells = flips.map(function (el) {
+    el.innerHTML =
+      '<div class="khfc-half khfc-top"><span>0</span></div>' +
+      '<div class="khfc-half khfc-bot"><span>0</span></div>' +
+      '<div class="khfc-leaf"><div class="khfc-half khfc-front"><span>0</span></div>' +
+      '<div class="khfc-half khfc-back"><span>0</span></div></div>';
+    var s = el.querySelectorAll('span');
+    return { el: el, top: s[0], bot: s[1], front: s[2], back: s[3],
+             leaf: el.querySelector('.khfc-leaf'), val: null, t: 0 };
+  });
+  function put(c, v) {
+    c.top.textContent = c.bot.textContent = c.front.textContent = c.back.textContent = v;
+    c.leaf.classList.remove('turning');
+  }
+  function setDigit(c, v) {
+    if (c.val === v) return;
+    var old = c.val; c.val = v;
+    clearTimeout(c.t);
+    if (old === null || reduce || document.hidden) { put(c, v); return; }
+    c.leaf.classList.remove('turning');
+    c.top.textContent = v; c.back.textContent = v;
+    c.front.textContent = old; c.bot.textContent = old;
+    void c.leaf.offsetWidth;                 // রিফ্লো — নতুন করে উল্টানো শুরু
+    c.leaf.classList.add('turning');
+    c.t = setTimeout(function () { put(c, v); }, 440);
+  }
+  var fmtT = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+  var fmtD = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  var dateEl = document.getElementById('khfcDate'), lastDate = '';
+  /* AM/PM বাটন — চাপলে ১২ ↔ ২৪ ঘণ্টা; পছন্দ localStorage-এ মনে থাকে */
+  var apBtn = document.getElementById('khfcAp'), h12 = false;
+  try { h12 = localStorage.getItem('kh_clock_12') === '1'; } catch (e) {}
+  if (apBtn) apBtn.addEventListener('click', function () {
+    h12 = !h12;
+    try { localStorage.setItem('kh_clock_12', h12 ? '1' : '0'); } catch (e) {}
+    render();
+  });
+  function paint() {
+    var now = new Date(), p = {};
+    fmtT.formatToParts(now).forEach(function (x) { p[x.type] = x.value; });
+    var hh = +(p.hour === '24' ? '0' : p.hour), ap = hh < 12 ? 'AM' : 'PM';
+    var hs = h12 ? ('0' + (hh % 12 || 12)).slice(-2) : ('0' + hh).slice(-2);
+    if (apBtn) {
+      apBtn.textContent = h12 ? ap : '24H';
+      apBtn.setAttribute('aria-pressed', h12 ? 'true' : 'false');
+      apBtn.setAttribute('aria-label', h12 ? '১২ ঘণ্টা (' + ap + ') — ২৪ ঘণ্টায় বদলান' : '২৪ ঘণ্টা — AM/PM-এ বদলান');
+    }
+    return { now: now, str: hs + p.minute + p.second, ap: ap };
+  }
+  function render() {
+    var r = paint(), now = r.now, str = r.str;
+    for (var i = 0; i < 6; i++) setDigit(cells[i], str.charAt(i));
+    var d = fmtD.format(now);
+    if (d !== lastDate) { dateEl.textContent = lastDate = d; }
+    root.setAttribute('aria-label', 'বর্তমান সময় (ঢাকা) ' + str.slice(0,2) + ':' + str.slice(2,4) + (h12 ? ' ' + r.ap : '') + ', ' + d);
+  }
+  function tick() {
+    render();
+    setTimeout(tick, 1000 - (Date.now() % 1000) + 15);
+  }
+  tick();
+})();
+</script>
+<script src="kh-ui.js?v=37"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>

@@ -3407,6 +3407,200 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 }
 
 /* ══════════════════════════════════════════════════════════
+   ২৭ · 🧕 Speak to Me — মুখোমুখি কথা বলার মানব ইন্টারফেস
+   (২৫ সেপ্টেম্বর ২০২৬)
+
+   ⚠️ পুরো পর্দা নিজের গাঢ় পটভূমি বহন করে — তাই দুই থীমে হুবহু এক,
+      আর সেকশন ৯-এর ঢালাও লাইট-থীম নিয়ম এখানে পৌঁছায় না (body-র
+      সরাসরি সন্তান, কোনো .hero/.footer-এর ভেতরে নয়)।
+   ⚠️ z-index 10060 — কাচের পেমেন্ট পর্দা (১০০৫০) সহ সবার উপরে।
+   ══════════════════════════════════════════════════════════ */
+
+/* চ্যাট প্যানেলে বোতামের সারি — মাথার গ্র্যাডিয়েন্টেরই ধারাবাহিকতা */
+.kh-bot-stmrow {
+  display: flex; justify-content: flex-end; flex-shrink: 0;
+  padding: 0 16px 12px; margin-top: -4px;
+  background: linear-gradient(112deg, #241539, #5b2c9c 55%, #a021c9);
+}
+.kh-bot-stmrow[hidden] { display: none; }
+/* ⚠️ ভরাট সাদা পিল — স্বচ্ছ রাখলে গ্র্যাডিয়েন্টের হালকা প্রান্তে লেখা দুর্বল হত */
+.kh-bot-stm {
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 34px; min-height: 34px; padding: 0 15px; border: none; border-radius: 999px;
+  background: #fff; color: #5b2c9c;                              /* ৮.৯:১ */
+  font: 700 12.5px/1 'Inter', 'Hind Siliguri', system-ui, sans-serif; letter-spacing: .2px;
+  cursor: pointer; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45);
+}
+.kh-bot-stm i { font-size: 16px; color: #c2255c; }               /* সাদায় ৫.৮:১ */
+.kh-bot-stm:hover { background: #f5efff; }
+.kh-bot-stm:focus-visible { outline: 3px solid #ffcf70; outline-offset: 2px; }
+
+body.kh-stm-lock { overflow: hidden; }
+
+.kh-stm {
+  position: fixed; inset: 0; z-index: 10060;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; padding: 16px 16px 20px;
+  background: #140b22; color: #f4f0fa;
+  font-family: 'Hind Siliguri', system-ui, sans-serif;
+}
+.kh-stm-bg {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 45% at 50% 30%, rgba(160, 33, 201, .30), transparent 70%),
+    radial-gradient(50% 40% at 20% 90%, rgba(13, 112, 82, .30), transparent 70%),
+    linear-gradient(180deg, rgba(20, 11, 34, .82), rgba(20, 11, 34, .94)),
+    url("images/auth-bg.jpg") center / cover no-repeat;
+}
+.kh-stm > *:not(.kh-stm-bg) { position: relative; z-index: 1; }
+
+.kh-stm-top {
+  position: absolute !important; top: 14px; left: 16px; right: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+/* ⚠️ "AI সহায়িকা" চিহ্নটি ইচ্ছে করে সবসময় দৃশ্যমান — কেউ যেন মানুষ ভেবে ভুল না করেন */
+.kh-stm-badge {
+  display: inline-flex; align-items: center; gap: 6px; margin-right: auto;
+  padding: 7px 12px; border-radius: 999px;
+  background: #2c1c46; border: 1px solid rgba(255, 255, 255, .14);
+  font-size: 12.5px; font-weight: 600; color: #f4f0fa;          /* ১৪.৯:১ */
+}
+.kh-stm-badge i { color: #ffcf70; font-size: 15px; }            /* ১১.৪:১ */
+.kh-stm-cc, .kh-stm-x {
+  height: 38px; min-height: 38px; border: none; border-radius: 12px; cursor: pointer;
+  background: #3b3450; color: #fff;                               /* ১১.৭:১ */
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font: 600 12.5px/1 'Hind Siliguri', system-ui, sans-serif;
+}
+.kh-stm-cc { padding: 0 12px; }
+.kh-stm-cc i { font-size: 17px; }
+.kh-stm-cc.is-on { background: #fff; color: #3b2566; }           /* ১২.৪:১ */
+.kh-stm-x { width: 38px; font-size: 18px; }
+.kh-stm-cc:focus-visible, .kh-stm-x:focus-visible,
+.kh-stm-mic:focus-visible, .kh-stm-end:focus-visible,
+.kh-stm-login:focus-visible { outline: 3px solid #ffcf70; outline-offset: 3px; }
+
+/* মঞ্চ — প্রতিকৃতির অনুপাত ৩:৪ */
+.kh-stm-stage {
+  position: relative; overflow: hidden;
+  width: min(92vw, calc(min(66vh, 640px) * .75));
+  aspect-ratio: 3 / 4;
+  border-radius: 28px; background: #1d1230;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.kh-stm-v {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0; transition: opacity .3s ease;
+}
+.kh-stm-v.is-on { opacity: 1; }
+.kh-stm-photo { display: none; position: absolute; inset: 0; }
+.kh-stm.is-photo .kh-stm-v { display: none; }
+.kh-stm.is-photo .kh-stm-photo { display: block; }
+/* ⚠️ `.kh-av`-এর উপর background shorthand নয় (ছবিটাই মুছে যেত) — কেবল আকার */
+.kh-stm-photo .kh-av {
+  position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0;
+  background-position: center 30%; transform-origin: 50% 90%;
+  animation: khStmBreathe 5.5s ease-in-out infinite;
+}
+.kh-stm.is-photo.is-talking .kh-stm-photo .kh-av { animation: khStmNod 1.2s ease-in-out infinite; }
+@keyframes khStmBreathe {
+  0%, 100% { transform: scale(1.02) translateY(0); }
+  50%      { transform: scale(1.035) translateY(-.6%); }
+}
+@keyframes khStmNod {
+  0%, 100% { transform: scale(1.03) translateY(0) rotate(0); }
+  30%      { transform: scale(1.045) translateY(-1.4%) rotate(-.8deg); }
+  65%      { transform: scale(1.035) translateY(.8%) rotate(.6deg); }
+}
+
+/* শোনার সময় চারপাশে লাল নয়, নরম সবুজ আভা — "শুনছি" */
+.kh-stm.is-listening .kh-stm-stage {
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .7), 0 0 0 3px #34d399, 0 0 40px -4px rgba(52, 211, 153, .55);
+}
+/* বলার সময় নিচে শব্দতরঙ্গ */
+.kh-stm-wave {
+  position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+  display: flex; align-items: flex-end; gap: 4px; height: 22px;
+  padding: 6px 10px; border-radius: 999px; background: rgba(12, 8, 20, .62);
+  opacity: 0; transition: opacity .25s;
+}
+.kh-stm.is-talking .kh-stm-wave { opacity: 1; }
+.kh-stm-wave b { width: 4px; height: 30%; border-radius: 2px; background: #ffcf70; animation: khStmBar .9s ease-in-out infinite; }
+.kh-stm-wave b:nth-child(2) { animation-delay: .12s; }
+.kh-stm-wave b:nth-child(3) { animation-delay: .24s; }
+.kh-stm-wave b:nth-child(4) { animation-delay: .36s; }
+.kh-stm-wave b:nth-child(5) { animation-delay: .48s; }
+@keyframes khStmBar { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+
+/* লেখা (CC) — ডিফল্টে বন্ধ: "অডিওর বিনিময়ে অডিও" নিয়মটি মানা হয় */
+.kh-stm-cap {
+  position: absolute; left: 12px; right: 12px; bottom: 52px;
+  padding: 10px 14px; border-radius: 14px;
+  background: rgba(12, 8, 20, .80); color: #fff;                /* সবচেয়ে খারাপেও ১১:১ */
+  font-size: 15px; line-height: 1.55; max-height: 40%; overflow: auto;
+}
+.kh-stm-cap[hidden] { display: none; }
+.kh-stm-cap b { display: block; font-size: 11.5px; font-weight: 700; color: #ffcf70; margin-bottom: 2px; }
+
+/* লগইনের দেয়াল */
+.kh-stm-gate {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center;
+  background: rgba(20, 11, 34, .88);
+}
+.kh-stm-gate[hidden] { display: none; }
+.kh-stm-gate i { font-size: 34px; color: #ffcf70; }
+.kh-stm-gate p { font-size: 15.5px; line-height: 1.7; color: #f4f0fa; margin: 0; }
+.kh-stm-login {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 46px; padding: 0 26px; border-radius: 999px; text-decoration: none;
+  background: linear-gradient(112deg, #c2255c, #8b1fb0 55%, #7048e8); color: #fff; /* ৫.৫–৭.২:১ */
+  font-weight: 700; font-size: 15px;
+}
+
+.kh-stm-status {
+  min-height: 1.5em; margin: 0; text-align: center; max-width: 92vw;
+  font-size: 15px; font-weight: 600; color: #efe8fa;               /* ১৫.৬:১ */
+}
+.kh-stm-note { margin: -6px 0 0; font-size: 12.5px; color: #cfc4e2; text-align: center; } /* ১০.৯:১ */
+.kh-stm-note[hidden] { display: none; }
+
+.kh-stm-ctrl { display: flex; align-items: center; gap: 16px; }
+.kh-stm-ctrl[hidden] { display: none; }
+.kh-stm-mic {
+  width: 64px; height: 64px; min-height: 64px; border: none; border-radius: 50%; cursor: pointer;
+  background: linear-gradient(135deg, #0f7a43, #0a5c33); color: #fff;   /* ৫.৪–৮.১:১ */
+  font-size: 26px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 12px 28px -10px rgba(0, 0, 0, .6);
+}
+.kh-stm-mic.is-live { animation: khStmPulse 1.6s ease-out infinite; }
+.kh-stm-mic.is-off { background: #3b3450; }                        /* ১১.৭:১ */
+@keyframes khStmPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(52, 211, 153, .55), 0 12px 28px -10px rgba(0, 0, 0, .6); }
+  100% { box-shadow: 0 0 0 18px rgba(52, 211, 153, 0), 0 12px 28px -10px rgba(0, 0, 0, .6); }
+}
+.kh-stm-end {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 52px; min-height: 52px; padding: 0 22px; border: none; border-radius: 999px; cursor: pointer;
+  background: #b91c1c; color: #fff;                                     /* ৬.৫:১ */
+  font: 700 15px/1 'Hind Siliguri', system-ui, sans-serif;
+}
+.kh-stm-end i { font-size: 20px; }
+
+@media (max-width: 480px) {
+  .kh-stm { padding: 64px 12px 16px; justify-content: flex-start; gap: 10px; }
+  .kh-stm-stage { width: min(94vw, calc((100dvh - 250px) * .75)); border-radius: 22px; }
+  .kh-stm-cc span { display: none; }
+  .kh-stm-cc { width: 38px; padding: 0; }
+  .kh-stm-status { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kh-stm-photo .kh-av, .kh-stm.is-photo.is-talking .kh-stm-photo .kh-av,
+  .kh-stm-wave b, .kh-stm-mic.is-live { animation: none; }
+  .kh-stm-v { transition: none; }
+}
+
+/* ══════════════════════════════════════════════════════════
    ২৪. ফুটারের সাবস্ক্রিপশন — কাগজের উড়োজাহাজ (`plume`)
    ২১ সেপ্টেম্বর ২০২৬ · ব্যবহারকারীর সিদ্ধান্ত: "সাবসক্রিপশন তো
    ফুটারেই আছে, সেখানেই থাকলে ভালো লাগবে।"
