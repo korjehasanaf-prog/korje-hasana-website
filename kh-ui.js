@@ -3625,39 +3625,84 @@
            আসছে… স্বাভাবিক কথা বলার সময় যেমন দাত দেখা যায়")। স্বাভাবিক কথায়
            ঠোঁটের ফাঁকে মূলত **উপরের দাঁত** দেখা যায়, নিচে সামান্য গাঢ় লালচে ছায়া,
            বেশি খুললে নিচের দাঁতের কিনারা। রঙ কখনো কালো নয় — উষ্ণ লালচে-বাদামি। */
-        var mw = FACE.mouthHalf * k * (0.8 + 0.08 * st.open);
+        /* ⚠️⚠️ সেশন ৫ (২৬ সেপ্টে): আগের দাঁত ছিল একটি সাদা উপবৃত্ত, আর মুখ খুলত
+           মাত্র ১২px (ছবির মাপে) — পর্দায় ~৪px, তাই "শুধু একটি সাদা দাগ" দেখা যেত।
+           এখন আসল মাপে: ঠোঁটের প্রস্থ ১৮০px ≈ ৫০ মিমি ⇒ ১ মিমি ≈ ৩.৬px।
+           স্বাভাবিক কথায় মুখ খোলে ৩–৮ মিমি, উপরের দাঁত দেখা যায় ৩–৬ মিমি,
+           আর দাঁতগুলো **আলাদা আলাদা** — মাঝের দুটি চওড়া, পাশেরগুলো ছোট ও ছায়ায়। */
+        var mw = FACE.mouthHalf * k * (0.78 + 0.06 * st.open);
         var top0 = y0 - up, gap = a + up;
-        var my = top0 + gap / 2, mh = gap / 2 + 2 * k;
+        var my = top0 + gap / 2, mh = gap / 2 + 1.5 * k;
         ctx.save();
-        try { ctx.filter = 'blur(' + (0.6 * k).toFixed(2) + 'px)'; } catch (e) {}
+        try { ctx.filter = 'blur(' + (0.55 * k).toFixed(2) + 'px)'; } catch (e) {}
         ctx.beginPath(); ctx.ellipse(cx, my, mw, mh, 0, 0, Math.PI * 2); ctx.clip();
-        var gi = ctx.createRadialGradient(cx, my + gap * 0.25, 1, cx, my, mw);
-        gi.addColorStop(0, '#5a2429'); gi.addColorStop(0.7, '#7a3a3c'); gi.addColorStop(1, '#94504c');
-        ctx.fillStyle = gi; ctx.fillRect(cx - mw, my - mh, mw * 2, mh * 2);
-        /* উপরের দাঁত — ফাঁকের উপরের ৬০–৭০% জুড়ে, মাঝে উজ্জ্বল, কোণে ছায়া */
-        var th = Math.min(gap * 0.66, 8.5 * k);
-        var tg = ctx.createLinearGradient(0, top0, 0, top0 + th);
-        /* ⚠️ ঝকঝকে সাদা নয় — ছবির আলোয় উজ্জ্বল সাদা পাত বসানো মনে হত (যাচাইয়ে দেখা) */
-        tg.addColorStop(0, '#ebe1d6'); tg.addColorStop(0.7, '#dacdc0'); tg.addColorStop(1, '#b8a597');
-        ctx.fillStyle = tg;
-        ctx.beginPath(); ctx.ellipse(cx, top0, mw * 0.84, th, 0, 0, Math.PI); ctx.fill();
-        /* দাঁতের সারির হালকা ভাঁজ — একটানা সাদা পাত যেন না দেখায় */
-        ctx.strokeStyle = 'rgba(150,120,110,.22)'; ctx.lineWidth = Math.max(0.6, 0.7 * k);
-        for (var tx = -3; tx <= 3; tx++) {
-          var xx = cx + tx * mw * 0.2;
-          ctx.beginPath(); ctx.moveTo(xx, top0); ctx.lineTo(xx, top0 + th * 0.85); ctx.stroke();
+        /* মুখের ভেতর — উষ্ণ গাঢ় লালচে, কখনো কালো নয় */
+        var gi = ctx.createLinearGradient(0, top0, 0, top0 + gap);
+        gi.addColorStop(0, '#4a1c22'); gi.addColorStop(0.6, '#5e2429'); gi.addColorStop(1, '#7b3a3b');
+        ctx.fillStyle = gi; ctx.fillRect(cx - mw, top0 - 2 * k, mw * 2, gap + 6 * k);
+        /* জিভের আভাস — বেশি খুললে নিচে */
+        if (gap > 12 * k) {
+          ctx.fillStyle = 'rgba(160,78,82,.55)';
+          ctx.beginPath(); ctx.ellipse(cx, top0 + gap + 2 * k, mw * 0.55, (gap - 10 * k) * 0.45 + 2 * k, 0, Math.PI, Math.PI * 2); ctx.fill();
         }
-        /* নিচের দাঁতের কিনারা — কেবল বেশি খুললে */
-        if (a > 7 * k) {
-          var bh = Math.min((a - 7 * k) * 0.5 + 1.5 * k, 3.5 * k);
-          ctx.fillStyle = 'rgba(214,202,192,.8)';
-          ctx.beginPath(); ctx.ellipse(cx, y0 + a + 0.5 * k, mw * 0.62, bh, 0, Math.PI, Math.PI * 2); ctx.fill();
+        /* উপরের দাঁত — মাঝখান থেকে দুই পাশে: মধ্য · পাশের · শ্বদন্ত · প্রিমোলার */
+        var th = Math.min(gap * 0.58 + 1.5 * k, 19 * k);
+        var sc = mw / (FACE.mouthHalf * k * 0.84);
+        /* পিছনের ছায়াময় সারি — দাঁতের মাঝের ফাঁক গাঢ় গর্ত না হয়ে হালকা রেখা হয়
+           (প্রথম সংস্করণে ফাঁকগুলো কালো দেখাত, বেড়ার খুঁটির মতো লাগত — যাচাইয়ে ধরা পড়ে) */
+        var bandW = 86 * k * sc;
+        var bgr = ctx.createLinearGradient(cx - bandW, 0, cx + bandW, 0);
+        bgr.addColorStop(0, 'rgba(120,96,88,0)'); bgr.addColorStop(0.25, 'rgba(176,158,146,.95)');
+        bgr.addColorStop(0.75, 'rgba(176,158,146,.95)'); bgr.addColorStop(1, 'rgba(120,96,88,0)');
+        ctx.fillStyle = bgr;
+        ctx.beginPath(); ctx.ellipse(cx, top0 - 3 * k, bandW, th * 0.93 + 3 * k, 0, 0, Math.PI); ctx.fill();
+        var TEETH = [[15, 29, 1, 1], [42, 24, 0.9, 0.9], [64, 19, 0.95, 0.76], [81, 15, 0.8, 0.6]];
+        TEETH.forEach(function (tt) {
+          [-1, 1].forEach(function (sd) {
+            var tcx = cx + sd * tt[0] * k * sc, tw = (tt[1] - 1.1) * k * sc;
+            var tl = th * tt[2] * (1 - 0.04 * Math.abs(tt[0]) / 81);   /* হাসির মতো হালকা বাঁক */
+            var x0 = tcx - tw / 2, y1 = top0 - 3 * k, y2 = top0 + tl;
+            var r = Math.min(tw * 0.22, tl * 0.4);
+            var lum = tt[3];
+            var tg = ctx.createLinearGradient(0, y1, 0, y2);
+            /* ⚠️ হাতির দাঁতের রঙ, উপরে ঠোঁটের ছায়া, ডগা সামান্য স্বচ্ছ — ঝকঝকে সাদা নয় */
+            tg.addColorStop(0, shade('#8f7d73', lum));
+            tg.addColorStop(0.3, shade('#ddd1c3', lum));
+            tg.addColorStop(0.82, shade('#e6ddd0', lum));
+            tg.addColorStop(1, shade('#c4bdb9', lum));
+            ctx.fillStyle = tg;
+            ctx.beginPath();
+            ctx.moveTo(x0, y1); ctx.lineTo(x0 + tw, y1);
+            ctx.lineTo(x0 + tw, y2 - r);
+            ctx.quadraticCurveTo(x0 + tw, y2, x0 + tw - r, y2);
+            ctx.lineTo(x0 + r, y2);
+            ctx.quadraticCurveTo(x0, y2, x0, y2 - r);
+            ctx.closePath(); ctx.fill();
+          });
+        });
+        /* নিচের দাঁতের ডগা — কেবল বেশ খুললে, নিচের ঠোঁটের আড়াল থেকে সামান্য */
+        if (gap > 15 * k) {
+          /* একটানা নরম কিনারা — আলাদা গোল গোল দাঁত দিলে পুঁতির মালার মতো দেখাত */
+          var bh = Math.min((gap - 15 * k) * 0.35 + 1.2 * k, 4.5 * k), yb = top0 + gap + 1.5 * k, lw = 52 * k * sc;
+          var lg = ctx.createLinearGradient(cx - lw, 0, cx + lw, 0);
+          lg.addColorStop(0, 'rgba(190,176,166,0)'); lg.addColorStop(0.3, 'rgba(200,188,178,.8)');
+          lg.addColorStop(0.7, 'rgba(200,188,178,.8)'); lg.addColorStop(1, 'rgba(190,176,166,0)');
+          ctx.fillStyle = lg;
+          ctx.beginPath(); ctx.ellipse(cx, yb, lw, bh, 0, Math.PI, Math.PI * 2); ctx.fill();
         }
-        /* কোণের ছায়া — ঠোঁটের কোণে দাঁত মিলিয়ে যায় */
-        var sg = ctx.createRadialGradient(cx, my, mw * 0.55, cx, my, mw);
-        sg.addColorStop(0, 'rgba(90,36,41,0)'); sg.addColorStop(1, 'rgba(90,36,41,.75)');
+        /* উপরের ঠোঁটের ছায়া দাঁতের উপর, আর কোণে গাঢ়তা — ঠোঁটের কোণে দাঁত মিলিয়ে যায় */
+        var ls = ctx.createLinearGradient(0, top0 - 2 * k, 0, top0 + 3.5 * k);
+        ls.addColorStop(0, 'rgba(70,30,32,.55)'); ls.addColorStop(1, 'rgba(70,30,32,0)');
+        ctx.fillStyle = ls; ctx.fillRect(cx - mw, top0 - 2 * k, mw * 2, 6 * k);
+        var sg = ctx.createRadialGradient(cx, my, mw * 0.45, cx, my, mw);
+        sg.addColorStop(0, 'rgba(60,22,26,0)'); sg.addColorStop(1, 'rgba(60,22,26,.88)');
         ctx.fillStyle = sg; ctx.fillRect(cx - mw, my - mh, mw * 2, mh * 2);
         ctx.restore();
+      }
+      function shade(hex, f) {
+        var n = parseInt(hex.slice(1), 16);
+        var r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+        return 'rgb(' + r + ',' + g + ',' + b + ')';
       }
 
       function eye(e, b) {
@@ -3745,7 +3790,9 @@
         if (st.open > 0 || prev > 0 || b > 0 || dirty) {
           dirty = b > 0 || st.open > 0;                     /* শেষ ফ্রেমটি পরিষ্কার করে আঁকা */
           ctx.drawImage(img, 0, 0);
-          if (st.open > 0.02) mouth(st.open * 12 * k);    /* স্বাভাবিক কথায় মুখ বেশি খোলে না */
+          /* ⚠️ ১২ → ২৪: ছবির মাপে ২৪px ≈ ৭ মিমি — স্বাভাবিক কথার সর্বোচ্চ খোলা।
+             কম দিলে পর্দায় দাঁত কেবল একটি সাদা রেখা হয়ে যায় (সেশন ৫-এর অভিযোগ)। */
+          if (st.open > 0.02) mouth((2.5 + st.open * 21.5) * k);
           if (b > 0.02) FACE.eyes.forEach(function (e) { eye(e, b); });
         }
         pose(now, t);
@@ -3853,11 +3900,11 @@
     function stmStatus(t) { if (stm) stm.statusEl.textContent = t || ''; }
 
     /* ⚠️ লেখা সবসময় textContent-এ — মডেলের উত্তর কখনো innerHTML-এ নয় */
-    function stmCaption(who, text) {
+    function stmCaption(who, text, force) {
       if (!stm) return;
       stm.capWho.textContent = who || '';
       stm.capText.textContent = text || '';
-      stm.cap.hidden = !stm.cc || !text;
+      stm.cap.hidden = !(stm.cc || force) || !text;   /* force — কণ্ঠ না চললে উত্তর যেন হারিয়ে না যায় */
     }
 
     function paintStmMic() {
@@ -3910,8 +3957,16 @@
         if (i >= reqs.length) { finish(true); return; }
         reqs[i].then(function (buf) {
           if (!stmAlive(id)) return;
-          if (!buf) {                         /* বাকি অংশ ব্রাউজারের নারীকণ্ঠে */
-            stmBrowserSay(parts.slice(i).join(' '), id, done);
+          if (!buf) {
+            /* ⚠️ সেশন ৫: মাঝপথে ব্রাউজারের কণ্ঠে চলে গেলে "আরেকজন" কথা বলছে মনে হত।
+               তাই আগে একবার আবার চাওয়া; তবু না এলে — শুরু হয়ে থাকলে বাকিটা লেখায়,
+               আর একদমই শুরু না হলে (সার্ভারের কণ্ঠ অচল) পুরো উত্তর ব্রাউজারের কণ্ঠে। */
+            if (!reqs[i].retried && !stm.noServerTts && parts[i] !== STM_GREET) {
+              reqs[i] = stmTtsFetch(parts[i]); reqs[i].retried = true;
+              playFrom(i); return;
+            }
+            if (started) { stmCaption('হাসানা', text, true); finish(true); return; }
+            stmBrowserSay(parts.join(' '), id, done);
             return;
           }
           if (!started) {
@@ -3939,12 +3994,13 @@
     function stmSplit(text) {
       var clean = ttsClean(text);
       if (!clean) return [text];
-      var first = ttsChunks(clean, 90)[0] || clean;
+      var first = ttsChunks(clean, 70)[0] || clean;   /* ছোট প্রথম বাক্য = দ্রুত শুরু */
       var rest = clean.slice(first.length).trim();
-      var out = [first];
-      if (rest) out = out.concat(ttsChunks(rest, 220));
-      if (out.length > 4) out = out.slice(0, 3).concat([out.slice(3).join(' ')]);
-      return out;
+      /* ⚠️ সর্বোচ্চ ২ টুকরো (সেশন ৫) — প্রতিটি টুকরো আলাদা করে তৈরি হয়, আর টুকরো
+         বেশি হলে কণ্ঠের সুর টুকরোয় টুকরোয় বদলে যেত ("এক একবার এক একজন কথা বলছে")।
+         ছোট প্রথম বাক্য দ্রুত আসে; বাকিটা এক টানে, একই সুরে। */
+      if (!rest || rest.length < 25) return [clean];
+      return [first, rest];
     }
     function stmPcm(bin, rate) {
       var ac = stm && stm.ac;
