@@ -3890,26 +3890,52 @@
         if (fb && fb !== state) stmShow(fb, opts);
         return;
       }
+      /* 🎬 সেশন ১১ — ভিডিও পুল: প্রতিটি ক্লিপের নিজের <video>, সেশনের শুরুতেই লোড।
+         আগে প্রতিবার `src` বদলে নতুন করে লোড হত (oncanplay-এর অপেক্ষা) — তাই কথা শুরুর
+         পরেও ঠোঁট নড়তে দেরি হত আর কথা শেষেও কিছুক্ষণ নড়ত। এখন অবস্থা বদল তাৎক্ষণিক। */
       var file = stmPick(list, stm.lastFile);
-      stm.lastFile = file;
+      var v = stm.pool && stm.pool[file];
+      if (!v) return;
       var id = stm.id, gen = ++stm.gen;
-      var back = stm.vids[1 - stm.front], front = stm.vids[stm.front];
-      back.loop = !opts.once;
-      back.onended = opts.once ? function () {
+      var cur = stm.curVid;
+      if (v === cur && !opts.once) { stm.vidState = state; return; }   /* একই ক্লিপ চলছে */
+      stm.lastFile = file;
+      stm.stage.classList.toggle('kh-stm-fast', !!opts.fast);
+      v.loop = !opts.once;
+      v.onended = opts.once ? function () {
         if (stmAlive(id) && stm.gen === gen && opts.then) opts.then();
       } : null;
-      back.oncanplay = function () {
-        back.oncanplay = null;
+      /* কথা বলার ক্লিপ এলোমেলো জায়গা থেকে — বারবার একই ভঙ্গিতে শুরু হয় না */
+      try {
+        if (/^talk/.test(state) && v.duration > 2) v.currentTime = Math.random() * (v.duration - 1.2);
+        else if (opts.once) v.currentTime = 0;
+      } catch (e) {}
+      var p = v.play(); if (p && p.catch) p.catch(function () {});
+      function swap() {
         if (!stmAlive(id) || stm.gen !== gen) return;
-        var p = back.play(); if (p && p.catch) p.catch(function () {});
-        back.classList.add('is-on'); front.classList.remove('is-on');
-        stm.front = 1 - stm.front;
-        setTimeout(function () {
-          if (stmAlive(id) && stm.gen === gen) { try { front.pause(); } catch (e) {} }
-        }, 340);
-      };
-      back.src = STM_BASE + file;
-      try { back.load(); } catch (e) {}
+        v.classList.add('is-on');
+        if (cur && cur !== v) {
+          cur.classList.remove('is-on');
+          var old = cur;
+          setTimeout(function () { if (stmAlive(id) && stm.curVid !== old) { try { old.pause(); } catch (e) {} } }, 360);
+        }
+        stm.curVid = v; stm.vidState = state;
+      }
+      if (v.readyState >= 2) swap();
+      else v.addEventListener('canplay', swap, { once: true });   /* প্রথমবার — পুরনোটি ততক্ষণ থাকে */
+    }
+
+    /* ক্লিপটি সত্যিই চলছে কি না — অডিও ঠিক তখনই শুরু হয় (সর্বোচ্চ max ms অপেক্ষা) */
+    function stmVideoReady(max) {
+      return new Promise(function (res) {
+        var t0 = performance.now();
+        (function chk() {
+          var v = stm && stm.curVid;
+          var ok = !stmClips || !v || (stm.vidState === stm.state && v.readyState >= 3 && !v.paused);
+          if (ok || !stm || performance.now() - t0 > max) { res(); return; }
+          setTimeout(chk, 30);
+        })();
+      });
     }
 
     function stmStatus(t) { if (stm) stm.statusEl.textContent = t || ''; }
@@ -3970,7 +3996,7 @@
         stm.speaking = false;
         stm.el.classList.remove('is-talking');
         if (stm.face) { stm.face.level(-1); stm.face.talk(false); }
-        if (/^talk/.test(stm.state)) stmShow('idle');
+        if (/^talk/.test(stm.state) || (stmClips && stm.state === 'idle')) stmShow('idle', { fast: true });
         if (done) done(ok);
       }
       function playFrom(i) {
@@ -3990,16 +4016,25 @@
             stmBrowserSay(parts.join(' '), id, done);
             return;
           }
+          var first = !started;
           if (!started) {
             started = true;
             stm.el.classList.add('is-talking');
             if (stm.face) stm.face.talk(true);
             stmCaption('হাসানা', text);
-            if (!/^talk/.test(stm.state)) stmShow(stmTalkState());
+            if (!/^talk/.test(stm.state)) stmShow(stmTalkState(), { fast: true });
           }
-          stmPlay(buf, id, function () {
-            if (stm && stm.face) stm.face.level(0);   /* টুকরোর মাঝে মুখ বন্ধ */
-            playFrom(i + 1);
+          /* ⚠️ সেশন ১১ — শব্দ ও ঠোঁট একসাথে শুরু: কথা বলার ক্লিপটি সত্যিই চলা শুরু
+             করলে তবেই অডিও (সাধারণত ~৫০ms; প্রথমবার/সালামে ক্লিপ না নামলে সর্বোচ্চ ১.৫ সে)। */
+          var wait = !first ? Promise.resolve()
+                   : stmVideoReady(isGreet || !stm.warm ? 1500 : 300);
+          wait.then(function () {
+            if (!stmAlive(id)) return;
+            stm.warm = true;
+            stmPlay(buf, id, function () {
+              if (stm && stm.face) stm.face.level(0);   /* টুকরোর মাঝে মুখ বন্ধ */
+              playFrom(i + 1);
+            });
           });
         });
       }
@@ -4130,8 +4165,19 @@
         peak = Math.max(peak * 0.997, rms);
         var lv = (rms - floor) / Math.max(0.02, peak * 0.85 - floor);
         if (stm.face) stm.face.level(lv <= 0 ? 0 : Math.pow(Math.min(1, lv), 0.8));
+        /* 🎬 সেশন ১১ — ক্লিপ-মোডেও আসল শব্দ দিয়ে ঠোঁট: বাক্যের মাঝের বিরতিতে
+           (>২৬০ms নীরবতা) মুখ-বন্ধ idle ক্লিপে যায়, শব্দ ফিরলেই (>৬০ms) আবার কথার ক্লিপে।
+           দুই সীমা আলাদা (০.০৮ / ০.১৮) — নাহলে কিনারায় মুখ কাঁপত। */
+        if (stmClips) {
+          var now = performance.now();
+          if (lv < 0.08) { quietAt = quietAt || now; loudAt = 0; }
+          else if (lv > 0.18) { loudAt = loudAt || now; quietAt = 0; }
+          if (quietAt && now - quietAt > 260 && /^talk/.test(stm.state)) stmShow('idle', { fast: true });
+          else if (loudAt && now - loudAt > 60 && stm.state === 'idle') stmShow(stmTalkState(), { fast: true });
+        }
         requestAnimationFrame(loop);
       }
+      var quietAt = 0, loudAt = 0;
       src.onended = function () { fin(true); };
       try { src.start(); } catch (e) { fin(false); return; }
       requestAnimationFrame(loop);
@@ -4176,11 +4222,190 @@
       });
     }
 
+    /* ══ 🌐 সেশন ১১ — ভাষা নিজে থেকে চেনা ══════════════════════════════
+       ব্যবহারকারী: "ভাষা পরিবর্তনের জন্য বাটন না দিয়ে প্রশ্ন যে ভাষায় করা হবে উত্তর
+       সেই ভাষায়"। ব্রাউজারের Web Speech একবারে একটিই ভাষা শোনে, তাই মাইকের আসল শব্দ
+       ধরে (নিজস্ব VAD — কথা শুরু ও শেষ মাপা) kh-stt-তে পাঠানো হয়; সেখানে Azure দুই
+       ভাষায় লিখে যেটি মেলে সেটি বাছে। উত্তরও তখন সেই ভাষায় (kh-chat প্রশ্নের ভাষা মানে)।
+       kh-stt না চললে (কি/কোটা নেই, getUserMedia নেই) আগের Web Speech — শেষ চেনা ভাষায়। */
     function stmListen() {
-      if (!stm || !SR || stm.paused || stm.listening || stm.busy) return;
+      if (!stm || stm.paused || stm.listening || stm.busy) return;
+      var canVad = !stm.noServerStt && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && stm.ac;
+      if (canVad) stmListenVad(); else stmListenWeb();
+    }
+
+    function stmMicOff(s) {
+      s = s || stm;
+      if (!s || !s.mic) return;
+      var m = s.mic; s.mic = null;
+      try { m.proc.onaudioprocess = null; m.proc.disconnect(); m.srcNode.disconnect(); m.sink.disconnect(); } catch (e) {}
+      try { m.stream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+    }
+
+    async function stmMicOn() {
+      if (stm.mic) return stm.mic;
+      var stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }
+      });
+      if (!stm) { stream.getTracks().forEach(function (t) { t.stop(); }); return null; }
+      var ac = stm.ac;
+      var srcNode = ac.createMediaStreamSource(stream);
+      var proc = ac.createScriptProcessor(4096, 1, 1);
+      var sink = ac.createGain(); sink.gain.value = 0;          /* চলার জন্য destination-এ জোড়া, কিন্তু নিঃশব্দ */
+      srcNode.connect(proc); proc.connect(sink); sink.connect(ac.destination);
+      stm.mic = { stream: stream, srcNode: srcNode, proc: proc, sink: sink, rate: ac.sampleRate, noise: 0.006 };
+      return stm.mic;
+    }
+
+    function stmListenVad() {
+      var id = stm.id;
+      stm.listening = true;
+      stm.el.classList.add('is-listening');
+      stmShow('listen');
+      stmStatus('');
+      paintStmMic();
+      stmMicOn().then(function (mic) {
+        if (!mic || !stmAlive(id) || !stm.listening) return;
+        var frameSec = 4096 / mic.rate;
+        var pre = [], PRE = Math.ceil(0.45 / frameSec);          /* কথা শুরুর আগের ~০.৪৫ সে */
+        var chunks = [], speaking = false, loudRun = 0, silent = 0, total = 0, waited = 0;
+        function end(kind) {
+          mic.proc.onaudioprocess = null;
+          if (!stmAlive(id)) return;
+          stm.listening = false;
+          stm.el.classList.remove('is-listening');
+          paintStmMic();
+          if (kind === 'stop') return;
+          if (kind === 'none') { stmHeard(id, '', null); return; }
+          stmSendStt(id, chunks, mic.rate);
+        }
+        stm.vadStop = function () { end('stop'); };
+        mic.proc.onaudioprocess = function (ev) {
+          if (!stmAlive(id) || !stm.listening) { mic.proc.onaudioprocess = null; return; }
+          var d = ev.inputBuffer.getChannelData(0), sum = 0;
+          for (var i = 0; i < d.length; i += 2) sum += d[i] * d[i];
+          var rms = Math.sqrt(sum / (d.length / 2));
+          var copy = new Float32Array(d);
+          if (!speaking) {
+            /* শব্দের তলা নিজে থেকে মানিয়ে নেওয়া (ফ্যান, রাস্তার শব্দ) */
+            mic.noise = mic.noise * 0.95 + Math.min(rms, 0.05) * 0.05;
+          }
+          var thr = Math.max(0.014, mic.noise * 3.2);
+          if (!speaking) {
+            pre.push(copy); if (pre.length > PRE) pre.shift();
+            waited += frameSec;
+            loudRun = rms > thr ? loudRun + 1 : 0;
+            if (loudRun >= 2) { speaking = true; chunks = pre.slice(); pre = []; silent = 0; total = chunks.length * frameSec; }
+            else if (waited > 9) end('none');                    /* ৯ সেকেন্ডে কিছুই বলা হয়নি */
+            return;
+          }
+          chunks.push(copy); total += frameSec;
+          silent = rms > thr * 0.8 ? 0 : silent + frameSec;
+          if (silent >= 0.9 || total >= 15) end('talk');          /* ০.৯ সে থামলে = প্রশ্ন শেষ */
+        };
+      }).catch(function (e) {
+        if (!stmAlive(id)) return;
+        stm.listening = false;
+        stm.el.classList.remove('is-listening');
+        var nm = e && e.name;
+        if (nm === 'NotAllowedError' || nm === 'SecurityError') { stm.paused = true; stm.denied = true; stmHeard(id, '', null); }
+        else { stm.noServerStt = true; stmListenWeb(); }           /* অন্য সমস্যা → ব্রাউজারের কান */
+        paintStmMic();
+      });
+    }
+
+    function stmPcm16kB64(chunks, rate) {
+      var n = 0; chunks.forEach(function (c) { n += c.length; });
+      var ratio = rate / 16000, m = Math.floor(n / ratio);
+      var all = new Float32Array(n), o = 0;
+      chunks.forEach(function (c) { all.set(c, o); o += c.length; });
+      var out = new Int16Array(m);
+      for (var j = 0; j < m; j++) {                              /* গড় করে নামানো — alias কম */
+        var a = Math.floor(j * ratio), b = Math.min(n, Math.floor((j + 1) * ratio)), s = 0;
+        for (var k = a; k < b; k++) s += all[k];
+        var v = s / Math.max(1, b - a);
+        out[j] = Math.max(-32768, Math.min(32767, Math.round(v * 32767)));
+      }
+      var u8 = new Uint8Array(out.buffer), bin = '', CH = 0x8000;
+      for (var i = 0; i < u8.length; i += CH) bin += String.fromCharCode.apply(null, u8.subarray(i, i + CH));
+      return btoa(bin);
+    }
+
+    async function stmSendStt(id, chunks, rate) {
+      stmShow('think');
+      var text = '', lang = null, reason = '';
+      try {
+        var token = await stmToken();
+        var base = window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1';
+        var ctl = new AbortController();
+        var tm = setTimeout(function () { ctl.abort(); }, 25000);
+        var res = await fetch(base + '/kh-stt', {
+          method: 'POST', signal: ctl.signal,
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ audio: stmPcm16kB64(chunks, rate), rate: 16000, hint: stm && stm.lang })
+        });
+        clearTimeout(tm);
+        var out = await res.json();
+        text = (out && out.text) || '';
+        lang = (out && out.lang) || null;
+        reason = (out && out.reason) || '';
+      } catch (e) { reason = 'net'; }
+      if (!stmAlive(id)) return;
+      if (!text && /^(quota|no_key|disabled|need_login|model|error|net)$/.test(reason)) {
+        stm.noServerStt = true;                                    /* এই সেশনে ব্রাউজারের কানে */
+        stmShow('listen');
+        stmListenWeb();
+        return;
+      }
+      stmHeard(id, text, lang);
+    }
+
+    /* শোনা শেষ — দুই পথেরই এক জায়গা */
+    function stmHeard(id, t, lang) {
+      if (!stmAlive(id)) return;
+      t = (t || '').trim();
+      if (t) {
+        stm.empty = 0;
+        if (lang === 'en' || lang === 'bn') {
+          stm.lang = lang;
+          try { localStorage.setItem('kh_stm_lang', lang); } catch (e) {}
+          stm.el.setAttribute('lang', lang);
+        }
+        stmCaption(stm.lang === 'en' ? 'You' : 'আপনি', t);
+        paintStmMic();
+        stmAsk(t);
+        return;
+      }
+      var en = stm.lang === 'en';
+      if (stm.denied) {
+        stmMicOff();
+        stmShow('idle');
+        stmStatus(en ? 'Microphone permission was not given — allow it from the 🔒 icon beside the address bar'
+                     : 'মাইকের অনুমতি পাওয়া যায়নি — ঠিকানা বারের 🔒 আইকনে গিয়ে মাইক্রোফোন Allow করুন');
+      } else if (stm.paused) {
+        stmShow('idle');
+        stmStatus(en ? 'Paused — tap the mic to talk' : 'থামানো আছে — কথা বলতে মাইকে চাপুন');
+      } else {
+        stm.empty = (stm.empty || 0) + 1;
+        if (stm.empty >= 3) {
+          stm.paused = true;
+          stmMicOff();
+          stmShow('idle');
+          stmStatus(en ? 'I could not hear anything — tap the mic to speak again'
+                       : 'কিছু শুনতে পাইনি — আবার বলতে মাইকে চাপুন');
+        } else {
+          setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
+        }
+      }
+      paintStmMic();
+    }
+
+    function stmListenWeb() {
+      if (!stm || !SR || stm.paused || stm.busy) return;
+      if (stm.listening && stm.rec) return;
       var id = stm.id, got = '';
       var r = new SR();
-      r.lang = listenLang();
+      r.lang = stm.lang === 'en' ? 'en-US' : (window.KH_VOICE_LANG || 'bn-BD');
       r.interimResults = true;
       r.continuous = false;
       r.maxAlternatives = 1;
@@ -4199,7 +4424,7 @@
           var t = ev.results[i][0].transcript;
           if (ev.results[i].isFinal) got += t; else intr += t;
         }
-        stmCaption('আপনি', (got + intr).trim());
+        stmCaption(stm.lang === 'en' ? 'You' : 'আপনি', (got + intr).trim());
       };
       r.onerror = function (ev) {
         if (!stmAlive(id)) return;
@@ -4207,39 +4432,27 @@
         if (e === 'not-allowed' || e === 'service-not-allowed') {
           stm.paused = true;
           stm.denied = true;
-        } else if (e === 'no-speech') {
-          stm.empty = (stm.empty || 0) + 1;
-        }
+        }                                   /* no-speech গোনা হয় stmHeard()-এ */
       };
       r.onend = function () {
         if (!stmAlive(id)) return;
         stm.listening = false;
         stm.el.classList.remove('is-listening');
         stm.rec = null;
-        var t = got.trim();
-        if (t) { stm.empty = 0; paintStmMic(); stmAsk(t); return; }
-        if (stm.denied) {
-          stmShow('idle');
-          stmStatus('মাইকের অনুমতি পাওয়া যায়নি — ঠিকানা বারের 🔒 আইকনে গিয়ে মাইক্রোফোন Allow করুন');
-        } else if (stm.paused) {
-          stmShow('idle');
-          stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন');
-        } else if ((stm.empty || 0) >= 3) {
-          /* টানা তিনবার নীরবতা — মাইক অকারণে খোলা রাখা হয় না */
-          stm.paused = true;
-          stmShow('idle');
-          stmStatus('কিছু শুনতে পাইনি — আবার বলতে মাইকে চাপুন');
-        } else {
-          setTimeout(function () { if (stmAlive(id)) stmListen(); }, 350);
-        }
-        paintStmMic();
+        /* ব্রাউজারের কান যে ভাষায় শুনেছে, উত্তরও সেই ভাষায় */
+        stmHeard(id, got, stm.lang);
       };
       stm.rec = r;
-      try { r.start(); } catch (e) {}
+      stm.listening = true;
+      try { r.start(); } catch (e) { stm.listening = false; }
     }
 
     function stmStopListen() {
-      if (stm && stm.rec) { try { stm.rec.abort(); } catch (e) {} }
+      if (!stm) return;
+      if (stm.rec) { try { stm.rec.abort(); } catch (e) {} }
+      if (stm.vadStop) { var f = stm.vadStop; stm.vadStop = null; f(); }
+      stm.listening = false;
+      stm.el.classList.remove('is-listening');
     }
 
     async function stmAsk(q) {
@@ -4318,14 +4531,11 @@
           '<span class="kh-stm-badge">হাসানা</span>' +
           '<button type="button" class="kh-stm-cc" aria-pressed="false" title="যা বলা হচ্ছে তা লেখায় দেখান">' +
             '<i class="ti ti-badge-cc" aria-hidden="true"></i><span>লেখা</span></button>' +
-          /* 🌐 ভাষা — বাংলা ↔ English (শোনা ও বলা দুটোই বদলায়) */
-          '<button type="button" class="kh-stm-cc kh-stm-lang" title="ভাষা বদলান / Change language">' +
-            '<i class="ti ti-language" aria-hidden="true"></i><span></span></button>' +
+          /* 🌐 ভাষার বাটন বাদ (সেশন ১১) — প্রশ্ন যে ভাষায়, উত্তর সেই ভাষায় (kh-stt নিজে চেনে) */
           '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
         '</div>' +
         '<div class="kh-stm-stage" data-state="idle" data-mood="neutral">' +
-          '<video class="kh-stm-v is-on" muted playsinline preload="auto" aria-hidden="true"></video>' +
-          '<video class="kh-stm-v" muted playsinline preload="auto" aria-hidden="true"></video>' +
+          /* ভিডিওগুলো (প্রতি ক্লিপে একটি) openStm()-এ ক্লিপের তালিকা পেলে বসে */
           '<div class="kh-stm-photo" aria-hidden="true"><span class="kh-av"></span></div>' +
           '<div class="kh-stm-wave" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>' +
           '<div class="kh-stm-cap" hidden><b></b><span></span></div>' +
@@ -4348,8 +4558,8 @@
       stm = {
         id: ++stmSeq, el: el,
         stage: el.querySelector('.kh-stm-stage'),
-        vids: Array.prototype.slice.call(el.querySelectorAll('.kh-stm-v')),
-        front: 0, gen: 0, state: 'idle', lastFile: '', mood: 'neutral',
+        vids: [], pool: {}, curVid: null, vidState: '',
+        gen: 0, state: 'idle', lastFile: '', mood: 'neutral',
         cap: el.querySelector('.kh-stm-cap'),
         capWho: el.querySelector('.kh-stm-cap b'),
         capText: el.querySelector('.kh-stm-cap span'),
@@ -4377,25 +4587,7 @@
         try { localStorage.setItem('kh_stm_cc', stm.cc ? '1' : '0'); } catch (e) {}
         paintCC();
       };
-      /* 🌐 ভাষার বাটন — ইংরেজিতে কথা বলতে হলে মাইককেও ইংরেজি শুনতে হয়
-         (Web Speech একবারে একটিই ভাষা চেনে, তাই স্বয়ংক্রিয় ধরা যায় না) */
-      var langB = el.querySelector('.kh-stm-lang');
-      function paintLang() {
-        var en = stm.lang === 'en';
-        langB.querySelector('span').textContent = en ? 'English' : 'বাংলা';
-        langB.setAttribute('aria-label', en ? 'Language: English — switch to Bangla' : 'ভাষা: বাংলা — ইংরেজিতে বদলান');
-        el.setAttribute('lang', en ? 'en' : 'bn');
-      }
-      paintLang();
-      langB.onclick = function () {
-        if (!stm) return;
-        stm.lang = stm.lang === 'en' ? 'bn' : 'en';
-        try { localStorage.setItem('kh_stm_lang', stm.lang); } catch (e) {}
-        paintLang();
-        /* শোনা চলছিলে নতুন ভাষায় আবার শুরু */
-        if (stm.listening) { stmStopListen(); }
-        else if (!stm.paused && !stm.busy && !stm.speaking) stmListen();
-      };
+      el.setAttribute('lang', stm.lang);
       el.querySelector('.kh-stm-x').onclick = closeStm;
       el.querySelector('.kh-stm-end').onclick = closeStm;
       stm.micB.onclick = function () {
@@ -4407,7 +4599,7 @@
           if (stm.speaking) { speakSeq++; try { speechSynthesis.cancel(); } catch (e) {} stmStopAudio(); if (stm.face) stm.face.level(-1); stm.speaking = false; stm.el.classList.remove('is-talking'); if (stm.face) stm.face.talk(false); }
           if (!stm.busy) stmListen();
         } else {
-          stm.paused = true; stmStopListen(); paintStmMic();
+          stm.paused = true; stmStopListen(); stmMicOff(); paintStmMic();   /* মাইকের বাতিও নেভে */
           if (!stm.speaking && !stm.busy) { stmShow('idle'); stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন'); }
         }
       };
@@ -4422,8 +4614,28 @@
       if (!stmAlive(id)) return;
       el.classList.toggle('is-photo', !clips);
       if (!clips) stm.face = stmFace(el.querySelector('.kh-stm-photo'));
-      if (clips && clips._poster) stm.vids.forEach(function (v) { v.poster = STM_BASE + clips._poster; });
-      if (clips) stmShow('idle');
+      if (clips) {
+        /* 🎬 পুল — প্রতিটি ক্লিপ একবারই নামে, আগে থেকে তৈরি থাকে */
+        var photo = el.querySelector('.kh-stm-photo'), seen = {};
+        Object.keys(clips).forEach(function (k) {
+          if (k.charAt(0) === '_' || !Array.isArray(clips[k])) return;
+          clips[k].forEach(function (f) {
+            if (seen[f]) return; seen[f] = 1;
+            var v = document.createElement('video');
+            v.className = 'kh-stm-v';
+            v.muted = true; v.defaultMuted = true; v.loop = true;
+            v.playsInline = true; v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+            v.preload = 'auto'; v.setAttribute('aria-hidden', 'true');
+            v.src = STM_BASE + f;
+            stm.stage.insertBefore(v, photo);
+            stm.pool[f] = v; stm.vids.push(v);
+          });
+        });
+        var first = stm.pool[clips.idle[0]];
+        if (first && clips._poster) first.poster = STM_BASE + clips._poster;
+        if (first) first.classList.add('is-on');       /* লোড হওয়ার আগেও পোস্টার দেখা যায় */
+        stmShow('idle');
+      }
 
       stmSay(stm.lang === 'en' ? STM_GREET_EN : STM_GREET,
         'smile', 'greet', function () {
@@ -4435,6 +4647,8 @@
       if (!stm) return;
       var s = stm;
       if (s.src) { try { s.src.onended = null; s.src.stop(); } catch (e) {} s.src = null; }
+      s.vadStop = null;
+      stmMicOff(s);                                /* মাইক সম্পূর্ণ বন্ধ — ট্যাবে লাল বিন্দু থাকে না */
       if (s.ac) { try { s.ac.close(); } catch (e) {} }
       stm = null;                                  /* সব কলব্যাক এখানেই থামে */
       speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}

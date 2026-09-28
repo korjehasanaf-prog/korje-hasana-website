@@ -3484,6 +3484,8 @@ body.kh-stm-lock { overflow: hidden; }
   object-fit: cover; opacity: 0; transition: opacity .3s ease;
 }
 .kh-stm-v.is-on { opacity: 1; }
+/* সেশন ১১ — কথা ↔ বিরতির বদল দ্রুত, যাতে ঠোঁট শব্দের সাথে থামে-চলে */
+.kh-stm-stage.kh-stm-fast .kh-stm-v { transition-duration: .14s; }
 .kh-stm-photo { display: none; position: absolute; inset: 0; }
 .kh-stm.is-photo .kh-stm-v { display: none; }
 .kh-stm.is-photo .kh-stm-photo { display: block; }
