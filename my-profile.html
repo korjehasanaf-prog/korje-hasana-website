@@ -160,6 +160,13 @@
     .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
     html[data-theme="light"] .msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
     html[data-theme="light"] .msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+    /* বার্তা এখন ভাসমান — পেজ উপরে টানে না, যেখানে আছেন সেখানেই দেখা যায় (অস্বচ্ছ, দুই থীমে পাঠযোগ্য) */
+    #pmsg.msg{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:9600;
+      width:max-content;max-width:min(92vw,520px);margin:0;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    #pmsg.msg.ok{background:#0f3d22;border-color:#22c55e;color:#bbf7d0}
+    #pmsg.msg.err{background:#4a1414;border-color:#ef4444;color:#fecaca}
+    html[data-theme="light"] #pmsg.msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+    html[data-theme="light"] #pmsg.msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
 
     /* প্রোফাইল পূর্ণতা */
     .ppbar{height:10px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden;margin-bottom:9px}
@@ -318,8 +325,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=50">
-<script src="kh-ui.js?v=50"></script>
+<link rel="stylesheet" href="kh-ui.css?v=51">
+<script src="kh-ui.js?v=51"></script>
 <script>
 (function(){
   'use strict';
@@ -329,8 +336,9 @@
   function msg(kind, text){
     var m = el('pmsg');
     m.className = 'msg ' + kind; m.textContent = text;
-    window.scrollTo({top:0, behavior:'smooth'});
-    if(kind==='ok') setTimeout(function(){ m.className='msg'; }, 5000);
+    /* পেজ আর উপরে টানা হয় না — বার্তা ভাসমান */
+    clearTimeout(msg._t);
+    if(!/হচ্ছে…$/.test(text)) msg._t = setTimeout(function(){ m.className='msg'; }, kind==='ok' ? 5000 : 9000);
   }
   function extOf(f){
     var m = (f.name||'').match(/\.([a-z0-9]+)$/i);

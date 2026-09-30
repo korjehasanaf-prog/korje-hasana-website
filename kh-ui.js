@@ -1135,12 +1135,28 @@
     back.querySelector('.kh-cam-shot').onclick = function () {
       if (!stream || !video.videoWidth) { say('ক্যামেরা এখনো প্রস্তুত নয়…'); return; }
       var cv = document.createElement('canvas');
-      cv.width = video.videoWidth; cv.height = video.videoHeight;
+      var vw = video.videoWidth, vh = video.videoHeight;
+      var sx = 0, sy = 0, sw = vw, sh = vh;
+      /* কার্ডের ফ্রেম থাকলে (সেলফির ডিম্বাকার নয়) কেবল ফ্রেমের ভেতরের অংশ কাটা হয়।
+         ভিডিও object-fit:cover, তাই পর্দার মাপ থেকে ভিডিওর পিক্সেলে রূপান্তর */
+      var gEl = back.querySelector('.kh-cam-guide');
+      if (facing !== 'user' && gEl && !gEl.classList.contains('kh-cam-oval')) {
+        var sr = stage.getBoundingClientRect(), gr = gEl.getBoundingClientRect();
+        if (sr.width > 0 && sr.height > 0 && gr.width > 0) {
+          var sc = Math.max(sr.width / vw, sr.height / vh);
+          var ox = (vw * sc - sr.width) / 2, oy = (vh * sc - sr.height) / 2;
+          sx = Math.max(0, (gr.left - sr.left + ox) / sc);
+          sy = Math.max(0, (gr.top - sr.top + oy) / sc);
+          sw = Math.min(vw - sx, gr.width / sc);
+          sh = Math.min(vh - sy, gr.height / sc);
+        }
+      }
+      cv.width = Math.round(sw); cv.height = Math.round(sh);
       var ctx = cv.getContext('2d');
       if (facing === 'user') {           /* সেলফি আয়নার মত দেখায় — সোজা করে সংরক্ষণ */
         ctx.translate(cv.width, 0); ctx.scale(-1, 1);
       }
-      ctx.drawImage(video, 0, 0, cv.width, cv.height);
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, cv.width, cv.height);
       cv.toBlob(function (blob) {
         if (!blob) { say('ছবি নেওয়া যায়নি, আবার চেষ্টা করুন।'); return; }
         var file = new File([blob], 'capture-' + Date.now() + '.jpg', { type: 'image/jpeg' });

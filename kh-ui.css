@@ -1467,7 +1467,7 @@ html[data-theme="light"] .kh-cam-x { background: #f4eefb; border-color: #e3d8ee;
 .kh-cam-stage.kh-cam-mirror .kh-cam-video { transform: scaleX(-1); }
 
 .kh-cam-guide {
-  position: absolute; inset: 8% 6%;
+  position: absolute; inset: 13% 6%; /* কার্ডের অনুপাত (৮৫.৬×৫৪) — এই ফ্রেমটুকুই সংরক্ষণ হয় */
   border: 2.5px dashed rgba(255,255,255,.6);
   border-radius: 12px; pointer-events: none;
 }
