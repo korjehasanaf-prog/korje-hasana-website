@@ -4483,3 +4483,96 @@ html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
   .kh-cp-tick circle, .kh-cp-tick path { animation: none; stroke-dashoffset: 0; }
   .kh-cp { transition: none; }
 }
+
+/* ════════════════════════════════════════════════════════
+   ২৮. দানের তিন খাত — খাতভিত্তিক হিসাব (.kh-fh · ২৮ সেপ্টেম্বর ২০২৬)
+   পাবলিক (#khStats) ও অ্যাডমিন (dashboard.html) — দুই জায়গাতেই একই টেবিল।
+   ⚠️ নিজের সাদা কাগজ বহন করে, তাই দুই থীমে হুবহু এক; সেকশন ৯-এর ঢালাও
+      লাইট-থীম নিয়ম (০,২,২) আর অ্যাডমিনের নিজস্ব table রঙ এড়াতে নির্বাচক
+      `.kh-fh.kh-fh …` (০,৩,x) ও রঙে !important।
+   ════════════════════════════════════════════════════════ */
+.kh-fh.kh-fh {
+  margin: 22px auto 0; max-width: 1180px; box-sizing: border-box;
+  background: #ffffff !important; color: #2a2238 !important;
+  border: 1px solid #e6dff0; border-radius: 20px;
+  box-shadow: 0 18px 44px rgba(68, 40, 110, .10);
+  padding: 20px 20px 14px; text-align: left;
+}
+.kh-fh.kh-fh .kh-fh-head { margin-bottom: 12px; }
+.kh-fh.kh-fh .kh-fh-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 18px; font-weight: 800; color: #241539 !important;
+}
+.kh-fh.kh-fh .kh-fh-title i { color: #7048e8 !important; font-size: 22px; }
+.kh-fh.kh-fh .kh-fh-sub { font-size: 13px; margin-top: 3px; color: #5b5168 !important; }
+.kh-fh.kh-fh .kh-scrollx { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.kh-fh.kh-fh .kh-fh-t { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14px; }
+.kh-fh.kh-fh .kh-fh-t th {
+  background: #f3eefb !important; color: #4a3a80 !important;
+  font-weight: 700; font-size: 12.5px; padding: 10px 12px; text-align: right; white-space: nowrap;
+  border: 0;
+}
+.kh-fh.kh-fh .kh-fh-t th:first-child { text-align: left; border-radius: 10px 0 0 10px; }
+.kh-fh.kh-fh .kh-fh-t th:last-child { border-radius: 0 10px 10px 0; }
+.kh-fh.kh-fh .kh-fh-t td {
+  padding: 12px; border: 0; border-bottom: 1px solid #efe9f6;
+  text-align: right; white-space: nowrap; vertical-align: middle;
+  color: #2a2238 !important; background: transparent !important;
+  font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.kh-fh.kh-fh .kh-fh-t td.kh-fh-name { text-align: left; white-space: normal; }
+.kh-fh.kh-fh .kh-fh-name { display: flex; align-items: flex-start; gap: 10px; }
+.kh-fh.kh-fh td.kh-fh-name { display: table-cell; }
+.kh-fh.kh-fh .kh-fh-name > .kh-fh-ic { float: left; margin-right: 10px; }
+.kh-fh.kh-fh .kh-fh-ic {
+  width: 36px; height: 36px; border-radius: 11px; display: inline-grid; place-items: center;
+  color: #ffffff !important; font-size: 18px; flex: none;
+}
+.kh-fh.kh-fh .kh-fh-ic i { color: #ffffff !important; }
+.kh-fh.kh-fh .kh-fh-loan      { background: linear-gradient(135deg, #123a86, #2154b8) !important; }
+.kh-fh.kh-fh .kh-fh-revolving { background: linear-gradient(135deg, #3b1b8f, #6234c9) !important; }
+.kh-fh.kh-fh .kh-fh-operation { background: linear-gradient(135deg, #0b5d52, #0f7a6b) !important; }
+.kh-fh.kh-fh .kh-fh-nm { display: block; overflow: hidden; }
+.kh-fh.kh-fh .kh-fh-nm b { display: block; font-size: 15px; color: #241539 !important; }
+.kh-fh.kh-fh .kh-fh-nm small { display: block; font-size: 12px; font-weight: 500; color: #5b5168 !important; margin-top: 1px; }
+.kh-fh.kh-fh .kh-fh-parts { display: block; font-size: 11.5px; font-weight: 500; color: #4a4458 !important; margin-top: 3px; }
+.kh-fh.kh-fh .kh-fh-pct { color: #4a3a80 !important; }
+.kh-fh.kh-fh td.kh-fh-bal { color: #0d6b3a !important; font-weight: 800; }
+.kh-fh.kh-fh td.kh-fh-bal.kh-fh-neg { color: #b3261e !important; }
+.kh-fh.kh-fh .kh-fh-t tfoot td {
+  background: #241539 !important; color: #ffffff !important;
+  font-weight: 800; border: 0; padding: 12px;
+}
+.kh-fh.kh-fh .kh-fh-t tfoot td:first-child { text-align: left; border-radius: 10px 0 0 10px; }
+.kh-fh.kh-fh .kh-fh-t tfoot td:last-child { border-radius: 0 10px 10px 0; }
+.kh-fh.kh-fh tr.kh-fh-go { cursor: pointer; transition: background-color .15s; }
+.kh-fh.kh-fh tr.kh-fh-go:hover td, .kh-fh.kh-fh tr.kh-fh-go:focus td { background: #faf6ff !important; }
+.kh-fh.kh-fh tr.kh-fh-go:focus-visible { outline: 3px solid #7048e8; outline-offset: -3px; }
+.kh-fh.kh-fh .kh-fh-foot { font-size: 12px; color: #5b5168 !important; margin-top: 10px; }
+.kh-fh-err { padding: 14px; border-radius: 12px; background: #fff3e6; color: #8a3b00; font-size: 13.5px; }
+@media (max-width: 640px) {
+  .kh-fh.kh-fh { padding: 16px 12px 10px; border-radius: 16px; }
+  .kh-fh.kh-fh .kh-fh-t { font-size: 13px; }
+}
+
+/* ── ২৮.১ ঋণ তহবিলের কার্ড-গ্রিড (৩০ সেপ্টেম্বর ২০২৬) ──────────────
+   কার্ডগুলো নিজের গ্র্যাডিয়েন্ট বহন করে (সাদা লেখা) — সাদা কাগজের মোড়কে বসে,
+   তাই দুই থীমে ও দুই ড্যাশবোর্ডে হুবহু এক। ⚠️ হিরো কার্ড পুরো সারি জুড়ে। */
+.kh-fh.kh-fh .kh-stats-grid { margin-top: 4px; }
+.kh-fh.kh-fh .kh-st-card.kh-st-wide { grid-column: 1 / -1; }
+.kh-fh.kh-fh .kh-st-card.kh-st-wide .kh-st-num { font-size: clamp(30px, 4.2vw, 40px); }
+.kh-st-num.kh-st-static { white-space: normal; overflow-wrap: anywhere; }
+.kh-fh.kh-fh .kh-st-card .kh-st-lbl,
+.kh-fh.kh-fh .kh-st-card .kh-st-num,
+.kh-fh.kh-fh .kh-st-card .kh-st-sub,
+.kh-fh.kh-fh .kh-st-card .kh-st-mini b,
+.kh-fh.kh-fh .kh-st-card .kh-st-mini s,
+.kh-fh.kh-fh .kh-st-card .kh-st-go { color: #fff !important; }
+.kh-fh.kh-fh .kh-fh-t tfoot small { font-weight: 500; }
+
+/* ২৮.২ — OTR বকেয়ার "লিস্ট" বাটন (নিজের গ্র্যাডিয়েন্ট, সাদা লেখা ≥৫:১ — দুই থীমে এক) */
+.kh-stdet .kh-stdet-list{display:inline-flex;align-items:center;gap:5px;border:0;cursor:pointer;border-radius:999px;padding:5px 13px;min-height:32px;font:600 12.5px/1 inherit;
+  background:linear-gradient(112deg,#b01f55,#7a1aa0 55%,#6238d8);color:#fff !important}
+.kh-stdet .kh-stdet-list:hover{filter:brightness(1.08)}
+.kh-stdet .kh-stdet-list:focus-visible{outline:2px solid #f08c28;outline-offset:2px}
+.kh-stdet .kh-stdet-listbox{margin-top:14px}

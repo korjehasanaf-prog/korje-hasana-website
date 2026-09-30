@@ -324,7 +324,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=46">
+  <link rel="stylesheet" href="kh-ui.css?v=49">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -493,6 +493,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div class="stat-card sc-blue"><span class="stat-ico">💰</span><div class="stat-num" id="ds-depositors">—</div><div class="stat-lbl">সঞ্চয়কারী</div></div>
           <div class="stat-card sc-green"><span class="stat-ico">📊</span><div class="stat-num" id="ds-expense">—</div><div class="stat-lbl">মোট খরচ (৳)</div></div>
         </div>
+
+        <!-- ══ দানের তিন খাত (KHUI.mountFundSummary — পাবলিক ড্যাশবোর্ডের হুবহু একই হিসাব) ══ -->
+        <div id="dsFunds" style="margin-bottom:16px"></div>
 
         <!-- ══ WALLET SUMMARY ══ -->
         <div class="card" id="walletSummary" style="margin-bottom:16px;background:linear-gradient(120deg,#241539,#4c2f78 60%,#7048e8);color:#fff;border:none">
@@ -717,11 +720,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <!-- ══════════════ PANEL: EXPENSE ══════════════ -->
       <div class="panel" id="panel-expense">
         <div class="panel-title">💸 তহবিল ও খরচ</div>
-        <div class="panel-sub">অপারেশন ও রিভলভিং — দুই তহবিলের খরচ ও সমন্বয় নথিভুক্ত করুন</div>
+        <div class="panel-sub">ঋণ তহবিল · রিভলভিং ফান্ড · সঞ্চয়ের ঋণযোগ্য অংশ · জরুরি ফান্ড · অপারেশন ফান্ড — প্রাপ্তি, খরচ, ব্যালেন্স ও ঋণ বিতরণযোগ্য ফান্ড</div>
 
-        <!-- দুই তহবিলের বর্তমান অবস্থা — হোম পেজে যা দেখা যায়, ঠিক তাই -->
-        <div id="fundSummary" class="card" style="display:grid;gap:12px;
-             grid-template-columns:repeat(auto-fit,minmax(190px,1fr))">
+        <!-- তিন খাতের বর্তমান অবস্থা — হোম পেজে যা দেখা যায়, ঠিক তাই (KHUI.fundSummaryHTML) -->
+        <div id="fundSummary">
           <div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>
         </div>
 
@@ -731,7 +733,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div class="fld"><label>তহবিল *</label>
               <select id="exp-fund">
                 <option value="operation">অপারেশন ফান্ড</option>
-                <option value="revolving">রিভলভিং ফান্ড</option>
+                <option value="emergency">জরুরি ফান্ড</option>
+                <option value="loan">ঋণ তহবিল (দানের অংশ)</option>
+                <option value="revolving">রিভলভিং ফান্ড (কিস্তি আদায়)</option>
+                <option value="savings">সঞ্চয় থেকে ঋণযোগ্য</option>
               </select>
             </div>
             <div class="fld"><label>ধরন *</label>
@@ -764,6 +769,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div id="exp-msg" class="msg"></div>
           <div style="margin-top:10px;font-size:12px;color:var(--muted);line-height:1.7">
             ⓘ শতকরা হারের আয় সিস্টেম নিজেই হিসাব করে — প্রতিটি নিশ্চিত দান থেকে।
+            ঋণ তহবিলে ঋণ বিতরণ (খরচ) ও কিস্তি আদায় (প্রাপ্তি) নিজে থেকেই ধরা হয় — আবার লিখবেন না।
             এখানে শুধু খরচ, সমন্বয় বা তহবিলের বাইরের আয় লিখতে হয়।
             হার বদলাতে হলে <b>জেনারেল সেটিংস</b>-এ যান।
           </div>
@@ -774,7 +780,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div class="filter-pills" style="margin-bottom:12px">
             <button class="filter-pill active" onclick="loadFundEntries('all',this)">সব</button>
             <button class="filter-pill" onclick="loadFundEntries('operation',this)">অপারেশন ফান্ড</button>
+            <button class="filter-pill" onclick="loadFundEntries('emergency',this)">জরুরি ফান্ড</button>
+            <button class="filter-pill" onclick="loadFundEntries('loan',this)">ঋণ তহবিল</button>
             <button class="filter-pill" onclick="loadFundEntries('revolving',this)">রিভলভিং ফান্ড</button>
+            <button class="filter-pill" onclick="loadFundEntries('savings',this)">সঞ্চয় থেকে ঋণযোগ্য</button>
           </div>
           <div id="recentExpenses"><div class="empty-state"><i class="ti ti-receipt-off"></i><p>কোনো তথ্য নেই</p></div></div>
         </div>
@@ -1031,18 +1040,34 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
 
         <div class="card">
-          <div class="card-title"><i class="ti ti-percentage"></i> তহবিলের হার — দান থেকে কত অংশ</div>
+          <div class="card-title"><i class="ti ti-percentage"></i> তহবিলের হার ও আদায়হারের নিয়ম (সুপার অ্যাডমিন)</div>
           <div class="form-grid">
-            <div class="fld"><label>অপারেশন ফান্ড (%)</label>
-              <input id="gs-op-pct" type="number" min="0" max="100" step="0.01" placeholder="5"></div>
-            <div class="fld"><label>রিভলভিং ফান্ড (%)</label>
-              <input id="gs-rv-pct" type="number" min="0" max="100" step="0.01" placeholder="5"></div>
+            <div class="fld"><label>জরুরি ফান্ড (% — দান থেকে)</label>
+              <input id="gs-em-pct" type="number" min="0" max="100" step="0.01" placeholder="5" oninput="gsLoanPct()"></div>
+            <div class="fld"><label>অপারেশন ফান্ড (% — দান থেকে)</label>
+              <input id="gs-op-pct" type="number" min="0" max="100" step="0.01" placeholder="5" oninput="gsLoanPct()"></div>
+            <div class="fld"><label>ঋণ তহবিল (% — দান থেকে, বাকি অংশ, নিজে থেকে)</label>
+              <input id="gs-loan-pct" type="text" readonly tabindex="-1" value="৯০"></div>
+            <div class="fld"><label>সঞ্চয়ের যত শতাংশ ঋণে ব্যবহার হবে (%)</label>
+              <input id="gs-sv-pct" type="number" min="0" max="100" step="0.01" placeholder="33.33"></div>
+            <div class="fld"><label>সঞ্চয়ের কোন অঙ্কের উপর হিসাব</label>
+              <select id="gs-sv-basis">
+                <option value="net">নিট জমা (জমা − উত্তোলন)</option>
+                <option value="gross">মোট জমা (উত্তোলন ধরা হবে না)</option>
+              </select></div>
+            <div class="fld"><label>OTR: সময়মতো ধরার অতিরিক্ত দিন</label>
+              <input id="gs-otr-grace" type="number" min="0" max="60" step="1" placeholder="0"></div>
           </div>
+          <div id="gs-pct-warn" class="msg err" style="display:none;margin-top:8px">জরুরি ও অপারেশন ফান্ড মিলে ১০০%-এর বেশি হতে পারে না।</div>
           <div style="font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.9">
-            প্রতিটি <b style="color:inherit">নিশ্চিত</b> দান থেকে এই হারে দুটি তহবিলে জমা হয় —
-            হিসাবটি সিস্টেম নিজেই করে, আলাদা এন্ট্রি লাগে না। হার বদলালে
-            হোম পেজের লাইভ ড্যাশবোর্ডে সাথে সাথেই নতুন হিসাব দেখা যাবে
-            (পুরনো কোনো তথ্য হারায় না — হারটি প্রতিবার নতুন করে কষা হয়)।
+            <b style="color:inherit">দান:</b> প্রতিটি নিশ্চিত দান এই হারে তিন খাতে ভাগ হয় — বাকি অংশ ঋণ তহবিলে যায়
+            (গঠনতন্ত্রের ধারা ৬.৩: ৯০ · ৫ · ৫)।
+            <b style="color:inherit">কিস্তি আদায়:</b> সব আদায়কৃত কিস্তি "রিভলভিং ফান্ড"-এ জমা হয়।
+            <b style="color:inherit">সঞ্চয়:</b> উপরের শতাংশ (১/৩ = ৩৩.৩৩) ঋণ প্রদানের কাজে ব্যবহারযোগ্য।
+            <b style="color:inherit">ঋণ বিতরণযোগ্য ফান্ড</b> = দানের ঋণ তহবিলের অবশিষ্ট + রিভলভিং ফান্ড + সঞ্চয়ের ঋণযোগ্য অংশ।
+            <b style="color:inherit">OTR</b> = নির্ধারিত তারিখ পেরোনো কিস্তির মধ্যে সময়মতো পরিশোধের হার।
+            এখানে বদলালে হোম পেজ, দুই ড্যাশবোর্ড, রিপোর্ট, প্রিন্ট ও চ্যাটবট — সবখানে সাথে সাথে নতুন হিসাব কার্যকর হয়
+            (পুরনো কোনো তথ্য হারায় না — সবকিছু প্রতিবার নতুন করে কষা হয়)।
           </div>
         </div>
 
@@ -1615,7 +1640,14 @@ async function loadGeneralSettings() {
     if (el) el.value = (v === undefined || v === null || v === '') ? 5 : v;
   };
   setPct('gs-op-pct', fr.operation_pct);
-  setPct('gs-rv-pct', fr.revolving_pct);
+  setPct('gs-em-pct', fr.emergency_pct != null ? fr.emergency_pct : fr.revolving_pct);
+  const svEl = document.getElementById('gs-sv-pct');
+  if (svEl) svEl.value = (fr.savings_lend_pct == null || fr.savings_lend_pct === '') ? 33.33 : Math.round(Number(fr.savings_lend_pct) * 100) / 100;
+  const sbEl = document.getElementById('gs-sv-basis');
+  if (sbEl) sbEl.value = fr.savings_basis === 'gross' ? 'gross' : 'net';
+  const ogEl = document.getElementById('gs-otr-grace');
+  if (ogEl) ogEl.value = fr.otr_grace_days == null ? 0 : fr.otr_grace_days;
+  gsLoanPct();
 
   /* দুটি হিসাবই পাশাপাশি দেখানো — কোনটি বাছবেন তা বোঝা সহজ হয় */
   const vNow = document.getElementById('gsVisitNow');
@@ -1674,7 +1706,25 @@ async function saveGeneralSettings() {
     const v = parseFloat((document.getElementById(id) || {}).value);
     return (isFinite(v) && v >= 0 && v <= 100) ? v : 5;
   };
-  const fundRules = { operation_pct: pct('gs-op-pct'), revolving_pct: pct('gs-rv-pct') };
+  const svRaw = parseFloat(document.getElementById('gs-sv-pct').value);
+  const grRaw = parseInt(document.getElementById('gs-otr-grace').value, 10);
+  /* ⚠️ সঞ্চয়ের অংশ: ফাঁকা বা ভুল হলে ১/৩ (৩৩.৩৩৩৩৩৩৩৩৩৩) — ৩৩.৩৩ দেখালেও ঠিক ১/৩ থাকে */
+  const svShown = Math.round((1e2 / 3) * 100) / 100;
+  const svPct = (isFinite(svRaw) && svRaw >= 0 && svRaw <= 100)
+    ? (Math.abs(svRaw - svShown) < 0.005 ? 33.3333333333 : svRaw) : 33.3333333333;
+  const fundRules = {
+    operation_pct: pct('gs-op-pct'),
+    emergency_pct: pct('gs-em-pct'),
+    savings_lend_pct: svPct,
+    savings_basis: document.getElementById('gs-sv-basis').value === 'gross' ? 'gross' : 'net',
+    otr_grace_days: (isFinite(grRaw) && grRaw >= 0 && grRaw <= 60) ? grRaw : 0
+  };
+  if (fundRules.operation_pct + fundRules.emergency_pct > 100) {
+    gsLoanPct();
+    gsMsg.style.color = '#f87171';
+    gsMsg.textContent = 'জরুরি ও অপারেশন ফান্ড মিলে ১০০%-এর বেশি হতে পারে না';
+    return;
+  }
 
   try {
     for (const [k, v] of [
@@ -1696,6 +1746,16 @@ async function saveGeneralSettings() {
     gsMsg.style.color = '#f87171';
     gsMsg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only' ? 'শুধুমাত্র সুপার অ্যাডমিন সেটিংস বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
   }
+}
+
+/* ঋণ তহবিলের হার = ১০০ − জরুরি − অপারেশন (শুধু দেখানো; সার্ভার fund_rates()-ও একই কষে) */
+function gsLoanPct() {
+  const v = id => { const x = parseFloat((document.getElementById(id) || {}).value); return isFinite(x) ? x : 0; };
+  const rest = 100 - v('gs-op-pct') - v('gs-em-pct');
+  const out = document.getElementById('gs-loan-pct');
+  const warn = document.getElementById('gs-pct-warn');
+  if (out) out.value = (window.KHUI ? KHUI.bn(Math.max(0, Math.round(rest * 100) / 100)) : Math.max(0, rest)) + '%';
+  if (warn) warn.style.display = rest < 0 ? 'block' : 'none';
 }
 
 // ════════════════════════════════════════
@@ -1802,15 +1862,27 @@ function rpCardsHTML(s) {
     card('rp-c4', 'ti-cash-banknote', 'ঋণ আদায়', rpTk(l.collected_amount),
       KHUI.bn(l.collected_count || 0) + 'টি কিস্তি · বিলম্বিত ' +
       KHUI.bn(l.overdue_count || 0) + ' (' + rpTk(l.overdue_amount) + ')'),
-    card('rp-c5', 'ti-receipt-2', 'খরচ',
-      rpTk((f.operation_out || 0) + (f.revolving_out || 0)),
-      'অপারেশন ' + rpTk(f.operation_out) + ' · রিভলভিং ' + rpTk(f.revolving_out)),
-    card('rp-c6', 'ti-building-bank', 'তহবিলের স্থিতি',
-      rpTk((f.operation_balance || 0) + (f.revolving_balance || 0)),
-      'অপারেশন ' + rpTk(f.operation_balance) + ' · রিভলভিং ' + rpTk(f.revolving_balance) +
-      '<br>দানের ' + KHUI.bn(f.operation_pct) + '% + ' + KHUI.bn(f.revolving_pct) + '%')
+    card('rp-c5', 'ti-building-bank', 'ঋণ বিতরণযোগ্য ফান্ড',
+      rpTk(rpHeadsTotal(f, 'balance')), rpHeadsLine(f, 'balance') + '<br>শেষ তারিখ পর্যন্ত'),
+    card('rp-c6', 'ti-target-arrow', 'আদায়হার (OTR)',
+      rpOtrBig(s.collection), rpOtrSub(s.collection))
   ].join('');
 }
+/* ঋণ বিতরণযোগ্য ফান্ড — admin_report().summary.fund.heads.lendable (fund_heads()) থেকে; এখানে যোগফল কষা হয় না */
+function rpHeadsTotal(f, k) { var h = f && f.heads && f.heads.lendable; return h ? h[k] : 0; }
+function rpHeadsLine(f, k) {
+  var ps = (f && f.heads && f.heads.lendable && f.heads.lendable.parts) || [];
+  var SHORT = { loan: 'দানের অবশিষ্ট', revolving: 'কিস্তি আদায়', savings: 'সঞ্চয়ের অংশ' };
+  return ps.map(function (h) { return (SHORT[h.key] || esc(h.label)) + ' ' + rpTk(h.balance); }).join(' · ');
+}
+/* OTR — admin_report().summary.collection (collection_stats()) থেকে */
+function rpOtrBig(c) { return (c && c.otr_pct != null) ? KHUI.bn(c.otr_pct) + '%' : '—'; }
+function rpOtrSub(c) {
+  if (!c || c.otr_pct == null) return 'এই সময়সীমায় কোনো কিস্তির নির্ধারিত তারিখ আসেনি';
+  return KHUI.bn(c.on_time) + '/' + KHUI.bn(c.due_count) + ' কিস্তি সময়মতো · মোট আদায়ের হার ' +
+         KHUI.bn(c.collection_pct) + '%<br>বিলম্বে ' + KHUI.bn(c.late_paid) + ' · বকেয়া ' + KHUI.bn(c.unpaid);
+}
+function rpFundBn(k) { return FUND_BN[k] || esc(k || '—'); }
 
 /* ছোট টেবিল বানানোর হেল্পার — head: [..], rows: [[..],..] */
 function rpTable(head, rows, empty) {
@@ -1836,6 +1908,15 @@ function rpDetailHTML(R) {
   var lim = (R.range || {}).row_limit || 500;
   var capNote = 'সর্বোচ্চ ' + KHUI.bn(lim) + 'টি সারি দেখানো হয় — এর বেশি হলে সময়সীমা ছোট করুন।';
   var out = '';
+
+  /* ── তিন খাত ── */
+  var fh = ((R.summary || {}).fund || {}).heads;
+  if (fh && window.KHUI && KHUI.fundTableHTML) {
+    out += '<div class="rp-sec" style="margin-bottom:16px">' + KHUI.fundTableHTML(fh, {
+      title: 'খাতভিত্তিক হিসাব ও ঋণ বিতরণযোগ্য ফান্ড — এই সময়সীমার',
+      sub: 'প্রাপ্তি ও খরচ নির্বাচিত সময়সীমার; ব্যালেন্স শেষ তারিখ পর্যন্ত',
+      inLabel: 'প্রাপ্তি', outLabel: 'খরচ' }) + '</div>';
+  }
 
   /* ── দান ── */
   out += rpSec('ti-heart', 'দান — বিস্তারিত', capNote,
@@ -1920,13 +2001,13 @@ function rpDetailHTML(R) {
     '<div style="margin-bottom:14px">' +
       rpTable(['বিভাগ', 'তহবিল', 'সংখ্যা', 'পরিমাণ'],
         (f.by_category || []).map(function (x) {
-          return [esc(catBn(x.k)), x.fund === 'revolving' ? 'রিভলভিং' : 'অপারেশন',
+          return [esc(catBn(x.k)), rpFundBn(x.fund),
                   KHUI.bn(x.n), '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
         })) +
     '</div>' +
     rpTable(['তারিখ', 'তহবিল', 'ধরন', 'বিভাগ', 'বিবরণ', 'রেফারেন্স', 'পরিমাণ'],
       (f.rows || []).map(function (x) {
-        return [fmtDate(x.d), x.fund === 'revolving' ? 'রিভলভিং' : 'অপারেশন',
+        return [fmtDate(x.d), rpFundBn(x.fund),
                 (x.type === 'income' ? 'আয়' : x.type === 'adjustment' ? 'সমন্বয়' : 'ব্যয়'),
                 esc(catBn(x.category)), esc(x.descr || '—'), esc(x.ref || '—'),
                 '<span class="rp-tot">' + rpTk(x.amt) + '</span>'];
@@ -1977,6 +2058,8 @@ function printReport() {
 '.rp-empty,.rp-note{font-size:10px;color:#5f566f;margin:4px 0 8px}' +
 '.rp-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}' +
 '.rp-sec{page-break-inside:auto}' +
+'.kh-fh-head{margin:0 0 6px}.kh-fh-title{font-size:13.5px;font-weight:800;color:#241539}.kh-fh-sub,.kh-fh-nm small,.kh-fh-parts{display:block;font-size:10px;color:#5f566f}' +
+'.kh-fh-t td,.kh-fh-t th{text-align:right}.kh-fh-t td:first-child,.kh-fh-t th:first-child{text-align:left}.kh-fh-t tfoot td{font-weight:800;background:#f1ecf9}.kh-fh-ic{display:none}' +
 '.ft{margin-top:14px;border-top:1px solid #d8d2e4;padding-top:6px;font-size:9.5px;color:#5f566f;text-align:center}' +
 '</style></head><body>' +
 '<div class="hd"><h1>' + esc(head) + '</h1>' +
@@ -2006,8 +2089,8 @@ function rpPrintCards(s) {
     c('মোট সঞ্চয় স্থিতি', rpTk(s.savings_balance), 'হিসাব ' + KHUI.bn(s.accounts_total || 0) + 'টি') +
     c('ঋণ বিতরণ', rpTk(l.disbursed_amount), KHUI.bn(l.disbursed_count || 0) + 'টি · চলমান ' + KHUI.bn(l.active_loans || 0)) +
     c('ঋণ আদায়', rpTk(l.collected_amount), KHUI.bn(l.collected_count || 0) + 'টি কিস্তি · বকেয়া ' + rpTk(l.outstanding)) +
-    c('তহবিলের স্থিতি', rpTk((f.operation_balance || 0) + (f.revolving_balance || 0)),
-      'অপারেশন ' + rpTk(f.operation_balance) + ' · রিভলভিং ' + rpTk(f.revolving_balance)) +
+    c('ঋণ বিতরণযোগ্য ফান্ড', rpTk(rpHeadsTotal(f, 'balance')), rpHeadsLine(f, 'balance')) +
+    c('আদায়হার (OTR)', rpOtrBig(s.collection), rpOtrSub(s.collection).replace(/<br>/g, ' · ')) +
   '</div>';
 }
 
@@ -2459,6 +2542,9 @@ async function loadDashboard() {
   setText('ds-repaid', fmt(sumRep));
   setText('ds-depositors', depositors.count || 0);
   setText('ds-expense', fmt(sumExp));
+  /* ⚠️ kh-ui.js এই স্ক্রিপ্টের পরে লোড হয় — তখনো না এলে load-এর পর */
+  if (window.KHUI && KHUI.mountFundSummary) KHUI.mountFundSummary('#dsFunds');
+  else window.addEventListener('load', () => { if (window.KHUI && KHUI.mountFundSummary) KHUI.mountFundSummary('#dsFunds'); });
 
   // Recent loan apps
   const {data: recentL} = await _db.from('loan_applications')
@@ -2779,7 +2865,9 @@ function cancelInstallment() {
 //  সব লেখা `record_fund_entry` RPC দিয়ে, যা নিজেই সব যাচাই করে।
 // ════════════════════════════════════════
 let _fundFilter = 'all';
-const FUND_BN = { operation: 'অপারেশন ফান্ড', revolving: 'রিভলভিং ফান্ড' };
+/* ⚠️ ৩০ সেপ্টেম্বর ২০২৬ থেকে 'revolving' = রিভলভিং ফান্ড (কিস্তি আদায়); জরুরি ফান্ডের key এখন 'emergency' */
+const FUND_BN = { operation: 'অপারেশন ফান্ড', emergency: 'জরুরি ফান্ড', loan: 'ঋণ তহবিল (দানের অংশ)',
+                  revolving: 'রিভলভিং ফান্ড', savings: 'সঞ্চয় থেকে ঋণযোগ্য' };
 const FTYPE_BN = { expense: 'খরচ', adjustment: 'সমন্বয়', income: 'অতিরিক্ত আয়' };
 
 async function submitExpense() {
@@ -2826,23 +2914,17 @@ function paintFundSummary(s) {
                     '<p>তহবিলের হিসাব আনা যায়নি</p></div>';
     return;
   }
-  const op = s.operation || {}, rv = s.revolving || {}, d = s.donation || {};
-  const cell = (title, tone, list) =>
-    `<div style="padding:14px 15px;border-radius:14px;color:#fff;background:${tone}">
-       <div style="font-size:12px;font-weight:700;opacity:.94">${title}</div>
-       ${list.map(([k,v]) =>
-         `<div style="display:flex;justify-content:space-between;gap:10px;margin-top:7px;font-size:13px">
-            <span style="opacity:.9">${k}</span>
-            <b style="font-variant-numeric:tabular-nums">৳${fmt(v)}</b></div>`).join('')}
-     </div>`;
-  box.style.display = 'grid';
-  box.innerHTML =
-    cell('সর্বমোট দান প্রাপ্তি', 'linear-gradient(135deg,#7a0d45,#c42a63)',
-         [['সর্বমোট', d.total], ['চলতি মাসে', d.month]]) +
-    cell('অপারেশন ফান্ড (' + bnDigits(op.pct) + '%)', 'linear-gradient(135deg,#0b4a37,#0f7259)',
-         [['প্রাপ্তি', op.income], ['খরচ', op.expense], ['স্থিতি', op.balance]]) +
-    cell('রিভলভিং ফান্ড (' + bnDigits(rv.pct) + '%)', 'linear-gradient(135deg,#3b1b8f,#6234c9)',
-         [['প্রাপ্তি', rv.income], ['সমন্বয়', rv.adjusted], ['স্থিতি', rv.balance]]);
+  const d = s.donation || {};
+  box.style.display = 'block';
+  box.innerHTML = window.KHUI && KHUI.fundSummaryHTML
+    ? KHUI.fundSummaryHTML(s.funds, { detail: true,
+        collection: s.collection,
+        title: 'ঋণ তহবিলের হিসাব — খাতভিত্তিক ব্যালেন্স',
+        sub: 'সর্বমোট দান প্রাপ্তি ৳' + fmt(d.total) + ' (চলতি মাসে ৳' + fmt(d.month) +
+             ') — কোনো কার্ডে ক্লিক করলে সেই খাতের বিস্তারিত দেখা যাবে',
+        foot: 'শুরু থেকে আজ পর্যন্ত। নির্দিষ্ট সময়ের হিসাব "স্টেটমেন্ট ও রিপোর্ট"-এ।' })
+    : '<div class="empty-state"><p>লোড হচ্ছে…</p></div>';
+  if (window.KHUI && KHUI.bindFundSummary) KHUI.bindFundSummary(box);
 }
 
 function bnDigits(v) { return (window.KHUI ? KHUI.bn(v == null ? 5 : v) : String(v)); }
@@ -4245,6 +4327,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=46"></script>
+<script src="kh-ui.js?v=49"></script>
 </body>
 </html>

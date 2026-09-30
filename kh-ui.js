@@ -2845,17 +2845,20 @@
   }
 
   function stCard(o) {
-    return '<button type="button" class="kh-st-card kh-st-' + o.tone + '" ' +
+    /* o.text দিলে স্থির লেখা (পয়সাসহ / শতকরা) — গুনে ওঠা অ্যানিমেশন হয় না */
+    return '<button type="button" class="kh-st-card kh-st-' + o.tone + (o.cls ? ' ' + o.cls : '') + '" ' +
              'data-kh-topic="' + o.topic + '">' +
         '<span class="kh-st-ic"><i class="ti ' + o.icon + '" aria-hidden="true"></i></span>' +
         '<span class="kh-st-lbl">' + vEsc(o.label) + '</span>' +
-        '<span class="kh-st-num" data-kh-to="' + Number(o.value || 0) + '" ' +
+        (o.text != null
+          ? '<span class="kh-st-num kh-st-static">' + vEsc(o.text) + '</span>'
+          : '<span class="kh-st-num" data-kh-to="' + Number(o.value || 0) + '" ' +
               'data-kh-money="' + (o.money === false ? '0' : '1') + '">' +
-          (o.money === false ? '০' : '৳০') + '</span>' +
+            (o.money === false ? '০' : '৳০') + '</span>') +
         '<span class="kh-st-sub">' + vEsc(o.sub || '') + '</span>' +
         (o.mini && o.mini.length
           ? '<span class="kh-st-mini">' + o.mini.map(function (m) {
-              return '<span><b>' + vEsc(m[0]) + '</b><s>' + stTk(m[1]) + '</s></span>';
+              return '<span><b>' + vEsc(m[0]) + '</b><s>' + fhTk(m[1]) + '</s></span>';
             }).join('') + '</span>'
           : '') +
         '<span class="kh-st-go">বিস্তারিত দেখুন ' +
@@ -2863,11 +2866,172 @@
       '</button>';
   }
 
+  /* ════════════════════════════════════════════════════════
+     💰 ঋণ তহবিলের পাঁচ খাত + ঋণ বিতরণযোগ্য ফান্ড + আদায়হার (৩০ সেপ্টেম্বর ২০২৬)
+     ব্যবহারকারী: "সবগুলোর সর্বশেষ ব্যালেন্স সম্বলিত কার্ড … শুধু সংশ্লিষ্ট কার্ডে ক্লিক
+     করলেই সেই খাতের বিস্তারিত"; "আদায়হার বা OTR টাইপের একটি কার্ড"।
+     ⚠️ সব অঙ্ক সার্ভারের `fund_heads()` / `collection_stats()` থেকে (public_stats().funds /
+        .collection; admin_report summary.fund.heads / summary.collection) — এখানে একটিও
+        যোগফল বা শতকরা কষা হয় না। হার বদলানো যায় সুপার অ্যাডমিন → জেনারেল সেটিংসে।
+     খাতের key: loan (দানের ঋণ অংশ) · revolving (কিস্তি আদায়) · savings (সঞ্চয়ের ঋণযোগ্য অংশ)
+                · emergency (জরুরি) · operation (অপারেশন)।
+     ⚠️ পুরনো key 'revolving' আগে জরুরি ফান্ড বোঝাত — এখন রিভলভিং = কিস্তি আদায়, জরুরি = 'emergency'।
+     ════════════════════════════════════════════════════════ */
+  KHUI.FUND_TOPIC = { loan: 'loanfund', revolving: 'revolving', savings: 'savingsfund',
+                      emergency: 'emergency', operation: 'operation', lendable: 'lendable', otr: 'otr' };
+  KHUI.FUND_NAME = { loan: 'ঋণ তহবিল', revolving: 'রিভলভিং ফান্ড', savings: 'সঞ্চয় থেকে ঋণযোগ্য',
+                     emergency: 'জরুরি ফান্ড', operation: 'অপারেশন ফান্ড' };
+  /* ⚠️ পয়সা বাদ দেওয়া যাবে না — ৳২০,১৪৭.৫০ গোল করে ২০,১৪৮ দেখালে যোগফল মিলত না */
+  function fhTk(n) {
+    var v = Math.round(Number(n || 0) * 100) / 100;
+    var neg = v < 0; v = Math.abs(v);
+    var s = v.toLocaleString('en-IN', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
+    return (neg ? '−' : '') + '৳' + KHUI.bn(s);
+  }
+  function fhPct(p) {
+    return KHUI.bn(String(Math.round(Number(p || 0) * 100) / 100));
+  }
+  function fhHead(f, k) {
+    var hs = (f && f.heads) || [];
+    for (var i = 0; i < hs.length; i++) if (hs[i].key === k) return hs[i];
+    return {};
+  }
+  function fhOtrTone(p) {
+    return p >= 95 ? 'চমৎকার' : p >= 85 ? 'ভালো' : p >= 70 ? 'মধ্যম' : 'সতর্কতা প্রয়োজন';
+  }
+
+  /* কার্ড-গ্রিড — দুই ড্যাশবোর্ড ও হোম পেজে একই */
+  KHUI.fundSummaryHTML = function (f, opts) {
+    opts = opts || {};
+    if (!f || !f.heads || !f.heads.length) return '';
+    var rt = f.rates || {};
+    var L = f.lendable || {};
+    var c = opts.collection;
+    var hL = fhHead(f, 'loan'), hR = fhHead(f, 'revolving'), hS = fhHead(f, 'savings'),
+        hE = fhHead(f, 'emergency'), hO = fhHead(f, 'operation');
+    var go = opts.detail !== false;
+
+    function card(o) {
+      o.cls = (o.cls || '');
+      return stCard(o);
+    }
+    var cards = '';
+
+    cards += card({ topic: 'lendable', tone: 'indigo', icon: 'ti-building-bank', cls: 'kh-st-wide',
+      label: 'ঋণ বিতরণযোগ্য ফান্ড', text: fhTk(L.balance),
+      sub: 'দানের ঋণ তহবিলের অবশিষ্ট + কিস্তি আদায় + সঞ্চয়ের ঋণযোগ্য অংশ',
+      mini: (L.parts || []).map(function (p) {
+        return [p.key === 'loan' ? 'দানের অবশিষ্ট' : p.key === 'revolving' ? 'কিস্তি আদায়' : 'সঞ্চয়ের অংশ', p.balance];
+      }) });
+
+    cards += card({ topic: 'loanfund', tone: 'pink', icon: 'ti-businessplan',
+      label: 'ঋণ তহবিল — দানের ' + fhPct(rt.loan_pct != null ? rt.loan_pct : hL.pct) + '%',
+      text: fhTk(hL.balance), sub: 'প্রাপ্তি দানের অংশ · খরচ ঋণ বিতরণ',
+      mini: [['প্রাপ্তি', hL.income], ['বিতরণ ও খরচ', hL.expense]] });
+
+    cards += card({ topic: 'revolving', tone: 'teal', icon: 'ti-refresh',
+      label: 'রিভলভিং ফান্ড', text: fhTk(hR.balance), sub: 'ঋণের কিস্তি বাবদ আদায় হওয়া টাকা',
+      mini: [['আদায়', hR.income], ['খরচ', hR.expense]] });
+
+    cards += card({ topic: 'savingsfund', tone: 'amber', icon: 'ti-pig-money',
+      label: 'সঞ্চয় থেকে ঋণযোগ্য — ' + fhPct(rt.savings_lend_pct != null ? rt.savings_lend_pct : hS.pct) + '%',
+      text: fhTk(hS.balance),
+      sub: 'সঞ্চয় জমার ' + (rt.savings_basis === 'gross' ? 'মোট' : 'নিট') + ' অঙ্কের এই অংশ ঋণে ব্যবহারযোগ্য',
+      mini: [['সঞ্চয়ের ভিত্তি', f.savings_base], ['খরচ', hS.expense]] });
+
+    cards += card({ topic: 'emergency', tone: 'violet', icon: 'ti-lifebuoy',
+      label: 'জরুরি ফান্ড — দানের ' + fhPct(rt.emergency_pct != null ? rt.emergency_pct : hE.pct) + '%',
+      text: fhTk(hE.balance), sub: 'অপ্রত্যাশিত ও জরুরি প্রয়োজনের জন্য',
+      mini: [['প্রাপ্তি', hE.income], ['খরচ', hE.expense]] });
+
+    cards += card({ topic: 'operation', tone: 'rust', icon: 'ti-briefcase',
+      label: 'অপারেশন ফান্ড — দানের ' + fhPct(rt.operation_pct != null ? rt.operation_pct : hO.pct) + '%',
+      text: fhTk(hO.balance), sub: 'অফিস, পরিচালনা ও অন্যান্য খরচ',
+      mini: [['প্রাপ্তি', hO.income], ['খরচ', hO.expense]] });
+
+    if (c) {
+      var otr = c.otr_pct;
+      cards += card({ topic: 'otr', tone: 'teal', icon: 'ti-target-arrow',
+        label: 'আদায়হার (OTR)',
+        text: otr == null ? '—' : fhPct(otr) + '%',
+        sub: otr == null
+          ? 'এখনো কোনো কিস্তির নির্ধারিত তারিখ আসেনি'
+          : fhOtrTone(otr) + ' · ' + KHUI.bn(c.on_time) + '/' + KHUI.bn(c.due_count) +
+            ' কিস্তি সময়মতো · মোট আদায় ' + fhPct(c.collection_pct) + '%' });
+    }
+
+    return '<div class="kh-fh kh-fh-cards">' +
+        '<div class="kh-fh-head">' +
+          '<div class="kh-fh-title"><i class="ti ti-chart-pie" aria-hidden="true"></i>' +
+            vEsc(opts.title || 'ঋণ তহবিলের হিসাব — খাতভিত্তিক ব্যালেন্স') + '</div>' +
+          '<div class="kh-fh-sub">' + vEsc(opts.sub ||
+            'দানের তিন ভাগ, কিস্তি আদায় ও সঞ্চয়ের ঋণযোগ্য অংশ আলাদা রাখা হয়' +
+            (go ? ' — কোনো কার্ডে ক্লিক করলে সেই খাতের বিস্তারিত দেখা যাবে' : '')) + '</div>' +
+        '</div>' +
+        '<div class="kh-stats-grid">' + cards + '</div>' +
+        (opts.foot ? '<div class="kh-fh-foot">' + vEsc(opts.foot) + '</div>' : '') +
+      '</div>';
+  };
+
+  /* রিপোর্ট ও ছাপার জন্য টেবিল — একই সার্ভার-অঙ্ক; ⚠️ পয়সাসহ (fhTk) */
+  KHUI.fundTableHTML = function (f, opts) {
+    opts = opts || {};
+    if (!f || !f.heads || !f.heads.length) return '';
+    var L = f.lendable || {};
+    var rows = f.heads.map(function (h) {
+      var bal = Number(h.balance || 0);
+      return '<tr><td class="kh-fh-name"><span class="kh-fh-nm"><b>' + vEsc(h.label) + '</b></span></td>' +
+          '<td class="kh-fh-pct">' + (h.pct == null ? '—' : fhPct(h.pct) + '%') + '</td>' +
+          '<td>' + fhTk(h.income) + '</td><td>' + fhTk(h.expense) + '</td>' +
+          '<td class="kh-fh-bal' + (bal < 0 ? ' kh-fh-neg' : '') + '">' + fhTk(bal) + '</td></tr>';
+    }).join('');
+    return '<div class="kh-fh">' +
+        '<div class="kh-fh-head">' +
+          '<div class="kh-fh-title"><i class="ti ti-chart-pie" aria-hidden="true"></i>' +
+            vEsc(opts.title || 'ঋণ তহবিলের হিসাব — খাতভিত্তিক') + '</div>' +
+          (opts.sub ? '<div class="kh-fh-sub">' + vEsc(opts.sub) + '</div>' : '') +
+        '</div>' +
+        '<div class="kh-scrollx"><table class="kh-fh-t">' +
+          '<thead><tr><th>খাত</th><th>হার</th><th>' + vEsc(opts.inLabel || 'মোট প্রাপ্তি') + '</th>' +
+            '<th>' + vEsc(opts.outLabel || 'মোট খরচ') + '</th><th>বর্তমান ব্যালেন্স</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+          '<tfoot><tr><td>ঋণ বিতরণযোগ্য ফান্ড<br><small>ঋণ + রিভলভিং + সঞ্চয়ের অংশ</small></td><td></td>' +
+            '<td>' + fhTk(L.income) + '</td><td>' + fhTk(L.expense) + '</td><td>' + fhTk(L.balance) + '</td></tr></tfoot>' +
+        '</table></div>' +
+        (opts.foot ? '<div class="kh-fh-foot">' + vEsc(opts.foot) + '</div>' : '') +
+      '</div>';
+  };
+
+  /* কার্ডে ক্লিক → বিস্তারিত পর্দা (একবারই বাঁধা হয়) */
+  KHUI.bindFundSummary = function (root) {
+    if (!root) return;
+    root.querySelectorAll('.kh-st-card[data-kh-topic]:not([data-kh-bound])').forEach(function (b) {
+      b.setAttribute('data-kh-bound', '1');
+      b.addEventListener('click', function () { KHUI.statsDetail(b.getAttribute('data-kh-topic')); });
+    });
+  };
+  /* অ্যাডমিন ড্যাশবোর্ডের জন্য — public_stats() থেকে এনে বসায় (এ পর্যন্ত) */
+  KHUI.mountFundSummary = async function (host, opts) {
+    host = typeof host === 'string' ? document.querySelector(host) : host;
+    if (!host) return null;
+    var db = sb();
+    if (!db) return null;
+    try {
+      var r = await db.rpc('public_stats');
+      if (r.error || !r.data || !r.data.funds) throw r.error || new Error('no data');
+      host.innerHTML = KHUI.fundSummaryHTML(r.data.funds, Object.assign({ detail: true,
+        collection: r.data.collection,
+        foot: 'শুরু থেকে আজ পর্যন্ত · সর্বশেষ হালনাগাদ ' + KHUI.bn(stWhen(r.data.as_of)) }, opts || {}));
+      KHUI.bindFundSummary(host);
+      return r.data.funds;
+    } catch (e) {
+      host.innerHTML = '<div class="kh-fh-err">খাতভিত্তিক হিসাব আনা যায়নি — একটু পরে আবার চেষ্টা করুন।</div>';
+      return null;
+    }
+  };
+
   KHUI.publicStatsHTML = function (s) {
-    var d = s.donation || {}, op = s.operation || {}, rv = s.revolving || {},
-        sv = s.savings || {}, ln = s.loan || {};
-    var opPct = KHUI.bn(op.pct != null ? op.pct : 5);
-    var rvPct = KHUI.bn(rv.pct != null ? rv.pct : 5);
+    var d = s.donation || {}, sv = s.savings || {}, ln = s.loan || {};
 
     return '<div class="kh-stats-head">' +
         '<span class="kh-stats-kick"><i aria-hidden="true"></i>লাইভ হিসাব</span>' +
@@ -2880,31 +3044,17 @@
                  sub: stNum(d.count) + 'টি দান · ' + stNum(d.donors) + ' জন দাতা',
                  mini: [['আজ', d.today], ['চলতি মাসে', d.month]] }) +
 
-        stCard({ topic: 'operation', tone: 'teal', icon: 'ti-briefcase',
-                 label: 'অপারেশন ফান্ড (স্থিতি)', value: op.balance,
-                 sub: 'দানের ' + opPct + '% এই তহবিলে জমা হয়',
-                 mini: [['প্রাপ্তি', op.income], ['খরচ', op.expense], ['স্থিতি', op.balance]] }) +
-
-        stCard({ topic: 'revolving', tone: 'violet', icon: 'ti-refresh',
-                 label: 'রিভলভিং ফান্ড (স্থিতি)', value: rv.balance,
-                 sub: 'দানের ' + rvPct + '% এই তহবিলে জমা হয়',
-                 mini: [['প্রাপ্তি', rv.income], ['সমন্বয়', rv.adjusted], ['স্থিতি', rv.balance]] }) +
-
         stCard({ topic: 'savings', tone: 'amber', icon: 'ti-pig-money',
                  label: 'মোট সঞ্চয় জমা', value: sv.deposit,
                  sub: stNum(sv.accounts) + 'টি হিসাব · ' + stNum(sv.members) + ' জন সদস্য',
                  mini: [['উত্তোলন', sv.withdraw], ['স্থিতি', sv.balance]] }) +
 
-        stCard({ topic: 'loan', tone: 'indigo', icon: 'ti-businessplan',
-                 label: 'ঋণ বিতরণ', value: ln.principal,
+        stCard({ topic: 'loan', tone: 'rust', icon: 'ti-cash-banknote',
+                 label: 'ঋণ বিতরণ ও আদায়', value: ln.principal,
                  sub: stNum(ln.people) + ' জনকে ' + stNum(ln.count) + 'টি ঋণ',
                  mini: [['আদায়', ln.recovered], ['বকেয়া', ln.outstanding]] }) +
-
-        stCard({ topic: 'loan', tone: 'rust', icon: 'ti-cash-banknote',
-                 label: 'ঋণ আদায়', value: ln.recovered,
-                 sub: 'বকেয়া ' + stTk(ln.outstanding),
-                 mini: [['বিতরণ', ln.principal], ['বকেয়া', ln.outstanding]] }) +
       '</div>' +
+      KHUI.fundSummaryHTML(s.funds, { detail: true, collection: s.collection }) +
       '<div class="kh-stats-foot">সব অঙ্ক সরাসরি সিস্টেম থেকে — সর্বশেষ হালনাগাদ ' +
         KHUI.bn(stWhen(s.as_of)) + '</div>';
   };
@@ -2932,14 +3082,10 @@
       host.dataset.khMounted = '1';
       host.classList.add('kh-stats');
       host.innerHTML = KHUI.publicStatsHTML(r.data);
-      host.querySelectorAll('.kh-st-num').forEach(function (el) {
+      host.querySelectorAll('.kh-st-num:not(.kh-st-static)').forEach(function (el) {
         stCount(el, el.getAttribute('data-kh-to'), el.getAttribute('data-kh-money') === '1');
       });
-      host.querySelectorAll('[data-kh-topic]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          KHUI.statsDetail(b.getAttribute('data-kh-topic'));
-        });
-      });
+      KHUI.bindFundSummary(host);
       return r.data;
     } catch (e) {
       host.remove();          /* গুনতে না পারলে শূন্য দেখানোর চেয়ে না দেখানোই ভালো */
@@ -2979,6 +3125,17 @@
       var pts = (d.series && d.series.points) || [];
       var max = pts.reduce(function (a, p) { return Math.max(a, Number(p.value || 0)); }, 0) || 1;
       var TONE = ['pink', 'teal', 'violet', 'amber', 'indigo', 'rust'];
+      /* "লিস্ট" বাটন কেবল বকেয়ার ভাগে, আর শুধু অ্যাডমিন লগইন থাকলে — নামসহ তালিকা অ্যাডমিন-RPC থেকে */
+      var hasList = false;
+      if (topic === 'otr' && (d.rows || []).some(function (x) { return x.bucket != null; })) {
+        try {
+          var ss = await db.auth.getSession();
+          if (ss && ss.data && ss.data.session) {
+            var ai = await db.rpc('get_my_admin_info');
+            hasList = !!(ai && !ai.error && ai.data && (Array.isArray(ai.data) ? ai.data.length : ai.data));
+          }
+        } catch (e0) { hasList = false; }
+      }
 
       box.innerHTML =
         '<div class="kh-stdet-head">' +
@@ -2994,7 +3151,8 @@
           (d.cards || []).map(function (c, i) {
             return '<div class="kh-stdet-c kh-st-' +
                      (TONE.indexOf(c.tone) >= 0 ? c.tone : TONE[i % TONE.length]) + '">' +
-                   '<b>' + vEsc(c.label) + '</b><s>' + stVal(c.value, c.money) + '</s></div>';
+                   '<b>' + vEsc(c.label) + '</b><s>' +
+                     (c.value == null ? '—' : (c.suffix ? KHUI.bn(String(c.value)) + c.suffix : (c.money ? fhTk(c.value) : stNum(c.value)))) + '</s></div>';
           }).join('') +
         '</div>' +
 
@@ -3003,9 +3161,9 @@
             '<div class="kh-stdet-bars">' +
               pts.map(function (p) {
                 var h = Math.max(4, Math.round(Number(p.value || 0) / max * 100));
-                return '<div class="kh-stdet-bar" title="' + vEsc(stMon(p.label)) + ' — ' +
-                         stTk(p.value) + '">' +
-                       '<u>' + stTk(p.value) + '</u>' +
+                var pv = d.series.unit ? KHUI.bn(String(Number(p.value || 0))) + d.series.unit : fhTk(p.value);
+                return '<div class="kh-stdet-bar" title="' + vEsc(stMon(p.label)) + ' — ' + pv + '">' +
+                       '<u>' + pv + '</u>' +
                        '<i style="height:' + h + '%"></i>' +
                        '<em>' + vEsc(stMon(p.label)) + '</em></div>';
               }).join('') +
@@ -3016,18 +3174,50 @@
         ((d.rows || []).length
           ? '<table class="kh-stdet-tbl"><thead><tr><th>খাত</th>' +
               '<th style="text-align:right">সংখ্যা</th>' +
-              '<th style="text-align:right">টাকা</th></tr></thead><tbody>' +
+              '<th style="text-align:right">টাকা</th>' +
+              (hasList ? '<th></th>' : '') + '</tr></thead><tbody>' +
             d.rows.map(function (x) {
               return '<tr><td>' + vEsc(x.label) + '</td>' +
-                     '<td class="n">' + stNum(x.count) + '</td>' +
-                     '<td class="n">' + stTk(x.value) + '</td></tr>';
-            }).join('') + '</tbody></table>'
+                     '<td class="n">' + (x.count == null ? '—' : stNum(x.count)) + '</td>' +
+                     '<td class="n">' + (x.value == null ? '—' : fhTk(x.value)) + '</td>' +
+                     (hasList ? '<td class="n">' + (x.bucket != null && Number(x.count) > 0
+                        ? '<button type="button" class="kh-stdet-list" data-b="' + Number(x.bucket) + '" data-l="' + vEsc(x.label) + '">' +
+                          '<i class="ti ti-list-details" aria-hidden="true"></i> লিস্ট</button>' : '') + '</td>' : '') +
+                     '</tr>';
+            }).join('') + '</tbody></table><div class="kh-stdet-listbox" hidden></div>'
           : '<div class="kh-stdet-empty">এখনো কোনো তথ্য নেই।</div>') +
 
         '<div class="kh-stdet-foot">এটি প্রকাশ্য সারসংক্ষেপ — কোনো ব্যক্তির নাম, ' +
           'মোবাইল বা লেনদেনের বিবরণ এখানে দেখানো হয় না। ' +
           'সর্বশেষ হালনাগাদ ' + KHUI.bn(stWhen(d.as_of)) + '।</div>';
       box.querySelector('.kh-stdet-x').onclick = close;
+      var lb = box.querySelector('.kh-stdet-listbox');
+      box.querySelectorAll('.kh-stdet-list').forEach(function (btn) {
+        btn.addEventListener('click', async function () {
+          lb.hidden = false;
+          lb.innerHTML = '<div class="kh-stdet-empty">লোড হচ্ছে…</div>';
+          try {
+            var lr = await db.rpc('admin_overdue_list', { p_bucket: Number(btn.getAttribute('data-b')) });
+            if (lr.error || !lr.data) throw lr.error || new Error('x');
+            var rows = lr.data.rows || [];
+            lb.innerHTML = '<div class="kh-stdet-sec">' + vEsc(btn.getAttribute('data-l')) + ' — তালিকা</div>' +
+              (rows.length
+                ? '<div class="kh-scrollx"><table class="kh-stdet-tbl"><thead><tr><th>নাম</th><th>ঋণ নং</th><th>মোবাইল</th>' +
+                  '<th style="text-align:right">বকেয়া কিস্তি</th><th style="text-align:right">বকেয়া টাকা</th>' +
+                  '<th style="text-align:right">সবচেয়ে পুরনো</th></tr></thead><tbody>' +
+                  rows.map(function (x) {
+                    return '<tr><td>' + vEsc(x.name) + '</td><td>' + vEsc(KHUI.bn(x.loans || '—')) + '</td>' +
+                      '<td>' + vEsc(KHUI.bn(x.mobile || '—')) + '</td>' +
+                      '<td class="n">' + stNum(x.n) + '</td><td class="n">' + fhTk(x.amount) + '</td>' +
+                      '<td class="n">' + vEsc(KHUI.bn(String(x.oldest || '—'))) + ' (' + stNum(x.days_late) + ' দিন)</td></tr>';
+                  }).join('') + '</tbody></table></div>'
+                : '<div class="kh-stdet-empty">এই ভাগে কেউ নেই।</div>');
+            lb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          } catch (e1) {
+            lb.innerHTML = '<div class="kh-stdet-empty">তালিকা আনা যায়নি — অ্যাডমিন হিসেবে লগইন আছে কি না দেখুন।</div>';
+          }
+        });
+      });
     } catch (e) {
       box.innerHTML = '<div class="kh-stdet-head">' +
         '<button type="button" class="kh-stdet-x" aria-label="বন্ধ করুন">' +
