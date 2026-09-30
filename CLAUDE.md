@@ -1612,3 +1612,16 @@ var input = host.querySelector('.kh-pay-f input');   // ← রেফারে�
 - **⚠️ নাম/মোবাইল কেবল `admin_overdue_list(p_bucket)`-এ** (SECURITY DEFINER, `is_admin()`, anon-এর EXECUTE নেই); পাবলিক RPC-তে কখনো নয়। p_bucket 0 = সবাই, ১–৫ = ঠিক অত কিস্তি, ≥৬ = ৫-এর বেশি।
 - `KHUI.statsDetail('otr')`: "লিস্ট" বাটন (`.kh-stdet-list`) কেবল সেশন থাকলে ও `get_my_admin_info()` অ্যাডমিন বললে; ব্যর্থ হলে বাটনই বসে না। নামগুলো `vEsc()` দিয়ে।
 - যাচাই (rollback): ১/২/৩/৬/৬ কিস্তির পাঁচ ডেমো ঋণগ্রহীতা → বাকেট ১=১জন ৳১,০০০ · ২=১জন ৳২,০০০ · ৩=১জন ৳৩,০০০ · ৬+=২জন ৳১২,০০০; খেলাপি ৫, মোট ৳১৮,০০০; পাবলিক আউটপুটে নাম নেই। `?v=49`।
+
+## 🗂️ গুগল ড্রাইভ ফাইল স্টোর (১ অক্টোবর ২০২৬ — প্রথম ধাপ)
+
+**ব্যবহারকারীর চাওয়া:** ডাটাবেজ হালকা রাখতে ছবি/ভারী ফাইল নিজের গুগল ড্রাইভের একটি ফোল্ডারে থাকবে; রিপোর্ট/ভিউয়ের সময় সেখান থেকে আনা হবে। সিদ্ধান্ত: **Service Account + শেয়ার করা ফোল্ডার**, দেখা **আমাদের প্রক্সি দিয়ে** (কোনো পাবলিক লিংক নয়)।
+
+- **Edge Function `kh-drive`** (`verify_jwt:false`, ভেতরে যাচাই): `upload` · `get` · `delete` · `ping`। সিক্রেট (ব্যবহারকারী নিজে Supabase Secrets-এ বসাবেন, চ্যাটে নয়): `GDRIVE_SERVICE_ACCOUNT_JSON`, `GDRIVE_ROOT_FOLDER_ID`। না থাকলে ফাংশন `503 not_configured` দেয় ও ক্লায়েন্ট **আগের Supabase Storage পথে নামে** — কিছু ভাঙে না।
+- **টেবিল `drive_files`** (RLS, কেবল service_role): `drive_id` (আসল ড্রাইভ আইডি) কখনো ক্লায়েন্টে যায় না। ডাটাবেজের কলামে রাখা হয় শুধু `drive:<uuid>` রেফারেন্স (`photo_url/nid_url/nid_back_url/signature_url/consent_scan_url`)।
+- **দেখার অনুমতি:** মালিক অথবা `is_admin()`। আপলোডে লগইন লাগে (ব্যতিক্রম: বৈধ আমন্ত্রণ-টোকেন — `consent/nid/avatar`)। সর্বোচ্চ ৮ MB, শুধু ছবি ও PDF। ড্রাইভে উপফোল্ডার নিজে তৈরি হয় (`nid`, `signatures`, `committee-consent` …)।
+- **`_drive_ref_ok(ref, uid)`** — `set_my_signature` ও `set_my_doc_urls` এখন `drive:` রেফারেন্স নেয়, তবে কেবল নিজের (বা অ্যাডমিন)। পুরনো Storage পথ আগের মতোই চলে।
+- **ক্লায়েন্ট:** `KHUI.drive.{upload,url,remove,isRef}`; `url()` blob URL দেয় (হেডারে সেশন টোকেন পাঠিয়ে)। বদলানো: ই-সিগনেচার (`saveSignature`/`signatureUrl`), `my-profile.html` এনআইডি (`saveNid`/`nidUrl`), `committee-form.html` (এনআইডি ও স্ক্যান), `dashboard.html` `openStoredDoc`।
+- ⚠️ **এখনো Storage-এ যা আছে (ইচ্ছাকৃত/বাকি):** প্রোফাইল ও নমিনির ছবি (`avatars` — নেভবার, কার্ড, ভাউচার, ই-মেইলে সরাসরি `<img src>` লাগে, প্রক্সি বসালে সব জায়গা ভাঙবে), ভাউচারের PNG/PDF (`voucher_assets`, `send-voucher` সার্ভার-সাইড — দ্বিতীয় ধাপ), আমন্ত্রণ-লিংকে লগইনছাড়া আপলোড (ড্রাইভ ফাইল দেখতে লগইন লাগে)। পুরনো ডেমো ফাইল সরানো হয়নি।
+- ⚠️ ড্রাইভের রেফারেন্সে ফাইলের নাম নেই, তাই PDF/ছবি চেনা যায় না (`showNidPreview` ছবি ধরে নেয়) — দরকারে `drive_files.mime` ফেরত দিতে হবে।
+- **যাচাই বাকি:** সিক্রেট না থাকায় আসল ড্রাইভে আপলোড পরীক্ষা করা যায়নি; বসানোর পর `ping` ও একটি ছবি আপলোড দেখতে হবে।

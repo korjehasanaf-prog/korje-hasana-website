@@ -2616,13 +2616,84 @@
     return { close: close };
   };
 
-  /* ── স্বাক্ষর সংরক্ষণ: বাকেটে তুলে প্রোফাইলে পথ বসানো ── */
+  /* ── গুগল ড্রাইভ ফাইল স্টোর (প্রক্সি: kh-drive Edge Function) ──
+     ডাটাবেজে থাকে কেবল "drive:<uuid>" রেফারেন্স। ড্রাইভ কনফিগার না থাকলে
+     upload() null দেয় — ডাকার কোড তখন আগের Supabase Storage পথে নামে। */
+  var DRV_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1/kh-drive';
+  var drvBlobCache = {};
+  function drvB64(blob) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(String(fr.result).split(',')[1] || ''); };
+      fr.onerror = function () { rej(new Error('ফাইল পড়া যায়নি')); };
+      fr.readAsDataURL(blob);
+    });
+  }
+  async function drvHeaders() {
+    var h = { 'Content-Type': 'application/json' };
+    var db = sb();
+    try {
+      var s = db && (await db.auth.getSession()).data.session;
+      if (s) h.Authorization = 'Bearer ' + s.access_token;
+    } catch (e) {}
+    if (!h.Authorization && window._SUPA_ANON) h.Authorization = 'Bearer ' + window._SUPA_ANON;
+    return h;
+  }
+  KHUI.drive = {
+    isRef: function (v) { return typeof v === 'string' && v.indexOf('drive:') === 0; },
+    /* opts: {kind, name, invite, replace} → "drive:<id>" অথবা null (কনফিগার নেই) */
+    upload: async function (blob, opts) {
+      opts = opts || {};
+      try {
+        var r = await fetch(DRV_URL, {
+          method: 'POST', headers: await drvHeaders(),
+          body: JSON.stringify({
+            action: 'upload', kind: opts.kind || 'other', name: opts.name || 'file',
+            mime: blob.type || 'application/octet-stream', data_b64: await drvB64(blob),
+            invite_token: opts.invite || undefined, replace_id: opts.replace || undefined
+          })
+        });
+        if (r.status === 503) return null;
+        var j = await r.json();
+        if (j && j.ok) return j.ref;
+        if (j && j.reason === 'login') throw new Error('আগে লগইন করুন');
+        return null;
+      } catch (e) {
+        if (e && e.message === 'আগে লগইন করুন') throw e;
+        return null;
+      }
+    },
+    /* দেখার জন্য blob: URL (অনুমতি সার্ভারে যাচাই হয়) */
+    url: async function (ref) {
+      if (!KHUI.drive.isRef(ref)) return null;
+      if (drvBlobCache[ref]) return drvBlobCache[ref];
+      try {
+        var r = await fetch(DRV_URL, { method: 'POST', headers: await drvHeaders(), body: JSON.stringify({ action: 'get', id: ref }) });
+        if (!r.ok) return null;
+        return (drvBlobCache[ref] = URL.createObjectURL(await r.blob()));
+      } catch (e) { return null; }
+    },
+    remove: async function (ref) {
+      if (!KHUI.drive.isRef(ref)) return;
+      try { await fetch(DRV_URL, { method: 'POST', headers: await drvHeaders(), body: JSON.stringify({ action: 'delete', id: ref }) }); } catch (e) {}
+      delete drvBlobCache[ref];
+    }
+  };
+
+  /* ── স্বাক্ষর সংরক্ষণ: ড্রাইভে (না থাকলে বাকেটে) তুলে প্রোফাইলে রেফারেন্স বসানো ── */
   KHUI.saveSignature = async function (blob) {
     var db = sb();
     if (!db) throw new Error('সংযোগ পাওয়া যায়নি');
     var ses = (await db.auth.getSession()).data.session;
     if (!ses) throw new Error('আগে লগইন করুন');
     var uid = ses.user.id;
+    var dref = await KHUI.drive.upload(blob, { kind: 'signature', name: 'signature.png' });
+    if (dref) {
+      var r0 = await db.rpc('set_my_signature', { p_url: dref });
+      if (r0.error) throw new Error(r0.error.message);
+      KHUI.clearProfileCache && KHUI.clearProfileCache();
+      return dref;
+    }
     /* ⚠️ পথ অবশ্যই uid দিয়ে শুরু — স্টোরেজ পলিসি ও RPC দুটোই তা যাচাই করে */
     var path = uid + '/signature-' + Date.now() + '.png';
 
@@ -2640,6 +2711,7 @@
   KHUI.signatureUrl = async function (path, secs) {
     var db = sb();
     if (!db || !path) return null;
+    if (KHUI.drive.isRef(path)) return KHUI.drive.url(path);
     try {
       var r = await db.storage.from('signatures').createSignedUrl(path, secs || 3600);
       return (r.data && r.data.signedUrl) || null;

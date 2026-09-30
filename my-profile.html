@@ -318,8 +318,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=49">
-<script src="kh-ui.js?v=49"></script>
+<link rel="stylesheet" href="kh-ui.css?v=50">
+<script src="kh-ui.js?v=50"></script>
 <script>
 (function(){
   'use strict';
@@ -409,6 +409,23 @@
 
   var lastNidFile = null;
 
+  /* গোপনীয় নথি: আগে গুগল ড্রাইভে (KHUI.drive), কনফিগার না থাকলে আগের বাকেটে */
+  async function saveNid(file, side){
+    if(window.KHUI && KHUI.drive){
+      var old = side==='back' ? prof.nid_back_url : prof.nid_url;
+      var ref = await KHUI.drive.upload(file, { kind:'nid', name:'nid-'+side+'.'+extOf(file),
+                  replace: KHUI.drive.isRef(old) ? old : undefined });
+      if(ref) return ref;
+    }
+    var path = uid + '/nid' + (side==='back' ? '-back' : '') + '.' + extOf(file);
+    return await upload('nid-docs', path, file);
+  }
+  async function nidUrl(path, secs){
+    if(window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) return await KHUI.drive.url(path);
+    var r = await sb().storage.from('nid-docs').createSignedUrl(path, secs||3600);
+    return r && r.data && r.data.signedUrl || null;
+  }
+
   async function upload(bucket, path, file){
     var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
     if(r.error) throw r.error;
@@ -422,9 +439,8 @@
     if(!path){ box.innerHTML = ''; return; }
     box.innerHTML = '<div class="warn">ছবি আনা হচ্ছে…</div>';
     try{
-      var r = await sb().storage.from('nid-docs').createSignedUrl(path, 3600);
-      var url = r && r.data && r.data.signedUrl;
-      if(!url) throw (r && r.error) || new Error('লিংক তৈরি হয়নি');
+      var url = await nidUrl(path, 3600);
+      if(!url) throw new Error('লিংক তৈরি হয়নি');
       if(/\.pdf($|\?)/i.test(path)){
         box.innerHTML = '<a class="pdfbox" href="' + url + '" target="_blank" rel="noopener">' +
                         '<i class="ti ti-file-type-pdf"></i> PDF খুলুন</a>' +
@@ -582,14 +598,15 @@
       lastNidFile = f;
       msg('ok','এনআইডি আপলোড হচ্ছে…');
       try{
-        var path = uid + '/nid.' + extOf(f);
-        await upload('nid-docs', path, f);
-        var r = await sb().rpc('update_my_profile', { p_nid_url: path });
+        var path = await saveNid(f, 'front');
+        var r = KHUI.drive.isRef(path)
+          ? await sb().rpc('set_my_doc_urls', { p_nid_front: path })
+          : await sb().rpc('update_my_profile', { p_nid_url: path });
         if(r && r.error) throw r.error;
         el('nidSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
         el('nidView').style.display='';
-        showNidPreview('nidPrev', prof.nid_url);
         prof.nid_url = path;
+        showNidPreview('nidPrev', path);
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডি কপি সংরক্ষণ হয়েছে (গোপনীয়)।');
@@ -620,14 +637,15 @@
       if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
       msg('ok','পিছনের পাতা আপলোড হচ্ছে…');
       try{
-        var path = uid + '/nid-back.' + extOf(f);
-        await upload('nid-docs', path, f);
-        var r = await sb().rpc('update_my_profile', { p_nid_back_url: path });
+        var path = await saveNid(f, 'back');
+        var r = KHUI.drive.isRef(path)
+          ? await sb().rpc('set_my_doc_urls', { p_nid_back: path })
+          : await sb().rpc('update_my_profile', { p_nid_back_url: path });
         if(r && r.error) throw r.error;
         el('nidBackSt').innerHTML = '<b>✓ আপলোড করা আছে</b>';
         el('nidBackView').style.display='';
-        showNidPreview('nidBackPrev', prof.nid_back_url);
         prof.nid_back_url = path;
+        showNidPreview('nidBackPrev', path);
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডির পিছনের পাতা সংরক্ষণ হয়েছে (গোপনীয়)।');
@@ -649,8 +667,8 @@
 
     el('nidBackView').onclick = async function(){
       try{
-        var r = await sb().storage.from('nid-docs').createSignedUrl(prof.nid_back_url, 120);
-        if(r && r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+        var u = await nidUrl(prof.nid_back_url, 120);
+        if(u) window.open(u, '_blank');
         else msg('err','ফাইল খোলা যায়নি।');
       }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
     };
@@ -658,8 +676,8 @@
     /* NID দেখা — signed URL */
     el('nidView').onclick = async function(){
       try{
-        var r = await sb().storage.from('nid-docs').createSignedUrl(prof.nid_url, 120);
-        if(r && r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
+        var u = await nidUrl(prof.nid_url, 120);
+        if(u) window.open(u, '_blank');
         else msg('err','ফাইল খোলা যায়নি।');
       }catch(e){ msg('err','ফাইল খোলা যায়নি।'); }
     };
@@ -697,7 +715,10 @@
         var r = await sb().rpc('set_my_signature', { p_url: null });
         if(r && r.error) throw r.error;
         /* ফাইলটিও সরানো — না পারলেও প্রোফাইল থেকে সরে গেছে, তাই আটকাই না */
-        try{ await sb().storage.from('signatures').remove([prof.signature_url]); }catch(e){}
+        try{
+          if(KHUI.drive.isRef(prof.signature_url)) await KHUI.drive.remove(prof.signature_url);
+          else await sb().storage.from('signatures').remove([prof.signature_url]);
+        }catch(e){}
         prof.signature_url = null;
         KHUI.clearProfileCache && KHUI.clearProfileCache();
         await paintSig();

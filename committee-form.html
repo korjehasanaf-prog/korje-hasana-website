@@ -376,8 +376,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=49">
-<script src="kh-ui.js?v=49"></script>
+<link rel="stylesheet" href="kh-ui.css?v=50">
+<script src="kh-ui.js?v=50"></script>
 <script>
 (function(){
   'use strict';
@@ -630,6 +630,7 @@
   async function signed(bucket, path){
     if(!path) return null;
     if(/^https?:/i.test(path)) return path;
+    if(window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) return await KHUI.drive.url(path);
     try{
       var r = await sb().storage.from(bucket).createSignedUrl(path, 3600);
       return (r && r.data && r.data.signedUrl) || null;
@@ -679,6 +680,11 @@
       return ip;
     }
 
+    /* গোপনীয় নথি (এনআইডি, সম্মতিপত্র স্ক্যান) → গুগল ড্রাইভ; কনফিগার না থাকলে আগের বাকেট */
+    if(bucket !== 'avatars' && window.KHUI && KHUI.drive){
+      var dref = await KHUI.drive.upload(file, { kind: bucket === 'nid-docs' ? 'nid' : 'consent', name: name + '.' + ext });
+      if(dref) return dref;
+    }
     var path = ME.id + '/' + folder + name + '-' + Date.now() + '.' + ext;
     var r = await sb().storage.from(bucket).upload(path, file, { upsert:true, cacheControl:'3600' });
     if(r.error) throw r.error;

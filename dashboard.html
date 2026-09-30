@@ -324,7 +324,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=49">
+  <link rel="stylesheet" href="kh-ui.css?v=50">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -3655,6 +3655,11 @@ let _cappFilter = 'pending';
 async function openStoredDoc(path, bucket) {
   if (!path) return;
   if (/^https?:/i.test(path)) { window.open(path, '_blank'); return; }
+  if (window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) {
+    const u = await KHUI.drive.url(path);
+    if (u) window.open(u, '_blank'); else alert('ফাইলটি খোলা যায়নি');
+    return;
+  }
   try {
     const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
     if (r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
@@ -4327,6 +4332,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=49"></script>
+<script src="kh-ui.js?v=50"></script>
 </body>
 </html>
