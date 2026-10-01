@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>মাসিক আয়-ব্যয় বিবরণী | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ⚠️ প্রকল্পের ১ নম্বর নিয়ম — সুপাবেসের দুটি স্ক্রিপ্ট kh-ui.js-এর আগে -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hind Siliguri','Inter',sans-serif;min-height:100vh;padding:28px 16px 110px;color:#f3edfb;background:#150c24;position:relative;overflow-x:hidden}
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:url('images/auth-bg.jpg') center/cover no-repeat}
+    .wrap{position:relative;z-index:1;max-width:820px;margin:0 auto}
+    h1{font-size:26px;text-align:center;margin:6px 0 4px}
+    .lead{text-align:center;font-size:14.5px;color:#d9cfea;margin-bottom:20px;line-height:1.7}
+    html[data-theme="light"] body{color:#241539}
+    html[data-theme="light"] .lead{color:#5f566f}
+
+    /* সময়সীমার ব্যান্ড — প্রতিটি অবস্থা নিজের ভরাট পটভূমি বহন করে (দুই থীমে এক) */
+    .due{border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14.5px;font-weight:600}
+    .due.ok{background:#0d3b2e;color:#c9f5de}.due.wait{background:#2a2140;color:#e8e3f2}.due.late{background:#4a3410;color:#ffe0a3}
+    .due i{font-size:22px}.due .grow{flex:1;min-width:200px}
+
+    .pills{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:6px;scrollbar-width:thin}
+    .pill{flex:0 0 auto;border:1.5px solid #5a4d80;background:#2a2140;color:#f0e9fa;border-radius:999px;padding:8px 16px;font:600 14px 'Hind Siliguri',sans-serif;cursor:pointer}
+    .pill.on{background:linear-gradient(112deg,#a8204f,#7a1ca0 55%,#5b36c9);border-color:transparent;color:#fff}
+
+    .trend{background:#fff;border:1px solid #e3dcef;border-radius:16px;padding:14px 16px;margin:0 auto 16px;max-width:760px;color:#2a2438}
+    .trend h3{font-size:14.5px;margin-bottom:10px;color:#2a2438}
+    .bars{display:flex;align-items:flex-end;gap:10px;height:110px}
+    .bcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+    .bpair{display:flex;align-items:flex-end;gap:3px;height:84px}
+    .b{width:14px;border-radius:4px 4px 0 0;min-height:2px}
+    .b.in{background:#0b6b3f}.b.out{background:#b0245a}
+    .bl{font-size:11px;color:#5f566f;white-space:nowrap}
+    .leg{display:flex;gap:14px;font-size:12.5px;color:#5f566f;margin-top:8px}
+    .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+
+    .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:16px 0}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border:none;border-radius:12px;cursor:pointer;font:700 14.5px 'Hind Siliguri',sans-serif;text-decoration:none;
+         background:linear-gradient(112deg,#a8204f,#7a1ca0 55%,#5b36c9);color:#fff;box-shadow:0 8px 22px rgba(139,31,176,.3)}
+    .btn:hover{filter:brightness(1.1)}.btn[disabled]{opacity:.6;cursor:not-allowed;filter:none}
+    .btn.alt{background:#2a2140;color:#f0e9fa;box-shadow:none;border:1.5px solid #5a4d80}
+    .btn.gold{background:linear-gradient(135deg,#f6a23a,#d4900a);color:#241539;box-shadow:0 6px 18px rgba(240,140,40,.3)}
+    .empty{text-align:center;padding:40px 16px;color:#d9cfea}
+    html[data-theme="light"] .empty{color:#5f566f}
+    .note{max-width:760px;margin:0 auto 14px;font-size:13px;text-align:center;color:#cbbfdd;line-height:1.7}
+    html[data-theme="light"] .note{color:#5f566f}
+    #toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#241539;color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:10080;display:none;max-width:90vw;border:1px solid #5a4d80}
+
+    /* ── সুরক্ষিত ভিউয়ার — ডাউনলোড/প্রিন্ট/কপির পথ নেই ── */
+    #vw{position:fixed;inset:0;z-index:10070;background:#150c24;display:none;flex-direction:column;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+    #vw.on{display:flex}
+    .vw-top{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#241539;color:#f3edfb;border-bottom:1px solid #4a3d6e}
+    .vw-top b{flex:1;font-size:15px}
+    .vw-x{border:none;background:#4a1a1f;color:#ffd6d6;border-radius:10px;padding:8px 14px;font:700 14px 'Hind Siliguri',sans-serif;cursor:pointer}
+    .vw-body{position:relative;flex:1;overflow:auto;padding:14px}
+    .vw-wm{position:absolute;inset:0;pointer-events:none;z-index:3}
+    .vw-paper{background:#fff;color:#2a2438;border-radius:14px;padding:6px;max-width:860px;margin:0 auto}
+    .vw-paper table{width:100%;border-collapse:collapse;font-size:13px}
+    .vw-paper th{background:#f3ecff;color:#4a2d7a;text-align:left;padding:8px;font-weight:700;position:sticky;top:0}
+    .vw-paper td{padding:7px 8px;border-bottom:1px solid #eee7f6;color:#2a2438;vertical-align:top}
+    .vw-paper td.n,.vw-paper th.n{text-align:right;white-space:nowrap}
+    .vw-guard{display:none;position:absolute;inset:0;z-index:4;background:#150c24;color:#f3edfb;align-items:center;justify-content:center;text-align:center;padding:30px;font-size:16px}
+    #vw.blur .vw-guard{display:flex}
+    .vw-foot{padding:8px 14px;font-size:12px;color:#cbbfdd;background:#241539;text-align:center}
+    @media print{body *{display:none !important}body::before{content:"এই পাতা ছাপা যায় না";display:block;padding:40px;font-size:20px}}
+  </style>
+</head>
+<!-- ⚠️ নেভবার সব পেজেই (প্রকল্পের ৬ নম্বর নিয়ম) — `data-kh-nav="off"` কখনো নয় -->
+<body data-kh-nav="on" data-kh-visits="off">
+<div class="bg"></div>
+<div class="wrap">
+  <h1>মাসিক আয়-ব্যয় বিবরণী</h1>
+  <div class="lead">প্রতি মাসের ৫ তারিখের মধ্যে আগের মাসের হিসাব — ব্যাংক স্টেটমেন্ট ও সিস্টেমের রেকর্ড মিলিয়ে, দুজন অ্যাডমিনের অনুমোদনে প্রকাশিত।</div>
+
+  <div id="due"></div>
+  <div id="pills" class="pills"></div>
+  <div id="rep"></div>
+  <div id="trend"></div>
+  <div id="acts" class="acts"></div>
+  <div class="note" id="vnote"></div>
+</div>
+
+<div id="vw" aria-modal="true" role="dialog">
+  <div class="vw-top"><b id="vwT">ব্যাংক স্টেটমেন্ট</b><button class="vw-x" onclick="closeViewer()"><i class="ti ti-x"></i> বন্ধ</button></div>
+  <div class="vw-body" id="vwB"><div class="vw-wm" id="vwWm"></div><div class="vw-guard" id="vwG">নিরাপত্তার জন্য এই পাতা লুকানো হয়েছে।<br>ফিরে এসে পাতায় ক্লিক করুন।</div><div class="vw-paper" id="vwP"></div></div>
+  <div class="vw-foot">শুধু দেখার জন্য · হিসাব/রেফারেন্স নম্বর ঢাকা · আপনার নাম ও সময় প্রতিটি অংশে ছাপা আছে</div>
+</div>
+<div id="toast"></div>
+
+<link rel="stylesheet" href="kh-ui.css?v=54">
+<script src="kh-ui.js?v=54"></script>
+<script>
+(function () {
+  var db = function () { return (window.KHUI && KHUI.db && KHUI.db()) || window._db; };
+  var $ = function (id) { return document.getElementById(id); };
+  var bn = function (s) { return String(s == null ? '' : s).replace(/[0-9]/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); };
+  var tk = function (n) { var v = Number(n || 0); v = (v < 0 ? -1 : 1) * Math.round(Math.abs(v) + 1e-9); return '৳' + bn(v.toLocaleString('en-IN')); };
+  var esc = function (v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); };
+  var lbl = function (m) { return new Date(String(m).slice(0,7) + '-01T00:00:00Z').toLocaleDateString('bn-BD', { month:'long', year:'numeric', timeZone:'UTC' }); };
+  var short = function (m) { return new Date(String(m).slice(0,7) + '-01T00:00:00Z').toLocaleDateString('bn-BD', { month:'short', timeZone:'UTC' }); };
+  var day = function (d) { return d ? bn(String(d).slice(8,10) + '/' + String(d).slice(5,7) + '/' + String(d).slice(0,4)) : ''; };
+  var DATA = null, ME = null, SEL = null, USER = null;
+
+  function toast(t) { var e = $('toast'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast._t); toast._t = setTimeout(function () { e.style.display = 'none'; }, 4500); }
+
+  async function load() {
+    try {
+      var r = await db().rpc('public_statements'); if (r.error) throw r.error; DATA = r.data;
+      var s = await db().auth.getSession(); USER = s && s.data && s.data.session ? s.data.session.user : null;
+      if (USER) { try { var m = await db().rpc('my_statement_state'); ME = m.data; } catch (e) {} }
+    } catch (e) { $('rep').innerHTML = '<div class="empty">লোড করা যায়নি। একটু পরে আবার চেষ্টা করুন।</div>'; return; }
+    renderDue(); renderPills(); if (DATA.items.length) select(SEL || DATA.items[0].month); else $('rep').innerHTML = '<div class="empty"><i class="ti ti-hourglass" style="font-size:34px"></i><br>প্রথম বিবরণী প্রকাশের অপেক্ষায়।</div>';
+  }
+
+  function renderDue() {
+    var d = DATA.due, h = '', req = ME && ME.updated && ME.updated.indexOf(d.due_month) >= 0;
+    if (d.status === 'approved') h = '<div class="due ok"><i class="ti ti-circle-check"></i><div class="grow">' + esc(lbl(d.due_month)) + '-এর বিবরণী হালনাগাদ — সময়মতো প্রকাশিত।</div></div>';
+    else if (!d.overdue) h = '<div class="due wait"><i class="ti ti-clock"></i><div class="grow">' + esc(lbl(d.due_month)) + '-এর বিবরণী ' + day(d.deadline) + ' তারিখের মধ্যে প্রকাশিত হবে।</div></div>';
+    else {
+      h = '<div class="due late"><i class="ti ti-alert-triangle"></i><div class="grow">' + esc(lbl(d.due_month)) + '-এর বিবরণী নির্ধারিত সময় (' + day(d.deadline) + ') পেরিয়েও প্রকাশিত হয়নি।</div>' +
+        (req ? '<span>✓ আপনার অনুরোধ পৌঁছেছে</span>' : '<button class="btn gold" id="updBtn">আপডেটের অনুরোধ পাঠান</button>') + '</div>';
+    }
+    $('due').innerHTML = h;
+    var b = $('updBtn'); if (b) b.onclick = async function () {
+      if (!USER) { location.href = 'user-login.html?next=' + encodeURIComponent('statements.html'); return; }
+      b.disabled = true;
+      try { var r = await db().rpc('request_statement_update', { p_month: d.due_month }); if (r.error) throw r.error; toast('অনুরোধ অ্যাডমিনদের কাছে পৌঁছেছে। ধন্যবাদ।'); load(); }
+      catch (e) { toast(e.message || 'পাঠানো যায়নি'); b.disabled = false; }
+    };
+  }
+
+  function renderPills() {
+    $('pills').innerHTML = DATA.items.map(function (i) { return '<button class="pill' + (i.month === SEL ? ' on' : '') + '" data-m="' + esc(i.month) + '">' + esc(lbl(i.month)) + '</button>'; }).join('');
+    Array.prototype.forEach.call($('pills').children, function (b) { b.onclick = function () { select(b.getAttribute('data-m')); }; });
+  }
+
+  function select(m) {
+    SEL = m; renderPills();
+    var it = DATA.items.filter(function (x) { return x.month === m; })[0]; if (!it) return;
+    $('rep').innerHTML = KHUI.stmReportHTML(it.report);
+    renderTrend(); renderActs(it);
+  }
+
+  function renderTrend() {
+    var arr = DATA.items.slice(0, 6).reverse();
+    if (arr.length < 2) { $('trend').innerHTML = ''; return; }
+    var mx = 1; arr.forEach(function (i) { mx = Math.max(mx, Number(i.report.totals.income), Number(i.report.totals.expense)); });
+    $('trend').innerHTML = '<div class="trend"><h3>মাসের পর মাস — আয় ও ব্যয়</h3><div class="bars">' + arr.map(function (i) {
+      var a = Math.round(Number(i.report.totals.income) / mx * 84), c = Math.round(Number(i.report.totals.expense) / mx * 84);
+      return '<div class="bcol"><div class="bpair"><div class="b in" style="height:' + a + 'px" title="আয় ' + esc(tk(i.report.totals.income)) + '"></div><div class="b out" style="height:' + c + 'px" title="ব্যয় ' + esc(tk(i.report.totals.expense)) + '"></div></div><div class="bl">' + esc(short(i.month)) + '</div></div>';
+    }).join('') + '</div><div class="leg"><span><i style="background:#0b6b3f"></i>আয়</span><span><i style="background:#b0245a"></i>ব্যয়</span></div></div>';
+  }
+
+  function renderActs(it) {
+    var a = $('acts'), n = $('vnote'), st = null;
+    if (ME && ME.views) ME.views.forEach(function (v) { if (v.month === it.month && (!st || v.live || v.status === 'pending')) st = v; });
+    var h = '<button class="btn alt" onclick="window.print()" style="display:none"></button>';
+    h += '<button class="btn alt" id="shareBtn"><i class="ti ti-share"></i> শেয়ার</button>';
+    if (st && st.live) h += '<button class="btn" id="viewBtn"><i class="ti ti-eye"></i> ব্যাংক স্টেটমেন্ট দেখুন</button>';
+    else if (st && st.status === 'pending') h += '<button class="btn alt" disabled><i class="ti ti-hourglass"></i> অনুরোধ অনুমোদনের অপেক্ষায়</button>';
+    else h += '<button class="btn" id="reqBtn"><i class="ti ti-building-bank"></i> ব্যাংক স্টেটমেন্ট দেখার অনুরোধ</button>';
+    a.innerHTML = h;
+    n.textContent = st && st.live ? 'অনুমোদিত — ' + day(st.expires_at) + ' পর্যন্ত শুধু পর্দায় দেখা যাবে; ডাউনলোড বা প্রিন্ট করা যায় না।' : 'আসল ব্যাংক স্টেটমেন্ট দেখতে চাইলে অনুরোধ করুন। অ্যাডমিন অনুমোদন দিলে নির্দিষ্ট সময় শুধু পর্দায় দেখতে পারবেন (ডাউনলোড বা প্রিন্ট নয়)।';
+    $('shareBtn').onclick = function () {
+      var u = location.href.split('#')[0], t = 'কর্জে হাসানা ফাউন্ডেশন — ' + lbl(it.month) + '-এর আয়-ব্যয় বিবরণী';
+      if (navigator.share) navigator.share({ title: t, url: u }).catch(function () {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast('লিংক কপি হয়েছে'); });
+    };
+    var rb = $('reqBtn'); if (rb) rb.onclick = async function () {
+      if (!USER) { location.href = 'user-login.html?next=' + encodeURIComponent('statements.html'); return; }
+      var why = prompt('কেন দেখতে চান? (ঐচ্ছিক, সংক্ষেপে)') ; if (why === null) return;
+      rb.disabled = true;
+      try { var r = await db().rpc('request_statement_view', { p_month: it.month, p_reason: why || '' }); if (r.error) throw r.error; toast('অনুরোধ পাঠানো হয়েছে'); load(); }
+      catch (e) { toast(e.message || 'পাঠানো যায়নি'); rb.disabled = false; }
+    };
+    var vb = $('viewBtn'); if (vb) vb.onclick = function () { openViewer(it.month); };
+  }
+
+  /* ── সুরক্ষিত ভিউয়ার ──
+     ⚠️ ওয়েবে স্ক্রিনশট পুরোপুরি ঠেকানো অসম্ভব (ফোনের হার্ডওয়্যার বা অন্য ক্যামেরা)। তাই স্তরে স্তরে প্রতিরোধ:
+     ডাউনলোডের পথ নেই · কপি/প্রিন্ট/রাইট-ক্লিক বন্ধ · ট্যাব ছাড়লে লুকানো · দীর্ঘ সংখ্যা সার্ভারেই ঢাকা ·
+     প্রতিটি অংশে দর্শকের নাম+সময়ের জলছাপ (ফাঁস হলে উৎস চেনা যায়) · সময়সীমা শেষে সার্ভারই আর দেয় না। */
+  var vwOn = false;
+  async function openViewer(m) {
+    try {
+      var r = await db().rpc('statement_view_lines', { p_month: m }); if (r.error) throw r.error; var d = r.data;
+      var name = 'দর্শক';
+      try { var p = await db().rpc('get_my_profile'); var row = Array.isArray(p.data) ? p.data[0] : p.data; if (row) name = row.full_name_bn || row.full_name || name; } catch (e) {}
+      var tm = new Date().toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' });
+      var wm = esc(name + ' · ' + tm + ' · কর্জে হাসানা');
+      var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='360' height='170'><text x='10' y='100' transform='rotate(-22 180 85)' font-family='Hind Siliguri,sans-serif' font-size='15' fill='rgba(90,40,120,0.20)'>" + wm + "</text></svg>";
+      $('vwWm').style.background = "url(\"data:image/svg+xml;utf8," + encodeURIComponent(svg) + "\")";
+      $('vwT').textContent = 'ব্যাংক স্টেটমেন্ট — ' + d.label;
+      $('vwP').innerHTML = '<table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th class="n">উত্তোলন</th><th class="n">জমা</th><th class="n">স্থিতি</th></tr></thead><tbody>' +
+        '<tr><td></td><td><b>শুরুর স্থিতি</b></td><td></td><td></td><td class="n"><b>' + tk(d.opening) + '</b></td></tr>' +
+        d.lines.map(function (l) { return '<tr><td>' + day(l.d) + '</td><td>' + esc(l.p) + '</td><td class="n">' + (Number(l.w) ? tk(l.w) : '') + '</td><td class="n">' + (Number(l.c) ? tk(l.c) : '') + '</td><td class="n">' + tk(l.b) + '</td></tr>'; }).join('') +
+        '</tbody></table>';
+      $('vw').classList.add('on'); $('vw').classList.remove('blur'); document.documentElement.style.overflow = 'hidden'; vwOn = true;
+    } catch (e) { toast(e.message || 'দেখানো যায়নি'); load(); }
+  }
+  window.closeViewer = function () { $('vw').classList.remove('on'); document.documentElement.style.overflow = ''; vwOn = false; $('vwP').innerHTML = ''; };
+  ['contextmenu', 'copy', 'cut', 'dragstart', 'selectstart'].forEach(function (ev) { $('vw').addEventListener(ev, function (e) { e.preventDefault(); }); });
+  document.addEventListener('visibilitychange', function () { if (vwOn && document.hidden) $('vw').classList.add('blur'); });
+  window.addEventListener('blur', function () { if (vwOn) $('vw').classList.add('blur'); });
+  $('vwG').addEventListener('click', function () { $('vw').classList.remove('blur'); });
+  document.addEventListener('keydown', function (e) {
+    if (!vwOn) return;
+    var k = (e.key || '').toLowerCase();
+    if (k === 'printscreen') { $('vw').classList.add('blur'); try { navigator.clipboard.writeText('—'); } catch (x) {} }
+    if ((e.ctrlKey || e.metaKey) && ['p', 's', 'c', 'a', 'u'].indexOf(k) >= 0) e.preventDefault();
+    if (k === 'escape') closeViewer();
+  });
+
+  var start = function () { load(); };
+  if (window.KHUI) start(); else window.addEventListener('load', start);
+})();
+</script>
+</body>
+</html>

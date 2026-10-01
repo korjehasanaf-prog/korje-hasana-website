@@ -247,6 +247,20 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 .msg.ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#4ade80}
 .msg.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171}
 .msg.show{display:block}
+/* মাসিক আয়-ব্যয় বিবরণী (১ অক্টোবর ২০২৬) — সব ব্লক নিজের ভরাট পটভূমি বহন করে */
+.stm-banner{background:#4a3410;color:#ffe0a3;border:1px solid #8a6420;border-radius:10px;padding:12px 16px;margin-bottom:14px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;font-size:14.5px;font-weight:600}
+.stm-chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.stm-chip{background:#2a2140;color:#e8e3f2;border:1px solid #4a3d6e;border-radius:10px;padding:8px 14px;font-size:13.5px;font-family:'Hind Siliguri',sans-serif}
+.stm-chip b{font-size:18px;color:#fff;margin-right:6px}
+.stm-chip.hot{background:#4a1a1f;border-color:#8a3a42;color:#ffd6d6}
+.stm-due{border-radius:10px;padding:12px 16px;margin-bottom:16px;font-family:'Hind Siliguri',sans-serif;font-size:14.5px;font-weight:600}
+.stm-due.ok{background:#0d3b2e;color:#c9f5de}.stm-due.warn{background:#4a3410;color:#ffe0a3}.stm-due.bad{background:#4a1a1f;color:#ffd6d6}
+.stm-note{font-size:13px;color:var(--muted);margin-bottom:10px;font-family:'Hind Siliguri',sans-serif}
+.stm-issue{background:#1f1a30;border:1px solid #4a3d6e;border-left:4px solid #e95420;border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:'Hind Siliguri',sans-serif;font-size:13.5px;color:#e8e3f2}
+.stm-issue .grow{flex:1;min-width:180px}
+.stm-issue select{background:#2a2140;color:#fff;border:1px solid #5a4d80;border-radius:6px;padding:6px 8px;font-size:13px;max-width:100%}
+.stm-ok{color:#8ee6b4;font-weight:600}.stm-bad{color:#ffb4a2;font-weight:600}
+.stm-btns{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
 
 /* ── SEARCH BAR ── */
 .search-bar{display:flex;gap:10px;margin-bottom:16px}
@@ -324,7 +338,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=53">
+  <link rel="stylesheet" href="kh-ui.css?v=54">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -431,6 +445,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="sb-item" id="mi-reports" onclick="switchPanel('reports')">
         <i class="ti ti-report-analytics"></i> স্টেটমেন্ট ও রিপোর্ট
       </div>
+      <div class="sb-item" id="mi-statements" onclick="switchPanel('statements')">
+        <i class="ti ti-building-bank"></i> মাসিক আয়-ব্যয় বিবরণী
+        <span class="sb-badge" id="badge-stmt">0</span>
+      </div>
       <div class="sb-item" id="mi-log" onclick="switchPanel('log')">
         <i class="ti ti-list-check"></i> অনুমোদন লগ
       </div>
@@ -482,6 +500,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="panel active" id="panel-dashboard">
         <div class="panel-title">📊 ড্যাশবোর্ড</div>
         <div class="panel-sub">সংস্থার সামগ্রিক তথ্য একনজরে</div>
+        <div id="stmBanner" class="stm-banner" style="display:none" onclick="switchPanel('statements')" role="button" tabindex="0"></div>
 
         <div class="stat-grid" id="statGrid">
           <div class="stat-card sc-blue"><span class="stat-ico">📋</span><div class="stat-num" id="ds-loans">—</div><div class="stat-lbl">সক্রিয় ঋণ</div></div>
@@ -919,6 +938,39 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <div class="card">
           <div class="card-title"><i class="ti ti-books"></i> নথিসমূহ</div>
           <div id="kbList"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PANEL: MONTHLY BANK STATEMENT ══════════════ -->
+      <div class="panel" id="panel-statements">
+        <div class="panel-title">🏦 মাসিক আয়-ব্যয় বিবরণী</div>
+        <div class="panel-sub">ব্যাংক স্টেটমেন্ট আপলোড → সিস্টেমের সাথে মিলান → একজন প্রস্তুত, অন্যজন অনুমোদন → সবার জন্য প্রকাশ</div>
+
+        <div class="stm-chips" id="stmChips"></div>
+        <div id="stmDue" class="stm-due"></div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-file-upload"></i> ব্যাংক স্টেটমেন্ট (PDF) আপলোড</div>
+          <div class="form-grid col3" style="align-items:end">
+            <div class="fld"><label>মাস</label><input id="stmMonth" type="month"></div>
+            <div class="fld"><label>PDF ফাইল (ইসলামী ব্যাংক iBanking)</label><input id="stmFile" type="file" accept="application/pdf"></div>
+            <div class="fld"><button class="btn btn-primary" style="width:100%" onclick="stmParse()"><i class="ti ti-scan"></i> পড়ুন</button></div>
+          </div>
+          <div id="stmParseOut"></div>
+          <div id="stm-msg" class="msg"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-calendar-stats"></i> মাসভিত্তিক অবস্থা</div>
+          <div id="stmList"></div>
+        </div>
+
+        <div id="stmDetail"></div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-title"><i class="ti ti-eye-check"></i> ব্যাংক স্টেটমেন্ট দেখার অনুরোধ</div>
+          <div class="stm-note">অনুমোদিত হলে অনুরোধকারী নির্দিষ্ট সময় (ডিফল্ট ৩ দিন) শুধু পর্দায় দেখতে পারেন — ডাউনলোড বা প্রিন্টের পথ নেই। দীর্ঘ সংখ্যা (হিসাব/রেফারেন্স) ঢাকা থাকে।</div>
+          <div id="stmReqs"></div>
         </div>
       </div>
 
@@ -1393,6 +1445,7 @@ async function initAdmin() {
   loadDashboard();
   loadPendingBadges();
   loadWalletSummary();
+  stmBadges();
 }
 
 // ════════════════════════════════════════
@@ -1435,7 +1488,7 @@ const PANEL_TITLES = {
   'expense':'তহবিল ও খরচ', 'loan-approve':'ঋণ আবেদন অনুমোদন',
   'donation-online':'অনলাইন ডোনেশন অনুমোদন', 'savings-approve':'সঞ্চয় জমা ও উত্তোলন অনুমোদন',
   'cards':'সদস্যের পরিচয়পত্র',
-  'reports':'স্টেটমেন্ট ও রিপোর্ট',
+  'reports':'স্টেটমেন্ট ও রিপোর্ট', 'statements':'মাসিক আয়-ব্যয় বিবরণী',
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
@@ -1512,12 +1565,269 @@ function switchPanel(name) {
   /* প্রথমবার খুললে "আজ" দেখায়; পরে আগের নির্বাচনই থাকে (বারবার RPC ডাকা হয় না) */
   if (name === 'reports' && !RP) loadReport('today');
   if (name === 'settings') { loadGeneralSettings(); loadPayMethods(); }
+  if (name === 'statements') stmInit();
   if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
   if (name === 'committee-apps') loadCommitteeApps('pending');
   if (name === 'committee-mgmt') loadCommitteeMgmt();
   if (name === 'users') loadUsersList('');
   if (name === 'committee-invite') loadInviteForm();
+}
+
+// ════════════════════════════════════════
+//  মাসিক আয়-ব্যয় বিবরণী (১ অক্টোবর ২০২৬)
+//  PDF ব্রাউজারেই পড়া হয়; হিসাব মিলানো ও অনুমোদনের নিয়ম সার্ভারে।
+// ════════════════════════════════════════
+const STM_CATS = {
+  bank_charge:'ব্যাংক চার্জ (ব্যয়)', bank_profit:'ব্যাংক মুনাফা (আয়)',
+  other_income:'অন্যান্য আয়', other_expense:'অন্যান্য ব্যয়',
+  internal_transfer:'অভ্যন্তরীণ স্থানান্তর (হিসাবের বাইরে)', gateway_settlement:'গেটওয়ে সেটেলমেন্ট (হিসাবের বাইরে)'
+};
+const STM_KIND = { donation:'দান', repayment:'কিস্তি', savings_deposit:'সঞ্চয় জমা', savings_withdraw:'সঞ্চয় উত্তোলন', loan:'ঋণ বিতরণ', fund_entry:'খরচ এন্ট্রি' };
+const STM_ST = { draft:['খসড়া','b-pending'], in_review:['অনুমোদনের অপেক্ষা','b-review'], approved:['প্রকাশিত','b-approved'], rejected:['ফেরত','b-rejected'], none:['আপলোড হয়নি','b-rejected'] };
+let STM = { month:null, parsed:null, file:null };
+const stmBn = s => String(s == null ? '' : s).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+const stmLabel = m => new Date(String(m).slice(0,7) + '-01T00:00:00Z').toLocaleDateString('bn-BD', { month:'long', year:'numeric', timeZone:'UTC' });
+const stmDay = d => d ? stmBn(String(d).slice(8,10) + '/' + String(d).slice(5,7) + '/' + String(d).slice(0,4)) : '—';
+const stmTk = n => '৳' + _bnNum(n);
+const stmMsg = (t, ty) => showMsg('stm-msg', t, ty || 'ok');
+const stmErr = e => (e && e.message) ? e.message : String(e);
+
+async function stmBadges() {
+  try {
+    const { data, error } = await _db.rpc('admin_statement_badges');
+    if (error || !data) return null;
+    const n = Number(data.issues||0) + Number(data.in_review||0) + Number(data.view_pending||0) + (data.overdue ? 1 : 0);
+    setBadge('badge-stmt', n);
+    const b = document.getElementById('stmBanner');
+    if (b) {
+      let t = '';
+      if (data.overdue) t = '⚠️ ' + stmLabel(data.due_month) + '-এর আয়-ব্যয় বিবরণী সময়সীমা (' + stmDay(data.deadline) + ') পেরিয়েছে, এখনো প্রকাশিত হয়নি' + (Number(data.upd_requests) ? ' — ' + _bnNum(data.upd_requests) + ' জন আপডেট চেয়েছেন' : '');
+      else if (Number(data.issues) > 0) t = '⚠️ বিবরণীতে ' + _bnNum(data.issues) + 'টি অমিল পর্যালোচনার অপেক্ষায়';
+      else if (Number(data.in_review) > 0) t = 'অনুমোদনের অপেক্ষায় ' + _bnNum(data.in_review) + 'টি বিবরণী';
+      else if (Number(data.view_pending) > 0) t = _bnNum(data.view_pending) + 'টি ব্যাংক স্টেটমেন্ট দেখার অনুরোধ অপেক্ষমাণ';
+      b.textContent = t; b.style.display = t ? 'block' : 'none';
+    }
+    return data;
+  } catch (e) { return null; }
+}
+
+async function stmInit() {
+  const d = await stmBadges();
+  const chips = document.getElementById('stmChips'), due = document.getElementById('stmDue');
+  if (d) {
+    chips.innerHTML = [
+      ['অমিল', d.issues, d.issues > 0], ['অনুমোদনের অপেক্ষা', d.in_review, false],
+      ['দেখার অনুরোধ', d.view_pending, d.view_pending > 0], ['আপডেটের অনুরোধ', d.upd_requests, d.upd_requests > 0]
+    ].map(c => '<div class="stm-chip' + (c[2] ? ' hot' : '') + '"><b>' + _bnNum(c[1]) + '</b>' + c[0] + '</div>').join('');
+    const st = STM_ST[d.status] || STM_ST.none;
+    const cls = d.status === 'approved' ? 'ok' : (d.overdue ? 'bad' : 'warn');
+    due.className = 'stm-due ' + cls;
+    due.textContent = stmLabel(d.due_month) + '-এর বিবরণী: ' + st[0] + ' · সময়সীমা ' + stmDay(d.deadline) + (d.overdue ? ' (পেরিয়েছে)' : '');
+    const mi = document.getElementById('stmMonth');
+    if (mi && !mi.value) mi.value = String(d.due_month).slice(0,7);
+  }
+  stmLoadList(); stmLoadReqs();
+  if (STM.month) stmOpen(STM.month);
+}
+
+async function stmLoadList() {
+  const box = document.getElementById('stmList');
+  const { data, error } = await _db.rpc('admin_statement_list');
+  if (error) { box.innerHTML = '<div class="empty-state"><p>' + esc(error.message) + '</p></div>'; return; }
+  if (!data || !data.length) { box.innerHTML = '<div class="empty-state"><i class="ti ti-file-off"></i><p>এখনো কোনো মাসের স্টেটমেন্ট আপলোড হয়নি</p></div>'; return; }
+  box.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>মাস</th><th>অবস্থা</th><th style="text-align:right">অমিল</th><th style="text-align:right">আপডেট অনুরোধ</th><th style="text-align:right">দেখার অনুরোধ</th><th></th></tr></thead><tbody>' +
+    data.map(r => { const s = STM_ST[r.status] || STM_ST.draft;
+      return '<tr><td>' + esc(stmLabel(r.month)) + '</td><td><span class="badge ' + s[1] + '">' + s[0] + '</span></td><td style="text-align:right">' + _bnNum(r.disc) + '</td><td style="text-align:right">' + _bnNum(r.upd_req) + '</td><td style="text-align:right">' + _bnNum(r.view_req) + '</td><td><button class="btn btn-primary" style="padding:6px 14px;font-size:13px" onclick="stmOpen(\'' + esc(r.month) + '\')">খুলুন</button></td></tr>'; }).join('') +
+    '</tbody></table></div>';
+}
+
+/* ── PDF পড়া ── */
+async function stmLoadPdfjs() {
+  if (window.pdfjsLib) return;
+  await new Promise((res, rej) => { const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload = res;
+    s.onerror = () => rej(new Error('PDF পাঠক লোড হয়নি — ইন্টারনেট দেখুন')); document.head.appendChild(s); });
+  const w = await (await fetch('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js')).text();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], { type:'text/javascript' }));
+}
+async function stmExtract(file) {
+  await stmLoadPdfjs();
+  const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const items = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    tc.items.forEach(it => { const s = (it.str || '').trim(); if (s) items.push({ s, x: it.transform[4], y: it.transform[5] - (p - 1) * 10000 }); });
+  }
+  return items;
+}
+function stmParseItems(items) {
+  items.sort((a, b) => b.y - a.y || a.x - b.x);
+  const rows = [];
+  items.forEach(it => { const r = rows[rows.length - 1]; if (r && Math.abs(r.y - it.y) <= 2.5) r.it.push(it); else rows.push({ y: it.y, it: [it] }); });
+  rows.forEach(r => r.it.sort((a, b) => a.x - b.x));
+  const txt = r => r.it.map(i => i.s).join(' ');
+  const hi = rows.findIndex(r => /Particulars/i.test(txt(r)) && /Withdraw/i.test(txt(r)));
+  if (hi < 0) throw new Error('এটি ইসলামী ব্যাংকের iBanking স্টেটমেন্ট বলে মনে হচ্ছে না (কলাম শিরোনাম পাওয়া যায়নি)');
+  const hdr = rows[hi];
+  const hx = n => { const i = hdr.it.find(i => new RegExp(n, 'i').test(i.s)); return i ? i.x : null; };
+  const xP = hx('Particulars'), xI = hx('Instrument') != null ? hx('Instrument') : xP + 250;
+  const isDate = s => /^\d{2}\/\d{2}\/\d{2}$/.test(s), isNum = s => /^[\d,]+\.\d{2}$/.test(s);
+  const num = s => parseFloat(s.replace(/,/g, ''));
+  const iso = s => '20' + s.slice(6, 8) + '-' + s.slice(3, 5) + '-' + s.slice(0, 2);
+  const anchors = [], conts = []; let total = null;
+  rows.slice(hi + 1).forEach(r => {
+    const t = txt(r);
+    if (/^TOTAL\b/i.test(t) || r.it.some(i => /^TOTAL$/i.test(i.s))) { total = r.it.filter(i => isNum(i.s)).sort((a, b) => a.x - b.x).map(i => num(i.s)); return; }
+    const dates = r.it.filter(i => isDate(i.s) && i.x < xP - 2);
+    if (dates.length) {
+      const nums = r.it.filter(i => isNum(i.s) && i.x > xI).sort((a, b) => a.x - b.x).map(i => num(i.s));
+      const ins = r.it.find(i => /^\d{10,}$/.test(i.s));
+      const part = r.it.filter(i => i.x >= xP - 3 && i.x < xI - 3 && !isDate(i.s) && !isNum(i.s)).map(i => i.s).join(' ');
+      anchors.push({ y: r.y, d1: dates[0].s, d2: (dates[1] || dates[0]).s, nums, ins: ins ? ins.s : '', pieces: [{ y: r.y, t: part }] });
+    } else {
+      const part = r.it.filter(i => i.x >= xP - 3 && i.x < xI - 3).map(i => i.s).join(' ');
+      if (part) conts.push({ y: r.y, t: part });
+    }
+  });
+  conts.forEach(c => { let best = null; anchors.forEach(a => { const dd = Math.abs(a.y - c.y); if (dd <= 16 && (!best || dd < best.dd)) best = { a, dd }; }); if (best) best.a.pieces.push(c); });
+  if (!anchors.length) throw new Error('কোনো লেনদেনের সারি পাওয়া যায়নি');
+  const bf = anchors.find(a => /^B\/F$/i.test(a.pieces.map(p => p.t).join(' ').trim()));
+  const body = anchors.filter(a => a !== bf);
+  const lines = body.map(a => ({
+    trans_date: iso(a.d1), post_date: iso(a.d2),
+    particulars: a.pieces.sort((p, q) => q.y - p.y).map(p => p.t).join(' ').replace(/\s+/g, ' ').trim(),
+    instrument_no: a.ins, withdraw: a.nums[0], deposit: a.nums[1], balance: a.nums[2], _n: a.nums.length }));
+  const all = rows.map(txt).join(' \n ');
+  const per = all.match(/period of (\d{2}\/\d{2}\/\d{4}) to (\d{2}\/\d{2}\/\d{4})/i);
+  const meta = { bank_name: (rows[0] ? txt(rows[0]) : '').slice(0, 80), period: per ? [per[1], per[2]] : null };
+  const checks = [];
+  if (!bf) checks.push('B/F (আগের স্থিতি) সারি পাওয়া যায়নি');
+  if (!total || total.length < 3) checks.push('TOTAL সারি পাওয়া যায়নি');
+  if (lines.some(l => l._n !== 3)) checks.push('কিছু সারিতে তিনটি অঙ্ক পাওয়া যায়নি');
+  if (bf && total && total.length >= 3 && bf.nums.length === 3) {
+    meta.opening = bf.nums[2]; meta.total_withdraw = +(total[0] - bf.nums[0]).toFixed(2);
+    meta.total_deposit = +(total[1] - bf.nums[1]).toFixed(2); meta.closing = total[2];
+    let prev = meta.opening, bad = 0;
+    lines.forEach(l => { if (Math.abs(prev - l.withdraw + l.deposit - l.balance) > 0.005) bad++; prev = l.balance; });
+    if (bad) checks.push(bad + 'টি সারিতে ব্যালেন্সের ধারা মিলছে না');
+    const sw = lines.reduce((s, l) => s + l.withdraw, 0), sd = lines.reduce((s, l) => s + l.deposit, 0);
+    if (Math.abs(sw - meta.total_withdraw) > 0.005 || Math.abs(sd - meta.total_deposit) > 0.005) checks.push('সারির যোগফল TOTAL-এর সাথে মিলছে না');
+    if (Math.abs(meta.opening + sd - sw - meta.closing) > 0.005) checks.push('শুরুর স্থিতি + জমা − উত্তোলন ≠ শেষ স্থিতি');
+  }
+  return { meta, lines, checks };
+}
+
+async function stmParse() {
+  const f = document.getElementById('stmFile').files[0], mv = document.getElementById('stmMonth').value;
+  const out = document.getElementById('stmParseOut');
+  if (!mv) return stmMsg('মাস বাছুন', 'err');
+  if (!f) return stmMsg('PDF ফাইল বাছুন', 'err');
+  if (f.size > 10 * 1024 * 1024) return stmMsg('ফাইল ১০ MB-র বেশি', 'err');
+  out.innerHTML = '<div class="stm-note">পড়া হচ্ছে…</div>';
+  try {
+    const r = stmParseItems(await stmExtract(f));
+    if (r.meta.period) { const pm = r.meta.period[0].slice(6, 10) + '-' + r.meta.period[0].slice(3, 5); if (pm !== mv) r.checks.push('PDF-এর মাস (' + stmLabel(pm + '-01') + ') আর বাছা মাস মেলেনি'); }
+    STM.parsed = r; STM.file = f; STM.pendingMonth = mv + '-01';
+    const ok = !r.checks.length;
+    out.innerHTML = '<div class="stm-note ' + (ok ? 'stm-ok' : 'stm-bad') + '">' + (ok ? '✓ ' + _bnNum(r.lines.length) + 'টি লেনদেন পড়া হয়েছে; ব্যালেন্সের ধারা ও TOTAL নিখুঁত মিলেছে' : '✗ ' + r.checks.map(esc).join(' · ')) + '</div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th style="text-align:right">উত্তোলন</th><th style="text-align:right">জমা</th><th style="text-align:right">স্থিতি</th></tr></thead><tbody>' +
+      r.lines.map(l => '<tr><td>' + stmDay(l.trans_date) + '</td><td>' + esc(l.particulars.replace(/\d{5,}/g, '•••')) + '</td><td style="text-align:right">' + (l.withdraw ? _bnNum(l.withdraw) : '') + '</td><td style="text-align:right">' + (l.deposit ? _bnNum(l.deposit) : '') + '</td><td style="text-align:right">' + _bnNum(l.balance) + '</td></tr>').join('') +
+      '</tbody></table></div>' +
+      (ok ? '<div class="stm-btns"><button class="btn btn-gold" onclick="stmSave()"><i class="ti ti-device-floppy"></i> সংরক্ষণ ও সিস্টেমের সাথে মিলান</button></div>' : '<div class="stm-note">সংখ্যা নিখুঁত না মিললে সংরক্ষণ বন্ধ থাকে — ভুল তথ্য প্রকাশের ঝুঁকি এড়াতে।</div>');
+  } catch (e) { out.innerHTML = ''; stmMsg(stmErr(e), 'err'); }
+}
+
+async function stmSave() {
+  const r = STM.parsed, m = STM.pendingMonth; if (!r || r.checks.length) return;
+  try {
+    let path = null;
+    const up = await _db.storage.from('statements').upload(m.slice(0, 7) + '/' + Date.now() + '.pdf', STM.file, { contentType:'application/pdf' });
+    if (up.error) throw up.error; path = up.data.path;
+    const lines = r.lines.map(l => ({ trans_date:l.trans_date, post_date:l.post_date, particulars:l.particulars, instrument_no:l.instrument_no, withdraw:l.withdraw, deposit:l.deposit, balance:l.balance }));
+    const { data, error } = await _db.rpc('statement_save', { p_month:m, p_meta:{ bank_name:r.meta.bank_name, opening:r.meta.opening, closing:r.meta.closing, total_withdraw:r.meta.total_withdraw, total_deposit:r.meta.total_deposit }, p_lines:lines, p_pdf:path });
+    if (error) throw error;
+    stmMsg('সংরক্ষিত — ' + _bnNum(data.count) + 'টি অমিল পর্যালোচনার জন্য', 'ok');
+    document.getElementById('stmParseOut').innerHTML = ''; STM.parsed = null;
+    stmOpen(m); stmBadges(); stmLoadList();
+  } catch (e) { stmMsg(stmErr(e), 'err'); }
+}
+
+/* ── মাসের বিস্তারিত ── */
+async function stmOpen(month) {
+  STM.month = month;
+  const box = document.getElementById('stmDetail');
+  box.innerHTML = '<div class="card"><div class="stm-note">লোড হচ্ছে…</div></div>';
+  const { data, error } = await _db.rpc('admin_statement_get', { p_month: month });
+  if (error) { box.innerHTML = '<div class="card"><div class="stm-bad">' + esc(error.message) + '</div></div>'; return; }
+  if (!data.exists) { box.innerHTML = '<div class="card"><div class="stm-note">' + esc(stmLabel(month)) + '-এর স্টেটমেন্ট এখনো আপলোড হয়নি।</div></div>'; return; }
+  const m = data.meta, st = STM_ST[m.status] || STM_ST.draft, issues = (data.recon && data.recon.issues) || [];
+  const integ = issues.filter(i => ['total_mismatch','balance_chain','no_lines'].includes(i.type));
+  const unexp = issues.filter(i => i.type === 'bank_unexplained');
+  const miss = issues.filter(i => i.type === 'system_missing');
+  const kinds = [...new Set(miss.map(i => i.kind))];
+  let h = '<div class="card"><div class="card-title"><i class="ti ti-building-bank"></i> ' + esc(stmLabel(month)) + ' <span class="badge ' + st[1] + '" style="margin-left:8px">' + st[0] + '</span></div>';
+  h += '<div class="stm-note">প্রস্তুতকারী: ' + esc(data.prepared_by_name || '—') + ' · শুরুর স্থিতি ' + stmTk(m.opening) + ' · শেষ স্থিতি ' + stmTk(m.closing) + ' · ব্যাংকে জমা ' + stmTk(m.total_deposit) + ' · উত্তোলন ' + stmTk(m.total_withdraw) + '</div>';
+  if (m.reject_note) h += '<div class="stm-issue"><span class="grow">ফেরতের কারণ: ' + esc(m.reject_note) + '</span></div>';
+  if (m.status === 'approved') h += '<div class="stm-ok">✓ প্রকাশিত — ' + stmDay(m.approved_at) + '</div>';
+  else {
+    h += '<div class="stm-btns">';
+    if (['draft','rejected'].includes(m.status)) h += '<button class="btn btn-primary" ' + (issues.length ? 'disabled style="opacity:.5;cursor:not-allowed"' : '') + ' onclick="stmSubmit()"><i class="ti ti-send"></i> অনুমোদনের জন্য জমা দিন</button>';
+    if (m.status === 'in_review') {
+      if (data.can_approve) h += '<button class="btn btn-gold" onclick="stmApprove()"><i class="ti ti-circle-check"></i> অনুমোদন দিন (সবার জন্য প্রকাশ)</button>';
+      else h += '<span class="stm-note">অন্য একজন অ্যাডমিনের অনুমোদনের অপেক্ষা — যিনি প্রস্তুত করেছেন তিনি নিজে অনুমোদন দিতে পারেন না।</span>';
+      h += '<button class="btn" style="background:#4a1a1f;color:#ffd6d6" onclick="stmReject()"><i class="ti ti-arrow-back-up"></i> ফেরত দিন</button>';
+    }
+    h += '</div>';
+  }
+  h += '</div>';
+
+  if (m.status !== 'approved') {
+    h += '<div class="card" style="margin-top:16px"><div class="card-title"><i class="ti ti-alert-triangle"></i> অমিল ও পর্যালোচনা (' + _bnNum(issues.length) + ')</div>';
+    if (!issues.length) h += '<div class="stm-ok">✓ সব লেনদেন সিস্টেমের সাথে হুবহু মিলেছে</div>';
+    integ.forEach(i => { const t = i.type === 'no_lines' ? 'কোনো লেনদেন নেই' : i.type === 'balance_chain' ? 'শুরুর স্থিতি + জমা − উত্তোলন ≠ শেষ স্থিতি (পার্থক্য ' + _bnNum(i.amount) + ')' : 'সারির যোগফল ও TOTAL আলাদা (' + (i.text === 'deposit' ? 'জমা' : 'উত্তোলন') + ', পার্থক্য ' + _bnNum(i.amount) + ')'; h += '<div class="stm-issue"><span class="grow stm-bad">' + t + ' — আবার আপলোড করুন</span></div>'; });
+    unexp.forEach(i => { h += '<div class="stm-issue"><span class="grow">ব্যাংকে আছে, সিস্টেমে নেই — ' + stmDay(i.date) + ' · <b>' + (i.amount >= 0 ? '+' : '−') + stmTk(Math.abs(i.amount)) + '</b><br><small>' + esc(String(i.text).replace(/\d{5,}/g, '•••')) + '</small></span>' +
+      '<select onchange="stmSetCat(\'' + esc(i.line_id) + '\', this.value)"><option value="">— শ্রেণি বাছুন —</option>' + Object.keys(STM_CATS).map(k => '<option value="' + k + '">' + esc(STM_CATS[k]) + '</option>').join('') + '</select></div>'; });
+    miss.forEach(i => { h += '<div class="stm-issue"><span class="grow">সিস্টেমে আছে, ব্যাংকে পাইনি — ' + esc(STM_KIND[i.kind] || i.kind) + ' · ' + stmDay(i.date) + ' · <b>' + stmTk(i.amount) + '</b> <small>' + esc(i.text) + '</small></span>' +
+      '<button class="btn btn-primary" style="padding:6px 12px;font-size:13px" onclick="stmAck(\'' + esc(i.kind) + '\',\'' + esc(i.ref_id) + '\')">কারণসহ গ্রহণ</button></div>'; });
+    if (kinds.length) h += '<div class="stm-btns">' + kinds.map(k => '<button class="btn btn-gold" style="padding:8px 14px;font-size:13px" onclick="stmAckAll(\'' + esc(k) + '\')">সব ' + esc(STM_KIND[k] || k) + ' একসাথে গ্রহণ (' + _bnNum(miss.filter(x => x.kind === k).length) + ')</button>').join('') + '</div>';
+    h += '</div>';
+  }
+
+  h += '<div class="card" style="margin-top:16px"><div class="card-title"><i class="ti ti-table"></i> ব্যাংক স্টেটমেন্টের লেনদেন (' + _bnNum(data.lines.length) + ')</div><div class="tbl-wrap"><table><thead><tr><th>তারিখ</th><th>বিবরণ</th><th style="text-align:right">উত্তোলন</th><th style="text-align:right">জমা</th><th>মিল</th></tr></thead><tbody>' +
+    data.lines.map(l => '<tr><td>' + stmDay(l.trans_date) + '</td><td>' + esc(String(l.particulars || '').replace(/\d{5,}/g, '•••')) + '</td><td style="text-align:right">' + (Number(l.withdraw) ? _bnNum(l.withdraw) : '') + '</td><td style="text-align:right">' + (Number(l.deposit) ? _bnNum(l.deposit) : '') + '</td><td>' +
+      (l.match_ref ? '<span class="badge b-approved">' + esc(STM_KIND[l.match_kind] || l.match_kind) + '</span>' : l.category ? '<span class="badge b-review">' + esc(STM_CATS[l.category] || l.category) + '</span>' : '<span class="badge b-rejected">অমিল</span>') + '</td></tr>').join('') +
+    '</tbody></table></div></div>';
+  if (window.KHUI && KHUI.stmReportHTML) h += '<div style="margin-top:16px">' + KHUI.stmReportHTML(data.report) + '</div>';
+  box.innerHTML = h;
+}
+
+async function stmCall(fn, args) {
+  try { const { data, error } = await _db.rpc(fn, args); if (error) throw error; await stmOpen(STM.month); stmBadges(); stmLoadList(); return data; }
+  catch (e) { stmMsg(stmErr(e), 'err'); }
+}
+function stmSetCat(id, v) { if (v) stmCall('statement_set_line', { p_line:id, p_category:v, p_note:null }); }
+function stmAck(kind, id) { const n = prompt('ব্যাংকে না আসার কারণ লিখুন (যেমন: গেটওয়ে সেটেলমেন্ট পরের মাসে)'); if (n && n.trim()) stmCall('statement_ack', { p_month:STM.month, p_kind:kind, p_ref:id, p_note:n.trim() }); }
+function stmAckAll(kind) { const n = prompt('সবগুলোর জন্য একটি কারণ লিখুন'); if (n && n.trim()) stmCall('statement_ack_all', { p_month:STM.month, p_kind:kind, p_note:n.trim() }); }
+function stmSubmit() { stmCall('statement_submit', { p_month:STM.month }); }
+async function stmApprove() { if (!confirm('অনুমোদন দিলে বিবরণী সবার জন্য প্রকাশিত হবে। নিশ্চিত?')) return; const r = await stmCall('statement_approve', { p_month:STM.month }); if (r) stmMsg('প্রকাশিত হয়েছে', 'ok'); }
+function stmReject() { const n = prompt('ফেরত দেওয়ার কারণ'); if (n && n.trim()) stmCall('statement_reject', { p_month:STM.month, p_note:n.trim() }); }
+
+async function stmLoadReqs() {
+  const box = document.getElementById('stmReqs');
+  const { data, error } = await _db.rpc('admin_statement_requests');
+  if (error) { box.innerHTML = '<div class="stm-bad">' + esc(error.message) + '</div>'; return; }
+  const v = (data && data.view) || [];
+  if (!v.length) { box.innerHTML = '<div class="empty-state"><i class="ti ti-inbox"></i><p>কোনো অনুরোধ নেই</p></div>'; return; }
+  const sc = { pending:['অপেক্ষমাণ','b-pending'], approved:['অনুমোদিত','b-approved'], rejected:['বাতিল','b-rejected'] };
+  box.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>সদস্য</th><th>মাস</th><th>কারণ</th><th>অবস্থা</th><th></th></tr></thead><tbody>' +
+    v.map(r => { const s = sc[r.status] || sc.pending;
+      return '<tr><td>' + esc(r.name) + '</td><td>' + esc(stmLabel(r.month)) + '</td><td>' + esc(r.reason || '—') + '</td><td><span class="badge ' + s[1] + '">' + s[0] + '</span>' + (r.expires_at && r.status === 'approved' ? '<br><small>মেয়াদ ' + stmDay(r.expires_at) + '</small>' : '') + '</td><td>' +
+        (r.status === 'pending' ? '<button class="btn btn-gold" style="padding:5px 12px;font-size:13px" onclick="stmDecide(\'' + esc(r.id) + '\',true)">অনুমোদন</button> <button class="btn" style="background:#4a1a1f;color:#ffd6d6;padding:5px 12px;font-size:13px" onclick="stmDecide(\'' + esc(r.id) + '\',false)">বাতিল</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table></div>';
+}
+async function stmDecide(id, ok) {
+  try { const { error } = await _db.rpc('decide_statement_view', { p_id:id, p_approve:ok }); if (error) throw error; stmLoadReqs(); stmBadges(); stmLoadList(); }
+  catch (e) { stmMsg(stmErr(e), 'err'); }
 }
 
 // ════════════════════════════════════════
@@ -4332,6 +4642,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=53"></script>
+<script src="kh-ui.js?v=54"></script>
 </body>
 </html>

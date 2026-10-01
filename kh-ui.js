@@ -2965,6 +2965,49 @@
                 · emergency (জরুরি) · operation (অপারেশন)।
      ⚠️ পুরনো key 'revolving' আগে জরুরি ফান্ড বোঝাত — এখন রিভলভিং = কিস্তি আদায়, জরুরি = 'emergency'।
      ════════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════════
+     মাসিক আয়-ব্যয় বিবরণী (১ অক্টোবর ২০২৬) — অ্যাডমিন প্রিভিউ ও পাবলিক পেজে একই
+     ⚠️ সব অঙ্ক সার্ভারের statement_report() থেকে (totals সহ) — এখানে কোনো যোগফল কষা হয় না।
+     ⚠️ সাদা কাগজ নিজের পটভূমি বহন করে (.kh-stm) → দুই থীমে ও গাঢ় অ্যাডমিন পর্দায় এক।
+     ════════════════════════════════════════════════════════ */
+  var STM_METHOD = { bkash:'বিকাশ', nagad:'নগদ', rocket:'রকেট', upay:'উপায়', bqr:'বাংলা QR', bank:'ব্যাংক ট্রান্সফার',
+                     card:'কার্ড', cash:'সরাসরি (নগদ)', agent:'এজেন্ট ব্যাংকিং', other:'অন্যান্য' };
+  var STM_EXP = { operations:'পরিচালনা ব্যয়', office:'অফিস ব্যয়', salary:'বেতন-ভাতা', other:'অন্যান্য ব্যয়' };
+  var STM_MAN = { bank_profit:'ব্যাংক মুনাফা', other_income:'অন্যান্য আয়', bank_charge:'ব্যাংক চার্জ', other_expense:'অন্যান্য ব্যয়' };
+  KHUI.stmReportHTML = function (r, opts) {
+    opts = opts || {};
+    if (!r || !r.donations) return '';
+    function row(label, v, cls) { return '<div class="kh-stm-row' + (cls ? ' ' + cls : '') + '"><span>' + vEsc(label) + '</span><b>' + fhTk(v) + '</b></div>'; }
+    var h = '<div class="kh-stm"><div class="kh-stm-h"><i class="ti ti-report-money"></i><div><div class="kh-stm-t">মাসিক আয়-ব্যয় বিবরণী</div><div class="kh-stm-s">' + vEsc(r.label || '') + '</div></div></div>';
+    h += '<div class="kh-stm-sec">আয়</div>';
+    h += row('দান (' + KHUI.bn(String(r.donations.count)) + 'টি)', r.donations.total, 'kh-stm-main');
+    (r.donations.by_method || []).forEach(function (m) { h += row('   ' + (STM_METHOD[m.k] || m.k), m.total, 'kh-stm-sub'); });
+    ((r.manual && r.manual.income) || []).forEach(function (m) { h += row(STM_MAN[m.k] || m.k, m.total, 'kh-stm-main'); });
+    h += row('মোট আয়', r.totals.income, 'kh-stm-tot');
+    h += '<div class="kh-stm-sec">ব্যয়</div>';
+    (r.expenses || []).forEach(function (m) { h += row(STM_EXP[m.k] || m.k, m.total, 'kh-stm-main'); });
+    ((r.manual && r.manual.expense) || []).forEach(function (m) { h += row(STM_MAN[m.k] || m.k, m.total, 'kh-stm-main'); });
+    if (!(r.expenses || []).length && !((r.manual && r.manual.expense) || []).length) h += '<div class="kh-stm-none">এই মাসে কোনো ব্যয় নেই</div>';
+    h += row('মোট ব্যয়', r.totals.expense, 'kh-stm-tot');
+    h += row('উদ্বৃত্ত (আয় − ব্যয়)', r.totals.surplus, 'kh-stm-sur');
+    h += '<div class="kh-stm-sec">ঋণ কার্যক্রম</div>';
+    h += row('ঋণ বিতরণ (' + KHUI.bn(String(r.loans.count)) + 'টি)', r.loans.disbursed, 'kh-stm-main');
+    h += row('কিস্তি আদায় (' + KHUI.bn(String(r.repayments.count)) + 'টি)', r.repayments.total, 'kh-stm-main');
+    h += '<div class="kh-stm-sec">সঞ্চয় <small>(সদস্যের ফেরতযোগ্য টাকা — আয় নয়)</small></div>';
+    h += row('জমা', r.savings.deposits, 'kh-stm-main');
+    h += row('উত্তোলন', r.savings.withdrawals, 'kh-stm-main');
+    if (r.bank && r.bank.lines != null && r.bank.opening != null) {
+      h += '<div class="kh-stm-sec">ব্যাংক হিসাব</div>';
+      h += row('মাসের শুরুর স্থিতি', r.bank.opening, 'kh-stm-main');
+      h += row('ব্যাংকে জমা', r.bank['in'], 'kh-stm-main');
+      h += row('ব্যাংক থেকে উত্তোলন', r.bank.out, 'kh-stm-main');
+      h += row('মাসের শেষ স্থিতি', r.bank.closing, 'kh-stm-tot');
+      h += '<div class="kh-stm-trust"><i class="ti ti-shield-check"></i> ব্যাংক স্টেটমেন্টের ' + KHUI.bn(String(r.bank.lines)) + 'টি লেনদেন সিস্টেমের রেকর্ডের সাথে মিলিয়ে দেখা হয়েছে</div>';
+    }
+    h += '</div>';
+    return h;
+  };
+
   KHUI.FUND_TOPIC = { loan: 'loanfund', revolving: 'revolving', savings: 'savingsfund',
                       emergency: 'emergency', operation: 'operation', lendable: 'lendable', otr: 'otr' };
   KHUI.FUND_NAME = { loan: 'ঋণ তহবিল', revolving: 'রিভলভিং ফান্ড', savings: 'সঞ্চয় থেকে ঋণযোগ্য',
