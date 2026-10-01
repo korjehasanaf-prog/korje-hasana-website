@@ -835,7 +835,6 @@
       .steps { grid-template-columns: repeat(2,1fr); gap: 20px; }
       .steps::before { display: none; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
-      .topbar-left { display: none; }
       /* Hamburger + dropdown nav */
       .nav-center { display: none; height: auto !important; }
       .nav-hamburger { display: flex; }
@@ -1018,7 +1017,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=52">
+  <link rel="stylesheet" href="kh-ui.css?v=53">
 <style>
 /* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
    নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
@@ -1041,6 +1040,7 @@ html .khfc.khfc .khfc-live{
 }
 .khfc-head{display:flex;align-items:center;gap:10px}
 /* AM/PM বাটন — নিজের গাঢ় পটভূমি বহন করে, দুই থীমে এক */
+@media (max-width:768px){ html .khfc.khfc{display:none !important} }
 html .khfc.khfc .khfc-ap{
   font:500 9.5px/1 var(--mono); letter-spacing:.14em;
   padding:4px 8px; border-radius:6px; cursor:pointer; min-height:0;
@@ -2083,7 +2083,8 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
         <a href="#programs" class="ft-link">Emergency loan</a>
       </div>
     </div>
-    <div class="ft-col">
+    <div class="ft-col ft-tc">
+     <div class="ft-sub">
       <h4>Transparency</h4>
       <div class="ft-links">
         <a href="#dashboard" class="ft-link">Live dashboard</a>
@@ -2092,12 +2093,15 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
         <a href="#" class="ft-link">Volunteers</a>
         <a href="#" class="ft-link">Privacy policy</a>
       </div>
+     </div>
+     <div class="ft-sub">
       <h4 style="margin-top:20px">Contact</h4>
       <div class="ft-contact">
         <div class="ft-contact-item"><i class="ti ti-map-pin"></i>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
         <div class="ft-contact-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
         <div class="ft-contact-item"><i class="ti ti-brand-whatsapp"></i>+880 1711-515952 / +880 1733-256731</div>
       </div>
+     </div>
     </div>
   </div>
   <div class="footer-mid">
@@ -2634,7 +2638,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   tick();
 })();
 </script>
-<script src="kh-ui.js?v=52"></script>
+<script src="kh-ui.js?v=53"></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>
