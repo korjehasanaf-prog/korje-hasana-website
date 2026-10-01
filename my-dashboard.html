@@ -291,8 +291,8 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=51">
-<script src="kh-ui.js?v=51"></script>
+<link rel="stylesheet" href="kh-ui.css?v=52">
+<script src="kh-ui.js?v=52"></script>
 <script>
 (function(){
   'use strict';
@@ -311,6 +311,7 @@
   }
   function taka(n){
     n = Number(n||0);
+    n = (n<0?-1:1) * Math.round(Math.abs(n) + 1e-9);   /* দশমিক নয়: .৫০-এর নিচে বাদ, বেশি হলে +১ */
     return '৳' + bn(n.toLocaleString('en-IN'));
   }
   function el(id){ return document.getElementById(id); }

@@ -324,7 +324,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=51">
+  <link rel="stylesheet" href="kh-ui.css?v=52">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -1398,7 +1398,7 @@ async function initAdmin() {
 // ════════════════════════════════════════
 //  WALLET SUMMARY (dashboard card)
 // ════════════════════════════════════════
-function _bnNum(n){ return Number(n||0).toLocaleString('en-US').replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
+function _bnNum(n){ n=Number(n||0); n=(n<0?-1:1)*Math.round(Math.abs(n)+1e-9); return n.toLocaleString('en-US').replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
 async function loadWalletSummary(){
   try{
     const { data, error } = await _db.rpc('get_balance_summary');
@@ -1655,7 +1655,7 @@ async function loadGeneralSettings() {
     try {
       const vc = await _db.rpc('visit_counts');
       if (vc.error || !vc.data) throw vc.error || new Error('no data');
-      const n = v => KHUI.bn(Number(v || 0).toLocaleString('en-IN'));
+      const n = v => KHUI.bn(((Number(v || 0) < 0 ? -1 : 1) * Math.round(Math.abs(Number(v || 0)) + 1e-9)).toLocaleString('en-IN'));
       vNow.innerHTML =
         'পেজ ভিউ — আজ <b>' + n(vc.data.today_views) + '</b>, সর্বমোট <b>' + n(vc.data.total_views) + '</b> &nbsp;·&nbsp; ' +
         'আলাদা মানুষ — আজ <b>' + n(vc.data.today_unique) + '</b>, সর্বমোট <b>' + n(vc.data.total_unique) + '</b>';
@@ -4332,6 +4332,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=51"></script>
+<script src="kh-ui.js?v=52"></script>
 </body>
 </html>

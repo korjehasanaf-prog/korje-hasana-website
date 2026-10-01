@@ -302,7 +302,7 @@
   .content-wrap { margin:20px auto 40px !important; padding:0 12px !important; }
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=51">
+  <link rel="stylesheet" href="kh-ui.css?v=52">
 </head>
 <body data-kh-nav="on">
 
@@ -610,7 +610,7 @@
 const SESSION_KEY = 'kh_borrower_session';
 
 /* ── Helpers ─────────────────────────────────────── */
-function fmtTk(n) { return '৳' + (parseFloat(n)||0).toLocaleString('en-IN'); }
+function fmtTk(n) { n = parseFloat(n)||0; n = (n<0?-1:1) * Math.round(Math.abs(n) + 1e-9); return '৳' + n.toLocaleString('en-IN'); }
 function fmtDate(d) {
   if (!d) return '—';
   try { return new Date(d).toLocaleDateString('bn-BD', { day:'2-digit', month:'short', year:'numeric' }); }
@@ -1083,6 +1083,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=51"></script>
+<script src="kh-ui.js?v=52"></script>
 </body>
 </html>

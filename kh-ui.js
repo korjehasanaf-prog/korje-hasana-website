@@ -2901,7 +2901,7 @@
   var BN_MONTH = ['জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
                   'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'];
 
-  function stNum(n) { return KHUI.bn(Number(n || 0).toLocaleString('en-IN')); }
+  function stNum(n) { return KHUI.bn(rnd0(n).toLocaleString('en-IN')); }
   function stTk(n)  { return '৳' + stNum(Math.round(Number(n || 0))); }
   function stVal(v, money) { return money ? stTk(v) : stNum(v); }
 
@@ -2969,15 +2969,20 @@
                       emergency: 'emergency', operation: 'operation', lendable: 'lendable', otr: 'otr' };
   KHUI.FUND_NAME = { loan: 'ঋণ তহবিল', revolving: 'রিভলভিং ফান্ড', savings: 'সঞ্চয় থেকে ঋণযোগ্য',
                      emergency: 'জরুরি ফান্ড', operation: 'অপারেশন ফান্ড' };
-  /* ⚠️ পয়সা বাদ দেওয়া যাবে না — ৳২০,১৪৭.৫০ গোল করে ২০,১৪৮ দেখালে যোগফল মিলত না */
+  /* ⚠️ সিদ্ধান্ত (১ অক্টোবর ২০২৬, ব্যবহারকারী): সব ড্যাশবোর্ডে দশমিক নয় — .৫০-এর নিচে বাদ,
+     .৫০ বা বেশি হলে +১। (আগে পয়সাসহ দেখানো হত; এখন তিন খাতের যোগফল সর্বমোটের সাথে ±১ টাকা
+     অমিল হতে পারে — গোল করার স্বাভাবিক ফল।) */
+  function rnd0(n) {
+    var v = Number(n || 0);
+    return (v < 0 ? -1 : 1) * Math.round(Math.abs(v) + 1e-9);
+  }
   function fhTk(n) {
-    var v = Math.round(Number(n || 0) * 100) / 100;
+    var v = rnd0(n);
     var neg = v < 0; v = Math.abs(v);
-    var s = v.toLocaleString('en-IN', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
-    return (neg ? '−' : '') + '৳' + KHUI.bn(s);
+    return (neg ? '−' : '') + '৳' + KHUI.bn(v.toLocaleString('en-IN'));
   }
   function fhPct(p) {
-    return KHUI.bn(String(Math.round(Number(p || 0) * 100) / 100));
+    return KHUI.bn(String(rnd0(p)));
   }
   function fhHead(f, k) {
     var hs = (f && f.heads) || [];
@@ -3240,7 +3245,7 @@
             return '<div class="kh-stdet-c kh-st-' +
                      (TONE.indexOf(c.tone) >= 0 ? c.tone : TONE[i % TONE.length]) + '">' +
                    '<b>' + vEsc(c.label) + '</b><s>' +
-                     (c.value == null ? '—' : (c.suffix ? KHUI.bn(String(c.value)) + c.suffix : (c.money ? fhTk(c.value) : stNum(c.value)))) + '</s></div>';
+                     (c.value == null ? '—' : (c.suffix ? KHUI.bn(String(rnd0(c.value))) + c.suffix : (c.money ? fhTk(c.value) : stNum(c.value)))) + '</s></div>';
           }).join('') +
         '</div>' +
 
@@ -3249,7 +3254,7 @@
             '<div class="kh-stdet-bars">' +
               pts.map(function (p) {
                 var h = Math.max(4, Math.round(Number(p.value || 0) / max * 100));
-                var pv = d.series.unit ? KHUI.bn(String(Number(p.value || 0))) + d.series.unit : fhTk(p.value);
+                var pv = d.series.unit ? KHUI.bn(String(rnd0(p.value))) + d.series.unit : fhTk(p.value);
                 return '<div class="kh-stdet-bar" title="' + vEsc(stMon(p.label)) + ' — ' + pv + '">' +
                        '<u>' + pv + '</u>' +
                        '<i style="height:' + h + '%"></i>' +

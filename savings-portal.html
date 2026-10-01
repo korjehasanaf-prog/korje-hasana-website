@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=51">
+  <link rel="stylesheet" href="kh-ui.css?v=52">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1766,7 +1766,7 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────
-function fmt(n) { return parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(n) { n = parseFloat(n||0) || 0; n = (n<0?-1:1) * Math.round(Math.abs(n) + 1e-9); return n.toLocaleString('en-IN'); }  /* দশমিক নয়: .৫০-এর নিচে বাদ, বেশি হলে +১ */
 function showMsg(id, txt, type) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -2701,6 +2701,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=51"></script>
+<script src="kh-ui.js?v=52"></script>
 </body>
 </html>
