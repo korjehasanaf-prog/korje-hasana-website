@@ -2970,7 +2970,7 @@
      ⚠️ সব অঙ্ক সার্ভারের statement_report() থেকে (totals সহ) — এখানে কোনো যোগফল কষা হয় না।
      ⚠️ সাদা কাগজ নিজের পটভূমি বহন করে (.kh-stm) → দুই থীমে ও গাঢ় অ্যাডমিন পর্দায় এক।
      ════════════════════════════════════════════════════════ */
-  var STM_METHOD = { bkash:'বিকাশ', nagad:'নগদ', rocket:'রকেট', upay:'উপায়', bqr:'বাংলা QR', bank:'ব্যাংক ট্রান্সফার',
+  var STM_METHOD = { bkash:'বিকাশ', nagad:'নগদ', rocket:'রকেট', upay:'উপায়', gpay:'জিপে', bqr:'বাংলা QR', bank:'ব্যাংক ট্রান্সফার',
                      card:'কার্ড', cash:'সরাসরি (নগদ)', agent:'এজেন্ট ব্যাংকিং', other:'অন্যান্য' };
   var STM_EXP = { operations:'পরিচালনা ব্যয়', office:'অফিস ব্যয়', salary:'বেতন-ভাতা', other:'অন্যান্য ব্যয়' };
   var STM_MAN = { bank_profit:'ব্যাংক মুনাফা', other_income:'অন্যান্য আয়', bank_charge:'ব্যাংক চার্জ', other_expense:'অন্যান্য ব্যয়' };
@@ -3003,6 +3003,16 @@
       h += row('ব্যাংক থেকে উত্তোলন', r.bank.out, 'kh-stm-main');
       h += row('মাসের শেষ স্থিতি', r.bank.closing, 'kh-stm-tot');
       h += '<div class="kh-stm-trust"><i class="ti ti-shield-check"></i> ব্যাংক স্টেটমেন্টের ' + KHUI.bn(String(r.bank.lines)) + 'টি লেনদেন সিস্টেমের রেকর্ডের সাথে মিলিয়ে দেখা হয়েছে</div>';
+    }
+    /* হিসাবভিত্তিক জমা/উত্তোলন — এ মাস · এ বছর · এ পর্যন্ত (সার্ভারের statement_ledger() থেকে) */
+    if (r.ledger && r.ledger.length) {
+      function cell(p) { p = p || {}; return '<td><span class="kh-stm-cr">' + fhTk(p.cr) + '</span><span class="kh-stm-dr">' + fhTk(p.dr) + '</span></td>'; }
+      h += '<div class="kh-stm-sec">হিসাবভিত্তিক জমা ও উত্তোলন <small>(উপরে জমা · নিচে উত্তোলন)</small></div>';
+      h += '<div class="kh-stm-led"><table><thead><tr><th>হিসাব</th><th>এ মাস</th><th>এ বছর</th><th>এ পর্যন্ত</th></tr></thead><tbody>';
+      r.ledger.forEach(function (a) {
+        h += '<tr><td><b>' + vEsc(a.name) + '</b><small>' + (a.src === 'statement' ? 'স্টেটমেন্ট দিয়ে মেলানো' + (a.stmt && a.kind !== 'bank' ? ' — স্টেটমেন্টে জমা ' + fhTk(a.stmt.in) + ', উত্তোলন ' + fhTk(a.stmt.out) + (Number(a.stmt.fee) > 0 ? ' (চার্জ ' + fhTk(a.stmt.fee) + ' সহ)' : '') : '') : 'সিস্টেম রেকর্ড — স্টেটমেন্ট যাচাই হয়নি') + '</small></td>' + cell(a.month) + cell(a.year) + cell(a.all) + '</tr>';
+      });
+      h += '</tbody></table></div>';
     }
     h += '</div>';
     return h;
@@ -5176,6 +5186,8 @@
       hint:'রকেট → Send Money → নিচের নম্বরে পাঠিয়ে TrxID লিখুন।' },
     { id:'upay',   name:'উপায়',             mk:'U',  grp:'mfs',  ref:'TrxID',
       hint:'উপায় অ্যাপ → Send Money → নিচের নম্বরে পাঠিয়ে TrxID লিখুন।' },
+    { id:'gpay',   name:'জিপে (gpay)',       mk:'G',  grp:'mfs',  ref:'ট্রানজেকশন নম্বর',
+      hint:'জিপে অ্যাপ → Send Money → নিচের নম্বরে পাঠিয়ে ট্রানজেকশন নম্বর লিখুন।' },
     { id:'bqr',    name:'বাংলা কিউআর',      mk:'ti-qrcode', grp:'qr', ref:'TrxID',
       hint:'যেকোনো ব্যাংক বা MFS অ্যাপ থেকে QR স্ক্যান করে পাঠান, তারপর TrxID লিখুন।' },
     { id:'bank',   name:'ব্যাংক ট্রান্সফার', mk:'ti-building-bank', grp:'bank', ref:'রেফারেন্স নম্বর',
@@ -5199,6 +5211,7 @@
     nagad:  [['number','নম্বর', 1]],
     rocket: [['number','নম্বর', 1]],
     upay:   [['number','নম্বর', 1]],
+    gpay:   [['number','নম্বর', 1]],
     bqr:    [['merchant','মার্চেন্ট', 0]],
     bank:   [['account_name','হিসাবের নাম', 0], ['account_no','হিসাব নম্বর', 1],
              ['bank','ব্যাংক', 0], ['branch','শাখা', 0], ['routing','রাউটিং নম্বর', 1],
@@ -6257,8 +6270,23 @@
         host.classList.remove('is-folding', 'is-flying', 'is-armed');
         trail.innerHTML = '';
         host.classList.add('is-done');
-        note.textContent = 'ধন্যবাদ! নতুন খবর ' + value + ' ঠিকানায় যাবে।';
+        /* ⚠️ আগে এখানে কিছুই সংরক্ষণ হত না — শুধু অ্যানিমেশন ও মিথ্যা বার্তা ছিল।
+           এখন সার্ভারে সত্যিই জমা হয়; ঠিকানা নিশ্চিত না করা পর্যন্ত কোনো বিবরণী যায় না। */
+        note.textContent = 'নিশ্চিতকরণ লিংক পাঠানো হচ্ছে…';
         input.disabled = false;
+        (async function () {
+          var res = null;
+          try { var r = await KHUI.db().rpc('subscribe_newsletter', { p_email: value }); if (r && !r.error) res = r.data; } catch (e) {}
+          if (res && res.ok && res.status === 'confirmed') {
+            note.textContent = 'আপনি আগেই সাবস্ক্রাইব করেছেন — ধন্যবাদ!';
+          } else if (res && res.ok) {
+            note.textContent = value + ' ঠিকানায় একটি নিশ্চিতকরণ মেইল পাঠানো হয়েছে — লিংকে ক্লিক করলে সাবস্ক্রিপশন চালু হবে (স্প্যাম ফোল্ডারও দেখুন)।';
+          } else {
+            host.classList.remove('is-done'); host.classList.add('is-retry');
+            note.textContent = 'এখন সাবস্ক্রাইব করা যায়নি — একটু পরে আবার চেষ্টা করুন।';
+            note.classList.add('kh-bad');
+          }
+        })();
         setTimeout(function () { busy = false; btn.disabled = false; }, 200);
       }
       requestAnimationFrame(frame);

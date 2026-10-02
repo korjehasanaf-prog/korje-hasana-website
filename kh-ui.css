@@ -3848,6 +3848,7 @@ html[data-theme="light"] .plume__note.plume__note.kh-bad { color: #b3261e !impor
 .kh-mk-nagad  { background: linear-gradient(140deg, #f6921e, #ec1c24); }
 .kh-mk-rocket { background: linear-gradient(140deg, #9c46a4, #8c3494); }
 .kh-mk-upay   { background: linear-gradient(140deg, #f58220, #6f2c91); }
+.kh-mk-gpay   { background: linear-gradient(140deg, #2f3a8a, #1b2050); }
 .kh-mk-bqr    { background: linear-gradient(140deg, #16916a, #0b5d3b); }
 .kh-mk-bank   { background: linear-gradient(140deg, #3b6fb5, #1b3a6b); }
 .kh-mk-card   { background: linear-gradient(140deg, #6a5f86, #332845); }
@@ -3924,6 +3925,7 @@ html[data-theme="light"] .plume__note.plume__note.kh-bad { color: #b3261e !impor
 .kh-pc-nagad  { --band: linear-gradient(100deg, #f6921e, #ec1c24 78%); --on-band: #231f20; }
 .kh-pc-rocket { --band: linear-gradient(100deg, #8c3494, #5f1f66);    --on-band: #fff; }
 .kh-pc-upay   { --band: linear-gradient(100deg, #f58220, #6f2c91 70%); --on-band: #231f20; }
+.kh-pc-gpay   { --band: linear-gradient(100deg, #2f3a8a, #1b2050);    --on-band: #fff; }
 /* ⚠️ QR-এর সবুজ কোনো ব্র্যান্ড রঙ নয় (বাংলা QR একটি জাতীয় স্কিম),
    তাই এটি অবাধে গাঢ় করা যায় — `#16916a`-এ সাদা ছিল ৩.৯৭:১ (ফেল) */
 .kh-pc-bqr    { --band: linear-gradient(100deg, #0d7052, #06462f);    --on-band: #fff; }
@@ -4633,4 +4635,15 @@ html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
 .kh-stm.kh-stm .kh-stm-none{padding:6px 10px;color:#5f566f !important;font-size:13.5px}
 .kh-stm.kh-stm .kh-stm-trust{margin-top:14px;padding:10px 12px;border-radius:10px;background:#e6f6ee !important;color:#0b6b3f !important;font-size:13.5px;font-weight:600;display:flex;gap:8px;align-items:center}
 .kh-stm.kh-stm .kh-stm-trust i{font-size:18px;color:#0b6b3f !important}
+/* হিসাবভিত্তিক জমা/উত্তোলন টেবিল — সাদা কাগজ, দুই থীমে এক */
+.kh-stm.kh-stm .kh-stm-led{overflow-x:auto;margin-top:6px}
+.kh-stm.kh-stm .kh-stm-led table{width:100%;border-collapse:collapse;min-width:520px;background:#fff !important}
+.kh-stm.kh-stm .kh-stm-led th{background:#f1ecf8 !important;color:#4a3a80 !important;font-size:12.5px;font-weight:700;text-align:right;padding:8px 10px}
+.kh-stm.kh-stm .kh-stm-led th:first-child,.kh-stm.kh-stm .kh-stm-led td:first-child{text-align:left}
+.kh-stm.kh-stm .kh-stm-led td{padding:8px 10px;border-top:1px solid #e8e2f0;text-align:right;color:#241a3a !important;font-size:14px;vertical-align:top;background:#fff !important}
+.kh-stm.kh-stm .kh-stm-led td b{color:#241a3a !important;display:block}
+.kh-stm.kh-stm .kh-stm-led td small{display:block;color:#5f566f !important;font-size:11.5px;font-weight:500;margin-top:2px}
+.kh-stm.kh-stm .kh-stm-led .kh-stm-cr,.kh-stm.kh-stm .kh-stm-led .kh-stm-dr{display:block;font-weight:700;background:transparent !important}
+.kh-stm.kh-stm .kh-stm-led .kh-stm-cr{color:#0b6b3f !important}
+.kh-stm.kh-stm .kh-stm-led .kh-stm-dr{color:#a3261c !important}
 @media (max-width:520px){.kh-stm.kh-stm{padding:14px 12px;border-radius:14px}.kh-stm.kh-stm .kh-stm-row{font-size:14px}}

@@ -338,7 +338,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=54">
+  <link rel="stylesheet" href="kh-ui.css?v=57">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -961,11 +961,31 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         </div>
 
         <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-wallet"></i> ওয়ালেট ও গেটওয়ে স্টেটমেন্ট (ঐচ্ছিক)</div>
+          <div class="stm-note">উপরে বাছা মাসের জন্য। স্টেটমেন্ট যুক্ত না করলে ঐ হিসাবে সিস্টেম ডাটা দেখানো হয়। <b>চার্জ/ফি অপারেশন ফান্ডের খরচ</b> হিসেবে অনুমোদনের সময় নিজে থেকে বসে। বিকাশ ও জিপের PDF সরাসরি পড়া যায় (পাসওয়ার্ড-সুরক্ষিত হলে চাওয়া হবে, সংরক্ষণ হয় না); নগদ · রকেট · উপায়ের জন্য নিচের বাক্সে পেস্ট করুন — প্রতি সারিতে: <code>তারিখ-সময়, ট্রানজেকশন নম্বর, ধরন, বিবরণ, ডেবিট, ক্রেডিট, ফি, স্থিতি</code> (যেমন <code>2026-09-21 15:31, 76100Z9R, সেন্ড মানি, , 1116.50, 0, 5,</code>)।</div>
+          <div class="form-grid col3" style="align-items:end">
+            <div class="fld"><label>হিসাব</label><select id="wsAcct"></select></div>
+            <div class="fld"><label>PDF (বিকাশ/জিপে)</label><input id="wsFile" type="file" accept="application/pdf"></div>
+            <div class="fld"><button class="btn btn-primary" style="width:100%" onclick="wsParse()"><i class="ti ti-scan"></i> পড়ুন</button></div>
+          </div>
+          <div class="fld" style="margin-top:8px"><label>অথবা লেনদেন পেস্ট করুন</label><textarea id="wsText" rows="3" placeholder="2026-09-21 15:31, 76100Z9R, সেন্ড মানি, , 1116.50, 0, 5,"></textarea></div>
+          <div id="wsOut"></div>
+          <div id="wsList" style="margin-top:12px"></div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-calendar-stats"></i> মাসভিত্তিক অবস্থা</div>
           <div id="stmList"></div>
         </div>
 
         <div id="stmDetail"></div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-title"><i class="ti ti-mail-fast"></i> সাবস্ক্রাইবারদের কাছে বিবরণী</div>
+          <div class="stm-note">ফুটারে সাবস্ক্রাইব করা ও <b>ঠিকানা নিশ্চিত করা</b> ব্যক্তিদের কাছে বিবরণী <b>অনুমোদনের সাথে সাথে নিজে থেকে</b> যায়; প্রতি মাসে একজন একবারই পান। কিছু বাকি থাকলে (বা ব্যর্থ হলে) নিচের বাটনে আবার পাঠানো যায় — যারা পেয়েছেন তাঁদের কাছে দ্বিতীয়বার যায় না।</div>
+          <div id="nlInfo" class="stm-note" style="margin-bottom:10px"></div>
+          <button class="btn btn-primary" onclick="nlSend()"><i class="ti ti-send"></i> বাছা মাসের বিবরণী সাবস্ক্রাইবারদের পাঠান</button>
+        </div>
 
         <div class="card" style="margin-top:16px">
           <div class="card-title"><i class="ti ti-eye-check"></i> ব্যাংক স্টেটমেন্ট দেখার অনুরোধ</div>
@@ -1627,8 +1647,31 @@ async function stmInit() {
     const mi = document.getElementById('stmMonth');
     if (mi && !mi.value) mi.value = String(d.due_month).slice(0,7);
   }
-  stmLoadList(); stmLoadReqs();
+  stmLoadList(); stmLoadReqs(); wsLoadList(); nlLoad();
+  const _sm = document.getElementById('stmMonth'); if (_sm && !_sm.dataset.ws) { _sm.dataset.ws = 1; _sm.addEventListener('change', () => { wsLoadList(); nlLoad(); }); }
   if (STM.month) stmOpen(STM.month);
+}
+
+/* ── সাবস্ক্রাইবারদের কাছে মাসিক বিবরণী ── */
+function nlMonth() { const v = (document.getElementById('stmMonth') || {}).value; return v ? v + '-01' : null; }
+async function nlLoad() {
+  const box = document.getElementById('nlInfo'); if (!box) return;
+  try {
+    const { data, error } = await _db.rpc('admin_newsletter_overview', { p_month: nlMonth() });
+    if (error || !data) { box.textContent = ''; return; }
+    box.textContent = 'নিশ্চিত সাবস্ক্রাইবার ' + _bnNum(data.confirmed) + ' জন · নিশ্চিতকরণের অপেক্ষায় ' + _bnNum(data.pending) +
+      ' · আনসাবস্ক্রাইব ' + _bnNum(data.unsubscribed) + ' · এ মাসের বিবরণী পেয়েছেন ' + _bnNum(data.sent_for_month) + (data.failed_for_month ? ' · ব্যর্থ ' + _bnNum(data.failed_for_month) : '');
+  } catch (e) { box.textContent = ''; }
+}
+async function nlSend() {
+  const m = nlMonth(); if (!m) return stmMsg('আগে উপরে মাস বাছুন', 'err');
+  if (!confirm('এই মাসের অনুমোদিত বিবরণী সব নিশ্চিত সাবস্ক্রাইবারকে পাঠানো হবে (যাঁরা পেয়েছেন তাঁদের বাদ দিয়ে)। এগোবেন?')) return;
+  try {
+    const { error } = await _db.rpc('admin_newsletter_send', { p_month: m });
+    if (error) return stmMsg(stmErr(error), 'err');
+    stmMsg('পাঠানো শুরু হয়েছে — কয়েক সেকেন্ড পর সংখ্যা হালনাগাদ হবে।', 'ok');
+    setTimeout(nlLoad, 6000);
+  } catch (e) { stmMsg('সংযোগ ত্রুটি', 'err'); }
 }
 
 async function stmLoadList() {
@@ -1751,6 +1794,190 @@ async function stmSave() {
     document.getElementById('stmParseOut').innerHTML = ''; STM.parsed = null;
     stmOpen(m); stmBadges(); stmLoadList();
   } catch (e) { stmMsg(stmErr(e), 'err'); }
+}
+
+/* ── ওয়ালেট স্টেটমেন্ট পার্সার ── (dashboard.html-এ হুবহু বসানো; node-এ পরীক্ষিত) */
+var WS_MON = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+function wsRows(items) {
+  items = items.slice().sort(function (a, b) { return b.y - a.y || a.x - b.x; });
+  var rows = [];
+  items.forEach(function (it) { var r = rows[rows.length - 1]; if (r && Math.abs(r.y - it.y) <= 2.5) r.it.push(it); else rows.push({ y: it.y, it: [it] }); });
+  rows.forEach(function (r) { r.it.sort(function (a, b) { return a.x - b.x; }); });
+  return rows;
+}
+function wsNum(s) { return parseFloat(String(s).replace(/,/g, '')); }
+function wsIsNum(s) { return /^-?[\d,]+\.\d{1,2}$/.test(s); }
+function wsDhaka(y, mo, d, hh, mi, ss) {
+  var p = function (n) { return String(n).padStart(2, '0'); };
+  return y + '-' + p(mo) + '-' + p(d) + 'T' + p(hh) + ':' + p(mi) + ':' + p(ss || 0) + '+06:00';
+}
+function wsTime12(t) { // "02:33:34 PM" → [h,m,s]
+  var m = /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i.exec(t.trim()); if (!m) return null;
+  var h = +m[1]; if (m[4]) { var pm = /pm/i.test(m[4]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+  return [h, +m[2], +(m[3] || 0)];
+}
+/* বিকাশ — PDF */
+function wsParseBkash(items) {
+  var rows = wsRows(items), txt = function (r) { return r.it.map(function (i) { return i.s; }).join(' '); };
+  var hi = rows.findIndex(function (r) { return /Date & Time/i.test(txt(r)) && /Balance/i.test(txt(r)); });
+  if (hi < 0) throw new Error('এটি বিকাশের স্টেটমেন্ট বলে মনে হচ্ছে না (কলাম শিরোনাম পাওয়া যায়নি)');
+  var H = {}; rows[hi].it.forEach(function (i) { var k = /^Out$/i.test(i.s) ? 'out' : /^In$/i.test(i.s) ? 'in' : /Charge/i.test(i.s) ? 'fee' : /^Balance$/i.test(i.s) ? 'bal' : /Details/i.test(i.s) ? 'det' : /Type/i.test(i.s) ? 'type' : null; if (k) H[k] = i; });
+  if (!H.out || !H.in || !H.fee || !H.bal) throw new Error('বিকাশের কলাম চেনা যায়নি');
+  var edge = { out: H.out.x + H.out.w, in: H.in.x + H.in.w, fee: H.fee.x + H.fee.w, bal: H.bal.x + H.bal.w };
+  var nearest = function (it) { var r = it.x + it.w, best = null; Object.keys(edge).forEach(function (k) { var d = Math.abs(edge[k] - r); if (!best || d < best.d) best = { k: k, d: d }; }); return best.d <= 14 ? best.k : null; };
+  var xDet = H.det ? H.det.x - 3 : 190, xType = H.type ? H.type.x - 3 : 90, xAmt = Math.min(edge.out - 40, 360);
+  var all = rows.map(txt).join(' \n ');
+  var per = /Statement Period:\s*(\d{2}) (\w{3}) (\d{4}) to (\d{2}) (\w{3}) (\d{4})/i.exec(all);
+  var tOut = /Total Out:\s*([\d,]+\.\d{2})/i.exec(all), tIn = /Total In:\s*([\d,]+\.\d{2})/i.exec(all);
+  var tx = [], cur = null;
+  rows.slice(hi + 1).forEach(function (r) {
+    var d = r.it.find(function (i) { return /^\d{2}-[A-Za-z]{3}-\d{2}$/.test(i.s) && i.x < xType; });
+    if (d) {
+      var nums = {}; r.it.forEach(function (i) { if (wsIsNum(i.s) && i.x > xAmt) { var k = nearest(i); if (k) nums[k] = wsNum(i.s); } });
+      cur = { date: d.s, time: '', type: r.it.filter(function (i) { return i.x >= xType && i.x < xDet; }).map(function (i) { return i.s; }).join(' '),
+        det: r.it.filter(function (i) { return i.x >= xDet && i.x < xAmt && !wsIsNum(i.s); }).map(function (i) { return i.s; }).join(' '), nums: nums };
+      tx.push(cur);
+    } else if (cur) {
+      var t = r.it.find(function (i) { return /^\d{1,2}:\d{2}(:\d{2})? ?[AP]M$/i.test(i.s) && i.x < xType; });
+      if (t) cur.time = t.s;
+      var dd = r.it.filter(function (i) { return i.x >= xDet && i.x < xAmt && !wsIsNum(i.s); }).map(function (i) { return i.s; }).join(' ');
+      if (dd) cur.det += ' ' + dd;
+    }
+  });
+  if (!tx.length) throw new Error('কোনো লেনদেন পাওয়া যায়নি');
+  var lines = tx.map(function (t) {
+    var dm = /^(\d{2})-(\w{3})-(\d{2})$/.exec(t.date), tm = wsTime12(t.time) || [0, 0, 0];
+    var id = /TRX ID:\s*([A-Z0-9]+)/i.exec(t.det);
+    var det = t.det.replace(/TRX ID:\s*[A-Z0-9]+/ig, '').replace(/\b01\d{9}\b/g, function (s) { return s.slice(0, 3) + '•••••' + s.slice(-3); }).replace(/[\s\/]+$/, '').replace(/\s+/g, ' ').trim();
+    return { trans_at: wsDhaka(2000 + +dm[3], WS_MON[dm[2].toLowerCase()], +dm[1], tm[0], tm[1], tm[2]), trx_id: id ? id[1] : '', tx_type: t.type,
+      details: det, debit: t.nums.out || 0, credit: t.nums.in || 0, fee: Math.abs(t.nums.fee || 0), balance: t.nums.bal };
+  });
+  var checks = []; var sumOut = 0, sumIn = 0, sumFee = 0;
+  lines.forEach(function (l) { sumOut += l.debit; sumIn += l.credit; sumFee += l.fee; });
+  if (lines.some(function (l) { return l.balance == null; })) checks.push('কিছু সারিতে স্থিতি পাওয়া যায়নি');
+  else {
+    var prev = lines[0].balance + lines[0].debit + lines[0].fee - lines[0].credit, bad = 0;
+    lines.forEach(function (l) { if (Math.abs(prev - l.debit - l.fee + l.credit - l.balance) > 0.005) bad++; prev = l.balance; });
+    if (bad) checks.push(bad + 'টি সারিতে স্থিতির ধারা মিলছে না');
+  }
+  var meta = { period: per ? [per[3] + '-' + String(WS_MON[per[2].toLowerCase()]).padStart(2, '0'), per[6] + '-' + String(WS_MON[per[5].toLowerCase()]).padStart(2, '0')] : null,
+    total_out: tOut ? wsNum(tOut[1]) : null, total_in: tIn ? wsNum(tIn[1]) : null, sum_out: +sumOut.toFixed(2), sum_in: +sumIn.toFixed(2), sum_fee: +sumFee.toFixed(2) };
+  if (meta.total_in != null && Math.abs(meta.total_in - sumIn) > 0.005) checks.push('মোট জমা (' + meta.total_in + ') সারির যোগফলের (' + sumIn.toFixed(2) + ') সাথে মিলছে না');
+  if (meta.total_out != null && Math.abs(meta.total_out - sumOut - sumFee) > 0.005 && Math.abs(meta.total_out - sumOut) > 0.005) checks.push('মোট ব্যয় (' + meta.total_out + ') সারির যোগফলের সাথে মিলছে না');
+  return { lines: lines, checks: checks, meta: meta };
+}
+/* জিপে — PDF (কলাম: লেনদেনের তারিখ · ধরন · নম্বর · সময় · মূল্য তারিখ · ডেবিট · ক্রেডিট · ব্যালেন্স) */
+function wsParseGpay(items) {
+  var rows = wsRows(items), lines = [];
+  rows.forEach(function (r) {
+    var d = r.it.find(function (i) { return /^\d{2} [A-Za-z]{3} \d{4}$/.test(i.s); });
+    var t = r.it.find(function (i) { return /^\d{2}:\d{2}:\d{2}$/.test(i.s); });
+    var nums = r.it.filter(function (i) { return wsIsNum(i.s); }).sort(function (a, b) { return a.x - b.x; });
+    if (!d || !t || nums.length < 3) return;
+    var id = r.it.find(function (i) { return /^[A-Z0-9]{10,}$/.test(i.s) && /[A-Z]/.test(i.s) && /\d/.test(i.s); });
+    var typ = r.it.filter(function (i) { return i.x > d.x + 5 && (!id || i.x < id.x - 2) && !wsIsNum(i.s); }).map(function (i) { return i.s; }).join(' ');
+    var n = nums.slice(-3).map(function (i) { return wsNum(i.s); }), dm = /^(\d{2}) (\w{3}) (\d{4})$/.exec(d.s), tm = t.s.split(':').map(Number);
+    lines.push({ trans_at: wsDhaka(+dm[3], WS_MON[dm[2].toLowerCase()], +dm[1], tm[0], tm[1], tm[2]), trx_id: id ? id.s : '', tx_type: typ, details: '', debit: n[0], credit: n[1], fee: 0, balance: n[2] });
+  });
+  if (!lines.length) throw new Error('জিপের স্টেটমেন্টে কোনো লেনদেন পাওয়া যায়নি');
+  lines.sort(function (a, b) { return a.trans_at < b.trans_at ? -1 : 1; });
+  var checks = []; var prev = lines[0].balance + lines[0].debit - lines[0].credit, bad = 0;
+  lines.forEach(function (l) { if (Math.abs(prev - l.debit + l.credit - l.balance) > 0.005) bad++; prev = l.balance; });
+  if (bad) checks.push(bad + 'টি সারিতে স্থিতির ধারা মিলছে না');
+  return { lines: lines, checks: checks, meta: {} };
+}
+/* সাধারণ লেখা/CSV — নগদ · রকেট · উপায় (অ্যাপে PDF নেই, তাই টেমপ্লেটে):
+   তারিখ-সময় , ট্রানজেকশন নম্বর , ধরন , বিবরণ , ডেবিট , ক্রেডিট , ফি , স্থিতি */
+function wsParseCsv(text) {
+  var out = [], checks = [], lineNo = 0;
+  String(text).split(/\r?\n/).forEach(function (raw) {
+    var ln = raw.trim(); if (!ln || /^(date|তারিখ)/i.test(ln) || /^#/.test(ln)) return; lineNo++;
+    var c = ln.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(function (s) { return s.trim().replace(/^"|"$/g, ''); });
+    var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(c[0] || '') || null, at = null;
+    if (m) at = wsDhaka(+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]);
+    else { var m2 = /^(\d{2})-(\d{2})-(\d{2}) (\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(c[0] || ''); if (m2) at = wsDhaka(2000 + +m2[3], +m2[2], +m2[1], +m2[4], +m2[5], +m2[6]); }
+    var nz = function (v) { var x = parseFloat(String(v || '0').replace(/[,\s৳]/g, '')); return isNaN(x) ? NaN : Math.abs(x); };
+    var dr = nz(c[4]), cr = nz(c[5]), fe = nz(c[6]), bal = (c[7] || '') === '' ? null : parseFloat(String(c[7]).replace(/,/g, ''));
+    if (!at || isNaN(dr) || isNaN(cr) || isNaN(fe)) { checks.push('সারি ' + lineNo + ': তারিখ বা অঙ্ক পড়া যায়নি'); return; }
+    out.push({ trans_at: at, trx_id: (c[1] || '').replace(/^#/, '').toUpperCase(), tx_type: c[2] || '', details: c[3] || '', debit: dr, credit: cr, fee: fe, balance: bal });
+  });
+  if (!out.length && !checks.length) checks.push('কোনো সারি পাওয়া যায়নি');
+  return { lines: out, checks: checks, meta: {} };
+}
+
+/* ── ওয়ালেট স্টেটমেন্ট (বিকাশ · জিপে · নগদ/রকেট/উপায়) ── */
+var WS = { parsed:null, acct:null, month:null };
+async function wsExtract(file) {
+  await stmLoadPdfjs();
+  const task = pdfjsLib.getDocument({ data: await file.arrayBuffer() });
+  task.onPassword = function (cb, reason) {
+    const p = prompt(reason === 2 ? 'পাসওয়ার্ড ভুল — আবার লিখুন' : 'এই PDF পাসওয়ার্ড-সুরক্ষিত। পাসওয়ার্ড লিখুন (কোথাও সংরক্ষণ হয় না)');
+    if (p == null) { task.destroy(); return; } cb(p);
+  };
+  const pdf = await task.promise, items = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const tc = await (await pdf.getPage(p)).getTextContent();
+    tc.items.forEach(it => { const s = (it.str || '').trim(); if (s) items.push({ s, x: it.transform[4], y: it.transform[5] - (p - 1) * 10000, w: it.width }); });
+  }
+  return items;
+}
+async function wsLoadList() {
+  const mv = (document.getElementById('stmMonth').value || '').slice(0, 7);
+  const sel = document.getElementById('wsAcct'), box = document.getElementById('wsList');
+  if (!mv) { box.innerHTML = '<div class="stm-note">উপরে মাস বাছুন</div>'; return; }
+  const { data, error } = await _db.rpc('wallet_statement_list', { p_month: mv + '-01' });
+  if (error) { box.innerHTML = '<div class="stm-bad">' + esc(error.message) + '</div>'; return; }
+  if (!sel.options.length) sel.innerHTML = data.map(a => '<option value="' + esc(a.key) + '">' + esc(a.name) + '</option>').join('');
+  box.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>হিসাব</th><th>স্টেটমেন্ট</th><th style="text-align:right">জমা</th><th style="text-align:right">উত্তোলন</th><th style="text-align:right">চার্জ</th><th style="text-align:right">সিস্টেমের সাথে মিল</th><th></th></tr></thead><tbody>' +
+    data.map(a => '<tr><td>' + esc(a.name) + '</td><td>' + (a.has ? '<span class="badge badge-green">যুক্ত · ' + _bnNum(a.count) + ' সারি</span>' : '<span class="badge badge-gray">নেই — সিস্টেম ডাটা</span>') + '</td>' +
+      '<td style="text-align:right">' + (a.has ? _bnNum(a.credit) : '—') + '</td><td style="text-align:right">' + (a.has ? _bnNum(a.debit) : '—') + '</td><td style="text-align:right">' + (a.has ? _bnNum(a.fee) : '—') + '</td>' +
+      '<td style="text-align:right">' + (a.has ? _bnNum(a.matched) + ' মিলেছে · ' + _bnNum(a.unmatched_credit) + ' অন্য' : '—') + '</td>' +
+      '<td>' + (a.has ? '<button class="btn" style="padding:4px 12px;font-size:12px" onclick="wsDelete(\'' + esc(a.key) + '\')">সরান</button>' : '') + '</td></tr>').join('') + '</tbody></table></div>';
+}
+async function wsParse() {
+  const acct = document.getElementById('wsAcct').value, mv = document.getElementById('stmMonth').value;
+  const f = document.getElementById('wsFile').files[0], txt = document.getElementById('wsText').value.trim();
+  const out = document.getElementById('wsOut');
+  if (!mv) return stmMsg('উপরে মাস বাছুন', 'err');
+  if (!f && !txt) return stmMsg('PDF বাছুন অথবা লেনদেন পেস্ট করুন', 'err');
+  out.innerHTML = '<div class="stm-note">পড়া হচ্ছে…</div>';
+  try {
+    let r;
+    if (f) {
+      if (f.size > 10 * 1024 * 1024) throw new Error('ফাইল ১০ MB-র বেশি');
+      const items = await wsExtract(f), all = items.map(i => i.s).join(' ');
+      if (/bKash Statement/i.test(all) || /Charge\/Fee/i.test(all)) r = wsParseBkash(items);
+      else if (acct === 'gpay' || /gpay|Shamadhan/i.test(all)) r = wsParseGpay(items);
+      else throw new Error('এই PDF-এর ফরম্যাট চেনা যায়নি — বিকাশ ও জিপের PDF সমর্থিত; অন্যগুলো নিচের টেমপ্লেটে পেস্ট করুন');
+    } else r = wsParseCsv(txt);
+    const lo = mv + '-01', before = r.lines.length;
+    r.lines = r.lines.filter(l => new Date(l.trans_at).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }).slice(0, 7) === mv);
+    const dropped = before - r.lines.length;
+    if (dropped) r.checks.push('__note:' + _bnNum(dropped) + 'টি সারি বাছা মাসের বাইরে — বাদ দেওয়া হয়েছে');
+    const hard = r.checks.filter(c => c.indexOf('__note:') !== 0), notes = r.checks.filter(c => c.indexOf('__note:') === 0).map(c => c.slice(7));
+    if (!r.lines.length) hard.push('বাছা মাসে কোনো লেনদেন নেই');
+    WS.parsed = r; WS.acct = acct; WS.month = lo;
+    const ok = !hard.length;
+    out.innerHTML = '<div class="stm-note ' + (ok ? 'stm-ok' : 'stm-bad') + '">' + (ok ? '✓ ' + _bnNum(r.lines.length) + 'টি লেনদেন পড়া হয়েছে' + (r.meta.total_in != null ? '; স্থিতির ধারা ও মোট নিখুঁত মিলেছে' : '') : '✗ ' + hard.map(esc).join(' · ')) + (notes.length ? ' · ' + notes.map(esc).join(' · ') : '') + '</div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>সময়</th><th>ধরন</th><th>বিবরণ</th><th style="text-align:right">ডেবিট</th><th style="text-align:right">ক্রেডিট</th><th style="text-align:right">চার্জ</th><th style="text-align:right">স্থিতি</th></tr></thead><tbody>' +
+      r.lines.map(l => '<tr><td>' + esc(new Date(l.trans_at).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka', dateStyle: 'short', timeStyle: 'short' })) + '</td><td>' + esc(l.tx_type) + '</td><td>' + esc(l.details) + '</td><td style="text-align:right">' + (l.debit ? _bnNum(l.debit) : '') + '</td><td style="text-align:right">' + (l.credit ? _bnNum(l.credit) : '') + '</td><td style="text-align:right">' + (l.fee ? _bnNum(l.fee) : '') + '</td><td style="text-align:right">' + (l.balance != null ? _bnNum(l.balance) : '') + '</td></tr>').join('') + '</tbody></table></div>' +
+      (ok ? '<div class="stm-btns"><button class="btn btn-gold" onclick="wsSave()"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button></div>' : '');
+  } catch (e) { out.innerHTML = ''; stmMsg(stmErr(e), 'err'); }
+}
+async function wsSave() {
+  const r = WS.parsed; if (!r || !r.lines.length) return;
+  try {
+    const { data, error } = await _db.rpc('wallet_statement_save', { p_account: WS.acct, p_month: WS.month, p_lines: r.lines });
+    if (error) throw error;
+    stmMsg('সংরক্ষিত — ' + _bnNum(data.count) + ' সারি; সিস্টেমের সাথে মিলেছে ' + _bnNum(data.matched) + 'টি জমা', 'ok');
+    document.getElementById('wsOut').innerHTML = ''; WS.parsed = null; wsLoadList();
+  } catch (e) { stmMsg(stmErr(e), 'err'); }
+}
+async function wsDelete(key) {
+  if (!confirm('এই মাসের ওয়ালেট স্টেটমেন্ট সরাবেন? (সিস্টেম ডাটাই থাকবে)')) return;
+  const mv = document.getElementById('stmMonth').value; if (!mv) return;
+  const { error } = await _db.rpc('wallet_statement_delete', { p_account: key, p_month: mv + '-01' });
+  if (error) return stmMsg(stmErr(error), 'err'); wsLoadList();
 }
 
 /* ── মাসের বিস্তারিত ── */
@@ -2409,8 +2636,8 @@ function rpPrintCards(s) {
 //  ⚠️ gw / multi / online / label এখান থেকে পাঠানোই হয় না —
 //     সার্ভারও সেগুলো উপেক্ষা করে (ভুল চ্যানেল কি = ভুল মাধ্যমে টাকা)।
 // ════════════════════════════════════════
-var PM_ORDER = ['bkash','nagad','rocket','upay','bqr','bank','card','cash','agent'];
-var PM_ICON  = { bkash:'৳', nagad:'৳', rocket:'৳', upay:'৳', bqr:'▦',
+var PM_ORDER = ['bkash','nagad','rocket','upay','gpay','bqr','bank','card','cash','agent'];
+var PM_ICON  = { bkash:'৳', nagad:'৳', rocket:'৳', upay:'৳', gpay:'৳', bqr:'▦',
                  bank:'🏦', card:'💳', cash:'🏢', agent:'🧾' };
 /* প্রতি মাধ্যমে কোন ঘরগুলো দেখানো হবে — [key, লেবেল, placeholder, textarea?] */
 var PM_MFS = [
@@ -2419,7 +2646,7 @@ var PM_MFS = [
   ['note','দর্শককে যা বলা হবে','', 1]
 ];
 var PM_FIELDS = {
-  bkash: PM_MFS, nagad: PM_MFS, rocket: PM_MFS, upay: PM_MFS,
+  bkash: PM_MFS, nagad: PM_MFS, rocket: PM_MFS, upay: PM_MFS, gpay: PM_MFS,
   bqr: [
     ['merchant','মার্চেন্টের নাম','KORJE HASANA FOUNDATION'],
     ['image','QR ছবির ঠিকানা','https://…'],
@@ -4642,6 +4869,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=54"></script>
+<script src="kh-ui.js?v=57"></script>
 </body>
 </html>

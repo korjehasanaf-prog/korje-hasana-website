@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>সাবস্ক্রিপশন | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- ⚠️ প্রকল্পের ১ নম্বর নিয়ম — সুপাবেসের দুটি স্ক্রিপ্ট kh-ui.js-এর আগে -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{ --ink:#241539; --muted:#6b6280; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:26px 16px 96px; position:relative; overflow-x:hidden;
+      color:#f3edfb; background:#150c24;
+    }
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:url('images/auth-bg.jpg') center/cover no-repeat}
+    .card{
+      position:relative; z-index:1; width:100%; max-width:450px;
+      background:rgba(26,14,45,.9); border:1px solid rgba(255,255,255,.17);
+      border-radius:24px; padding:32px 26px; text-align:center;
+      backdrop-filter:blur(22px) saturate(155%);
+      box-shadow:0 24px 70px rgba(0,0,0,.5);
+    }
+    html[data-theme="light"] .card{
+      background:rgba(255,255,255,.95); border-color:#ece2f4; color:var(--ink);
+      box-shadow:0 24px 70px rgba(112,72,232,.28);
+    }
+    /* আইকন নিজের রঙ বহন করে — দুই থীমে এক */
+    .ico{width:74px;height:74px;border-radius:50%;margin:0 auto 15px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff}
+    .ico.ok  {background:linear-gradient(135deg,#0f7a43,#0a5c33);box-shadow:0 8px 24px rgba(15,122,67,.42)}
+    .ico.warn{background:linear-gradient(135deg,#c87a0c,#8a5208);box-shadow:0 8px 24px rgba(200,122,12,.42)}
+    .ico.bad {background:linear-gradient(135deg,#c2255c,#8a1338);box-shadow:0 8px 24px rgba(194,37,92,.42)}
+    h1{font-size:22px;margin-bottom:8px}
+    .sub{font-size:14px;color:#cbbfdd;margin-bottom:22px;line-height:1.8}
+    html[data-theme="light"] .sub{color:var(--muted)}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:13px 26px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;
+      background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#7048e8);color:#fff;
+      box-shadow:0 8px 24px rgba(139,31,176,.36);
+    }
+    .btn:hover{filter:brightness(1.08)}
+  </style>
+</head>
+<!-- ⚠️ নেভবার সব পেজেই (প্রকল্পের ৬ নম্বর নিয়ম) -->
+<body data-kh-nav="on">
+<div class="bg"></div>
+<div class="card">
+  <div class="ico ok" id="ico"><i class="ti ti-mail-check"></i></div>
+  <h1 id="ttl"></h1>
+  <div class="sub" id="sub"></div>
+  <a class="btn" href="index.html"><i class="ti ti-home"></i>হোম পেজে যান</a>
+</div>
+<link rel="stylesheet" href="kh-ui.css?v=57">
+<script src="kh-ui.js?v=57"></script>
+<script>
+/* ⚠️ এই পেজ কোনো সিদ্ধান্ত নেয় না — সার্ভার (kh-newsletter) আগেই কাজটি করে ফেলেছে,
+   এখানে কেবল `r` দেখে বার্তা দেখানো হয়। */
+(function () {
+  var r = (new URLSearchParams(location.search).get('r') || '').toLowerCase();
+  var M = {
+    confirmed: ['ok',   'ti-mail-check', 'ঠিকানা নিশ্চিত হয়েছে', 'ধন্যবাদ! এখন থেকে প্রতি মাসের আয়-ব্যয় বিবরণী অনুমোদনের সাথে সাথে আপনার ই-মেইলে চলে যাবে।'],
+    unsub:     ['warn', 'ti-mail-off',   'সাবস্ক্রিপশন বন্ধ হয়েছে', 'আর কোনো মেইল পাঠানো হবে না। মত বদলালে ফুটার থেকে আবার সাবস্ক্রাইব করতে পারবেন।']
+  };
+  var m = M[r] || ['bad', 'ti-link-off', 'লিংকটি বৈধ নয়', 'লিংকটির মেয়াদ শেষ হয়েছে বা ভুল। ফুটার থেকে আবার সাবস্ক্রাইব করুন।'];
+  document.getElementById('ico').className = 'ico ' + m[0];
+  document.getElementById('ico').innerHTML = '<i class="ti ' + m[1] + '"></i>';
+  document.getElementById('ttl').textContent = m[2];
+  document.getElementById('sub').textContent = m[3];
+})();
+</script>
+</body>
+</html>
