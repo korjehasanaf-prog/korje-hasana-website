@@ -724,6 +724,7 @@
   <nav class="sidebar-nav">
     <button class="sidebar-item active" id="sb-dashboard" onclick="showPanel('dashboard')"><i class="ti ti-layout-dashboard"></i> ড্যাশবোর্ড</button>
     <button class="sidebar-item" id="sb-deposit" onclick="showPanel('deposit')"><i class="ti ti-piggy-bank"></i> সঞ্চয় জমা করুন</button>
+    <button class="sidebar-item" id="sb-transfer" onclick="showPanel('transfer')"><i class="ti ti-arrows-exchange"></i> সঞ্চয় স্থানান্তর</button>
     <button class="sidebar-item" id="sb-withdraw" onclick="showPanel('withdraw')"><i class="ti ti-cash-banknote"></i> আমানত উত্তোলন</button>
     <button class="sidebar-item" id="sb-history" onclick="showPanel('history')"><i class="ti ti-history"></i> লেনদেনের ইতিহাস</button>
     <button class="sidebar-item" id="sb-account" onclick="showPanel('account')"><i class="ti ti-id-badge"></i> হিসাবের তথ্য</button>
@@ -918,6 +919,45 @@
         <p style="font-size:13.5px;color:var(--muted);margin-top:12px;text-align:center;">অনুরোধ পর্যালোচনার পর ২৪ ঘণ্টার মধ্যে প্রেরণ করা হবে</p>
       </div>
     </div><!-- /panel-withdraw -->
+
+    <!-- ── Transfer Panel: সঞ্চয় থেকে দানে বা ঋণের কিস্তিতে (তাৎক্ষণিক, অনুমোদন ছাড়া) ── -->
+    <div class="portal-panel" id="panel-transfer">
+      <div class="section-card" style="max-width:560px;margin:32px auto;">
+        <div class="section-card-head">
+          <h3><i class="ti ti-arrows-exchange" style="color:var(--green)"></i> সঞ্চয় স্থানান্তর</h3>
+        </div>
+        <div class="msg-box" id="transferMsgPanel"></div>
+
+        <div id="trfBalBox" style="background:#fff;border:1px solid var(--border);border-radius:12px;
+             padding:14px 16px;margin-bottom:16px"></div>
+
+        <div class="form-group">
+          <label>কোথায় স্থানান্তর করবেন <span style="color:red">*</span></label>
+          <select id="trfTarget" onchange="syncTransferPanel()">
+            <option value="donation">দান (সাধারণ তহবিল)</option>
+            <option value="instalment">ঋণের কিস্তি</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="trfInstWrap" style="display:none">
+          <label>কোন কিস্তি পরিশোধ হবে <span style="color:red">*</span></label>
+          <select id="trfInstallment" onchange="syncTransferPanel()"></select>
+          <div class="hint" id="trfInstHint"></div>
+        </div>
+
+        <div class="form-group">
+          <label>পরিমাণ (টাকা) <span style="color:red">*</span></label>
+          <div class="amount-input-wrap">
+            <span class="taka-prefix">৳</span>
+            <input type="number" id="trfAmount" placeholder="০.০০" min="1" step="1">
+          </div>
+          <div class="hint" id="trfAmtHint"></div>
+        </div>
+
+        <p class="kh-hint" style="margin:0 0 14px">স্থানান্তর সাথে সাথে কার্যকর হয়; কোনো অনুমোদন লাগে না। স্থিতি থেকে টাকা কাটা হবে এবং দান বা কিস্তি সাথে সাথে জমা হবে।</p>
+        <button class="btn-primary" id="trfBtn" onclick="submitTransferPanel()"><i class="ti ti-check"></i> স্থানান্তর করুন</button>
+      </div>
+    </div><!-- /panel-transfer -->
 
     <!-- ── History Panel ── -->
     <div class="portal-panel" id="panel-history">
@@ -2303,7 +2343,7 @@ async function saveAccountNominees() {
 function openPanelFromHash() {
   var h = (location.hash || '').replace('#', '');
   if (!h) return;
-  var ok = ['dashboard', 'deposit', 'withdraw', 'history', 'account'];
+  var ok = ['dashboard', 'deposit', 'transfer', 'withdraw', 'history', 'account'];
   if (ok.indexOf(h) === -1) return;
   if (!currentDepositor) return;      /* হিসাব না থাকলে নয় */
   showPanel(h);
@@ -2326,6 +2366,7 @@ function showPanel(name) {
   if(name === 'history') renderTrx2(allTrx);
   /* প্রতিটি পর্দা নির্বাচিত হিসাব অনুযায়ী সাজানো */
   if(name === 'deposit') syncDepositPanel();
+  if(name === 'transfer') syncTransferPanel();
   if(name === 'dashboard') loadSummary();
   if(name === 'newaccount') { naSyncScheme(); naSyncMethod(); prefillNewAccountNominees(); }
   /* ড্যাশবোর্ড সব হিসাবের, আর নতুন হিসাবের পর্দায় বাছার কিছু নেই — দুটোতেই বার লুকানো */
@@ -2547,6 +2588,110 @@ async function submitDepositPanel() {
   });
 
   setTimeout(refreshAccount, 1200);
+}
+
+/* ── সঞ্চয় স্থানান্তর (দান / ঋণের কিস্তি) ── */
+var TRF_INST = [];   /* get_my_loan_schedule() থেকে — বাকি কিস্তিগুলো */
+
+async function loadTransferInstalments() {
+  TRF_INST = [];
+  try {
+    const r = await _db.rpc('get_my_loan_schedule');
+    if (r.error || !r.data) return;
+    (r.data.loans || []).forEach(function (l) {
+      (l.installments || []).forEach(function (i) {
+        const remaining = Math.round((Number(i.amount_due) - Number(i.amount_paid || 0)) * 100) / 100;
+        if (!i.is_paid && remaining > 0) {
+          TRF_INST.push({ id: i.id, no: i.no, loan_no: l.loan_no, due_date: i.due_date, remaining: remaining });
+        }
+      });
+    });
+  } catch (e) { TRF_INST = []; }
+}
+
+function trfSelectedInst() {
+  const sel = document.getElementById('trfInstallment');
+  if (!sel || !sel.value) return null;
+  return TRF_INST.filter(function (i) { return i.id === sel.value; })[0] || null;
+}
+
+async function syncTransferPanel() {
+  const box = document.getElementById('trfBalBox');
+  if (!box || !CUR) return;
+  const bal = Number((CUR.due || {}).balance || 0);
+  box.innerHTML = '<div style="font-size:13px;color:#5f5570;margin-bottom:6px">যে হিসাব থেকে</div>' +
+    '<div style="font-size:16px;font-weight:800;color:#241539">' +
+      (SCHEME_LABELS[CUR.scheme] || CUR.scheme) + ' · ' + CUR.account_no + '</div>' +
+    '<div style="font-size:14px;margin-top:8px">উপলব্ধ স্থিতি: <strong>৳' + fmt(bal) + '</strong></div>';
+
+  const target = document.getElementById('trfTarget').value;
+  const wrap = document.getElementById('trfInstWrap');
+  const amt  = document.getElementById('trfAmount');
+  const hint = document.getElementById('trfAmtHint');
+  if (target === 'instalment') {
+    wrap.style.display = '';
+    if (!TRF_INST.length) await loadTransferInstalments();
+    const sel = document.getElementById('trfInstallment');
+    const prev = sel.value;
+    sel.innerHTML = TRF_INST.length
+      ? TRF_INST.map(function (i) {
+          return '<option value="' + i.id + '">ঋণ ' + i.loan_no + ' · কিস্তি ' + i.no +
+                 ' · বাকি ৳' + fmt(i.remaining) + '</option>';
+        }).join('')
+      : '<option value="">পরিশোধযোগ্য কোনো কিস্তি নেই</option>';
+    if (prev && TRF_INST.some(function (i) { return i.id === prev; })) sel.value = prev;
+    const inst = trfSelectedInst();
+    amt.readOnly = true;
+    amt.value = inst ? inst.remaining : '';
+    hint.textContent = 'কিস্তির পুরো বাকি অঙ্ক দিতে হবে।';
+  } else {
+    wrap.style.display = 'none';
+    amt.readOnly = false;
+    hint.textContent = 'কমপক্ষে ১ টাকা। উপলব্ধ স্থিতির বেশি দেওয়া যাবে না।';
+  }
+}
+
+async function submitTransferPanel() {
+  if (!CUR) { showMsg('transferMsgPanel', 'আগে একটি হিসাব নির্বাচন করুন।', 'error'); return; }
+  const target = document.getElementById('trfTarget').value;
+  const btn = document.getElementById('trfBtn');
+  let amount = parseFloat(document.getElementById('trfAmount').value);
+  let repId = null;
+
+  if (target === 'instalment') {
+    const inst = trfSelectedInst();
+    if (!inst) { showMsg('transferMsgPanel', 'পরিশোধযোগ্য কিস্তি নির্বাচন করুন।', 'error'); return; }
+    amount = inst.remaining;
+    repId = inst.id;
+  } else if (!amount || amount < 1) {
+    showMsg('transferMsgPanel', 'কমপক্ষে ১ টাকা লিখুন।', 'error'); return;
+  }
+
+  btn.disabled = true;
+  showMsg('transferMsgPanel', 'স্থানান্তর হচ্ছে…', 'info');
+  let res;
+  try {
+    const r = await _db.rpc('transfer_savings', {
+      p_account: CUR.id, p_target: target, p_amount: amount, p_repayment_id: repId
+    });
+    if (r.error) throw r.error;
+    res = r.data;
+  } catch (e) {
+    showMsg('transferMsgPanel', (e && e.message) || 'স্থানান্তর হয়নি।', 'error');
+    btn.disabled = false;
+    return;
+  }
+  btn.disabled = false;
+
+  const done = target === 'donation'
+    ? 'দানে স্থানান্তর সম্পন্ন — দান নম্বর ' + (res.donation_no || '') + ' · ৳' + fmt(res.amount)
+    : 'ঋণের কিস্তিতে স্থানান্তর সম্পন্ন — কিস্তি ' + (res.installment_no || '') + ' · ৳' + fmt(res.amount);
+  showMsg('transferMsgPanel', done, 'success');
+
+  TRF_INST = [];
+  document.getElementById('trfAmount').value = '';
+  setTimeout(refreshAccount, 800);
+  setTimeout(syncTransferPanel, 900);
 }
 
 /* ── নতুন হিসাব খোলা ── */
