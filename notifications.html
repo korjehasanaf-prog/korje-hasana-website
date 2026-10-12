@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>বিজ্ঞপ্তি | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    .nt-wrap { max-width: 720px; margin: 0 auto; padding: 96px 16px 140px; font-family: 'Hind Siliguri','Inter',sans-serif; color: var(--text); }
+    .nt-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .nt-title { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .nt-title i { color: var(--kh-violet, #7048e8); }
+    .nt-sub { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
+    .nt-btn { border: 1px solid var(--border); background: transparent; color: var(--text); border-radius: 10px; padding: 9px 14px; font: inherit; font-size: 13px; cursor: pointer; }
+    .nt-btn:disabled { opacity: .5; cursor: default; }
+    .nt-list { display: flex; flex-direction: column; gap: 10px; }
+    .nt-item { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; padding: 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.04); }
+    html[data-theme="light"] .nt-item { background: #fff; }
+    .nt-item.unread { border-color: #d6336c; box-shadow: 0 0 0 1px rgba(214,51,108,.25); }
+    .nt-ic { flex: 0 0 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(112deg,#d6336c,#a021c9 48%,#e83e8c); color: #fff; font-size: 18px; }
+    .nt-body { flex: 1; min-width: 0; }
+    .nt-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .nt-kind { font-size: 11.5px; color: var(--muted); }
+    .nt-new { font-size: 11px; font-weight: 700; color: #fff; background: linear-gradient(112deg,#d6336c,#a021c9 48%,#e83e8c); padding: 2px 8px; border-radius: 9px; }
+    .nt-name { font-size: 15px; font-weight: 600; margin-top: 2px; }
+    .nt-text { font-size: 13.5px; color: var(--muted); margin-top: 4px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    .nt-time { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .nt-empty, .nt-err { text-align: center; padding: 40px 12px; color: var(--muted); font-size: 14px; }
+    .nt-err { color: #e11d48; }
+    @media (max-width: 480px) { .nt-wrap { padding-left: 16px; padding-right: 16px; } }
+  </style>
+  <link rel="stylesheet" href="kh-ui.css?v=64">
+</head>
+<body data-kh-nav="on" data-kh-visits="off" data-kh-requires="generic">
+
+<main class="nt-wrap">
+  <div class="nt-head">
+    <h1 class="nt-title"><i class="ti ti-bell"></i> বিজ্ঞপ্তি</h1>
+    <button type="button" class="nt-btn" id="ntAll" onclick="ntMarkAll()" disabled>সব পড়া হয়েছে</button>
+  </div>
+  <p class="nt-sub" id="ntSub">বকেয়া কিস্তি, সঞ্চয় জমার রিমাইন্ডার, হিসাবের অবস্থা ও প্রতিষ্ঠানের ঘোষণা এখানে থাকে।</p>
+  <div class="nt-list" id="ntList"><div class="nt-empty">লোড হচ্ছে…</div></div>
+</main>
+
+<script src="kh-ui.js?v=64"></script>
+<script>
+/* বিজ্ঞপ্তি ইনবক্স — মোবাইল অ্যাপের notifications স্ক্রিনের সাথে একই ডেটা (my_notifications RPC) */
+var NT_KIND = {
+  loan_due:        ['ti-calendar-due', 'ঋণের কিস্তি'],
+  savings_due:     ['ti-pig-money',    'সঞ্চয় জমা'],
+  pending_account: ['ti-hourglass',    'হিসাব'],
+  announcement:    ['ti-speakerphone', 'ঘোষণা'],
+  system:          ['ti-bell',         'সাধারণ']
+};
+var NT_ROWS = [];
+
+function ntEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+function ntBn(s) { return String(s).replace(/\d/g, function (d) { return '০১২৩৪৫৬৭৮৯'[+d]; }); }
+function ntWhen(iso) {
+  var d = new Date(iso);
+  if (isNaN(+d)) return '';
+  var s = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+  return ntBn(s);
+}
+function ntUnreadCount() { return NT_ROWS.filter(function (r) { return !r.read_at; }).length; }
+
+function ntRender() {
+  var list = document.getElementById('ntList');
+  var unread = ntUnreadCount();
+  document.getElementById('ntAll').disabled = unread === 0;
+  document.getElementById('ntSub').textContent = unread > 0
+    ? 'আপনার ' + ntBn(unread) + 'টি বিজ্ঞপ্তি এখনো পড়া হয়নি।'
+    : 'বকেয়া কিস্তি, সঞ্চয় জমার রিমাইন্ডার, হিসাবের অবস্থা ও প্রতিষ্ঠানের ঘোষণা এখানে থাকে।';
+  if (!NT_ROWS.length) { list.innerHTML = '<div class="nt-empty">এখনো কোনো বিজ্ঞপ্তি নেই।</div>'; return; }
+  list.innerHTML = NT_ROWS.map(function (r) {
+    var k = NT_KIND[r.kind] || NT_KIND.system;
+    return '<button type="button" class="nt-item' + (r.read_at ? '' : ' unread') + '" data-id="' + ntEsc(r.id) + '" onclick="ntOpen(\'' + ntEsc(r.id) + '\')">' +
+      '<span class="nt-ic"><i class="ti ' + k[0] + '" aria-hidden="true"></i></span>' +
+      '<span class="nt-body">' +
+        '<span class="nt-top"><span class="nt-kind">' + k[1] + '</span>' + (r.read_at ? '' : '<span class="nt-new">নতুন</span>') + '</span>' +
+        '<span class="nt-name" style="display:block">' + ntEsc(r.title) + '</span>' +
+        '<span class="nt-text" style="display:block">' + ntEsc(r.body) + '</span>' +
+        '<span class="nt-time" style="display:block">' + ntWhen(r.created_at) + '</span>' +
+      '</span></button>';
+  }).join('');
+}
+
+async function ntLoad() {
+  var list = document.getElementById('ntList');
+  try {
+    var s = await _db.auth.getSession();
+    if (!s.data || !s.data.session) { list.innerHTML = '<div class="nt-empty">বিজ্ঞপ্তি দেখতে আগে লগইন করুন।</div>'; return; }
+    var r = await _db.rpc('my_notifications', { p_limit: 100 });
+    if (r.error) throw r.error;
+    NT_ROWS = r.data || [];
+    ntRender();
+    if (window.KHUI) KHUI.refreshNotifications();
+  } catch (e) {
+    list.innerHTML = '<div class="nt-err">বিজ্ঞপ্তি লোড করা যায়নি। একটু পরে আবার চেষ্টা করুন।</div>';
+  }
+}
+
+async function ntOpen(id) {
+  var row = NT_ROWS.find(function (x) { return x.id === id; });
+  if (!row) return;
+  if (!row.read_at) {
+    try {
+      var r = await _db.rpc('notification_mark_read', { p_ids: [id] });
+      if (!r.error) { row.read_at = new Date().toISOString(); ntRender(); if (window.KHUI) KHUI.refreshNotifications(); }
+    } catch (e) {}
+  }
+  if (row.link) location.href = row.link;
+}
+
+async function ntMarkAll() {
+  try {
+    var r = await _db.rpc('notification_mark_all_read');
+    if (r.error) throw r.error;
+    var now = new Date().toISOString();
+    NT_ROWS.forEach(function (x) { if (!x.read_at) x.read_at = now; });
+    ntRender();
+    if (window.KHUI) KHUI.refreshNotifications();
+  } catch (e) {}
+}
+
+ntLoad();
+</script>
+</body>
+</html>

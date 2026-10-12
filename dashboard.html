@@ -338,7 +338,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=63">
+  <link rel="stylesheet" href="kh-ui.css?v=64">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -1035,6 +1035,33 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
 
+        <div class="card" style="margin-bottom:16px" id="annCard">
+          <div class="card-title"><i class="ti ti-speakerphone"></i> প্রতিষ্ঠানের ঘোষণা / বিজ্ঞপ্তি পাঠান</div>
+          <div style="font-size:13px;color:var(--muted);margin:4px 0 12px">লিখে পাঠালে নির্বাচিত সদস্যদের বিজ্ঞপ্তি ইনবক্সে যাবে এবং তাদের বেলে অপঠিত সংখ্যা বাড়বে।</div>
+          <div style="display:grid;gap:12px">
+            <label style="font-size:13px">শিরোনাম (সর্বোচ্চ ২০০ অক্ষর)
+              <input type="text" id="annTitle" maxlength="200" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit;font-size:14px">
+            </label>
+            <label style="font-size:13px">বিবরণ
+              <textarea id="annBody" rows="4" maxlength="4000" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+            </label>
+            <label style="font-size:13px">কারা পাবেন
+              <select id="annAudience" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit;font-size:14px">
+                <option value="all">সব সদস্য</option>
+                <option value="depositors">শুধু সঞ্চয়কারী</option>
+                <option value="borrowers">শুধু ঋণগ্রহীতা</option>
+                <option value="donors">শুধু দাতা</option>
+              </select>
+            </label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <button class="btn-primary" id="annSend" onclick="sendAnnouncement()"><i class="ti ti-send"></i> ঘোষণা পাঠান</button>
+              <span id="annMsg" style="font-size:13px;color:var(--muted)"></span>
+            </div>
+          </div>
+          <div style="margin-top:18px;font-size:13px;font-weight:600">আগের ঘোষণাসমূহ</div>
+          <div id="annHistory" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;font-size:13px"></div>
+        </div>
+
         <div class="card" style="margin-bottom:16px">
           <div class="card-title"><i class="ti ti-toggle-right"></i> প্রোডাক্ট চালু / বন্ধ</div>
           <div style="display:flex;flex-direction:column;gap:10px" id="gsProducts">
@@ -1611,7 +1638,7 @@ function switchPanel(name) {
   pmFillSelects();
   /* প্রথমবার খুললে "আজ" দেখায়; পরে আগের নির্বাচনই থাকে (বারবার RPC ডাকা হয় না) */
   if (name === 'reports' && !RP) loadReport('today');
-  if (name === 'settings') { loadGeneralSettings(); loadPayMethods(); }
+  if (name === 'settings') { loadGeneralSettings(); loadPayMethods(); loadAnnouncements(); }
   if (name === 'statements') stmInit();
   if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
@@ -2233,6 +2260,52 @@ async function loadGeneralSettings() {
     } catch (e) {
       vNow.textContent = 'পড়া যায়নি';
     }
+  }
+}
+
+const ANN_AUD = { all: 'সব সদস্য', depositors: 'সঞ্চয়কারী', borrowers: 'ঋণগ্রহীতা', donors: 'দাতা' };
+
+async function sendAnnouncement() {
+  const title = document.getElementById('annTitle').value.trim();
+  const body  = document.getElementById('annBody').value.trim();
+  const aud   = document.getElementById('annAudience').value;
+  const msg   = document.getElementById('annMsg');
+  const btn   = document.getElementById('annSend');
+  if (!title || !body) { msg.style.color = 'var(--red)'; msg.textContent = 'শিরোনাম ও বিবরণ দুটোই লিখুন।'; return; }
+  if (!confirm('"' + title + '" — ' + ANN_AUD[aud] + '-এর ইনবক্সে পাঠাবেন?')) return;
+  btn.disabled = true;
+  msg.style.color = 'var(--muted)'; msg.textContent = 'পাঠানো হচ্ছে…';
+  try {
+    const { data, error } = await _db.rpc('admin_send_announcement', { p_title: title, p_body: body, p_audience: aud });
+    if (error) throw error;
+    msg.style.color = 'var(--green, #16a34a)';
+    msg.textContent = 'পাঠানো হয়েছে — ' + (data && data.recipients != null ? data.recipients : 0) + ' জন সদস্যের ইনবক্সে।';
+    document.getElementById('annTitle').value = '';
+    document.getElementById('annBody').value = '';
+    loadAnnouncements();
+  } catch (e) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'পাঠানো যায়নি: ' + (e && e.message ? e.message : e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadAnnouncements() {
+  const el = document.getElementById('annHistory');
+  if (!el) return;
+  try {
+    const { data, error } = await _db.rpc('admin_list_announcements', { p_limit: 10 });
+    if (error) throw error;
+    el.innerHTML = (data || []).map(a =>
+      '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px">' +
+        '<div style="font-weight:600">' + esc(a.title) + '</div>' +
+        '<div style="color:var(--muted);white-space:pre-wrap;margin-top:3px">' + esc(a.body) + '</div>' +
+        '<div style="color:var(--muted);font-size:12px;margin-top:6px">' + esc(ANN_AUD[a.audience] || a.audience) + ' · ' +
+          (a.recipient_count || 0) + ' জন · ' + new Date(a.created_at).toLocaleString('bn-BD', { timeZone: 'Asia/Dhaka' }) + '</div>' +
+      '</div>').join('') || '<div style="color:var(--muted)">এখনো কোনো ঘোষণা পাঠানো হয়নি।</div>';
+  } catch (e) {
+    el.innerHTML = '<div style="color:var(--muted)">ঘোষণার তালিকা আনা যায়নি।</div>';
   }
 }
 
@@ -4982,6 +5055,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=63"></script>
+<script src="kh-ui.js?v=64"></script>
 </body>
 </html>

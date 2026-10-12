@@ -67,6 +67,17 @@
     sep.className = 'kh-glassnav-sep';
     nav.appendChild(sep);
 
+    /* 🔔 বিজ্ঞপ্তি — লগইন থাকলেই দেখায়; অপঠিত সংখ্যা ব্যাজে */
+    var bell = document.createElement('button');
+    bell.className = 'kh-glassnav-top kh-glassnav-bell';
+    bell.setAttribute('aria-label', 'বিজ্ঞপ্তি');
+    bell.title = 'বিজ্ঞপ্তি';
+    bell.style.display = 'none';
+    bell.innerHTML = '<i class="ti ti-bell" aria-hidden="true"></i><b class="kh-bell-count" style="display:none"></b>';
+    bell.onclick = function () { location.href = 'notifications.html'; };
+    nav.appendChild(bell);
+    KHUI._bellEl = bell;
+
     /* theme toggle — sits to the left of the scroll-top button */
     var th = document.createElement('button');
     th.className = 'kh-glassnav-top kh-theme-btn';
@@ -119,6 +130,48 @@
     }
 
     KHUI._nav = nav;
+  };
+
+  /* ══════════════════════════════════════════════════════
+     1b ── বিজ্ঞপ্তি বেল: অপঠিত সংখ্যা (সব সদস্যের জন্য)
+     ══════════════════════════════════════════════════════ */
+
+  KHUI._setBellCount = function (n) {
+    var bell = KHUI._bellEl;
+    if (!bell) return;
+    var b = bell.querySelector('.kh-bell-count');
+    if (!b) return;
+    b.textContent = KHUI.bn(n > 99 ? '99+' : String(n));
+    b.style.display = n > 0 ? '' : 'none';
+    bell.setAttribute('aria-label', n > 0 ? 'বিজ্ঞপ্তি, ' + KHUI.bn(n) + 'টি অপঠিত' : 'বিজ্ঞপ্তি');
+  };
+
+  KHUI.refreshNotifications = async function () {
+    var bell = KHUI._bellEl;
+    var db = sb();
+    if (!bell || !db || !db.auth) return 0;
+    try {
+      var s = await db.auth.getSession();
+      var sess = s && s.data && s.data.session;
+      if (!sess) { bell.style.display = 'none'; KHUI._setBellCount(0); return 0; }
+      bell.style.display = '';
+      var r = await db.rpc('notification_unread_count');
+      var n = Number(r && r.data) || 0;
+      KHUI._setBellCount(n);
+      return n;
+    } catch (e) { return 0; }
+  };
+
+  KHUI.startNotifyPoll = function () {
+    KHUI.refreshNotifications();
+    setInterval(function () { if (!document.hidden) KHUI.refreshNotifications(); }, 60000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) KHUI.refreshNotifications();
+    });
+    var db = sb();
+    if (db && db.auth && typeof db.auth.onAuthStateChange === 'function') {
+      try { db.auth.onAuthStateChange(function () { KHUI.refreshNotifications(); }); } catch (e) {}
+    }
   };
 
   /* ══════════════════════════════════════════════════════
@@ -6817,6 +6870,7 @@
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
+      KHUI.startNotifyPoll();
       if (document.body.dataset.khChat !== 'off') KHUI.mountChat();
     }
     /* 🤖 হাসানা সহায়িকা — নেভবার থাকুক বা না থাকুক, নিজের পতাকাতেই চলে */

@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=63">
+  <link rel="stylesheet" href="kh-ui.css?v=64">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1602,7 +1602,16 @@ function paintAccount() {
       (a.instalment ? ' &nbsp;·&nbsp; কিস্তি ৳' + fmt(a.instalment) : '');
   const aw2 = document.getElementById('accWithdrawal');     if(aw2) aw2.textContent = wInfo;
   const aj  = document.getElementById('accJoin');           if(aj)  aj.textContent  = dep?.created_at ? new Date(dep.created_at).toLocaleDateString('bn-BD') : '—';
-  const ast = document.getElementById('accStatus');         if(ast) ast.innerHTML   = '<span style="background:rgba(240,140,40,.2);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:13.5px;">সক্রিয়</span>';
+  /* হিসাবের অবস্থা — আগে সবসময় "সক্রিয়" লেখা থাকত; এখন আসল status দেখায় (অ্যাপের সাথে একই লেখা) */
+  var ACC_ST = { active: ['সক্রিয়', 'rgba(240,140,40,.2)', 'var(--gold)'],
+                 pending_approval: ['অনুমোদনের অপেক্ষায়', 'rgba(112,72,232,.18)', 'var(--mdgreen)'],
+                 frozen: ['স্থগিত', 'rgba(220,38,38,.15)', 'var(--red)'],
+                 closed: ['বন্ধ', 'rgba(107,114,128,.2)', 'var(--muted)'] };
+  var stc = ACC_ST[a && a.status] || ACC_ST.active;
+  const ast = document.getElementById('accStatus');
+  if (ast) ast.innerHTML = '<span style="background:' + stc[1] + ';color:' + stc[2] + ';padding:3px 10px;border-radius:20px;font-size:13.5px;">' + stc[0] + '</span>' +
+    (a && a.status === 'pending_approval' ? '<div style="font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.6">প্রথম জমা অনুমোদিত হলে হিসাব সক্রিয় হবে। ৪৫ দিনের মধ্যে জমা না হলে হিসাবটি স্বয়ংক্রিয়ভাবে বন্ধ হবে।</div>' : '');
+  const pst = document.getElementById('portalStatus'); if (pst) pst.textContent = stc[0];
 
   /* নমিনির তথ্য — এই হিসাবের */
   loadAccountNominees();
@@ -2977,6 +2986,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=63"></script>
+<script src="kh-ui.js?v=64"></script>
 </body>
 </html>
