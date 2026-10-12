@@ -338,7 +338,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=57">
+  <link rel="stylesheet" href="kh-ui.css?v=60">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -816,7 +816,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <div class="filter-bar">
           <div class="fpill active" onclick="filterLoanApps('pending',this)">অপেক্ষমাণ</div>
           <div class="fpill" onclick="filterLoanApps('review',this)">পর্যালোচনাধীন</div>
-          <div class="fpill" onclick="filterLoanApps('approved',this)">অনুমোদিত</div>
+          <div class="fpill" onclick="filterLoanApps('committee_recommended',this)">যাচাই কমিটি সুপারিশ</div>
+          <div class="fpill" onclick="filterLoanApps('recommended',this)">অ্যাডমিন সুপারিশ (অনুমোদন বাকি)</div>
+          <div class="fpill" onclick="filterLoanApps('approved',this)">অনুমোদিত (বিতরণ বাকি)</div>
+          <div class="fpill" onclick="filterLoanApps('disbursed',this)">বিতরিত</div>
           <div class="fpill" onclick="filterLoanApps('rejected',this)">বাতিল</div>
         </div>
 
@@ -1085,6 +1088,22 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.8">
             ০ দিয়ে শুরু ১১ সংখ্যার নম্বর দিলেই চলবে — সিস্টেম নিজেই ৮৮০ যোগ করে নেবে।
             এই নম্বরেই সাইটের চ্যাট বাটন ও কমিটির আমন্ত্রণ বার্তা যাবে।
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-shield-lock"></i> নিষ্ক্রিয়তায় স্বয়ংক্রিয় সাইন আউট</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+            <label style="font-size:13px">ওয়েবে (মিনিট)
+              <input id="gs-idle-web" type="number" min="1" max="120" step="1" value="5" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit"></label>
+            <label style="font-size:13px">মোবাইল অ্যাপে (মিনিট)
+              <input id="gs-idle-mobile" type="number" min="1" max="120" step="1" value="2" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit"></label>
+            <label style="font-size:13px">সতর্কবার্তা (সেকেন্ড আগে)
+              <input id="gs-idle-warn" type="number" min="15" max="300" step="1" value="60" style="width:100%;margin-top:6px;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg3,#1a1330);color:inherit;font-family:inherit"></label>
+          </div>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.8">
+            নিষ্ক্রিয় থাকলে সাইন আউটের আগে একটি পপআপে সতর্ক করা হবে ("আমি আছি" চাপলে সেশন চালু থাকে)।
+            একটি অ্যাকাউন্ট একসাথে একটি ডিভাইসে সক্রিয় থাকে — নতুন ডিভাইসে লগইন করলে আগেরটি সাইন আউট হয়।
           </div>
         </div>
 
@@ -1472,6 +1491,14 @@ async function initAdmin() {
 //  WALLET SUMMARY (dashboard card)
 // ════════════════════════════════════════
 function _bnNum(n){ n=Number(n||0); n=(n<0?-1:1)*Math.round(Math.abs(n)+1e-9); return n.toLocaleString('en-US').replace(/[0-9]/g,d=>'০১২৩৪৫৬৭৮৯'[d]); }
+/* স্টেটমেন্টের সব টাকা পূর্ণ সংখ্যা: দশমিকের পরে .৫০-এর নিচে বাদ, .৫০ বা বেশি হলে +১।
+   যাচাই (অমিল ধরা) আগে দশমিকসহ হয়; সংরক্ষণ ও প্রদর্শনের আগে এখানে গোল হয়। */
+function stmRound0(x){ x=Number(x); if(!isFinite(x)) return x; return (x<0?-1:1)*Math.floor(Math.abs(x)+0.5+1e-9); }
+function stmIntify(r){
+  ['opening','closing','total_withdraw','total_deposit'].forEach(k=>{ if(r.meta[k]!=null) r.meta[k]=stmRound0(r.meta[k]); });
+  (r.lines||[]).forEach(l=>{ ['withdraw','deposit','balance','debit','credit','fee'].forEach(k=>{ if(l[k]!=null) l[k]=stmRound0(l[k]); }); });
+  return r;
+}
 async function loadWalletSummary(){
   try{
     const { data, error } = await _db.rpc('get_balance_summary');
@@ -1769,7 +1796,7 @@ async function stmParse() {
   if (f.size > 10 * 1024 * 1024) return stmMsg('ফাইল ১০ MB-র বেশি', 'err');
   out.innerHTML = '<div class="stm-note">পড়া হচ্ছে…</div>';
   try {
-    const r = stmParseItems(await stmExtract(f));
+    const r = stmIntify(stmParseItems(await stmExtract(f)));
     if (r.meta.period) { const pm = r.meta.period[0].slice(6, 10) + '-' + r.meta.period[0].slice(3, 5); if (pm !== mv) r.checks.push('PDF-এর মাস (' + stmLabel(pm + '-01') + ') আর বাছা মাস মেলেনি'); }
     STM.parsed = r; STM.file = f; STM.pendingMonth = mv + '-01';
     const ok = !r.checks.length;
@@ -1950,6 +1977,7 @@ async function wsParse() {
       else if (acct === 'gpay' || /gpay|Shamadhan/i.test(all)) r = wsParseGpay(items);
       else throw new Error('এই PDF-এর ফরম্যাট চেনা যায়নি — বিকাশ ও জিপের PDF সমর্থিত; অন্যগুলো নিচের টেমপ্লেটে পেস্ট করুন');
     } else r = wsParseCsv(txt);
+    stmIntify(r);
     const lo = mv + '-01', before = r.lines.length;
     r.lines = r.lines.filter(l => new Date(l.trans_at).toLocaleDateString('en-CA', { timeZone: 'Asia/Dhaka' }).slice(0, 7) === mv);
     const dropped = before - r.lines.length;
@@ -2164,6 +2192,12 @@ async function loadGeneralSettings() {
   document.getElementById('gs-wa-label').value   = wa.label  || '';
   document.getElementById('gs-wa-enabled').checked = wa.enabled !== false;
 
+  /* নিষ্ক্রিয়তার সময় — সেট করা না থাকলে ডিফল্ট (সার্ভারের public_idle_rules-ও তাই) */
+  const idl = s['idle_rules'] || {};
+  document.getElementById('gs-idle-web').value    = idl.web_minutes    != null ? idl.web_minutes    : 5;
+  document.getElementById('gs-idle-mobile').value = idl.mobile_minutes != null ? idl.mobile_minutes : 2;
+  document.getElementById('gs-idle-warn').value   = idl.warn_seconds   != null ? idl.warn_seconds   : 60;
+
   /* ভিজিটর কাউন্টারের নিয়ম — সেট করা না থাকলে 'views' (সার্ভারের ডিফল্টও তাই) */
   const vMode = s['visit_mode'] || 'views';
   const vRadio = document.querySelector('input[name="gs-visit-mode"][value="' + vMode + '"]') ||
@@ -2256,6 +2290,22 @@ async function saveGeneralSettings() {
     savings_basis: document.getElementById('gs-sv-basis').value === 'gross' ? 'gross' : 'net',
     otr_grace_days: (isFinite(grRaw) && grRaw >= 0 && grRaw <= 60) ? grRaw : 0
   };
+  /* নিষ্ক্রিয়তা: ওয়েব/মোবাইল ১–১২০ মিনিট; সতর্কবার্তা ১৫–৩০০ সেকেন্ড ও সময়ের অর্ধেকের বেশি নয় */
+  const minsIn = (id, d) => { const v = parseInt(document.getElementById(id).value, 10); return (isFinite(v) && v >= 1 && v <= 120) ? v : d; };
+  const idleWeb = minsIn('gs-idle-web', 5);
+  const idleMob = minsIn('gs-idle-mobile', 2);
+  const wRaw = parseInt(document.getElementById('gs-idle-warn').value, 10);
+  const idleRules = {
+    web_minutes: idleWeb,
+    mobile_minutes: idleMob,
+    warn_seconds: (isFinite(wRaw) && wRaw >= 15 && wRaw <= 300) ? wRaw : 60
+  };
+  if (idleRules.warn_seconds > Math.min(idleWeb, idleMob) * 60 / 2) {
+    gsMsg.style.color = '#f87171';
+    gsMsg.textContent = 'সতর্কবার্তার সময় নিষ্ক্রিয়তার সময়ের অর্ধেকের বেশি হতে পারবে না';
+    return;
+  }
+
   if (fundRules.operation_pct + fundRules.emergency_pct > 100) {
     gsLoanPct();
     gsMsg.style.color = '#f87171';
@@ -2272,6 +2322,7 @@ async function saveGeneralSettings() {
       ['loan_rules', loanRules],
       ['whatsapp', whatsapp],
       ['visit_mode', visitMode],
+      ['idle_rules', idleRules],
       ['fund_rules', fundRules]
     ]) {
       const r = await _db.rpc('set_app_setting', { p_key: k, p_value: v });
@@ -2509,7 +2560,7 @@ function rpDetailHTML(R) {
   out += rpSec('ti-wallet', 'ঋণ — বিস্তারিত',
     capNote + ' <b style="color:inherit">বকেয়ার তালিকাটি সময়সীমার নয়</b> — শেষ তারিখ পর্যন্ত বর্তমান অবস্থা।',
     '<div class="rp-note" style="margin:0 0 8px">এই সময়সীমায় বিতরণ</div>' +
-    rpTable(['তারিখ', 'ঋণ নং', 'ঋণগ্রহীতা', 'মোবাইল', 'মূল', 'মেয়াদ', 'মাসিক কিস্তি', 'অবস্থা'],
+    rpTable(['তারিখ', 'ঋণ নং', 'ঋণগ্রহীতা', 'মোবাইল', 'মূল', 'মেয়াদ', 'কিস্তি', 'অবস্থা'],
       (l.disbursed || []).map(function (x) {
         return [fmtDate(x.d), esc(x.no || '—'), esc(x.nm || '—'), esc(x.mob || '—'),
                 '<span class="rp-tot">' + rpTk(x.amt) + '</span>',
@@ -2957,7 +3008,7 @@ async function mailLoanVoucher(btn) {
       ['লেনদেনের ধরন', 'সুদমুক্ত ঋণ বিতরণ'],
       ['ঋণ নং', l.loan_no || '—'],
       ['কিস্তির সংখ্যা', (l.tenure_months || '—') + ' মাস'],
-      ['মাসিক কিস্তি', '৳' + Number(l.monthly_emi || 0).toLocaleString('en-IN')]
+      ['কিস্তি', '৳' + Number(l.monthly_emi || 0).toLocaleString('en-IN')]
     ];
     if (l.first_emi_date) rows.push(['প্রথম কিস্তির তারিখ', new Date(l.first_emi_date).toLocaleDateString('en-GB')]);
     if (l.item_description) rows.push(['বিবরণ', l.item_description]);
@@ -3276,7 +3327,7 @@ async function searchLoan() {
   if (!data||!data.length) { c.innerHTML='<div class="empty-state" style="padding:16px"><i class="ti ti-file-unknown"></i><p>কোনো সক্রিয় ঋণ পাওয়া যায়নি</p></div>'; return; }
   c.innerHTML = data.map(d=>`<div class="apv-card" style="cursor:pointer;margin-top:8px" onclick="selectLoan('${d.id}','${d.borrower_id}','${d.loan_no}','${escQ(d.borrowers?.name_bn||d.loan_no)}','${d.monthly_emi||0}',${d.paid_installments||0})">
     <div style="font-size:14.5px;font-weight:700;color:#fff;font-family:'Hind Siliguri',sans-serif">${d.borrowers?.name_bn||d.loan_no}</div>
-    <div style="font-size:12.5px;color:var(--muted);margin-top:2px">ঋণ নং: ${d.loan_no} · মাসিক কিস্তি: ৳${fmt(d.monthly_emi)} · পরিশোধিত: ${d.paid_installments||0}/${d.tenure_months}</div>
+    <div style="font-size:12.5px;color:var(--muted);margin-top:2px">ঋণ নং: ${d.loan_no} · কিস্তি: ৳${fmt(d.monthly_emi)} · পরিশোধিত: ${d.paid_installments||0}/${d.tenure_months}</div>
   </div>`).join('');
 }
 
@@ -3284,7 +3335,7 @@ function selectLoan(id, borrowerId, loanNo, name, emi, paidCount) {
   document.getElementById('inst-loanId').value = id;
   document.getElementById('inst-borrowerId').value = borrowerId;
   document.getElementById('inst-loanInfo').textContent = name + ' — ঋণ নং: ' + loanNo;
-  document.getElementById('inst-loanMeta').textContent = 'মাসিক কিস্তি: ৳' + fmt(emi);
+  document.getElementById('inst-loanMeta').textContent = 'কিস্তি: ৳' + fmt(emi);
   document.getElementById('inst-no').value = parseInt(paidCount)+1;
   document.getElementById('inst-amount').value = emi;
   document.getElementById('inst-formCard').style.display='';
@@ -3511,13 +3562,15 @@ function loadRecentExpenses() { return loadFundEntries(); }
 //  LOAN APPROVAL
 // ════════════════════════════════════════
 let _loanFilter = 'pending';
+/* গঠনতন্ত্র ধারা ৭.৪ ও ৭.২: ধাপ — পর্যালোচনা → ঋণ যাচাই কমিটির সুপারিশ → কার্যনির্বাহী কমিটির অনুমোদন → বিতরণ।
+   সুপারিশকারী ও অনুমোদনকারী ও বিতরণকারী আলাদা ব্যক্তি হতে হবে (মেকার-চেকার); সব কাজ RPC দিয়ে। */
 async function loadLoanApps(status) {
   _loanFilter = status;
   const c = document.getElementById('loanAppsContainer');
   c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
   const {data} = await _db.from('loan_applications')
-    .select('id,app_no,applicant_name,applicant_mobile,purpose,amount_requested,tenure_months,status,created_at,review_notes')
-    .eq('status',status).order('created_at',{ascending:false}).limit(20);
+    .select('id,app_no,applicant_name,applicant_mobile,applicant_nid,purpose,purpose_detail,loan_type,amount_requested,approved_amount,tenure_months,installment_kind,first_installment_date,monthly_income,existing_loans,repayment_mobile,refs,vendor_name,status,created_at,review_notes,approved_by,recommended_by,committee_recommended_by,disbursed_loan_id')
+    .eq('status',status).order('created_at',{ascending:false}).limit(30);
   _allLoanApps = data||[];
   renderLoanApps(_allLoanApps);
 }
@@ -3528,43 +3581,103 @@ function filterLoanApps(status, el) {
   loadLoanApps(status);
 }
 
+function loanTierBn(amt){ amt=Number(amt)||0; if(amt>=5000&&amt<=15000)return 1; if(amt>15000&&amt<=35000)return 2; if(amt>35000&&amt<=75000)return 3; if(amt>75000&&amt<=200000)return 4; return 0; }
+
 function renderLoanApps(rows) {
   const c = document.getElementById('loanAppsContainer');
   if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো আবেদন নেই</p></div>';return;}
-  c.innerHTML = rows.map(r=>`<div class="apv-card">
-    <div class="apv-top">
-      <div>
-        <div class="apv-name">${r.applicant_name}</div>
-        <div class="apv-info">আবেদন নং: ${r.app_no} · মোবাইল: ${r.applicant_mobile||'—'}<br>উদ্দেশ্য: ${r.purpose} · মেয়াদ: ${r.tenure_months} মাস<br>তারিখ: ${fmtDate(r.created_at)}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>
-        <span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span>
-      </div>
-    </div>
-    ${r.status==='pending'||r.status==='review' ? `
-    <div class="apv-note"><textarea id="ln-note-${r.id}" placeholder="পর্যালোচনা নোট..."></textarea></div>
-    <div class="apv-btns">
-      <button class="btn btn-success" onclick="approveLoan('${r.id}','approved')"><i class="ti ti-check"></i> অনুমোদন</button>
-      <button class="btn btn-danger" onclick="approveLoan('${r.id}','rejected')"><i class="ti ti-x"></i> বাতিল</button>
-      <button class="btn btn-sm" style="background:rgba(168,85,247,.15);color:#d8b4fe;border:1px solid rgba(168,85,247,.3)" onclick="approveLoan('${r.id}','review')"><i class="ti ti-eye"></i> পর্যালোচনায় পাঠান</button>
-    </div>` : `<div style="font-size:12.5px;color:var(--muted);font-family:'Hind Siliguri',sans-serif">${r.review_notes||''}</div>`}
-  </div>`).join('');
+  const isSuper = _adminInfo && _adminInfo.role === 'super_admin';
+  const me = _adminInfo && _adminInfo.auth_id;
+  c.innerHTML = rows.map(r=>{
+    const tier = loanTierBn(r.amount_requested);
+    const refs = (Array.isArray(r.refs)?r.refs:[]).map(x=>`${esc(x.name)} (${esc(x.relation)}, ${esc(x.mobile)}, এনআইডি ${esc(x.nid||'—')})`).join('; ')||'—';
+    const info = `<div class="apv-info">আবেদন নং: ${esc(r.app_no)} · মোবাইল: ${esc(r.applicant_mobile||'—')}<br>ধরন: ${esc(r.loan_type||r.purpose)} · ধাপ ${tier||'—'} · মেয়াদ: ${r.tenure_months?r.tenure_months+' মাস':'—'} · কিস্তি: ${({monthly:'মাসিক',biweekly:'পাক্ষিক',weekly:'সাপ্তাহিক'})[r.installment_kind]||'—'}${r.first_installment_date?' · প্রথম কিস্তি: '+esc(r.first_installment_date):''}<br>উদ্দেশ্য: ${esc(r.purpose_detail||'—')}${r.vendor_name?' · বিক্রেতা: '+esc(r.vendor_name):''}<br>এনআইডি: ${esc(r.applicant_nid||'—')} · পেশা: ${esc(r.existing_loans||'—')} · আয়: ${r.monthly_income?'৳'+fmt(r.monthly_income):'—'} · বিকাশ/নগদ: ${esc(r.repayment_mobile||'—')}<br>গ্যারান্টর/রেফারেন্স: ${refs}<br>তারিখ: ${fmtDate(r.created_at)}</div>`;
+    const head = `<div class="apv-top"><div><div class="apv-name">${esc(r.applicant_name)}</div>${info}</div>
+      <div style="text-align:right"><div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>${r.approved_amount?`<div style="font-size:12.5px">অনুমোদিত: ৳${fmt(r.approved_amount)}</div>`:''}<span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span></div></div>`;
+    const note = `<div class="apv-note"><textarea id="ln-note-${r.id}" placeholder="নোট / কারণ..."></textarea></div>`;
+    let actions = '';
+    if (r.status==='pending' || r.status==='review') {
+      actions = `<div class="apv-btns">
+        <button class="btn btn-success" onclick="loanAct('committee','${r.id}')"><i class="ti ti-users"></i> ঋণ যাচাই কমিটির সুপারিশ (সরেজমিন পরিদর্শন সম্পন্ন)</button>
+        <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
+    } else if (r.status==='committee_recommended') {
+      actions = `<div class="apv-btns">
+        <button class="btn btn-success" onclick="loanAct('recommend','${r.id}')"><i class="ti ti-send"></i> অ্যাডমিন/কার্যনির্বাহী কমিটির সুপারিশ</button>
+        <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
+    } else if (r.status==='recommended') {
+      actions = `<div class="apv-btns">
+        ${isSuper ? `<button class="btn btn-success" onclick="loanAct('approve','${r.id}')"><i class="ti ti-check"></i> সুপার অ্যাডমিনের অনুমোদন</button>` : `<span style="font-size:12.5px;color:var(--muted)">অনুমোদন সুপার অ্যাডমিনের (কার্যনির্বাহী কমিটি) সিদ্ধান্ত</span>`}
+        <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
+    } else if (r.status==='approved') {
+      actions = `<div class="apv-btns"><button class="btn btn-success" onclick="loanDisburseForm('${r.id}', ${Number(r.approved_amount)||0}, ${Number(r.tenure_months)||0})"><i class="ti ti-cash"></i> বিতরণ করুন</button></div>
+        <div id="ld-form-${r.id}"></div>`;
+    } else {
+      actions = `<div style="font-size:12.5px;color:var(--muted);font-family:'Hind Siliguri',sans-serif">${esc(r.review_notes||'')}</div>`;
+    }
+    return `<div class="apv-card">${head}${(r.status==='pending'||r.status==='review'||r.status==='recommended')?note:''}${actions}</div>`;
+  }).join('');
 }
 
-async function approveLoan(id, status) {
+async function loanAct(kind, id) {
   const noteEl = document.getElementById('ln-note-'+id);
   const note = noteEl ? noteEl.value.trim() : '';
-  const now = new Date().toISOString();
-  const upd = {status, review_notes: note, reviewed_at: now, updated_at: now};
-  if (status==='approved') upd.approved_at = now;
-  if (status==='rejected') upd.rejected_at = now;
+  const row = (_allLoanApps||[]).find(x=>x.id===id);
+  let res;
+  try {
+    if (kind==='committee') {
+      if (!confirm('ঋণ যাচাই কমিটি সরেজমিন পরিদর্শন করেছে এবং সুপারিশ করছে — নিশ্চিত?')) return;
+      res = await _db.rpc('admin_committee_recommend', {p_id:id, p_inspected: true, p_note: note || null});
+    } else if (kind==='recommend') {
+      res = await _db.rpc('admin_recommend_loan', {p_id:id, p_note: note || null});
+    } else if (kind==='approve') {
+      const raw = prompt('অনুমোদিত ঋণের পরিমাণ (৳, পূর্ণ টাকায় — আবেদিতের বেশি নয়)', String(row ? Math.round(row.amount_requested) : ''));
+      if (raw === null) return;
+      const amt = Math.round(Number(String(raw).replace(/[^0-9]/g,'')));
+      if (!amt) { alert('সঠিক পরিমাণ দিন।'); return; }
+      const need = loanTierBn(amt) === 4 ? 'বিশেষ ঋণ: কমিটির সিদ্ধান্তের নোট লিখুন' : '';
+      if (need && !note) { alert(need); return; }
+      res = await _db.rpc('admin_approve_loan', {p_id:id, p_amount: amt, p_note: note || null});
+    } else if (kind==='reject') {
+      if (!note) { alert('বাতিলের কারণ লিখুন (নোট ঘরে)।'); return; }
+      res = await _db.rpc('admin_reject_loan', {p_id:id, p_reason: note});
+    }
+  } catch (e) { alert('সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'); return; }
+  if (res.error) { alert('ত্রুটি: '+res.error.message); return; }
+  loadLoanApps(_loanFilter);
+  loadPendingBadges();
+}
 
-  const desig = _adminInfo.designation_bn||_adminInfo.name_bn||_adminInfo.email;
-  upd.review_notes = (note ? note+' ' : '') + `[${statusBn(status)}: ${desig}]`;
+/* বিতরণ: পরিমাণ অনুমোদিতের চেয়ে কম হতে পারে; কিস্তি বিতরণকৃত অঙ্ক থেকেই, পূর্ণ টাকায় */
+function loanDisburseForm(id, approved, months) {
+  const host = document.getElementById('ld-form-'+id);
+  if (!host) return;
+  const today = new Date(Date.now() + 6*3600*1000).toISOString().slice(0,10);
+  host.innerHTML = `<div class="form-grid" style="margin-top:10px">
+    <div class="form-group"><label class="form-label">বিতরণের পরিমাণ (৳) — সর্বোচ্চ ${fmt(approved)}</label><input type="number" class="form-input" id="ld-amt-${id}" value="${approved}" min="1" max="${approved}" step="1"></div>
+    <div class="form-group"><label class="form-label">বিতরণের তারিখ</label><input type="date" class="form-input" id="ld-date-${id}" value="${today}"></div>
+    <div class="form-group"><label class="form-label">ধরন</label><select class="form-select" id="ld-mode-${id}"><option value="vendor">বিক্রেতাকে সরাসরি</option><option value="goods">পণ্য ক্রয় করে</option><option value="bill">বিল পরিশোধ</option></select></div>
+    <div class="form-group"><label class="form-label">বিক্রেতা / প্রতিষ্ঠান</label><input type="text" class="form-input" id="ld-vendor-${id}"></div>
+    <div class="form-group"><label class="form-label">রশিদ / বিল নম্বর</label><input type="text" class="form-input" id="ld-bill-${id}"></div>
+    <div class="form-group"><label class="form-label">পণ্য/সেবার বিবরণ</label><input type="text" class="form-input" id="ld-item-${id}"></div>
+    <div class="form-group full"><small style="color:var(--muted)">কিস্তি বিতরণকৃত অঙ্ক থেকে হিসাব হবে (${months} মাসের মেয়াদ); শেষ কিস্তি সমন্বিত হবে। অনুমোদনের ১৪ দিনের মধ্যে বিতরণ করতে হবে (ধারা ৭.৪)। বিতরণকারী অনুমোদনকারী হতে পারবেন না।</small></div>
+  </div>
+  <div class="apv-btns"><button class="btn btn-success" onclick="loanDisburseSubmit('${id}')"><i class="ti ti-check"></i> নিশ্চিত করে বিতরণ</button></div>`;
+}
 
-  const {error} = await _db.from('loan_applications').update(upd).eq('id',id);
-  if (error){alert('ত্রুটি: '+error.message);return;}
+async function loanDisburseSubmit(id) {
+  const g = k => (document.getElementById(k+'-'+id)||{}).value || '';
+  const amt = Math.round(Number(String(g('ld-amt')).replace(/[^0-9]/g,'')));
+  if (!amt) { alert('সঠিক পরিমাণ দিন।'); return; }
+  if (!confirm('৳' + fmt(amt) + ' বিতরণ নিশ্চিত করবেন? এটি ফেরানো যাবে না।')) return;
+  let res;
+  try {
+    res = await _db.rpc('admin_disburse_loan', {
+      p_id: id, p_amount: amt, p_date: g('ld-date'), p_mode: g('ld-mode'),
+      p_vendor: g('ld-vendor') || null, p_bill: g('ld-bill') || null, p_item: g('ld-item') || null });
+  } catch (e) { alert('সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'); return; }
+  if (res.error) { alert('ত্রুটি: '+res.error.message); return; }
+  const d = res.data || {};
+  alert('বিতরণ সম্পন্ন — ঋণ নং ' + (d.loan_no||'') + ' · ' + (d.installments||'') + 'টি কিস্তি · প্রতি কিস্তি ৳' + fmt(d.emi||0) + ' · শেষ কিস্তি ৳' + fmt(d.last_installment||0));
   loadLoanApps(_loanFilter);
   loadPendingBadges();
 }
@@ -4856,8 +4969,8 @@ function showMsg(id, txt, type) {
   el.textContent=txt;el.className='msg '+type+' show';
   setTimeout(()=>el.classList.remove('show'),4000);
 }
-function statusBn(s){return{pending:'অপেক্ষমাণ',approved:'অনুমোদিত',rejected:'বাতিল',confirmed:'নিশ্চিত',failed:'বাতিল',review:'পর্যালোচনাধীন',disbursed:'বিতরণ',active:'সক্রিয'}[s]||s}
-function statusBadge(s){return{pending:'b-pending',approved:'b-approved',rejected:'b-rejected',confirmed:'b-confirmed',failed:'b-rejected',review:'b-review',disbursed:'b-disbursed',active:'b-approved'}[s]||'b-pending'}
+function statusBn(s){return{committee_recommended:'যাচাই কমিটি সুপারিশ',recommended:'অ্যাডমিন সুপারিশ',disbursed:'বিতরিত',pending:'অপেক্ষমাণ',approved:'অনুমোদিত',rejected:'বাতিল',confirmed:'নিশ্চিত',failed:'বাতিল',review:'পর্যালোচনাধীন',disbursed:'বিতরণ',active:'সক্রিয'}[s]||s}
+function statusBadge(s){return{committee_recommended:'b-review',recommended:'b-review',disbursed:'b-disbursed',pending:'b-pending',approved:'b-approved',rejected:'b-rejected',confirmed:'b-confirmed',failed:'b-rejected',review:'b-review',disbursed:'b-disbursed',active:'b-approved'}[s]||'b-pending'}
 function purposeBn(p){return{general:'সাধারণ',loan_fund:'ঋণ তহবিল',zakat:'যাকাত',sadaqah:'সাদাকাহ',emergency:'জরুরি'}[p]||p}
 function schemeBn(s){return{daily:'দৈনিক',fortnightly:'পাক্ষিক',monthly:'মাসিক',flexible:'যখন খুশি'}[s]||s}
 /* ⚠️ অজানা মান এলে esc() — বিভাগটি ডাটাবেজ থেকে আসে */
@@ -4869,6 +4982,6 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=57"></script>
+<script src="kh-ui.js?v=60"></script>
 </body>
 </html>

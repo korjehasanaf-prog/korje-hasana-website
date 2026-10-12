@@ -4647,3 +4647,95 @@ html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
 .kh-stm.kh-stm .kh-stm-led .kh-stm-cr{color:#0b6b3f !important}
 .kh-stm.kh-stm .kh-stm-led .kh-stm-dr{color:#a3261c !important}
 @media (max-width:520px){.kh-stm.kh-stm{padding:14px 12px;border-radius:14px}.kh-stm.kh-stm .kh-stm-row{font-size:14px}}
+
+/* ── 📅 তারিখ বাছাই — চাকা-পিকার (ভিডিও "Date Picker"-এর আদলে) ───────
+   দুই থীমেই এক কাঠামো। লেখার রঙ মেপে বসানো:
+   • ডার্ক: নির্বাচিত #fff (১৭:১) · অন্যগুলো ~৫.৫:১ · Confirm সাদা পটভূমিতে গাঢ় লেখা
+   • লাইট: লেখা #241539 · অন্যগুলো ~৪.৬:১ · Confirm গ্র্যাডিয়েন্টে সাদা (৫.৫:১)
+   ⚠️ Confirm-এর গ্র্যাডিয়েন্ট ঘেঁষা রঙ নয় (#d6336c-তে সাদা লেখা ৩.৮:১ — ফেল)। */
+input[data-kh-dp="1"] { cursor: pointer; }
+input[data-kh-dp="1"]:read-only { caret-color: transparent; }
+
+.kh-dp-ov {
+  position: fixed; inset: 0; z-index: 10080;
+  background: rgba(8, 4, 14, .62);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: khDpFade .18s ease-out;
+}
+@keyframes khDpFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes khDpUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .kh-dp-ov, .kh-dp { animation: none !important; }
+  .kh-dp-col { scroll-behavior: auto !important; }
+}
+.kh-dp {
+  width: min(420px, 100%);
+  background: #17111f; color: #f4f0fa;
+  border-radius: 26px 26px 0 0;
+  padding: 12px 22px 22px;
+  box-shadow: 0 -18px 50px rgba(0, 0, 0, .45);
+  animation: khDpUp .26s cubic-bezier(.2, .8, .2, 1);
+  max-height: 92vh; box-sizing: border-box;
+}
+@media (min-width: 700px) {
+  .kh-dp-ov { align-items: center; }
+  .kh-dp { border-radius: 26px; }
+}
+.kh-dp-grip { width: 44px; height: 5px; border-radius: 4px; background: rgba(255, 255, 255, .24); margin: 0 auto 14px; }
+.kh-dp-title { text-align: center; font-size: 17px; font-weight: 600; color: #f4f0fa; margin-bottom: 12px; }
+.kh-dp-wheels { position: relative; display: grid; grid-template-columns: 1fr 1.25fr 1.2fr; gap: 6px; height: 220px; }
+.kh-dp-band {
+  position: absolute; left: 6px; right: 6px; top: 88px; height: 44px;
+  border-radius: 12px; background: rgba(255, 255, 255, .08); pointer-events: none;
+}
+.kh-dp-col {
+  height: 220px; overflow-y: auto; scroll-snap-type: y mandatory;
+  scrollbar-width: none; padding: 88px 0; outline: none;
+  overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 34%, #000 66%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 34%, #000 66%, transparent 100%);
+}
+.kh-dp-col::-webkit-scrollbar { display: none; }
+.kh-dp-col:focus-visible .kh-dp-band { box-shadow: 0 0 0 2px #f08c28; }
+.kh-dp-it {
+  height: 44px; line-height: 44px; text-align: center;
+  font-size: 19px; color: rgba(244, 240, 250, .55);
+  scroll-snap-align: center; cursor: pointer; user-select: none;
+  font-variant-numeric: tabular-nums;
+  transition: color .15s, font-size .15s;
+}
+.kh-dp-it.is-sel { color: #ffffff; font-size: 22px; font-weight: 600; }
+.kh-dp-it.is-off { opacity: .22; pointer-events: none; }
+.kh-dp-ok {
+  margin-top: 18px; width: 100%; height: 52px; border: 0; border-radius: 999px;
+  background: #ffffff; color: #17111f;
+  font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.kh-dp-ok:focus-visible { outline: 2px solid #f08c28; outline-offset: 2px; }
+
+html[data-theme="light"] .kh-dp { background: #ffffff; color: #241539; box-shadow: 0 -18px 50px rgba(36, 21, 57, .22); border-top: 1px solid #ded8e6; }
+html[data-theme="light"] .kh-dp-title { color: #241539; }
+html[data-theme="light"] .kh-dp-grip { background: #c9c0d6; }
+html[data-theme="light"] .kh-dp-band { background: rgba(36, 21, 57, .07); }
+html[data-theme="light"] .kh-dp-it { color: rgba(36, 21, 57, .62); }
+html[data-theme="light"] .kh-dp-it.is-sel { color: #241539; }
+html[data-theme="light"] .kh-dp-ok {
+  background: linear-gradient(112deg, #c2255c, #8b1fb0 55%, #7048e8);
+  color: #ffffff;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ৩১ ── সেশন নিরাপত্তা: নিষ্ক্রিয়তার সতর্কবার্তা ও সাইন আউটের পপআপ
+   নিজের গাঢ় কার্ড বহন করে → দুই থীমে হুবহু এক।
+   ══════════════════════════════════════════════════════════════ */
+.kh-sg{position:fixed;inset:0;z-index:10080;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,4,14,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.kh-sg.is-on{display:flex}
+.kh-sg-card{width:100%;max-width:380px;border-radius:24px;padding:26px 22px 22px;text-align:center;background:linear-gradient(160deg,#2b1747,#160d26);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 60px rgba(0,0,0,.45)}
+.kh-sg-ico{width:58px;height:58px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(112deg,#d6336c,#a021c9 48%,#e83e8c)}
+.kh-sg-title{margin:0 0 8px;font-size:18px;font-weight:700;color:#fff;line-height:1.4}
+.kh-sg-text{margin:0 0 20px;font-size:14px;line-height:1.65;color:#e9e1f5}
+.kh-sg-acts{display:flex;gap:10px}
+.kh-sg-btn{flex:1;min-height:46px;padding:0 14px;border-radius:999px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;border:0;color:#fff}
+.kh-sg-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.kh-sg-pri{background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#7048e8)}
+.kh-sg-sec{background:transparent;border:1.5px solid rgba(255,255,255,.45)}

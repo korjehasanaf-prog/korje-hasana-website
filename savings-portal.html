@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=57">
+  <link rel="stylesheet" href="kh-ui.css?v=60">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1773,11 +1773,11 @@ async function submitDeposit() {
   showMsg('depositMsg','','');
   if(!amount || amount < 10) return showMsg('depositMsg','কমপক্ষে ১০ টাকা জমা দিতে হবে','error');
   if(!ref) return showMsg('depositMsg','লেনদেন রেফারেন্স নম্বর প্রয়োজন','error');
-  const { error } = await _db.from('savings_transactions').insert({
-    depositor_id: currentUser.id, type: 'deposit',
-    amount, reference: ref, notes: note, status: 'pending'
-  });
-  if(error) return showMsg('depositMsg', error.message, 'error');
+  /* ⚠️ সরাসরি insert নয় — deposit_to_savings RPC */
+  let error = null;
+  try { const r = await _db.rpc('deposit_to_savings', { p_account: CUR.id, p_reference: ref, p_notes: note || null, p_amount: amount, p_method: 'other' }); error = r.error; if (!error && r.data && r.data.ok === false) error = { message: r.data.error || 'জমা দেওয়া যায়নি।' }; }
+  catch (e) { error = e; }
+  if(error) return showMsg('depositMsg', (error.message || 'জমা দেওয়া যায়নি।'), 'error');
   showMsg('depositMsg','জমার অনুরোধ পাঠানো হয়েছে! অনুমোদনের পর আপনার ব্যালেন্সে যোগ হবে।','success');
   setTimeout(() => { closeModal('depositModal'); loadPortal(currentUser); }, 1800);
 }
@@ -1790,11 +1790,11 @@ async function submitWithdraw() {
   showMsg('withdrawMsg','','');
   if(!amount || amount < 10) return showMsg('withdrawMsg','কমপক্ষে ১০ টাকা উত্তোলন করতে হবে','error');
   if(amount > currentBalance) return showMsg('withdrawMsg','স্থিতির চেয়ে বেশি উত্তোলন করা যাবে না','error');
-  const { error } = await _db.from('savings_transactions').insert({
-    depositor_id: currentUser.id, type: 'withdrawal',
-    amount, notes: note, status: 'pending'
-  });
-  if(error) return showMsg('withdrawMsg', error.message, 'error');
+  /* ⚠️ সরাসরি insert নয় — request_savings_withdrawal RPC (স্থিতি সার্ভারে যাচাই) */
+  let error = null;
+  try { const chId = await KHUI.twoFA.confirm({ purpose: 'withdraw', account: CUR.id, amount: Math.round(amount) }); const r = await _db.rpc('request_savings_withdrawal', { p_account: CUR.id, p_amount: Math.round(amount), p_notes: note || null, p_challenge: chId }); error = r.error; if (!error && r.data && r.data.ok === false) error = { message: r.data.error || 'উত্তোলনের অনুরোধ পাঠানো যায়নি।' }; }
+  catch (e) { error = e; }
+  if(error) return showMsg('withdrawMsg', (error.message || 'উত্তোলনের অনুরোধ পাঠানো যায়নি।'), 'error');
   showMsg('withdrawMsg','উত্তোলনের অনুরোধ পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে আপনার হিসাবে পাঠানো হবে।','success');
   setTimeout(() => { closeModal('withdrawModal'); loadPortal(currentUser); }, 1800);
 }
@@ -2671,8 +2671,9 @@ async function submitTransferPanel() {
   showMsg('transferMsgPanel', 'স্থানান্তর হচ্ছে…', 'info');
   let res;
   try {
+    const chId = await KHUI.twoFA.confirm({ purpose: 'transfer', account: CUR.id, amount: amount, target: target, repayment_id: repId || null });
     const r = await _db.rpc('transfer_savings', {
-      p_account: CUR.id, p_target: target, p_amount: amount, p_repayment_id: repId
+      p_account: CUR.id, p_target: target, p_amount: amount, p_repayment_id: repId, p_challenge: chId
     });
     if (r.error) throw r.error;
     res = r.data;
@@ -2827,11 +2828,11 @@ async function submitWithdrawPanel() {
   const note   = document.getElementById('withdrawNotePanel').value.trim();
   if(!amount || amount < 10) { showMsg('withdrawMsgPanel','কমপক্ষে ১০ টাকা উত্তোলন করুন।','error'); return; }
   if(amount > currentBalance)  { showMsg('withdrawMsgPanel','অপর্যাপ্ত স্থিতি।','error'); return; }
-  const { data: ins, error } = await _db.from('savings_transactions').insert({
-    depositor_id: currentUser.id, type: 'withdrawal',
-    amount, notes: note, status: 'pending'
-  }).select('id,created_at').single();
-  if(error) { showMsg('withdrawMsgPanel','ত্রুটি: ' + error.message,'error'); return; }
+  /* ⚠️ সরাসরি insert নয় — request_savings_withdrawal RPC */
+  let ins = null, error = null;
+  try { const chId = await KHUI.twoFA.confirm({ purpose: 'withdraw', account: CUR.id, amount: Math.round(amount) }); const r = await _db.rpc('request_savings_withdrawal', { p_account: CUR.id, p_amount: Math.round(amount), p_notes: note || null, p_challenge: chId }); error = r.error; ins = r.data; if (!error && (!ins || ins.ok === false)) error = { message: (ins && ins.error) || 'উত্তোলনের অনুরোধ পাঠানো যায়নি।' }; }
+  catch (e) { error = e; }
+  if(error) { showMsg('withdrawMsgPanel','ত্রুটি: ' + (error.message || ''),'error'); return; }
   showMsg('withdrawMsgPanel','উত্তোলনের অনুরোধ সফলভাবে পাঠানো হয়েছে! ২৪ ঘণ্টার মধ্যে প্রেরণ করা হবে।','success');
   document.getElementById('withdrawAmountPanel').value='';
   document.getElementById('withdrawNotePanel').value='';
@@ -2846,6 +2847,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=57"></script>
+<script src="kh-ui.js?v=60"></script>
 </body>
 </html>

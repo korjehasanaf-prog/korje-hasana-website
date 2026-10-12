@@ -342,7 +342,7 @@
   .admin-kpi-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; }
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=57">
+  <link rel="stylesheet" href="kh-ui.css?v=60">
 </head>
 <body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
@@ -784,7 +784,7 @@
             <div style="font-size:14.5px;font-weight:700;color:#fff;margin-bottom:12px;display:flex;align-items:center;gap:7px"><i class="ti ti-message-2" style="color:var(--gold)"></i>SMS Template</div>
             <div style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13.5px;color:var(--text);line-height:1.7;margin-bottom:12px;border-left:3px solid var(--gold)">
               <div style="color:var(--muted);font-size:12px;margin-bottom:4px">7-DAY REMINDER</div>
-              প্রিয় <span style="color:var(--gold)">[নাম]</span>, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (<span style="color:var(--gold)">[Ref]</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">[Amount]</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে (<span style="color:var(--gold)">[Date]</span>) পরিশোধযোগ্য। bKash: 01711-515952। ধন্যবাদ।
+              প্রিয় <span style="color:var(--gold)">[নাম]</span>, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (<span style="color:var(--gold)">[Ref]</span>) এর কিস্তি <strong>৳<span style="color:var(--gold)">[Amount]</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে (<span style="color:var(--gold)">[Date]</span>) পরিশোধযোগ্য। bKash: 01711-515952। ধন্যবাদ।
             </div>
             <div style="background:var(--bg3);border-radius:10px;padding:14px;font-size:13.5px;color:var(--text);line-height:1.7;border-left:3px solid var(--red)">
               <div style="color:var(--muted);font-size:12px;margin-bottom:4px">1-DAY REMINDER</div>
@@ -846,7 +846,7 @@
             <div id="waTplPreview" style="background:rgba(255,255,255,.07);border-radius:8px;padding:12px;font-size:13.5px;color:rgba(255,255,255,.85);line-height:1.8;border-left:3px solid #25D366">
               <div style="font-size:12px;color:#86efac;margin-bottom:6px;font-weight:700">TEMPLATE: korje_emi_7day</div>
               প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>
-              কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>
+              কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>
               💳 bKash / Nagad: <strong>01XXXXXXXXX</strong><br>
               📌 Ref: <span style="color:var(--gold)">{{2}}</span><br><br>
               যোগাযোগ: 01711-515952 | korjehasana.org
@@ -899,7 +899,7 @@
               <button class="ftab" id="ivrTpl1d" onclick="selectIVRTpl(this,'1d')" style="color:var(--muted)">1-Day Call</button>
               <button class="ftab" id="ivrTplOD" onclick="selectIVRTpl(this,'overdue')" style="color:var(--muted)">Overdue Call</button>
             </div>
-            <textarea class="mf-textarea" id="ivrScript" style="min-height:100px;font-size:14.5px;line-height:1.8">আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। আপনার মাসিক কিস্তি আগামী সাত দিনের মধ্যে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।</textarea>
+            <textarea class="mf-textarea" id="ivrScript" style="min-height:100px;font-size:14.5px;line-height:1.8">আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। আপনার কিস্তি আগামী সাত দিনের মধ্যে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।</textarea>
             <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:5px"><i class="ti ti-info-circle"></i> Script-এ {name}, {amount}, {date}, {ref} ব্যবহার করলে স্বয়ংক্রিয়ভাবে replace হবে।</div>
           </div>
 
@@ -1535,7 +1535,7 @@ function filterNotifSearch(q) { notifSearch = q; renderNotifTable(); }
 function buildMsg(r, type) {
   const days = daysUntil(r.dueDate);
   if (type === '7d' || days === 7) {
-    return `প্রিয় ${r.borrower}, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (${r.ref}) এর মাসিক কিস্তি ৳${r.instalment.toLocaleString()} আগামী ৭ দিনের মধ্যে (${r.dueDate}) পরিশোধযোগ্য। bKash: 01711-515952। ধন্যবাদ।`;
+    return `প্রিয় ${r.borrower}, কর্জে হাসানা ফাউন্ডেশন জানাচ্ছে — আপনার ঋণ (${r.ref}) এর কিস্তি ৳${r.instalment.toLocaleString()} আগামী ৭ দিনের মধ্যে (${r.dueDate}) পরিশোধযোগ্য। bKash: 01711-515952। ধন্যবাদ।`;
   } else if (type === '1d' || days === 1) {
     return `প্রিয় ${r.borrower}, আপনার কর্জে হাসানা কিস্তি ৳${r.instalment.toLocaleString()} আগামীকাল (${r.dueDate}) পরিশোধযোগ্য। bKash 01711-515952-এ পাঠান, Ref: ${r.ref}। যোগাযোগ: 01711-515952।`;
   } else if (r.status === 'overdue') {
@@ -1641,7 +1641,7 @@ function initCharts() {
 const WA_TEMPLATES = {
   '7d': {
     name: 'korje_emi_7day',
-    preview: `প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর মাসিক কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>💳 bKash / Nagad: <strong>01XXXXXXXXX</strong><br>📌 Ref: <span style="color:var(--gold)">{{2}}</span><br><br>যোগাযোগ: 01711-515952 | korjehasana.org`
+    preview: `প্রিয় <span style="color:var(--gold)">{{1}}</span>,<br>কর্জে হাসানা ফাউন্ডেশন থেকে জানানো হচ্ছে যে আপনার লোন (<span style="color:var(--gold)">{{2}}</span>) এর কিস্তি <strong>৳<span style="color:var(--gold)">{{3}}</span></strong> আগামী <strong>৭ দিনের</strong> মধ্যে <span style="color:var(--gold)">{{4}}</span> তারিখে পরিশোধযোগ্য।<br><br>💳 bKash / Nagad: <strong>01XXXXXXXXX</strong><br>📌 Ref: <span style="color:var(--gold)">{{2}}</span><br><br>যোগাযোগ: 01711-515952 | korjehasana.org`
   },
   '1d': {
     name: 'korje_emi_1day',
@@ -1743,7 +1743,7 @@ function sendWABulk() {
    SSL WIRELESS IVR VOICE CALL
 ══════════════════════════════════ */
 const IVR_SCRIPTS = {
-  '7d':      'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। প্রিয় {name}, আপনার লোন রেফারেন্স {ref} এর মাসিক কিস্তি {amount} টাকা আগামী সাত দিনের মধ্যে {date} তারিখে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।',
+  '7d':      'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে স্বয়ংক্রিয় বার্তা। প্রিয় {name}, আপনার লোন রেফারেন্স {ref} এর কিস্তি {amount} টাকা আগামী সাত দিনের মধ্যে {date} তারিখে পরিশোধযোগ্য। বিকাশ বা নগদের মাধ্যমে পরিশোধ করুন। বিস্তারিত জানতে আমাদের নম্বরে কল করুন। ধন্যবাদ। আল্লাহ হাফেজ।',
   '1d':      'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন। প্রিয় {name}, আপনার {amount} টাকার কিস্তি আগামীকাল {date} তারিখে পরিশোধযোগ্য। অনুগ্রহ করে সময়মতো পরিশোধ করুন। রেফারেন্স নম্বর {ref}। ধন্যবাদ।',
   'overdue': 'আসসালামু আলাইকুম। এটি কর্জে হাসানা ফাউন্ডেশন থেকে জরুরি বার্তা। প্রিয় {name}, আপনার {amount} টাকার কিস্তির মেয়াদ অতিক্রান্ত হয়েছে। অনুগ্রহ করে দ্রুত পরিশোধ করুন অথবা আমাদের সাথে যোগাযোগ করুন। ধন্যবাদ।'
 };
@@ -1955,6 +1955,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=57"></script>
+<script src="kh-ui.js?v=60"></script>
 </body>
 </html>

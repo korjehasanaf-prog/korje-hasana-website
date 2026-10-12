@@ -440,7 +440,7 @@
       a[href*="wa.me"] { width:46px !important; height:46px !important; bottom:16px !important; right:16px !important; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=57">
+  <link rel="stylesheet" href="kh-ui.css?v=60">
 </head>
 <body data-kh-nav="on" data-kh-requires="donation">
 
@@ -563,18 +563,18 @@
           <div class="impact-calc-title"><i class="ti ti-sparkles"></i>Your donation impact</div>
           <div class="impact-rows">
             <div class="impact-row">
-              <div class="impact-row-label"><i class="ti ti-users"></i>Families that can benefit</div>
+              <div class="impact-row-label"><i class="ti ti-users"></i>Families supported in 5 years</div>
               <div class="impact-row-val" id="impactFamilies">0.1</div>
             </div>
             <div class="impact-divider"></div>
             <div class="impact-row">
-              <div class="impact-row-label"><i class="ti ti-refresh"></i>Times it revolves (5 yrs)</div>
-              <div class="impact-row-val" id="impactCycles">~2.5 times</div>
+              <div class="impact-row-label"><i class="ti ti-refresh"></i>Loan cycles in 5 years</div>
+              <div class="impact-row-val" id="impactCycles">5 times</div>
             </div>
             <div class="impact-divider"></div>
             <div class="impact-row">
-              <div class="impact-row-label"><i class="ti ti-currency-taka"></i>Total impact value</div>
-              <div class="impact-row-val" id="impactTotal">৳6,250</div>
+              <div class="impact-row-label"><i class="ti ti-currency-taka"></i>Total lent over 5 years</div>
+              <div class="impact-row-val" id="impactTotal">৳0</div>
             </div>
           </div>
         </div>
@@ -1223,13 +1223,18 @@ function updateBtn() {
 }
 
 /* ── IMPACT CALC ── */
+/* 5-year model: দানের ঋণ অংশ (৯০%) একই তহবিলে ঘোরে। ১২ মাসের ঋণ শোধ হলে
+   তহবিল আবার ব্যবহারযোগ্য → ৫ বছরে ৬০ ÷ ১২ = ৫ বার। প্রতিটি ঋণ গড়ে
+   ২০,০০০ টাকা ধরে পরিবারের সংখ্যা। সব অঙ্ক পূর্ণ সংখ্যা (০.৫ বা বেশি → +১)। */
 function calcImpact(amt) {
-  const families   = (amt / 25000).toFixed(2);
-  const cycles     = '~' + (amt > 0 ? (2.5).toFixed(1) : '0') + ' times';
-  const totalImpact = '৳' + (amt * 2.5).toLocaleString();
-  document.getElementById('impactFamilies').textContent = families + ' family';
-  document.getElementById('impactCycles').textContent   = cycles;
-  document.getElementById('impactTotal').textContent    = totalImpact;
+  const LOAN_SHARE_PCT = 90, TENURE_MONTHS = 12, YEARS = 5, AVG_LOAN = 20000;
+  const loanShare  = amt * LOAN_SHARE_PCT / 100;
+  const cycles     = Math.floor(YEARS * 12 / TENURE_MONTHS);
+  const totalLent  = Math.round(loanShare * cycles + 1e-9);
+  const families   = Math.round(totalLent / AVG_LOAN + 1e-9);
+  document.getElementById('impactFamilies').textContent = families.toLocaleString() + (families === 1 ? ' family' : ' families');
+  document.getElementById('impactCycles').textContent   = cycles + ' times';
+  document.getElementById('impactTotal').textContent    = '৳' + totalLent.toLocaleString();
 }
 
 /* ── FREQUENCY ── */
@@ -1900,7 +1905,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=57"></script>
+<script src="kh-ui.js?v=60"></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
 (function () {

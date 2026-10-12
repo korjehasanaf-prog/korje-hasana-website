@@ -254,7 +254,7 @@
       .navbar { padding: 0 16px; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=57">
+  <link rel="stylesheet" href="kh-ui.css?v=60">
 </head>
 <body data-kh-nav="on" data-kh-requires="loan">
 
@@ -440,7 +440,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">Date of Birth</label>
-              <input type="text" class="form-input autofilled" id="ex_dob" value="">
+              <input type="text" class="form-input autofilled" id="ex_dob" data-kh-date="1" value="">
             </div>
             <div class="form-group">
               <label class="form-label">Father's Name</label>
@@ -625,29 +625,30 @@
         <div style="font-size:13.5px;font-weight:600;color:var(--green);margin-bottom:10px">Select loan type <span class="req" style="color:var(--error)">*</span></div>
         <div class="loan-types" id="loanTypes">
           <div class="loan-type-btn active" onclick="selectLoanType(this,'Agriculture')">
-            <i class="ti ti-plant-2"></i><span>Agriculture</span><small>Up to ৳35,000</small>
+            <i class="ti ti-plant-2"></i><span>Agriculture</span><small>৳5,000 – ৳2,00,000</small>
           </div>
           <div class="loan-type-btn" onclick="selectLoanType(this,'Business')">
-            <i class="ti ti-building-store"></i><span>Business</span><small>Up to ৳75,000</small>
+            <i class="ti ti-building-store"></i><span>Business</span><small>৳5,000 – ৳2,00,000</small>
           </div>
           <div class="loan-type-btn" onclick="selectLoanType(this,'Education')">
-            <i class="ti ti-school"></i><span>Education</span><small>Up to ৳50,000</small>
+            <i class="ti ti-school"></i><span>Education</span><small>৳5,000 – ৳2,00,000</small>
           </div>
           <div class="loan-type-btn" onclick="selectLoanType(this,'Medical')">
-            <i class="ti ti-stethoscope"></i><span>Medical</span><small>Up to ৳1,00,000</small>
+            <i class="ti ti-stethoscope"></i><span>Medical</span><small>৳5,000 – ৳2,00,000</small>
           </div>
           <div class="loan-type-btn" onclick="selectLoanType(this,'Family need')">
-            <i class="ti ti-home-heart"></i><span>Family need</span><small>Up to ৳35,000</small>
+            <i class="ti ti-home-heart"></i><span>Family need</span><small>৳5,000 – ৳2,00,000</small>
           </div>
           <div class="loan-type-btn" onclick="selectLoanType(this,'Emergency')">
-            <i class="ti ti-alert-triangle"></i><span>Emergency</span><small>Up to ৳15,000</small>
+            <i class="ti ti-alert-triangle"></i><span>Emergency</span><small>৳5,000 – ৳2,00,000</small>
           </div>
         </div>
 
         <div class="form-grid" style="margin-top:20px">
           <div class="form-group">
             <label class="form-label">Loan amount needed (৳) <span class="req">*</span></label>
-            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="1000" max="100000" onchange="clampAmount();calcEMI()" oninput="clampAmount();calcEMI()">
+            <input type="number" class="form-input" id="l_amount" placeholder="e.g. 25000" min="5000" max="200000" onchange="clampAmount();calcEMI()" oninput="clampAmount();calcEMI()">
+            <span class="form-hint" id="l_tierHint"></span>
             <span class="form-hint" id="l_amountHint">Agriculture: max ৳35,000</span>
           </div>
           <div class="form-group">
@@ -674,10 +675,9 @@
             <label class="form-label">কিস্তির ধরন <span class="req">*</span></label>
             <select class="form-select" id="l_repay" onchange="calcEMI()">
               <option value="">Select</option>
+              <option value="weekly">Weekly (সাপ্তাহিক)</option>
+              <option value="biweekly">Bi-weekly (পাক্ষিক)</option>
               <option value="monthly">মাসিক কিস্তি (Monthly)</option>
-              <option value="weekly">সাপ্তাহিক কিস্তি (Weekly)</option>
-              <option value="biweekly">পাক্ষিক কিস্তি (Bi-weekly)</option>
-              <option value="lumpsum">মৌসুমে একসাথে (Lump sum)</option>
             </select>
           </div>
           <div class="form-group">
@@ -723,14 +723,16 @@
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r1_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r1_rel" placeholder="e.g. Neighbour"></div>
           <div class="form-group"><label class="form-label">Mobile</label><input type="tel" class="form-input" id="r1_phone" placeholder="01XXXXXXXXX"></div>
+          <div class="form-group"><label class="form-label">NID (গ্যারান্টর)</label><input type="text" class="form-input" id="r1_nid" inputmode="numeric" placeholder="১০/১৩/১৭ সংখ্যা"></div>
         </div>
         <!-- REF 2 -->
-        <div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 2 <span class="req" style="color:var(--error)">*</span></div>
+        <div id="r2_block"><div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 2 <span class="req" style="color:var(--error)">*</span></div>
         <div class="ref-item">
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r2_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r2_rel" placeholder="e.g. Mosque imam"></div>
           <div class="form-group"><label class="form-label">Mobile</label><input type="tel" class="form-input" id="r2_phone" placeholder="01XXXXXXXXX"></div>
-        </div>
+          <div class="form-group"><label class="form-label">NID (গ্যারান্টর)</label><input type="text" class="form-input" id="r2_nid" inputmode="numeric" placeholder="১০/১৩/১৭ সংখ্যা"></div>
+        </div></div>
 
         <div class="nav-btns" style="margin-top:16px">
           <button class="btn-back" onclick="prevStep()"><i class="ti ti-arrow-left"></i> Back</button>
@@ -853,14 +855,18 @@ let nidImageData  = { front: null,  back: null  };
 let camSide = 'front';
 let cameraStream = null;
 
-/* Default loan products — super admin can override via admin panel */
+/* গঠনতন্ত্র ধারা ৭.২ — ঋণের ধাপ (সার্ভারের loan_tier_for()-এর সাথে হুবহু মেলে) */
+const LOAN_MIN = 5000, LOAN_MAX = 200000;
+const LOAN_TIERS = [
+  { tier:1, min:5000,  max:15000,  months:[6,9,12],   guarantors:1 },
+  { tier:2, min:15000, max:35000,  months:[12,15,18], guarantors:2 },
+  { tier:3, min:35000, max:75000,  months:[18,21,24], guarantors:2 },
+  { tier:4, min:75000, max:200000, months:[24,30,36], guarantors:2, special:true }
+];
+function loanTierFor(amt) { return LOAN_TIERS.find(t => amt >= t.min && amt <= t.max) || null; }
 const DEFAULT_LOAN_PRODUCTS = {
-  Agriculture:   { maxAmt: 35000,  durations: [6,12,18,24], seasonal: true  },
-  Business:      { maxAmt: 75000,  durations: [6,12,18,24], seasonal: false },
-  Education:     { maxAmt: 50000,  durations: [6,12,18,24], seasonal: false },
-  Medical:       { maxAmt: 100000, durations: [6,12,18,24], seasonal: false },
-  'Family need': { maxAmt: 35000,  durations: [6,12,18,24], seasonal: false },
-  Emergency:     { maxAmt: 15000,  durations: [6,12],       seasonal: false },
+  Agriculture:{maxAmt:LOAN_MAX}, Business:{maxAmt:LOAN_MAX}, Education:{maxAmt:LOAN_MAX},
+  Medical:{maxAmt:LOAN_MAX}, 'Family need':{maxAmt:LOAN_MAX}, Emergency:{maxAmt:LOAN_MAX}
 };
 function getLoanProducts() {
   try {
@@ -1539,33 +1545,47 @@ function selectLoanType(el, type) {
   document.querySelectorAll('.loan-type-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   loanType = type;
-  const products = getLoanProducts();
-  const cfg = products[type] || DEFAULT_LOAN_PRODUCTS[type] || { maxAmt:100000, durations:[6,12,18,24], seasonal:false };
-
-  // Update amount max + hint
   const amtInput = document.getElementById('l_amount');
-  amtInput.max = cfg.maxAmt;
-  if (parseFloat(amtInput.value) > cfg.maxAmt) amtInput.value = cfg.maxAmt;
+  amtInput.min = LOAN_MIN; amtInput.max = LOAN_MAX;
   document.getElementById('l_amountHint').textContent =
-    type + ': সর্বোচ্চ ৳' + cfg.maxAmt.toLocaleString('en-IN');
-
-  // Rebuild duration options
-  const durSel = document.getElementById('l_duration');
-  const curDur = durSel.value;
-  durSel.innerHTML = '<option value="">নির্বাচন করুন</option>';
-  cfg.durations.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m; opt.textContent = m + ' মাস';
-    durSel.appendChild(opt);
-  });
-  if (cfg.seasonal) {
-    const opt = document.createElement('option');
-    opt.value = '0'; opt.textContent = 'মৌসুমি (ফসলের পর একসাথে)';
-    durSel.appendChild(opt);
-  }
-  if (cfg.durations.includes(parseInt(curDur))) durSel.value = curDur;
-
+    '৳' + LOAN_MIN.toLocaleString('en-IN') + ' – ৳' + LOAN_MAX.toLocaleString('en-IN') + ' (গঠনতন্ত্র ধারা ৭.২)';
+  syncLoanTier(true);
   calcEMI();
+}
+
+/* পরিমাণ অনুযায়ী ধাপ, মেয়াদের তালিকা ও গ্যারান্টর ঘর হালনাগাদ */
+function syncLoanTier(force) {
+  const amt = parseFloat(document.getElementById('l_amount').value) || 0;
+  const t = loanTierFor(amt);
+  const durSel = document.getElementById('l_duration');
+  const key = t ? String(t.tier) : '0';
+  if (!force && durSel.dataset.tier === key) return;
+  durSel.dataset.tier = key;
+  const cur = parseInt(durSel.value, 10) || 0;
+  durSel.innerHTML = '<option value="">নির্বাচন করুন</option>';
+  if (t) t.months.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m + ' মাস'; durSel.appendChild(o); });
+  durSel.value = (t && t.months.includes(cur)) ? String(cur) : '';
+  const hint = document.getElementById('l_tierHint');
+  if (hint) hint.textContent = t
+    ? ('ধাপ ' + t.tier + ' · মেয়াদ ' + t.months[0] + '–' + t.months[t.months.length-1] + ' মাস · গ্যারান্টর/রেফারেন্স ' + t.guarantors + ' জন' + (t.special ? ' · বিশেষ ঋণ — কমিটির বিশেষ অনুমোদন প্রয়োজন' : ''))
+    : ('পরিমাণ ৳' + LOAN_MIN.toLocaleString('en-IN') + ' থেকে ৳' + LOAN_MAX.toLocaleString('en-IN') + ' এর মধ্যে দিন');
+  const r2 = document.getElementById('r2_block');
+  if (r2) r2.style.display = (t && t.guarantors >= 2) ? '' : 'none';
+}
+function refsForTier() {
+  const amt = parseFloat(document.getElementById('l_amount').value) || 0;
+  const t = loanTierFor(amt);
+  const n = t ? t.guarantors : 2;
+  const all = [
+    { name: 'r1_name', rel: 'r1_rel', phone: 'r1_phone', nid: 'r1_nid' },
+    { name: 'r2_name', rel: 'r2_rel', phone: 'r2_phone', nid: 'r2_nid' }
+  ].slice(0, n);
+  return all.map(x => ({
+    name: document.getElementById(x.name).value.trim(),
+    relation: document.getElementById(x.rel).value.trim(),
+    mobile: document.getElementById(x.phone).value.replace(/\D/g, ''),
+    nid: document.getElementById(x.nid).value.replace(/\D/g, '')
+  }));
 }
 
 /* ── MARITAL STATUS ── */
@@ -1677,17 +1697,16 @@ let _lastEmiMethod = '';  // track method changes for date reset
 
 function clampAmount() {
   const inp = document.getElementById('l_amount');
-  const mx = parseFloat(inp.max) || 100000;
-  if (parseFloat(inp.value) > mx) { inp.value = mx; }
+  if (parseFloat(inp.value) > LOAN_MAX) { inp.value = LOAN_MAX; }
 }
 
 function buildSchedule(amt, installments, intervalDays, startDate) {
-  const regularEMI = Math.floor(amt / installments);
+  const regularEMI = Math.round(amt / installments);
   const lastEMI    = amt - regularEMI * (installments - 1); // exact, no rounding error
   const rows = [];
   for (let i = 0; i < installments; i++) {
     const d = new Date(startDate);
-    d.setDate(d.getDate() + i * intervalDays);
+    if (intervalDays === 30) d.setMonth(d.getMonth() + i); else d.setDate(d.getDate() + i * intervalDays);
     const emi = (i === installments - 1) ? lastEMI : regularEMI;
     rows.push({ n: i+1, date: d, emi });
   }
@@ -1695,6 +1714,7 @@ function buildSchedule(amt, installments, intervalDays, startDate) {
 }
 
 function calcEMI() {
+  syncLoanTier(false);
   const amt    = parseFloat(document.getElementById('l_amount').value) || 0;
   const dur    = parseInt(document.getElementById('l_duration').value) || 0;
   const method = document.getElementById('l_repay').value;
@@ -1727,11 +1747,11 @@ function calcEMI() {
 
   let installments, intervalDays, labelBn;
   if (method === 'monthly')  { installments = dur;     intervalDays = 30; labelBn = 'মাসিক'; }
-  else if (method === 'weekly')   { installments = dur*4;   intervalDays = 7;  labelBn = 'সাপ্তাহিক'; }
-  else if (method === 'biweekly') { installments = dur*2;   intervalDays = 14; labelBn = 'পাক্ষিক'; }
+  else if (method === 'weekly')   { installments = Math.round(dur*52/12); intervalDays = 7;  labelBn = 'সাপ্তাহিক'; }
+  else if (method === 'biweekly') { installments = Math.round(dur*26/12); intervalDays = 14; labelBn = 'পাক্ষিক'; }
   else return;
 
-  const regularEMI = Math.floor(amt / installments);
+  const regularEMI = Math.round(amt / installments);
   const lastEMI    = amt - regularEMI * (installments - 1);
 
   document.getElementById('emiAmt').textContent   = '৳' + regularEMI.toLocaleString('en-IN') +
@@ -1772,7 +1792,7 @@ function showFullSchedule(cfg) {
   const { amt, installments, intervalDays, startISO } = cfg;
   const startDate = new Date(startISO);
   const schedule  = buildSchedule(amt, installments, intervalDays, startDate);
-  const regularEMI = Math.floor(amt / installments);
+  const regularEMI = Math.round(amt / installments);
   const lastEMI    = amt - regularEMI * (installments - 1);
 
   let rows = schedule.map(r => {
@@ -1915,17 +1935,46 @@ function buildReview() {
 }
 
 /* ── SUBMIT ── */
-function submitApp() {
+async function submitApp() {
   if (!document.getElementById('declareCheck').checked) {
     alert('Please read and accept the declaration before submitting.'); return;
   }
-  // Generate reference number
-  const ref = 'KH-2026-' + String(Math.floor(1000 + Math.random() * 9000));
-  document.getElementById('refNumber').textContent = ref;
-  updateStepper(4, 'done');
-  currentStep = 5;
-  showStep(5);
-  document.getElementById('progressBar').style.width = '100%';
+  /* লগইন ছাড়া আবেদন নয় — আবেদন সরাসরি ডাটাবেজে (submit_loan_application) জমা হয় */
+  if (window.KHUI && KHUI.requireAccount) {
+    var ok = await KHUI.requireAccount('ঋণের আবেদন');
+    if (!ok) return;
+  }
+  var sb = (window.KHUI && KHUI.db) ? KHUI.db() : null;
+  if (!sb) { alert('সংযোগ নেই — ইন্টারনেট দেখে আবার চেষ্টা করুন।'); return; }
+  var v = function (id) { var el = document.getElementById(id); return el ? String(el.value || '') : ''; };
+  var dur = parseInt(v('l_duration'), 10);
+  var kindMap = { monthly: 'monthly', biweekly: 'biweekly', weekly: 'weekly' };
+  var payload = {
+    loan_type: loanType,
+    amount: parseInt(v('l_amount'), 10),
+    duration: isNaN(dur) ? null : dur,
+    installment_kind: kindMap[v('l_repay')] || null,
+    first_installment_date: v('l_firstEmi'),
+    purpose: v('l_purpose').trim(),
+    vendor: v('l_vendor').trim() || null,
+    occupation: v('p_occupation').trim() || null,
+    monthly_income: parseInt(v('p_income'), 10) || null,
+    repayment_mobile: v('l_bkash').replace(/\D/g, ''),
+    nid: v('ex_nid').replace(/\D/g, ''),
+    address: v('ex_address').trim(),
+    refs: refsForTier()
+  };
+  try {
+    var r = await sb.rpc('submit_loan_application', { p: payload });
+    if (r.error) { alert('আবেদন জমা হয়নি: ' + r.error.message); return; }
+    document.getElementById('refNumber').textContent = r.data.app_no;
+    updateStepper(4, 'done');
+    currentStep = 5;
+    showStep(5);
+    document.getElementById('progressBar').style.width = '100%';
+  } catch (e) {
+    alert('সংযোগ ত্রুটি — ইন্টারনেট দেখুন।');
+  }
 }
 </script>
 <script>
@@ -1948,7 +1997,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=57"></script>
+<script src="kh-ui.js?v=60"></script>
 </body>
 </html>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     

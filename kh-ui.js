@@ -2226,6 +2226,176 @@
      ════════════════════════════════════════════════════════ */
   var presenceTimer = null;
 
+  /* ══════════════════════════════════════════════════════
+     সেশন নিরাপত্তা — একটি অ্যাকাউন্ট একসাথে একটি ডিভাইসে সক্রিয়
+     (সর্বশেষ লগইনকৃত ডিভাইস জেতে; বাকিগুলো স্বয়ংক্রিয়ভাবে সাইন আউট),
+     নিষ্ক্রিয়তায় স্বয়ংক্রিয় সাইন আউট — আগে সতর্কবার্তাসহ।
+     সময়সীমা: app_settings.idle_rules (সুপার অ্যাডমিন → জেনারেল সেটিংস)।
+     ⚠️ সার্ভারের session_alive() ও claim_device_session() আসল সিদ্ধান্ত নেয়;
+        এখানকার টাইমার শুধু পর্দা দেখায়।
+     ══════════════════════════════════════════════════════ */
+  function khJwtSid(tok) {
+    try {
+      var p = tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (p.length % 4) p += '=';
+      var j = JSON.parse(decodeURIComponent(escape(atob(p))));
+      return j.session_id || null;
+    } catch (e) { return null; }
+  }
+  function khDeviceKey() {
+    var k = null;
+    try { k = localStorage.getItem('kh_device_key'); } catch (e) {}
+    if (!k || k.length < 8) {
+      var a = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(a);
+      k = Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      try { localStorage.setItem('kh_device_key', k); } catch (e) {}
+    }
+    return k;
+  }
+  function khDeviceInfo() {
+    var ua = navigator.userAgent || '';
+    var os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows'
+           : /Mac OS/.test(ua) ? 'macOS' : /Linux/.test(ua) ? 'Linux' : 'Unknown';
+    var br = /Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox'
+           : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+    return { platform: 'web', name: br + ' · ' + (/Mobile/.test(ua) ? 'মোবাইল' : 'ডেস্কটপ'), os: os };
+  }
+  function khClamp(v, lo, hi, d) {
+    v = Number(v);
+    return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d;
+  }
+
+  var sg = { rules: null, last: Date.now(), timer: null, ended: false, warnOn: false, popup: null };
+
+  function khGuardPopup() {
+    if (sg.popup) return sg.popup;
+    var el = document.createElement('div');
+    el.className = 'kh-sg';
+    el.setAttribute('role', 'alertdialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML =
+      '<div class="kh-sg-card">' +
+        '<div class="kh-sg-ico" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div>' +
+        '<h3 class="kh-sg-title"></h3><p class="kh-sg-text"></p>' +
+        '<div class="kh-sg-acts">' +
+          '<button type="button" class="kh-sg-btn kh-sg-sec" data-act="out"></button>' +
+          '<button type="button" class="kh-sg-btn kh-sg-pri" data-act="stay">আমি আছি</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(el);
+    el.querySelector('[data-act="stay"]').addEventListener('click', function () { khTouch(); });
+    el.querySelector('[data-act="out"]').addEventListener('click', function () {
+      if (el.dataset.mode === 'end') location.href = 'index.html';
+      else khEnd('idle');
+    });
+    sg.popup = el;
+    return el;
+  }
+  function khShow(mode, title, text, btnLabel) {
+    var el = khGuardPopup();
+    el.dataset.mode = mode;
+    el.querySelector('.kh-sg-title').textContent = title;
+    el.querySelector('.kh-sg-text').textContent = text;
+    var out = el.querySelector('[data-act="out"]');
+    var stay = el.querySelector('[data-act="stay"]');
+    out.textContent = btnLabel || 'এখনই সাইন আউট';
+    out.className = 'kh-sg-btn ' + (mode === 'warn' ? 'kh-sg-sec' : 'kh-sg-pri');
+    stay.style.display = mode === 'warn' ? '' : 'none';
+    el.classList.add('is-on');
+  }
+  function khHide() { if (sg.popup) sg.popup.classList.remove('is-on'); }
+
+  function khTouch() {
+    sg.last = Date.now();
+    if (sg.warnOn) { sg.warnOn = false; khHide(); }
+  }
+
+  function khEnd(reason) {
+    if (sg.ended) return;
+    sg.ended = true;
+    clearInterval(sg.timer);
+    var db = sb();
+    var t = reason === 'other'
+      ? ['অন্য ডিভাইসে লগইন হয়েছে', 'এই অ্যাকাউন্টটি এখন অন্য একটি ডিভাইসে সক্রিয়। নিরাপত্তার জন্য এই ডিভাইস থেকে সাইন আউট করা হয়েছে।']
+      : reason === 'admin'
+      ? ['সাইন আউট করা হয়েছে', 'প্রশাসক এই অ্যাকাউন্টের সেশন বাতিল করেছেন। আবার সাইন ইন করুন।']
+      : ['স্বয়ংক্রিয়ভাবে সাইন আউট', 'দীর্ঘ সময় নিষ্ক্রিয় থাকায় নিরাপত্তার জন্য সাইন আউট করা হয়েছে। আবার সাইন ইন করুন।'];
+    var show = function () { khShow('end', t[0], t[1], 'ঠিক আছে'); };
+    try { db.auth.signOut().then(show, show); } catch (e) { show(); }
+  }
+
+  function khTick() {
+    if (sg.ended || !sg.rules) return;
+    var limit = sg.rules.web_minutes * 60000;
+    var warn = sg.rules.warn_seconds * 1000;
+    var idle = Date.now() - sg.last;
+    if (idle >= limit) { khEnd('idle'); return; }
+    if (idle >= limit - warn) {
+      var left = Math.max(1, Math.ceil((limit - idle) / 1000));
+      sg.warnOn = true;
+      khShow('warn', 'আপনি কি এখনও আছেন?',
+        'নিষ্ক্রিয় থাকায় আর ' + left + ' সেকেন্ড পরে স্বয়ংক্রিয়ভাবে সাইন আউট হবেন। চালু রাখতে "আমি আছি" চাপুন।');
+    } else if (sg.warnOn) {
+      sg.warnOn = false; khHide();
+    }
+  }
+
+  async function khAlive() {
+    if (sg.ended) return;
+    var db = sb();
+    if (!db) return;
+    try {
+      var s = (await db.auth.getSession()).data.session;
+      if (!s) return;
+      var r = await db.rpc('session_alive', { p_device_key: khDeviceKey() });
+      if (!r.error && r.data === false) khEnd('other');
+    } catch (e) { /* নেটওয়ার্ক না থাকলে পরের বার */ }
+  }
+
+  KHUI.startSessionGuard = async function () {
+    var db = sb();
+    if (!db || !db.rpc || sg.timer) return;
+    try {
+      var s = (await db.auth.getSession()).data.session;
+      if (!s) return;
+
+      /* নতুন লগইন (নতুন সেশন-আইডি) হলে এই ডিভাইসকে সক্রিয় করা — বাকিগুলো বাতিল */
+      var sid = khJwtSid(s.access_token);
+      var seen = null;
+      try { seen = localStorage.getItem('kh_sid'); } catch (e) {}
+      if (sid && seen !== sid) {
+        var info = khDeviceInfo();
+        var c = await db.rpc('claim_device_session', {
+          p_device_key: khDeviceKey(), p_platform: info.platform,
+          p_device_name: info.name, p_os: info.os, p_app_version: 'web-1.3'
+        });
+        if (!c.error) { try { localStorage.setItem('kh_sid', sid); } catch (e) {} }
+        else if (c.error && /session_inactive/.test(c.error.message || '')) { khEnd('other'); return; }
+      }
+
+      var rr = await db.rpc('public_idle_rules');
+      var R = (rr && rr.data) || {};
+      var web = khClamp(R.web_minutes, 1, 120, 5);
+      var warn = khClamp(R.warn_seconds, 15, 300, 60);
+      if (warn >= web * 60) warn = Math.max(15, Math.floor(web * 60 / 2));
+      sg.rules = { web_minutes: web, warn_seconds: warn };
+    } catch (e) {
+      sg.rules = { web_minutes: 5, warn_seconds: 60 };
+    }
+
+    sg.last = Date.now();
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'wheel'].forEach(function (ev) {
+      window.addEventListener(ev, khTouch, { passive: true, capture: true });
+    });
+    sg.timer = setInterval(khTick, 1000);
+    setInterval(khAlive, 60000);
+    setTimeout(khAlive, 4000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { khTick(); khAlive(); }
+    });
+  };
+
   KHUI.startPresence = function () {
     if (presenceTimer) return;
     var db = sb();
@@ -5124,6 +5294,9 @@
     btn.onclick = function () {
       if (panel.classList.contains('kh-open')) close(); else open();
     };
+    /* 📱 অ্যাপের "কথা বলুন" বাটন index.html#speak খোলে — চ্যাট প্যানেল নিজে থেকে খুলে থাকে,
+       যাতে সদস্য সরাসরি Speak to Me বাটনে চাপতে পারেন (মাইক ব্যবহারকারীর ক্লিকেই চালু হয়)। */
+    if (location.hash === '#speak') setTimeout(function () { open(); }, 500);
     panel.querySelector('.kh-bot-head-x').onclick = close;
     muteB.onclick = function () {
       muted = !muted;
@@ -6298,6 +6471,347 @@
     window.addEventListener('resize', function () { if (!busy) paint(0, 0, 0, 0, 0); });
   };
 
+  /* ════════════════════════════════════════════════════════
+     📅 তারিখ বাছাই — চাকা-পিকার (দিন · মাস · বছর)
+     ভিডিও "Date Picker"-এর আদলে: নিচ থেকে ওঠা পর্দা, তিনটি চাকা,
+     মাঝের ঘরটি উজ্জ্বল, আশপাশ ফিকে, নিচে Confirm।
+
+     কাজের নিয়ম:
+     • `input[type=date]` ও `[data-kh-date]` ঘর বদলে যায় — দেখায়
+       DD / MM / YYYY, কিন্তু `.value` সবসময় ISO (YYYY-MM-DD)।
+       তাই পুরনো কোড (ডাটাবেজে পাঠানো, যাচাই) অপরিবর্তিত থাকে।
+     • প্রোগ্রাম থেকে `.value = …` বসালেও লেবেল ঠিক থাকে।
+     ════════════════════════════════════════════════════════ */
+  var DP_ITEM = 44;                       /* একটি চাকার ঘরের উচ্চতা (px) */
+  var DP_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function dpParse(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    if (!m) return null;
+    var v = { y: +m[1], m: +m[2] - 1, d: +m[3] };
+    return (v.m >= 0 && v.m < 12 && v.d >= 1 && v.d <= 31) ? v : null;
+  }
+  function dpDim(y, m) { return new Date(y, m + 1, 0).getDate(); }
+  function dpGo(el, top) {
+    if (el.scrollTo) el.scrollTo({ top: top, behavior: 'smooth' }); else el.scrollTop = top;
+  }
+  function dpIso(v) {
+    return v.y + '-' + ('0' + (v.m + 1)).slice(-2) + '-' + ('0' + v.d).slice(-2);
+  }
+  function dpLabel(v) {
+    return ('0' + v.d).slice(-2) + ' / ' + ('0' + (v.m + 1)).slice(-2) + ' / ' + v.y;
+  }
+  function dpCmp(a, b) {
+    return a.y !== b.y ? a.y - b.y : a.m !== b.m ? a.m - b.m : a.d - b.d;
+  }
+
+  /* তারিখ বাছাইয়ের পর্দা খোলে। opts: {value, min, max, title, onPick(iso)} */
+  KHUI.datePicker = function (opts) {
+    opts = opts || {};
+    var now = new Date();
+    var mn = dpParse(opts.min) || { y: now.getFullYear() - 110, m: 0, d: 1 };
+    var mx = dpParse(opts.max) || { y: now.getFullYear() + 10, m: 11, d: 31 };
+    var st = dpParse(opts.value) || { y: now.getFullYear(), m: now.getMonth(), d: now.getDate() };
+    if (dpCmp(st, mn) < 0) st = { y: mn.y, m: mn.m, d: mn.d };
+    if (dpCmp(st, mx) > 0) st = { y: mx.y, m: mx.m, d: mx.d };
+    var prevFocus = document.activeElement;
+
+    var ov = document.createElement('div');
+    ov.className = 'kh-dp-ov';
+    ov.innerHTML =
+      '<div class="kh-dp" role="dialog" aria-modal="true">' +
+        '<div class="kh-dp-grip" aria-hidden="true"></div>' +
+        '<div class="kh-dp-title"></div>' +
+        '<div class="kh-dp-wheels">' +
+          '<div class="kh-dp-band" aria-hidden="true"></div>' +
+          '<div class="kh-dp-col" data-c="d" tabindex="0" role="listbox" aria-label="দিন"></div>' +
+          '<div class="kh-dp-col" data-c="m" tabindex="0" role="listbox" aria-label="মাস"></div>' +
+          '<div class="kh-dp-col" data-c="y" tabindex="0" role="listbox" aria-label="বছর"></div>' +
+        '</div>' +
+        '<button type="button" class="kh-dp-ok">Confirm</button>' +
+      '</div>';
+    ov.querySelector('.kh-dp-title').textContent = opts.title || 'Date';
+    document.body.appendChild(ov);
+    var cols = { d: ov.querySelector('[data-c="d"]'), m: ov.querySelector('[data-c="m"]'), y: ov.querySelector('[data-c="y"]') };
+    var timers = {};
+
+    function clampSt() {
+      if (dpCmp(st, mn) < 0) st = { y: mn.y, m: mn.m, d: mn.d };
+      if (dpCmp(st, mx) > 0) st = { y: mx.y, m: mx.m, d: mx.d };
+      var dim = dpDim(st.y, st.m);
+      if (st.d > dim) st.d = dim;
+    }
+    function items(c) {
+      var out = [];
+      if (c === 'd') { var n = dpDim(st.y, st.m); for (var i = 1; i <= n; i++) out.push({ v: i, t: ('0' + i).slice(-2) }); }
+      if (c === 'm') { for (var k = 0; k < 12; k++) out.push({ v: k, t: DP_MON[k] }); }
+      if (c === 'y') { for (var y = mn.y; y <= mx.y; y++) out.push({ v: y, t: String(y) }); }
+      return out;
+    }
+    /* একটি চাকা আঁকে; মানটি বদলালে শুধু নির্বাচিত ঘর হালকা হয় */
+    function build(c) {
+      var el = cols[c], list = items(c), cur = c === 'y' ? st.y : c === 'm' ? st.m : st.d;
+      el.innerHTML = '';
+      list.forEach(function (it) {
+        var d = document.createElement('div');
+        d.className = 'kh-dp-it';
+        d.textContent = it.t;
+        d.setAttribute('data-v', it.v);
+        d.setAttribute('role', 'option');
+        var test = c === 'd' ? { y: st.y, m: st.m, d: it.v } : c === 'm' ? { y: st.y, m: it.v, d: st.d } : { y: it.v, m: st.m, d: st.d };
+        if (dpCmp(test, mn) < 0 || dpCmp(test, mx) > 0) d.classList.add('is-off');
+        d.addEventListener('click', function () { select(c, it.v, true); });
+        el.appendChild(d);
+      });
+      mark(c);
+      var idx = list.findIndex(function (it) { return it.v === cur; });
+      el.scrollTop = Math.max(0, idx) * DP_ITEM;
+    }
+    function mark(c) {
+      var cur = c === 'y' ? st.y : c === 'm' ? st.m : st.d;
+      Array.prototype.forEach.call(cols[c].children, function (d) {
+        d.classList.toggle('is-sel', Number(d.getAttribute('data-v')) === cur);
+      });
+    }
+    function select(c, v, scroll) {
+      var next = { y: st.y, m: st.m, d: st.d };
+      if (c === 'y') next.y = v; else if (c === 'm') next.m = v; else next.d = v;
+      if (dpCmp(next, mn) < 0 || dpCmp(next, mx) > 0) return;   /* সীমার বাইরে — বদলাবে না */
+      var oldDim = dpDim(st.y, st.m);
+      st = next;
+      var newDim = dpDim(st.y, st.m);
+      if (oldDim !== newDim || c !== 'd') {
+        var keepD = st.d;
+        if (st.d > newDim) st.d = newDim;
+        if (keepD !== st.d || oldDim !== newDim) build('d');
+      }
+      mark('d'); mark('m'); mark('y');
+      if (scroll) {
+        var list = cols[c].children;
+        for (var i = 0; i < list.length; i++) {
+          if (Number(list[i].getAttribute('data-v')) === v) { dpGo(cols[c], i * DP_ITEM); break; }
+        }
+      }
+    }
+    /* স্ক্রল থামলে নির্বাচন পড়া */
+    function onScroll(c) {
+      clearTimeout(timers[c]);
+      timers[c] = setTimeout(function () {
+        var list = cols[c].children;
+        var i = Math.round(cols[c].scrollTop / DP_ITEM);
+        i = Math.max(0, Math.min(list.length - 1, i));
+        var it = list[i];
+        if (!it) return;
+        var v = Number(it.getAttribute('data-v'));
+        if (it.classList.contains('is-off')) {
+          /* সীমার বাইরের ঘরে থামলে সীমার কাছের ঘরে ফেরানো */
+          var c2 = c === 'y' ? st.y : c === 'm' ? st.m : st.d;
+          var back = Array.prototype.findIndex.call(list, function (x) { return Number(x.getAttribute('data-v')) === c2; });
+          dpGo(cols[c], Math.max(0, back) * DP_ITEM);
+          return;
+        }
+        if (c === 'y' && v !== st.y) select('y', v, false);
+        else if (c === 'm' && v !== st.m) select('m', v, false);
+        else if (c === 'd' && v !== st.d) select('d', v, false);
+      }, 110);
+    }
+    ['d', 'm', 'y'].forEach(function (c) {
+      cols[c].addEventListener('scroll', function () { onScroll(c); }, { passive: true });
+      cols[c].addEventListener('keydown', function (e) {
+        var k = e.key;
+        if (k === 'ArrowUp' || k === 'ArrowDown') {
+          e.preventDefault();
+          var cur = c === 'y' ? st.y : c === 'm' ? st.m : st.d;
+          var list = items(c), idx = list.findIndex(function (x) { return x.v === cur; });
+          var n = list[Math.max(0, Math.min(list.length - 1, idx + (k === 'ArrowUp' ? -1 : 1)))];
+          if (n) select(c, n.v, true);
+        }
+      });
+    });
+    ['d', 'm', 'y'].forEach(build);
+    ov.querySelector('.kh-dp-ok').addEventListener('click', function () {
+      clampSt();
+      close();
+      if (typeof opts.onPick === 'function') opts.onPick(dpIso(st));
+    });
+    function onKey(e) {
+      if (e.key === 'Escape') close();
+      if (e.key === 'Enter' && document.activeElement && document.activeElement.classList.contains('kh-dp-ok')) { ov.querySelector('.kh-dp-ok').click(); }
+    }
+    function close() {
+      document.removeEventListener('keydown', onKey, true);
+      ov.remove();
+      if (prevFocus && prevFocus.focus) { try { prevFocus.focus({ preventScroll: true }); } catch (e) {} }
+    }
+    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
+    document.addEventListener('keydown', onKey, true);
+    setTimeout(function () { ov.querySelector('.kh-dp-ok').focus({ preventScroll: true }); }, 60);
+    return { close: close };
+  };
+
+  /* একটি ঘরকে তারিখ-বাছাই ঘরে বদলায় (দুবার বদলাবে না) */
+  KHUI._dpBind = function (inp) {
+    if (!inp || inp.getAttribute('data-kh-dp') === '1') return;
+    inp.setAttribute('data-kh-dp', '1');
+    var mn = inp.getAttribute('min') || inp.getAttribute('data-kh-min') || '';
+    var mx = inp.getAttribute('max') || inp.getAttribute('data-kh-max') || '';
+    var start = inp.value || '';
+    var lbl = inp.id ? document.querySelector('label[for="' + inp.id + '"]') : null;
+    var title = inp.getAttribute('data-kh-title') || (lbl ? lbl.textContent.trim() : 'তারিখ');
+    var nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+    var iso = '';
+    inp.type = 'text';
+    inp.readOnly = true;
+    inp.setAttribute('autocomplete', 'off');
+    inp.setAttribute('inputmode', 'none');
+    inp.setAttribute('placeholder', 'DD / MM / YYYY');
+    inp.removeAttribute('min');
+    inp.removeAttribute('max');
+    Object.defineProperty(inp, 'value', {
+      configurable: true,
+      get: function () { return iso; },
+      set: function (v) {
+        var p = dpParse(v);
+        iso = p ? dpIso(p) : '';
+        nativeSet.call(inp, p ? dpLabel(p) : '');
+      }
+    });
+    inp.value = start;
+    inp.addEventListener('click', function () {
+      if (inp.disabled) return;
+      KHUI.datePicker({
+        value: iso, min: mn, max: mx, title: title,
+        onPick: function (v) {
+          inp.value = v;
+          inp.dispatchEvent(new Event('input', { bubbles: true }));
+          inp.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') { e.preventDefault(); inp.click(); }
+    });
+  };
+
+  KHUI.enhanceDates = function (root) {
+    root = root || document;
+    root.querySelectorAll('input[type="date"], input[data-kh-date]').forEach(function (inp) {
+      KHUI._dpBind(inp);
+    });
+  };
+
+  /* নতুন করে বানানো ঘরও (টেবিলের ভেতরের তারিখ) ধরা পড়বে */
+  KHUI._watchDates = function () {
+    if (!window.MutationObserver) return;
+    var pending = null;
+    var mo = new MutationObserver(function () {
+      clearTimeout(pending);
+      pending = setTimeout(function () { KHUI.enhanceDates(document); }, 60);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    KHUI._dateObserver = mo;
+  };
+
+  /* ════════════════════════════════════════════════════════
+     🔐 ২FA — সঞ্চয় উত্তোলন ও স্থানান্তরে ফিঙ্গারপ্রিন্ট / ফেস আনলক
+     (ব্রাউজারের প্ল্যাটফর্ম অথেন্টিকেটর — WebAuthn)। ফেস/ফিঙ্গারপ্রিন্টের তথ্য ডিভাইসেই থাকে;
+     সার্ভারে যায় কেবল স্বাক্ষর। ক্লায়েন্ট নিজে কখনো অনুমোদন দেয় না: kh-2fa যাচাই করে,
+     তারপর লেনদেনের RPC একবারের চ্যালেঞ্জ খরচ করে।
+     ════════════════════════════════════════════════════════ */
+  var TF_FN = 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1/kh-2fa';
+  function tfBytesToStr(buf) { var b = new Uint8Array(buf), s = ''; for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return s; }
+  function tfB64u(buf) { return btoa(tfBytesToStr(buf)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function tfB64(buf) { return btoa(tfBytesToStr(buf)); }
+  function tfFromB64u(s) {
+    var t = String(s).replace(/-/g, '+').replace(/_/g, '/');
+    while (t.length % 4) t += '=';
+    var bin = atob(t), u = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    return u.buffer;
+  }
+  KHUI.twoFA = {
+    available: async function () {
+      try {
+        return !!(window.PublicKeyCredential && navigator.credentials &&
+          await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+      } catch (e) { return false; }
+    },
+    // নতুন ব্রাউজার/ডিভাইস যুক্ত করা (প্রথমবার বা অন্য ডিভাইসে)
+    enroll: async function () {
+      if (!(await this.available())) {
+        throw new Error('এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা ফেস আনলক পাওয়া যায়নি। ফোন/কম্পিউটারের নিরাপত্তা সেটিংসে চালু করে আবার চেষ্টা করুন।');
+      }
+      var db = KHUI.db();
+      var sess = (await db.auth.getSession()).data.session;
+      if (!sess) throw new Error('আগে লগইন করুন।');
+      var cred = await navigator.credentials.create({ publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { id: location.hostname, name: 'কর্জে হাসানা' },
+        user: { id: new TextEncoder().encode(sess.user.id), name: sess.user.email || sess.user.id, displayName: 'কর্জে হাসানা সদস্য' },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },
+        attestation: 'none',
+        timeout: 60000
+      } });
+      var r = cred.response;
+      var spki = r.getPublicKey ? r.getPublicKey() : null;
+      if (!spki) throw new Error('ব্রাউজার এই ডিভাইসের চাবি দিতে পারেনি। নতুন সংস্করণের ব্রাউজার ব্যবহার করুন।');
+      var alg = r.getPublicKeyAlgorithm ? r.getPublicKeyAlgorithm() : -7;
+      var res = await db.rpc('register_auth_factor', {
+        p_kind: 'webauthn', p_credential_id: tfB64u(cred.rawId), p_public_key: tfB64(spki),
+        p_alg: alg, p_label: (navigator.userAgent || '').slice(0, 60)
+      });
+      if (res.error || !res.data || res.data.ok === false) {
+        throw new Error((res.error && res.error.message) || (res.data && res.data.error) || 'ডিভাইস যুক্ত করা যায়নি।');
+      }
+      return true;
+    },
+    // উত্তোলন/স্থানান্তরের আগে: চ্যালেঞ্জ ইস্যু → বায়োমেট্রিক → যাচাই → চ্যালেঞ্জ-আইডি
+    confirm: async function (opt) {
+      var db = KHUI.db();
+      var st = await db.rpc('auth_factor_status');
+      if (!(st.data && st.data.enrolled)) {
+        await this.enroll();
+      }
+      var iss = await db.rpc('issue_2fa_challenge', {
+        p_purpose: opt.purpose, p_account: opt.account, p_amount: opt.amount,
+        p_target: opt.target || null, p_repayment_id: opt.repayment_id || null
+      });
+      if (iss.error) throw new Error(iss.error.message);
+      var d = iss.data || {};
+      if (d.ok === false) throw new Error(d.error || '২FA চালু করা যায়নি।');
+      var list = (d.factors || []).filter(function (f) { return f.kind === 'webauthn'; });
+      if (!list.length) throw new Error('এই ব্রাউজারে ২FA যুক্ত নেই। এই ডিভাইসে আবার চেষ্টা করুন।');
+      var a;
+      try {
+        a = await navigator.credentials.get({ publicKey: {
+          challenge: tfFromB64u(d.challenge),
+          allowCredentials: list.map(function (f) { return { type: 'public-key', id: tfFromB64u(f.credential_id) }; }),
+          userVerification: 'required',
+          timeout: 60000
+        } });
+      } catch (e) {
+        throw new Error('যাচাই বাতিল হয়েছে বা সময় শেষ। ফিঙ্গারপ্রিন্ট/ফেস দিয়ে আবার চেষ্টা করুন।');
+      }
+      var sess = (await db.auth.getSession()).data.session;
+      var resp = await fetch(TF_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sess.access_token, 'apikey': db.supabaseKey || '' },
+        body: JSON.stringify({
+          action: 'verify', challenge_id: d.challenge_id, kind: 'webauthn',
+          credential_id: tfB64u(a.rawId),
+          client_data_json: tfB64u(a.response.clientDataJSON),
+          authenticator_data: tfB64u(a.response.authenticatorData),
+          signature: tfB64u(a.response.signature)
+        })
+      });
+      var j = await resp.json().catch(function () { return {}; });
+      if (!resp.ok || !j.ok) throw new Error(j.error || '২FA যাচাই ব্যর্থ — আবার চেষ্টা করুন।');
+      return d.challenge_id;
+    }
+  };
+
   function boot() {
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
@@ -6316,6 +6830,8 @@
     KHUI.enhanceEmails(document);
     KHUI.makeTablesScrollable(document);
     KHUI._watchTables();
+    KHUI.enhanceDates(document);
+    KHUI._watchDates();
     /* অ্যাডমিন প্যানেলে দরকার নেই — পেজে data-kh-visits="off" দিলে বাদ যাবে */
     if (document.body.dataset.khVisits !== 'off') KHUI.mountVisitorCounter();
     /* লাইভ ড্যাশবোর্ড — পেজে `#khStats` ঘর থাকলেই বসে */
@@ -6339,6 +6855,8 @@
       setTimeout(function () { KHUI.mountSignatureReminder(); }, 1400);
     }
     KHUI.startPresence();
+    /* সেশন নিরাপত্তা: একক-সক্রিয় ডিভাইস + নিষ্ক্রিয়তায় লগআউট (লগইন না থাকলে নিজেই ফেরে) */
+    if (document.body.dataset.khSession !== 'off') KHUI.startSessionGuard();
 
     /* পেজে data-kh-requires থাকলে অতিথিকে সাইন আপে পাঠানো */
     var need = document.body.dataset.khRequires;
