@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=61">
+  <link rel="stylesheet" href="kh-ui.css?v=63">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -472,14 +472,25 @@
   </section>
 
   <section class="ss-card">
-    <h3>২. কী করতে চান?</h3>
-    <div class="ss-seg" role="radiogroup" aria-label="স্থানান্তরের ধরন">
+    <div class="ss-seg" role="radiogroup" aria-label="কাজের ধরন">
+      <button type="button" class="ss-seg-btn" data-tab="transfer" aria-checked="true" onclick="ssSetTab('transfer')">স্থানান্তর</button>
+      <button type="button" class="ss-seg-btn" data-tab="new" aria-checked="false" onclick="ssSetTab('new')">নতুন সঞ্চয় হিসাব</button>
+    </div>
+    <h3 id="ssStepTitle">২. কী করতে চান?</h3>
+    <div class="ss-seg" id="ssModeSeg" role="radiogroup" aria-label="স্থানান্তরের ধরন">
       <button type="button" class="ss-seg-btn" data-mode="donation" onclick="ssSetMode('donation')">দান</button>
       <button type="button" class="ss-seg-btn" data-mode="deposit" onclick="ssSetMode('deposit')">সঞ্চয়ে জমা</button>
       <button type="button" class="ss-seg-btn" data-mode="loan" onclick="ssSetMode('loan')">ঋণ পরিশোধ</button>
     </div>
     <div id="ssBody" class="ss-body"></div>
+    <div id="ssNewPayHost" style="display:none;margin-top:12px"></div>
     <div class="msg-box" id="ssMsg"></div>
+    <div id="ssPostOpen" class="ss-muted" style="display:none;margin:10px 0">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn-primary" onclick="ssPostOpenPay()"><i class="ti ti-lock"></i> এখনই পরিশোধ করুন</button>
+        <button type="button" class="ss-seg-btn" onclick="ssPostOpenDone()">পরে দেব</button>
+      </div>
+    </div>
     <button class="btn-primary" id="ssBtn" type="button" onclick="ssSubmit()"><i class="ti ti-check"></i> <span id="ssBtnTxt">দানে স্থানান্তর করুন</span></button>
   </section>
 </main>
@@ -514,7 +525,7 @@
 <script>
 /* সেলফ সার্ভিস — নিয়ম সার্ভারে বাঁধা (self_transfer RPC)। এই পাতা শুধু দেখায় ও পাঠায়;
    কোনো অঙ্ক এখানে কষা হয় না। উৎস সবসময় নিজের সঞ্চয় হিসাব। */
-var SS = { accounts: [], acc: null, others: [], loans: [], loanId: null, target: null, mode: 'donation', payMode: 'next', busy: false };
+var SS = { accounts: [], acc: null, others: [], loans: [], loanId: null, target: null, mode: 'donation', payMode: 'next', busy: false, tab: 'transfer' };
 var SS_SCHEME = { daily: 'দৈনিক', fortnightly: 'পাক্ষিক', monthly: 'মাসিক', flexible: 'যখন খুশি' };
 
 function ssEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
@@ -583,6 +594,9 @@ function ssAmtInput() {
 }
 
 function ssRenderBody() {
+  if (SS.tab === 'new') { ssRenderNew(); return; }
+  document.getElementById('ssModeSeg').style.display = '';
+  document.getElementById('ssStepTitle').textContent = '২. কী করতে চান?';
   var body = document.getElementById('ssBody');
   var btns = document.querySelectorAll('.ss-seg-btn');
   btns.forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-mode') === SS.mode)); });
@@ -647,7 +661,215 @@ function ssValidate(amount) {
   return null;
 }
 
+var SS_NOM_MAX = 5;
+var SS_NEW = { fund: 'transfer', scheme: 'monthly', inst: '', amt: '', noms: [{ full_name: '', relation: '', mobile: '', share: '100' }] };
+
+function ssSetTab(t) {
+  SS.tab = t; ssMsg('', '');
+  document.querySelectorAll('[data-tab]').forEach(function (b) { b.setAttribute('aria-checked', String(b.getAttribute('data-tab') === t)); });
+  document.getElementById('ssBtnTxt').textContent = t === 'new' ? 'হিসাব খুলুন ও জমা দিন' : 'দানে স্থানান্তর করুন';
+  ssRenderBody();
+  ssSyncPayHost();
+}
+
+var SS_PAY = null, SS_PENDING_ID = null;
+function ssNewAmt() { return parseInt(String(SS_NEW.amt).replace(/\D/g, ''), 10) || 0; }
+function ssNewPlanned() { return SS_NEW.scheme === 'flexible' ? ssNewAmt() : (parseInt(SS_NEW.inst, 10) || 0); }
+function ssSyncPayHost() {
+  var h = document.getElementById('ssNewPayHost');
+  if (h) h.style.display = (SS.tab === 'new' && SS_NEW.fund === 'pay') ? '' : 'none';
+}
+async function mountSsNewPay() {
+  if (SS_PAY || !window.KHUI || !KHUI.payPicker) return;
+  var host = document.getElementById('ssNewPayHost');
+  if (!host) return;
+  try {
+    SS_PAY = await KHUI.payPicker(host, {
+      title: 'প্রাথমিক জমা কীভাবে দিতে চান?',
+      purpose: 'savings',
+      amount: function () { return ssNewPlanned(); },
+      payload: function () { return { account_id: SS_PENDING_ID }; },
+      payerName: function () { return (SS.acc && (SS.acc.holder_name || SS.acc.account_no)) || 'সদস্য'; }
+    });
+  } catch (e) { SS_PAY = null; }
+}
+
+function ssRenderNew() {
+  var body = document.getElementById('ssBody');
+  document.getElementById('ssModeSeg').style.display = 'none';
+  document.getElementById('ssStepTitle').textContent = '২. নতুন হিসাবের তথ্য';
+  var n = SS_NEW;
+  document.getElementById('ssBtnTxt').textContent =
+    n.fund === 'later' ? 'হিসাব খুলুন' : (n.fund === 'pay' ? 'হিসাব খুলুন ও জমা দিন' : 'হিসাব খুলুন ও স্থানান্তর করুন');
+  var schemes = [['daily','দৈনিক','প্রতিদিন নির্দিষ্ট অঙ্ক'],['fortnightly','পাক্ষিক','প্রতি ১৫ দিনে'],['monthly','মাসিক','প্রতি মাসে নির্দিষ্ট অঙ্ক'],['flexible','যখন খুশি','যখন ইচ্ছা জমা']];
+  var h = '<div class="ss-list">' + schemes.map(function (s) {
+    var on = n.scheme === s[0];
+    return '<button type="button" class="ss-choice" role="radio" aria-checked="' + on + '" onclick="ssNewScheme(\'' + s[0] + '\')"><b>' + s[1] + '</b><span>' + s[2] + '</span></button>';
+  }).join('') + '</div>';
+  if (n.scheme !== 'flexible') h += '<label class="ss-lbl">কিস্তির পরিমাণ (৳)</label><input class="ss-amt" type="number" inputmode="numeric" min="1" step="1" value="' + ssEsc(n.inst) + '" oninput="SS_NEW.inst=this.value">';
+
+  h += '<h4 class="ss-sub2">প্রাথমিক জমা</h4>';
+  var funds = [
+    ['transfer', 'নিজের সঞ্চয় হিসাব থেকে স্থানান্তর', 'উৎস: ' + (SS.acc ? SS.acc.account_no + ' · উপলব্ধ ' + ssTaka(ssBalance(SS.acc)) : '—') + ' · ২FA দিয়ে নিশ্চিত হবে'],
+    ['pay', 'এখনই জমা দিন — যেকোনো মাধ্যমে', 'নগদ, বিকাশ, নগদ, রকেট, উপায়, বাংলা কিউআর, ব্যাংক বা পেমেন্ট গেটওয়ে'],
+    ['later', 'এখন নয়', 'হিসাব খুলে পরে জমা দেব']
+  ];
+  h += '<div class="ss-list" role="radiogroup" aria-label="প্রাথমিক জমা">' + funds.map(function (f) {
+    return '<button type="button" class="ss-choice" role="radio" aria-checked="' + (n.fund === f[0]) + '" onclick="ssNewFund(\'' + f[0] + '\')"><b>' + f[1] + '</b><span>' + ssEsc(f[2]) + '</span></button>';
+  }).join('') + '</div>';
+  if (n.fund === 'transfer' || (n.fund === 'pay' && n.scheme === 'flexible')) {
+    h += '<label class="ss-lbl">প্রাথমিক জমার পরিমাণ (৳)</label><input id="ssAmt" class="ss-amt" type="number" inputmode="numeric" min="1" step="1" value="' + ssEsc(n.amt) + '" oninput="SS_NEW.amt=this.value" placeholder="যেমন ৫০০">';
+  } else if (n.fund === 'pay') {
+    h += '<div class="ss-muted">প্রথম জমা: ' + (parseInt(n.inst, 10) ? ssTaka(n.inst) + ' (কিস্তি — স্কীম অনুযায়ী লক করা)' : 'উপরে কিস্তির পরিমাণ লিখুন') + '</div>';
+    h += '<div class="ss-muted">নিচের মাধ্যম বেছে নিন — হিসাব খোলার পর জমা এই মাধ্যমেই যাবে।</div>';
+  }
+
+  h += '<h4 class="ss-sub2">নমিনি (১–' + SS_NOM_MAX + ' জন, অংশের যোগফল ১০০%)</h4>';
+  n.noms.forEach(function (x, i) {
+    h += '<div class="ss-nom"><div class="ss-nom-head"><b>নমিনি ' + (i + 1) + '</b>' +
+      (n.noms.length > 1 ? '<button type="button" class="ss-link" onclick="ssNomDel(' + i + ')">সরান</button>' : '') + '</div>' +
+      '<input class="ss-amt" placeholder="পূর্ণ নাম" value="' + ssEsc(x.full_name) + '" oninput="SS_NEW.noms[' + i + '].full_name=this.value">' +
+      '<input class="ss-amt" placeholder="সম্পর্ক (যেমন স্ত্রী, পুত্র)" value="' + ssEsc(x.relation) + '" oninput="SS_NEW.noms[' + i + '].relation=this.value">' +
+      '<input class="ss-amt" type="tel" placeholder="মোবাইল নম্বর" value="' + ssEsc(x.mobile) + '" oninput="SS_NEW.noms[' + i + '].mobile=this.value">' +
+      '<input class="ss-amt" type="number" placeholder="অংশ (%)" value="' + ssEsc(x.share) + '" oninput="SS_NEW.noms[' + i + '].share=this.value"></div>';
+  });
+  h += '<div class="ss-seg">' + (n.noms.length < SS_NOM_MAX ? '<button type="button" class="ss-seg-btn" onclick="ssNomAdd()">নমিনি যোগ করুন</button>' : '') +
+       (n.noms.length > 1 ? '<button type="button" class="ss-seg-btn" onclick="ssNomSplit()">সমান ভাগ</button>' : '') + '</div>';
+  body.innerHTML = h;
+  ssSyncPayHost();
+}
+
+function ssNewScheme(s) { SS_NEW.scheme = s; ssRenderNew(); }
+function ssNewFund(f) { SS_NEW.fund = f; ssMsg('', ''); ssRenderNew(); }
+function ssNomAdd() { if (SS_NEW.noms.length < SS_NOM_MAX) { SS_NEW.noms.push({ full_name: '', relation: '', mobile: '', share: '0' }); ssRenderNew(); } }
+function ssNomDel(i) { if (SS_NEW.noms.length > 1) { SS_NEW.noms.splice(i, 1); ssRenderNew(); } }
+function ssNomSplit() {
+  var n = SS_NEW.noms.length, base = Math.floor(10000 / n) / 100;
+  SS_NEW.noms.forEach(function (x, k) { x.share = String(k === n - 1 ? Math.round((100 - base * (n - 1)) * 100) / 100 : base); });
+  ssRenderNew();
+}
+
+function ssNewValidate() {
+  var n = SS_NEW, amt = ssNewAmt();
+  if (n.fund === 'transfer') {
+    if (amt < 1) return 'প্রাথমিক জমার অঙ্ক লিখুন (কমপক্ষে ১ টাকা)।';
+    if (SS.acc && amt > ssBalance(SS.acc)) return 'হিসাবে পর্যাপ্ত স্থিতি নেই।';
+  }
+  if (n.fund === 'pay') {
+    if (!SS_PAY) return 'টাকা দেওয়ার মাধ্যমের তালিকা এখনো আসেনি — একটু পরে আবার দেখুন।';
+    if (SS_PAY.empty) return 'টাকা পাঠানোর কোনো মাধ্যম চালু নেই — ফাউন্ডেশনের সাথে যোগাযোগ করুন।';
+    if (n.scheme === 'flexible' && amt < 1) return 'প্রাথমিক জমার অঙ্ক লিখুন (কমপক্ষে ১ টাকা)।';
+  }
+  if (n.scheme !== 'flexible') { var iv = parseInt(n.inst, 10); if (!iv || iv <= 0) return 'কিস্তির পরিমাণ পূর্ণ সংখ্যায় লিখুন (যেমন ৫০০)।'; }
+  for (var i = 0; i < n.noms.length; i++) {
+    var x = n.noms[i];
+    if (!String(x.full_name).trim()) return 'প্রতিটি নমিনির নাম লিখুন।';
+    if (!String(x.relation).trim()) return 'প্রতিটি নমিনির সাথে সম্পর্ক লিখুন।';
+    if (String(x.mobile).replace(/\D/g, '').length < 10) return 'নমিনির সঠিক মোবাইল নম্বর লিখুন।';
+    var s = parseFloat(x.share);
+    if (!(s > 0 && s <= 100)) return 'নমিনির অংশ ০ থেকে ১০০-এর মধ্যে হতে হবে।';
+  }
+  var sum = Math.round(n.noms.reduce(function (a, x) { return a + (parseFloat(x.share) || 0); }, 0) * 100) / 100;
+  if (sum !== 100) return 'সব নমিনির অংশের যোগফল ১০০ হতে হবে (এখন ' + sum + '%)।';
+  return null;
+}
+
+function ssNomList() {
+  return SS_NEW.noms.map(function (x) {
+    return { full_name: String(x.full_name).trim(), relation: String(x.relation).trim(), mobile: String(x.mobile).replace(/\D/g, ''), share: parseFloat(x.share) };
+  });
+}
+function ssNewDone(text, type) {
+  SS.busy = false; document.getElementById('ssBtn').disabled = false;
+  ssMsg(text, type || 'success');
+  SS_NEW = { fund: SS_NEW.fund, scheme: 'monthly', inst: '', amt: '', noms: [{ full_name: '', relation: '', mobile: '', share: '100' }] };
+  SS_PENDING_ID = null;
+  if (SS_PAY && SS_PAY.reset) SS_PAY.reset();
+  ssLoadAccounts().then(function () { return ssLoadLoans(); }).then(function () { ssRenderNew(); });
+}
+
+async function ssSubmitNewTransfer(btn) {
+  var n = SS_NEW, amount = ssNewAmt();
+  ssMsg('২FA যাচাই চলছে…', 'info');
+  var chId;
+  try {
+    chId = await KHUI.twoFA.confirm({ self: true, account: SS.acc.id, amount: amount, kind: 'new_account', target_ref: null });
+  } catch (e) { SS.busy = false; btn.disabled = false; ssMsg((e && e.message) || '২FA যাচাই হয়নি।', 'error'); return; }
+  ssMsg('হিসাব খোলা হচ্ছে…', 'info');
+  var r = await _db.rpc('self_transfer', {
+    p_from: SS.acc.id, p_kind: 'new_account', p_amount: amount, p_challenge: chId,
+    p_target_account: null, p_loan_id: null,
+    p_scheme: n.scheme, p_instalment: n.scheme === 'flexible' ? null : parseInt(n.inst, 10),
+    p_nominees: ssNomList()
+  });
+  if (r.error) { SS.busy = false; btn.disabled = false; ssMsg(r.error.message || 'হিসাব খোলা যায়নি।', 'error'); return; }
+  ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + ((r.data || {}).account_no || '') + ' · ' + ssTaka(amount), 'success');
+}
+
+function ssPostOpenPay() { if (SS_PAY && SS_PENDING_ID) SS_PAY.pay(); }
+function ssPostOpenDone() {
+  document.getElementById('ssPostOpen').style.display = 'none';
+  ssNewDone('', 'info');
+}
+
+/* ক্রম: যাচাই → হিসাব খোলা → (পেমেন্ট থাকলে) জমা। জমার ব্যর্থতায় হিসাব খোলা থাকে,
+   সেটি স্পষ্ট করে জানানো হয় — সদস্য হিসাবের পাতা থেকে আবার জমা দিতে পারেন। */
+async function ssSubmitNew() {
+  if (SS.busy) return;
+  var err = ssNewValidate();
+  if (err) { ssMsg(err, 'error'); return; }
+  var n = SS_NEW, pay = null, online = false;
+  if (n.fund === 'pay') {
+    online = SS_PAY.online();
+    if (!online) {
+      pay = SS_PAY.validate();
+      if (!pay) { ssMsg('টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন।', 'error'); return; }
+    }
+  }
+  var btn = document.getElementById('ssBtn');
+  SS.busy = true; btn.disabled = true;
+  if (n.fund === 'transfer') return ssSubmitNewTransfer(btn);
+
+  ssMsg('হিসাব খোলা হচ্ছে…', 'info');
+  var r;
+  try {
+    r = await _db.rpc('open_savings_account', {
+      p_scheme: n.scheme, p_instalment: n.scheme === 'flexible' ? null : parseInt(n.inst, 10),
+      p_withdrawal_method: null, p_withdrawal_account: null, p_withdrawal_bank: null,
+      p_nominees: ssNomList()
+    });
+  } catch (e) { r = { error: e }; }
+  if (r.error || !r.data || r.data.ok === false) {
+    SS.busy = false; btn.disabled = false;
+    ssMsg((r.error && r.error.message) || (r.data && r.data.error) || 'হিসাব খোলা যায়নি।', 'error');
+    return;
+  }
+  var id = r.data.id, no = r.data.account_no;
+  if (n.fund === 'later') return ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + no + '। জমা পরে দিতে পারবেন।', 'success');
+
+  if (online) {
+    /* গেটওয়ে খুলতে ব্রাউজারের ক্লিক দরকার — বোতাম সদস্যের হাতে; ফর্ম ততক্ষণ বন্ধ থাকে */
+    SS_PENDING_ID = id;
+    ssMsg('হিসাব খোলা হয়েছে — ' + no + '। প্রাথমিক জমা এখনই পরিশোধ করতে নিচের বোতাম চাপুন।', 'success');
+    document.getElementById('ssPostOpen').style.display = '';
+    return;
+  }
+  var d;
+  try {
+    d = await _db.rpc('deposit_to_savings', {
+      p_account: id, p_reference: pay.reference, p_notes: null,
+      p_amount: n.scheme === 'flexible' ? ssNewPlanned() : null, p_method: pay.method
+    });
+  } catch (e) { d = { error: e }; }
+  if (d.error || (d.data && d.data.ok === false)) {
+    var why = (d.error && d.error.message) || (d.data && d.data.error) || '';
+    return ssNewDone('হিসাব খোলা হয়েছে — ' + no + '। তবে জমার রেকর্ড হয়নি' + (why ? ' (' + why + ')' : '') + ' — হিসাবের পাতা থেকে আবার জমা দিন।', 'error');
+  }
+  ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + no + ' · জমার অনুরোধ পাঠানো হয়েছে, অনুমোদনের পর স্থিতি হালনাগাদ হবে।', 'success');
+}
+
 async function ssSubmit() {
+  if (SS.tab === 'new') return ssSubmitNew();
   if (SS.busy) return;
   var amount = ssRound2(ssAmount());
   var err = ssValidate(amount);
@@ -688,6 +910,7 @@ async function ssSubmit() {
 
 document.addEventListener('DOMContentLoaded', async function () {
   ssSetMode('donation');
+  mountSsNewPay();
   await ssLoadAccounts();
   await ssLoadLoans();
   SS.others = SS.accounts.filter(function (a) { return SS.acc && a.id !== SS.acc.id; });
@@ -703,6 +926,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   <div style="margin-top:12px;opacity:.5;font-size:12.5px;">© 2024–2026 কর্জে হাসানা ফাউন্ডেশন · সর্বস্বত্ব সংরক্ষিত</div>
 </footer>
 
-<script src="kh-ui.js?v=61"></script>
+<script src="kh-ui.js?v=63"></script>
 </body>
 </html>
