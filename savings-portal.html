@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=60">
+  <link rel="stylesheet" href="kh-ui.css?v=63">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
 
@@ -1044,6 +1044,13 @@
         </div>
 
         <div class="msg-box" id="naMsg"></div>
+        <div id="naPostOpen" class="kh-hint" style="display:none;margin:10px 0">
+          <p id="naPostOpenTxt" style="margin:0 0 8px"></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn-primary" onclick="naPostOpenPay()"><i class="ti ti-lock"></i> এখনই পরিশোধ করুন</button>
+            <button type="button" class="nom-btn" onclick="naPostOpenDone(true)">পরে দেব — হিসাব দেখুন</button>
+          </div>
+        </div>
 
         <div class="form-group">
           <label>আমানত স্কীম <span style="color:red">*</span></label>
@@ -1059,13 +1066,35 @@
           <label>প্রতি মাসের নির্ধারিত কিস্তি (৳) <span style="color:red">*</span></label>
           <div class="amount-input-wrap">
             <span class="taka-prefix">৳</span>
-            <input type="number" id="naInst" placeholder="যেমন ১০০০" min="10" step="10" inputmode="numeric">
+            <input type="number" id="naInst" placeholder="যেমন ১০০০" min="10" step="10" inputmode="numeric" oninput="naRefreshFundNote()">
           </div>
           <p class="kh-hint" style="margin:8px 0 0">
             <i class="ti ti-lock" style="color:#7048e8"></i>
             জমা দেওয়ার সময় এই অঙ্কই বসবে — কম-বেশি করা যাবে না। হিসাব খোলার পর এটি আর বদলায় না।
           </p>
         </div>
+
+        <div class="form-group">
+          <label>প্রাথমিক জমা <span style="color:red">*</span></label>
+          <select id="naFund" onchange="naSyncFund()">
+            <option value="later">এখন নয় — পরে জমা দেব</option>
+            <option value="pay">এখনই জমা দিন — যেকোনো মাধ্যমে</option>
+          </select>
+          <p class="kh-hint" style="margin:8px 0 0">
+            নগদ, বিকাশ, নগদ, রকেট, উপায়, বাংলা কিউআর, ব্যাংক, কার্ড বা পেমেন্ট গেটওয়ে — যেভাবে খুশি দিতে পারেন।
+            নগদে রেফারেন্স লাগে না; ম্যানুয়াল মাধ্যমে TrxID বা রেফারেন্স লিখতে হয়। অনুমোদনের পর হিসাব চালু হবে।
+            নিজের অন্য সঞ্চয় হিসাব থেকে স্থানান্তরে খুলতে চাইলে <a href="self-service.html">সেলফ সার্ভিস → নতুন সঞ্চয় হিসাব</a> ব্যবহার করুন।
+          </p>
+        </div>
+        <div class="form-group" id="naFundAmtBox" style="display:none">
+          <label>প্রাথমিক জমার পরিমাণ (৳)</label>
+          <div class="amount-input-wrap">
+            <span class="taka-prefix">৳</span>
+            <input type="number" id="naFundAmt" placeholder="যেমন ৫০০" min="1" step="1" inputmode="numeric">
+          </div>
+        </div>
+        <p class="kh-hint" id="naFundInstNote" style="display:none"></p>
+        <div id="naPayHost" style="display:none;margin-bottom:14px"></div>
 
         <div class="form-group">
           <label>উত্তোলনের মাধ্যম <span style="color:red">*</span></label>
@@ -1837,8 +1866,9 @@ async function loadHeroStats() {
   loadHeroStats();
   /* ⚠️ `kh-ui.js` `</body>`-এর আগে লোড হয়, তাই এই IIFE-র সময় KHUI
      থাকতে পারে আবার না-ও পারে — দুই দিক সামলানো হয়েছে। */
-  if (window.KHUI) mountDepositPay();
-  else window.addEventListener('load', mountDepositPay);
+  var mountAllPay = function () { mountDepositPay(); mountNewAccountPay(); };
+  if (window.KHUI) mountAllPay();
+  else window.addEventListener('load', mountAllPay);
   const { data: { session } } = await _db.auth.getSession();
   if(session?.user) {
     await loadPortal(session.user);
@@ -2700,6 +2730,7 @@ function naSyncScheme() {
   var s = document.getElementById('naScheme');
   var b = document.getElementById('naInstBox');
   if (s && b) b.style.display = (s.value === 'flexible') ? 'none' : '';
+  naSyncFund();
 }
 function naSyncMethod() {
   var m = document.getElementById('naMethod');
@@ -2719,12 +2750,66 @@ async function prefillNewAccountNominees() {
   paintNomineeForm('naNomList', list);
 }
 
+var NA_PAY = null, NA_PENDING_ID = null;
+async function mountNewAccountPay() {
+  if (NA_PAY || !window.KHUI || !KHUI.payPicker) return;
+  var host = document.getElementById('naPayHost');
+  if (!host) return;
+  try {
+    NA_PAY = await KHUI.payPicker(host, {
+      title: 'প্রাথমিক জমা কীভাবে দিতে চান?',
+      purpose: 'savings',
+      amount: function () { return naPlannedAmount(); },
+      payload: function () { return { account_id: NA_PENDING_ID }; },
+      payerName: function () { return 'সদস্য'; }
+    });
+  } catch (e) { NA_PAY = null; }
+}
+/* প্রথম জমা: কিস্তির হিসাবে স্কীম অনুযায়ী (সার্ভার লক করে); "যখন খুশি"তে সদস্যের লেখা অঙ্ক */
+function naPlannedAmount() {
+  var sch = document.getElementById('naScheme').value;
+  if (sch === 'flexible') return parseFloat(document.getElementById('naFundAmt').value || '0') || 0;
+  return parseFloat(document.getElementById('naInst').value || '0') || 0;
+}
+function naRefreshFundNote() {
+  var note = document.getElementById('naFundInstNote');
+  if (!note) return;
+  var pay = document.getElementById('naFund').value === 'pay';
+  var sch = document.getElementById('naScheme').value;
+  if (!pay || sch === 'flexible') { note.style.display = 'none'; return; }
+  var inst = parseFloat(document.getElementById('naInst').value || '0');
+  note.textContent = inst > 0 ? 'প্রথম জমা: ৳' + fmt(inst) + ' (কিস্তি — স্কীম অনুযায়ী লক করা)' : 'উপরে কিস্তির পরিমাণ লিখুন।';
+  note.style.display = '';
+}
+function naSyncFund() {
+  var pay = document.getElementById('naFund').value === 'pay';
+  var sch = document.getElementById('naScheme').value;
+  document.getElementById('naFundAmtBox').style.display = (pay && sch === 'flexible') ? '' : 'none';
+  document.getElementById('naPayHost').style.display = pay ? '' : 'none';
+  naRefreshFundNote();
+}
+function naShowPostOpen(no) {
+  var box = document.getElementById('naPostOpen'); if (!box) return;
+  document.getElementById('naPostOpenTxt').textContent = 'হিসাব ' + no + ' খোলা হয়েছে। প্রাথমিক জমা এখনই পরিশোধ করতে চাইলে নিচের বোতাম চাপুন।';
+  box.style.display = '';
+}
+function naPostOpenPay() { if (NA_PAY && NA_PENDING_ID) NA_PAY.pay(); }
+function naPostOpenDone(goAccount) {
+  document.getElementById('naPostOpen').style.display = 'none';
+  NA_PENDING_ID = null;
+  var btn = document.getElementById('naBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-folder-plus"></i> হিসাব খুলুন'; }
+  if (goAccount) showPanel('account');
+}
+
+/* ক্রম: যাচাই → (ম্যানুয়াল/নগদ হলে) হিসাব ও জমা একসাথে (অনুমোদন-অপেক্ষায়); গেটওয়ে হলে হিসাব খুলে বোতামে পরিশোধ */
 async function openNewAccount() {
   var scheme = document.getElementById('naScheme').value;
   var inst   = parseFloat(document.getElementById('naInst').value || '0');
   var method = document.getElementById('naMethod').value;
   var acct   = document.getElementById('naAccount').value.trim();
   var bank   = document.getElementById('naBank').value.trim();
+  var fund   = document.getElementById('naFund').value;
   var btn    = document.getElementById('naBtn');
 
   if (scheme !== 'flexible' && !(inst > 0)) {
@@ -2741,38 +2826,83 @@ async function openNewAccount() {
     return showMsg('naMsg', nom.error, 'error');
   }
 
+  var pay = null, online = false;
+  if (fund === 'pay') {
+    if (!NA_PAY) return showMsg('naMsg','টাকা দেওয়ার মাধ্যমের তালিকা এখনো আসেনি — একটু পরে আবার দেখুন।','error');
+    if (NA_PAY.empty) return showMsg('naMsg','টাকা পাঠানোর কোনো মাধ্যম চালু নেই — ফাউন্ডেশনের সাথে যোগাযোগ করুন।','error');
+    if (scheme === 'flexible' && !(naPlannedAmount() >= 1)) {
+      document.getElementById('naFundAmt').focus();
+      return showMsg('naMsg','প্রাথমিক জমার অঙ্ক লিখুন (কমপক্ষে ১ টাকা)।','error');
+    }
+    online = NA_PAY.online();
+    if (!online) {
+      pay = NA_PAY.validate();
+      if (!pay) return showMsg('naMsg','টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন (নগদে প্রয়োজন নেই)।','error');
+    }
+  }
+
+  var manual = fund === 'pay' && !online;
+  var holdBtn = false;
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i> খোলা হচ্ছে…'; }
   showMsg('naMsg','হিসাব খোলা হচ্ছে…','info');
   try {
     if (currentUser) {
       try { await uploadNomineePhotos(currentUser.id, 'naNomList'); nom = collectNominees('naNomList'); } catch (e) {}
     }
-    var r = await _db.rpc('open_savings_account', {
-      p_scheme: scheme,
-      p_instalment: scheme === 'flexible' ? null : inst,
-      p_withdrawal_method: method,
-      p_withdrawal_account: acct,
-      p_withdrawal_bank: method === 'bank' ? (bank || null) : null,
-      p_nominees: nom.list
-    });
+    var r;
+    if (manual) {
+      r = await _db.rpc('open_savings_account_with_deposit', {
+        p_scheme: scheme,
+        p_instalment: scheme === 'flexible' ? null : inst,
+        p_withdrawal_method: method,
+        p_withdrawal_account: acct,
+        p_withdrawal_bank: method === 'bank' ? (bank || null) : null,
+        p_nominees: nom.list,
+        p_method: pay.method,
+        p_reference: pay.reference || null,
+        p_notes: null,
+        p_amount: scheme === 'flexible' ? naPlannedAmount() : null
+      });
+    } else {
+      r = await _db.rpc('open_savings_account', {
+        p_scheme: scheme,
+        p_instalment: scheme === 'flexible' ? null : inst,
+        p_withdrawal_method: method,
+        p_withdrawal_account: acct,
+        p_withdrawal_bank: method === 'bank' ? (bank || null) : null,
+        p_nominees: nom.list
+      });
+    }
     if (r.error) throw r.error;
+    if (!r.data || r.data.ok === false) throw new Error((r.data && r.data.error) || 'হিসাব খোলা যায়নি।');
 
-    showMsg('naMsg','✅ নতুন হিসাব খোলা হয়েছে — হিসাব নম্বর ' + r.data.account_no, 'success');
+    var newId = r.data.id, newNo = r.data.account_no;
+    var note = manual ? ' — জমা এডমিন অনুমোদনের পর হিসাব চালু হবে।' : '';
+    showMsg('naMsg','✅ নতুন হিসাব খোলা হয়েছে — হিসাব নম্বর ' + newNo + note, 'success');
     document.getElementById('naInst').value = '';
     document.getElementById('naAccount').value = '';
     document.getElementById('naBank').value = '';
+    document.getElementById('naFundAmt').value = '';
+    if (NA_PAY && NA_PAY.reset) NA_PAY.reset();
 
-    /* তালিকা নতুন করে এনে নতুন হিসাবটিই নির্বাচিত করা */
     var l = await _db.rpc('my_savings_accounts');
     ACCOUNTS = (!l.error && l.data) ? l.data : ACCOUNTS;
-    CUR = ACCOUNTS.filter(function (a) { return a.id === r.data.id; })[0] || CUR;
+    CUR = ACCOUNTS.filter(function (a) { return a.id === newId; })[0] || CUR;
     try { localStorage.setItem('kh_acc', CUR.id); } catch (e) {}
     await refreshAccount();
+
+    if (fund === 'pay' && online) {
+      /* গেটওয়ে খুলতে ব্রাউজারের ক্লিক দরকার — তাই বোতাম সদস্যের হাতে; ফর্ম আপাতত বন্ধ */
+      holdBtn = true;
+      NA_PENDING_ID = newId;
+      naShowPostOpen(newNo);
+      return;
+    }
     setTimeout(function () { showPanel('account'); }, 900);
   } catch (e) {
     showMsg('naMsg', (e && e.message) || 'হিসাব খোলা যায়নি।', 'error');
   }
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-folder-plus"></i> হিসাব খুলুন'; }
+  if (btn && !holdBtn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-folder-plus"></i> হিসাব খুলুন'; }
 }
 
 /* ── সঞ্চয়ের ডিজিটাল ভাউচার ── */
@@ -2847,6 +2977,6 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=60"></script>
+<script src="kh-ui.js?v=63"></script>
 </body>
 </html>

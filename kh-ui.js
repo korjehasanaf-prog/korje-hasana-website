@@ -36,6 +36,8 @@
     { href: 'donation.html',         icon: 'ti-heart',     label: 'দান'    },
     { href: 'loan-application.html', icon: 'ti-wallet',    label: 'ঋণ'     },
     { href: 'savings-portal.html',   icon: 'ti-pig-money', label: 'সঞ্চয়'  },
+    { href: 'self-service.html',     icon: 'ti-arrows-exchange', label: 'সেলফ সার্ভিস' },
+    { href: 'my-statement.html',     icon: 'ti-file-text', label: 'স্টেটমেন্ট' },
     { href: 'user-login.html',       icon: 'ti-login',     label: 'লগইন'   }
   ];
 
@@ -6018,7 +6020,7 @@
           'উপরের অনলাইন পরিশোধ অথবা বাংলা QR ব্যবহার করুন।</p>';
       wireCopy(accB);
 
-      if (label) label.innerHTML = payEsc(cur.ref) + (refReq ? ' <em>*</em>' : '');
+      if (label) label.innerHTML = payEsc(cur.ref) + (refReq && cur.id !== 'cash' ? ' <em>*</em>' : ' <small>(ঐচ্ছিক)</small>');
       if (hint)  hint.textContent = cur.hint;
       if (input) {
         input.placeholder = cur.grp === 'mfs' ? 'যেমন 9F2K7X1A0B'
@@ -6061,7 +6063,7 @@
       onChange: function (fn) { if (typeof fn === 'function') cbs.push(fn); },
       validate: function () {
         var v = input ? input.value.trim() : '';
-        if (refReq && !v) {
+        if (refReq && cur.id !== 'cash' && !v) {
           if (fld) fld.classList.add('is-bad');
           if (hint) hint.textContent = cur.ref +
             'টি লিখুন — এটি ছাড়া অ্যাডমিন মিলিয়ে দেখতে পারবেন না। ' +

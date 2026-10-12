@@ -812,8 +812,7 @@ function ssPostOpenDone() {
   ssNewDone('', 'info');
 }
 
-/* ক্রম: যাচাই → হিসাব খোলা → (পেমেন্ট থাকলে) জমা। জমার ব্যর্থতায় হিসাব খোলা থাকে,
-   সেটি স্পষ্ট করে জানানো হয় — সদস্য হিসাবের পাতা থেকে আবার জমা দিতে পারেন। */
+/* ক্রম: যাচাই → ম্যানুয়াল/নগদ হলে হিসাব ও জমা একসাথে (অনুমোদন-অপেক্ষায়) → গেটওয়ে হলে হিসাব খুলে বোতামে পরিশোধ */
 async function ssSubmitNew() {
   if (SS.busy) return;
   var err = ssNewValidate();
@@ -823,7 +822,7 @@ async function ssSubmitNew() {
     online = SS_PAY.online();
     if (!online) {
       pay = SS_PAY.validate();
-      if (!pay) { ssMsg('টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন।', 'error'); return; }
+      if (!pay) { ssMsg('টাকা কীভাবে দিয়েছেন তা বেছে নিয়ে রেফারেন্স নম্বরটি লিখুন (নগদে প্রয়োজন নেই)।', 'error'); return; }
     }
   }
   var btn = document.getElementById('ssBtn');
@@ -833,11 +832,21 @@ async function ssSubmitNew() {
   ssMsg('হিসাব খোলা হচ্ছে…', 'info');
   var r;
   try {
-    r = await _db.rpc('open_savings_account', {
-      p_scheme: n.scheme, p_instalment: n.scheme === 'flexible' ? null : parseInt(n.inst, 10),
-      p_withdrawal_method: null, p_withdrawal_account: null, p_withdrawal_bank: null,
-      p_nominees: ssNomList()
-    });
+    if (n.fund === 'pay' && !online) {
+      r = await _db.rpc('open_savings_account_with_deposit', {
+        p_scheme: n.scheme, p_instalment: n.scheme === 'flexible' ? null : parseInt(n.inst, 10),
+        p_withdrawal_method: null, p_withdrawal_account: null, p_withdrawal_bank: null,
+        p_nominees: ssNomList(),
+        p_method: pay.method, p_reference: pay.reference || null, p_notes: null,
+        p_amount: n.scheme === 'flexible' ? ssNewPlanned() : null
+      });
+    } else {
+      r = await _db.rpc('open_savings_account', {
+        p_scheme: n.scheme, p_instalment: n.scheme === 'flexible' ? null : parseInt(n.inst, 10),
+        p_withdrawal_method: null, p_withdrawal_account: null, p_withdrawal_bank: null,
+        p_nominees: ssNomList()
+      });
+    }
   } catch (e) { r = { error: e }; }
   if (r.error || !r.data || r.data.ok === false) {
     SS.busy = false; btn.disabled = false;
@@ -846,26 +855,12 @@ async function ssSubmitNew() {
   }
   var id = r.data.id, no = r.data.account_no;
   if (n.fund === 'later') return ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + no + '। জমা পরে দিতে পারবেন।', 'success');
+  if (!online) return ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + no + '। জমা এডমিন অনুমোদনের পর হিসাব চালু হবে।', 'success');
 
-  if (online) {
-    /* গেটওয়ে খুলতে ব্রাউজারের ক্লিক দরকার — বোতাম সদস্যের হাতে; ফর্ম ততক্ষণ বন্ধ থাকে */
-    SS_PENDING_ID = id;
-    ssMsg('হিসাব খোলা হয়েছে — ' + no + '। প্রাথমিক জমা এখনই পরিশোধ করতে নিচের বোতাম চাপুন।', 'success');
-    document.getElementById('ssPostOpen').style.display = '';
-    return;
-  }
-  var d;
-  try {
-    d = await _db.rpc('deposit_to_savings', {
-      p_account: id, p_reference: pay.reference, p_notes: null,
-      p_amount: n.scheme === 'flexible' ? ssNewPlanned() : null, p_method: pay.method
-    });
-  } catch (e) { d = { error: e }; }
-  if (d.error || (d.data && d.data.ok === false)) {
-    var why = (d.error && d.error.message) || (d.data && d.data.error) || '';
-    return ssNewDone('হিসাব খোলা হয়েছে — ' + no + '। তবে জমার রেকর্ড হয়নি' + (why ? ' (' + why + ')' : '') + ' — হিসাবের পাতা থেকে আবার জমা দিন।', 'error');
-  }
-  ssNewDone('নতুন হিসাব খোলা হয়েছে — ' + no + ' · জমার অনুরোধ পাঠানো হয়েছে, অনুমোদনের পর স্থিতি হালনাগাদ হবে।', 'success');
+  /* গেটওয়ে: হিসাব খোলা আছে, পরিশোধের বোতাম সদস্যের হাতে */
+  SS_PENDING_ID = id;
+  ssMsg('হিসাব খোলা হয়েছে — ' + no + '। প্রাথমিক জমা এখনই পরিশোধ করতে নিচের বোতাম চাপুন।', 'success');
+  document.getElementById('ssPostOpen').style.display = '';
 }
 
 async function ssSubmit() {
