@@ -80,3 +80,25 @@ footer .kh-visit-ic { width: 26px; height: 26px; border-radius: 8px; font-size: 
 footer .kh-visit-num { font-size: 15px; }
 footer .kh-visit-lbl { font-size: 10.5px; }
 footer .kh-visit-live { font-size: 10px; }
+
+/* ---------- সংশোধন: মেনু-বাটনের আকার (কলাম ফ্লেক্সে flex-basis উচ্চতা হয়ে যেত) ---------- */
+.kh-app-dd-menu .kh-app-btn--compact { flex: none; width: 100%; }
+
+/* ---------- সংশোধন: ফুটারের অ্যাপ বাটনের রঙ — ডার্কে সাদা, লাইটে গাঢ় বেগুনি ---------- */
+footer .kh-app-btns .kh-app-btn,
+footer .kh-app-btns .kh-app-btn * { color: #fff !important; }
+footer .kh-app-btns .kh-app-btn {
+  border-color: rgba(255, 255, 255, .35) !important; background: rgba(255, 255, 255, .08) !important; }
+footer .kh-app-btns .kh-app-btn:hover { background: rgba(255, 255, 255, .18) !important; }
+html[data-theme="light"] footer .kh-app-btns .kh-app-btn,
+html[data-theme="light"] footer .kh-app-btns .kh-app-btn * { color: #35204f !important; }
+html[data-theme="light"] footer .kh-app-btns .kh-app-btn {
+  border-color: rgba(53, 32, 79, .35) !important; background: rgba(53, 32, 79, .06) !important; }
+
+/* ---------- সংশোধন: ফুটারের ভিজিটর কাউন্টার — এক সারিতে, মাঝখানে, ছোট ---------- */
+footer #khVisitors { display: flex; justify-content: center; margin-top: 10px; }
+footer .kh-visit { width: 100%; max-width: 340px; margin: 0; padding: 8px 12px; gap: 8px; flex-wrap: nowrap; justify-content: space-between; }
+footer .kh-visit-live { display: none; }
+footer .kh-visit-item { flex: 1 1 0; min-width: 0; justify-content: center; }
+footer .kh-visit-tx { text-align: center; }
+footer .kh-visit-sep { height: 22px; }
