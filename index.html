@@ -1146,8 +1146,8 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
     <a href="#" class="topbar-soc"><i class="ti ti-brand-youtube"></i></a>
     <a href="https://wa.me/880XXXXXXXXXX" class="topbar-soc" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
     <div class="lang-toggle">
-      <button class="lang-btn active" onclick="setLang('en',this)">EN</button>
-      <button class="lang-btn" onclick="setLang('bn',this)">বাং</button>
+      <button class="lang-btn active" data-lang-set="en">EN</button>
+      <button class="lang-btn" data-lang-set="bn">বাং</button>
     </div>
     <a href="user-login.html" class="topbar-admin-btn kh-login-link" style="background:rgba(112,72,232,.18);color:#cbb6f5;border-color:rgba(112,72,232,.45)"><i class="ti ti-user-circle"></i> লগইন</a>
     <a href="admin-login.html" class="topbar-admin-btn">
@@ -2165,101 +2165,6 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
      JAVASCRIPT
 ════════════════════════════════════════════════════════ -->
 <script>
-/* ── LANGUAGE TOGGLE ── */
-/* ── LANGUAGE TRANSLATIONS ── */
-const TRANS = {
-  en: {
-    'nav-home':'Home','nav-about':'About','nav-programs':'Programs',
-    'nav-apply':'Apply','nav-portal':'Portal','nav-news':'News',
-    'nav-contact':'Contact','nav-donate':'Donate now',
-    'hero-badge':'Mosque-based · 0% interest · Sharia-compliant',
-    'hero-h1':'Interest-free loans<br>for those who <span>need it most</span>',
-    'hero-p':"কর্জে হাসানা ফাউন্ডেশন provides 0% interest loans to farmers, small businesses, students, and families — inspired by the Quran's highest calling. Goods and bills are paid directly on your behalf.",
-    'hero-btn-apply':'Apply for a loan','hero-btn-donate':'Donate now','hero-btn-learn':'Learn more',
-    'impact-title':'Live impact dashboard',
-    'impact-lbl1':'Total beneficiaries helped','impact-lbl2':'Total taka disbursed',
-    'impact-lbl3':'Repayment rate','impact-lbl4':'Active donors worldwide',
-    'programs-tag':'Our programs','programs-h2':'Interest-free loans for every need',
-    'programs-p':'All loans are disbursed as goods or direct bill payments — never as cash. This protects both the borrower and the fund.',
-    'srv1-title':'Agriculture loan','srv1-desc':'Seeds, fertiliser, and irrigation equipment purchased with the borrower present at the shop.',
-    'srv2-title':'Small business loan','srv2-desc':'Goods and stock procured directly from wholesalers. No cash changes hands.',
-    'srv3-title':'Education loan','srv3-desc':'Tuition and admission fees paid directly to the educational institution.',
-    'srv4-title':'Medical loan','srv4-desc':'Hospital bills, medicines, and medical expenses paid directly to the provider.',
-    'srv5-title':'Family need loan','srv5-desc':'Marriage expenses, home repair materials, utility bills — paid to the vendor.',
-    'srv6-title':'Emergency loan','srv6-desc':'Disaster relief and urgent needs — disbursed within 48 hours of approval.',
-    'how-tag':'How it works','how-h2':'Simple, transparent, dignified',
-    'how-p':'Four steps — from your first application to receiving what you need, with respect and care at every stage.',
-    'step1-title':'Apply online or in person',
-    'step1-desc':'Fill out the application form on this website or WhatsApp us. Upload your NID card — fields fill automatically.',
-    'step2-title':'Verification visit',
-    'step2-desc':'Our team visits your home or workplace to verify the need and meet your references.',
-    'step3-title':'Committee approval',
-    'step3-desc':'The loan committee reviews and approves within 7–14 days. You receive an SMS notification.',
-    'step4-title':'Goods disbursed directly',
-    'step4-desc':'We purchase the goods or pay the bills on your behalf. You repay only the principal — zero interest, forever.',
-    'stories-tag':'Success stories','stories-h2':'Real lives changed',
-    'stories-p':'Names changed for privacy. Every story is real — a loan given, goods purchased, a life improved.',
-    'news-tag':'Latest news','news-h2':'Our activities',
-    'cta-h3':'Every taka you give stays interest-free — forever.',
-    'cta-p':'Your donation becomes a loan that is repaid, then lent again. It multiplies without end.',
-    'cta-btn1':'Donate now','cta-btn2':'Apply for a loan'
-  },
-  bn: {
-    'nav-home':'হোম','nav-about':'সম্পর্কে','nav-programs':'কার্যক্রম',
-    'nav-apply':'আবেদন','nav-portal':'পোর্টাল','nav-news':'সংবাদ',
-    'nav-contact':'যোগাযোগ','nav-donate':'দান করুন',
-    'hero-badge':'মসজিদ-ভিত্তিক · ০% সুদ · শরিয়াহ-সম্মত',
-    'hero-h1':'সুদমুক্ত ঋণ<br>যাদের সবচেয়ে বেশি <span>প্রয়োজন</span>',
-    'hero-p':'কর্জে হাসানা ফাউন্ডেশন কৃষক, ক্ষুদ্র ব্যবসায়ী, শিক্ষার্থী এবং পরিবারের জন্য ০% সুদে ঋণ প্রদান করে — কুরআনের সর্বোচ্চ আহ্বান থেকে অনুপ্রাণিত। পণ্য ও বিল সরাসরি আপনার পক্ষে পরিশোধ করা হয়।',
-    'hero-btn-apply':'ঋণের আবেদন করুন','hero-btn-donate':'দান করুন','hero-btn-learn':'আরও জানুন',
-    'impact-title':'সরাসরি প্রভাব ড্যাশবোর্ড',
-    'impact-lbl1':'মোট উপকারভোগী','impact-lbl2':'মোট বিতরণকৃত টাকা',
-    'impact-lbl3':'পরিশোধের হার','impact-lbl4':'সক্রিয় দাতা',
-    'programs-tag':'আমাদের কার্যক্রম','programs-h2':'প্রতিটি প্রয়োজনে সুদমুক্ত ঋণ',
-    'programs-p':'সমস্ত ঋণ পণ্য বা সরাসরি বিল পরিশোধ হিসেবে বিতরণ করা হয় — কখনও নগদ নয়। এটি ঋণগ্রহীতা এবং তহবিল উভয়কেই সুরক্ষিত রাখে।',
-    'srv1-title':'কৃষি ঋণ','srv1-desc':'বীজ, সার এবং সেচ সরঞ্জাম ঋণগ্রহীতার উপস্থিতিতে দোকান থেকে ক্রয় করা হয়।',
-    'srv2-title':'ক্ষুদ্র ব্যবসা ঋণ','srv2-desc':'পণ্য ও স্টক সরাসরি পাইকারি ব্যবসায়ীদের কাছ থেকে ক্রয় করা হয়। কোনো নগদ অর্থ লেনদেন হয় না।',
-    'srv3-title':'শিক্ষা ঋণ','srv3-desc':'টিউশন ও ভর্তি ফি সরাসরি শিক্ষা প্রতিষ্ঠানে পরিশোধ করা হয়।',
-    'srv4-title':'চিকিৎসা ঋণ','srv4-desc':'হাসপাতাল বিল, ওষুধ এবং চিকিৎসা ব্যয় সরাসরি সেবাদাতাকে পরিশোধ করা হয়।',
-    'srv5-title':'পারিবারিক ঋণ','srv5-desc':'বিবাহ ব্যয়, গৃহ মেরামত সামগ্রী, ইউটিলিটি বিল — বিক্রেতাকে সরাসরি পরিশোধ।',
-    'srv6-title':'জরুরি ঋণ','srv6-desc':'দুর্যোগ ত্রাণ এবং জরুরি প্রয়োজন — অনুমোদনের ৪৮ ঘন্টার মধ্যে বিতরণ।',
-    'how-tag':'কীভাবে কাজ করে','how-h2':'সহজ, স্বচ্ছ, সম্মানজনক',
-    'how-p':'চারটি ধাপ — আপনার প্রথম আবেদন থেকে শুরু করে প্রয়োজনীয় জিনিস পাওয়া পর্যন্ত, প্রতিটি পদক্ষেপে সম্মান ও যত্নসহ।',
-    'step1-title':'অনলাইনে বা সরাসরি আবেদন করুন',
-    'step1-desc':'এই ওয়েবসাইটে আবেদন ফর্ম পূরণ করুন বা হোয়াটসঅ্যাপে যোগাযোগ করুন। আপনার এনআইডি কার্ড আপলোড করুন — ফিল্ড স্বয়ংক্রিয়ভাবে পূরণ হবে।',
-    'step2-title':'যাচাই পরিদর্শন',
-    'step2-desc':'আমাদের দল আপনার বাড়ি বা কর্মক্ষেত্র পরিদর্শন করে প্রয়োজনীয়তা যাচাই করে এবং আপনার রেফারেন্সদের সাথে সাক্ষাৎ করে।',
-    'step3-title':'কমিটির অনুমোদন',
-    'step3-desc':'ঋণ কমিটি ৭-১৪ দিনের মধ্যে পর্যালোচনা করে অনুমোদন দেয়। আপনি এসএমএস বিজ্ঞপ্তি পাবেন।',
-    'step4-title':'সরাসরি পণ্য বিতরণ',
-    'step4-desc':'আমরা আপনার পক্ষে পণ্য ক্রয় করি বা বিল পরিশোধ করি। আপনি শুধুমাত্র মূল অর্থ ফেরত দেবেন — সুদ শূন্য, চিরকাল।',
-    'stories-tag':'সাফল্যের গল্প','stories-h2':'বাস্তব জীবন পরিবর্তন',
-    'stories-p':'গোপনীয়তার জন্য নাম পরিবর্তিত। প্রতিটি গল্প বাস্তব — একটি ঋণ দেওয়া, পণ্য ক্রয়, একটি জীবন উন্নত।',
-    'news-tag':'সর্বশেষ সংবাদ','news-h2':'আমাদের কার্যক্রম',
-    'cta-h3':'আপনার প্রতিটি টাকা সুদমুক্তই থাকবে — চিরকাল।',
-    'cta-p':'আপনার দান একটি ঋণ হয়ে পরিশোধ হয়, তারপর আবার ঋণ দেওয়া হয়। এটি অনন্তকাল গুণ হতে থাকে।',
-    'cta-btn1':'দান করুন','cta-btn2':'ঋণের আবেদন করুন'
-  }
-};
-
-let currentLang = 'en';
-function setLang(lang, btn) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const t = TRANS[lang];
-  // text nodes
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    if (t[el.dataset.i18n] !== undefined) el.textContent = t[el.dataset.i18n];
-  });
-  // innerHTML nodes (for elements with <br> / <span> inside)
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    if (t[el.dataset.i18nHtml] !== undefined) el.innerHTML = t[el.dataset.i18nHtml];
-  });
-  // persist choice
-  try { localStorage.setItem('kh_lang', lang); } catch(e){}
-}
-
 /* ── NAV HOVER SLIDING INDICATOR ── */
 (function() {
   const navLinks = document.querySelectorAll('.nav-link');
@@ -2547,16 +2452,6 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 
-/* ── RESTORE SAVED LANGUAGE ── */
-(function() {
-  try {
-    const saved = localStorage.getItem('kh_lang');
-    if (saved && saved !== 'en') {
-      const btn = document.querySelector('.lang-btn:last-child');
-      if (btn) setLang(saved, btn);
-    }
-  } catch(e) {}
-})();
 
   // ─── MEGA MENU ───────────────────────────────────────────────────────
   (function(){
@@ -2683,5 +2578,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   })();
 })();
 </script>
+<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n.js?v=1" defer></script>
 </body>
 </html>
