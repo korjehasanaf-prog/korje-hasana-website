@@ -1,13 +1,11 @@
-/* Korje Hasana — অ্যাপ ডাউনলোড বাটন, ভাসমান থীম সুইচার, সুপার-এডমিন রিলিজ ম্যানেজার
- * ব্যবহার: kh-ui.js-এর পরে লোড করুন.  <script src="kh-app-downloads.js?v=65" defer></script>
- * dashboard পেজে ভাসমান থীম বাটন চাই না হলে <body data-no-theme-fab> দিন।
+/* Korje Hasana — অ্যাপ ডাউনলোড বাটন ও সুপার-এডমিন রিলিজ ম্যানেজার
+ * ব্যবহার: kh-ui.js-এর পরে লোড করুন.  <script src="kh-app-downloads.js?v=66" defer></script>
  */
 (function () {
   'use strict';
 
   var SB_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co';
   var SB_KEY = 'sb_publishable_rVcvOlXzVeRF8aSY3DMziQ_nNdNFACZ';
-  var THEME_KEY = 'kh_theme';
   var PLATFORMS = {
     android: { label: 'Android (APK)', icon: 'ti-brand-android' },
     ios: { label: 'iPhone (iOS)', icon: 'ti-brand-apple' }
@@ -53,7 +51,7 @@
     if (!targets.length) return;
     getLinks().then(function (links) {
       targets.forEach(function (el) {
-        el.innerHTML = buttonsHTML(links, el.getAttribute('data-kh-app') === 'menu');
+        el.innerHTML = buttonsHTML(links, true);
       });
     });
   }
@@ -78,57 +76,6 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') close();
-    });
-  }
-
-  /* ---------- ভাসমান থীম সুইচার (লাইট / ডার্ক) ---------- */
-  function currentTheme() {
-    if (window.KHUI && KHUI.getTheme) return KHUI.getTheme();
-    try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch (e) { return 'dark'; }
-  }
-
-  function syncFab() {
-    var t = currentTheme();
-    document.querySelectorAll('[data-theme-set]').forEach(function (b) {
-      var on = b.getAttribute('data-theme-set') === t;
-      b.classList.toggle('is-active', on);
-      b.setAttribute('aria-pressed', String(on));
-    });
-  }
-
-  function applyTheme(t) {
-    if (currentTheme() === t) { syncFab(); return; }
-    if (window.KHUI && KHUI.toggleTheme) {
-      KHUI.toggleTheme(); /* cross-fade সহ; দুটি মাত্র থীম, তাই toggle = নির্বাচিত থীম */
-    } else if (window.KHUI && KHUI.setTheme) {
-      KHUI.setTheme(t);
-    } else {
-      document.documentElement.setAttribute('data-theme', t);
-      try { localStorage.setItem(THEME_KEY, t); } catch (e) { /* ignore */ }
-    }
-    if (window.KHUI && KHUI._syncThemeIcon) KHUI._syncThemeIcon();
-    syncFab();
-  }
-
-  function mountThemeFab() {
-    if (document.body.hasAttribute('data-no-theme-fab') || document.getElementById('khThemeFab')) return;
-    var wrap = document.createElement('div');
-    wrap.id = 'khThemeFab';
-    wrap.className = 'kh-theme-fab';
-    wrap.setAttribute('role', 'group');
-    wrap.setAttribute('aria-label', 'থীম নির্বাচন');
-    wrap.innerHTML =
-      '<button type="button" data-theme-set="light" aria-label="লাইট থীম" title="লাইট থীম"><i class="ti ti-sun"></i></button>' +
-      '<button type="button" data-theme-set="dark" aria-label="ডার্ক থীম" title="ডার্ক থীম"><i class="ti ti-moon"></i></button>';
-    wrap.addEventListener('click', function (e) {
-      var b = e.target.closest('[data-theme-set]');
-      if (b) applyTheme(b.getAttribute('data-theme-set'));
-    });
-    document.body.appendChild(wrap);
-    syncFab();
-    /* nav-এর নিজস্ব থীম বাটন চাপলে ভাসমান বাটনের অবস্থাও মেলানো */
-    document.addEventListener('click', function (e) {
-      if (e.target.closest && e.target.closest('.kh-theme-btn')) setTimeout(syncFab, 0);
     });
   }
 
@@ -219,7 +166,6 @@
 
   /* ---------- শুরু ---------- */
   function init() {
-    mountThemeFab();
     bindDropdown();
     renderAll();
   }

@@ -20,7 +20,7 @@
 .kh-app-btn:hover { background: rgba(127, 127, 127, .22); transform: translateY(-1px); }
 .kh-app-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 .kh-app-btn.is-disabled { opacity: .55; cursor: not-allowed; transform: none; }
-.kh-app-btn--compact { min-width: 0; width: 100%; padding: 8px 12px; border-radius: 10px; }
+.kh-app-btn--compact { min-width: 0; flex: 1 1 150px; padding: 8px 12px; border-radius: 10px; }
 .kh-app-btn--compact i { font-size: 20px; }
 
 /* ---------- হেডার ড্রপডাউন ---------- */
@@ -39,22 +39,6 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 }
 .kh-app-dd-menu[hidden] { display: none; }
-
-/* ---------- ভাসমান থীম সুইচার (নিচে বাঁ দিকে) ---------- */
-.kh-theme-fab {
-  position: fixed; left: 16px; bottom: 16px; z-index: 1050;
-  display: flex; gap: 4px; padding: 4px; border-radius: 999px;
-  background: var(--kh-menu-bg); color: var(--kh-menu-fg);
-  border: 1px solid rgba(127, 127, 127, .3); box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
-}
-.kh-theme-fab button {
-  width: 38px; height: 38px; border-radius: 50%; border: 0;
-  background: transparent; color: inherit; cursor: pointer;
-  display: grid; place-items: center; font-size: 18px;
-}
-.kh-theme-fab button.is-active { background: rgba(127, 127, 127, .25); }
-.kh-theme-fab button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
-@media (max-width: 480px) { .kh-theme-fab { left: 12px; bottom: 12px; } }
 
 /* ---------- অ্যাডমিন রিলিজ ম্যানেজার ---------- */
 .kh-ar-form { display: grid; gap: 10px; }
@@ -82,3 +66,17 @@
   .kh-app-mobile { display: block; padding: 12px 16px; }
   .kh-app-mobile-label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
 }
+
+/* ---------- ফুটার: কমপ্যাক্ট অ্যাপ বাটন + ছোট ভিজিটর কাউন্টার ---------- */
+footer.footer { padding-top: 40px; padding-bottom: 18px; }
+footer .footer-grid { margin-bottom: 24px; }
+footer .kh-app-btns { justify-content: center; margin: 14px 0 0; gap: 8px; }
+footer .ft-col .kh-app-btns { justify-content: flex-start; }
+footer .kh-app-btns .kh-app-btn--compact { flex: 1 1 150px; }
+footer #khVisitors { margin-top: 10px; }
+footer .kh-visit { max-width: none; margin: 0; padding: 8px 12px; gap: 6px 14px; border-radius: 12px; box-shadow: none; justify-content: flex-start; }
+footer .kh-visit-item { gap: 8px; }
+footer .kh-visit-ic { width: 26px; height: 26px; border-radius: 8px; font-size: 14px; box-shadow: none; }
+footer .kh-visit-num { font-size: 15px; }
+footer .kh-visit-lbl { font-size: 10.5px; }
+footer .kh-visit-live { font-size: 10px; }

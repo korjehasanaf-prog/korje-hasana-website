@@ -1018,7 +1018,7 @@
     }
 </style>
   <link rel="stylesheet" href="kh-ui.css?v=65">
-<link rel="stylesheet" href="kh-app-downloads.css?v=65">
+<link rel="stylesheet" href="kh-app-downloads.css?v=66">
 <style>
 /* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
    নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
@@ -1441,6 +1441,20 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
                   <span class="mega-rl-desc">সঞ্চয় অ্যাকাউন্ট খুলুন</span>
                 </div>
               </a>
+              <a class="mega-rl" href="self-service.html">
+                <i class="ti ti-arrows-exchange"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">সেলফ সার্ভিস</span>
+                  <span class="mega-rl-desc">স্থানান্তর ও নিজের হিসাব পরিচালনা</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="my-statement.html">
+                <i class="ti ti-file-text"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">স্টেটমেন্ট</span>
+                  <span class="mega-rl-desc">হিসাব বিবরণী দেখুন ও ডাউনলোড করুন</span>
+                </div>
+              </a>
             </div>
             <div class="mega-panel" id="p-borrower-portal">
               <div class="mega-r-header">ঋণগ্রহীতা পোর্টাল</div>
@@ -1546,7 +1560,6 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
       <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
       <a href="savings-portal.html" class="btn-savings-glow"><i class="ti ti-piggy-bank" style="font-size:18px"></i>সুদ বিহীন সঞ্চয় করুন</a>
       <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
-      <a href="https://expo.dev/artifacts/eas/PyIiQk5QWBVTDGPCJI0uFNvJz1hheZap1Z5pRDvKlr8.apk" class="btn-gold-outline" download style="text-decoration:none" aria-label="Download Android app"><i class="ti ti-device-mobile" style="font-size:16px;vertical-align:-2px;margin-right:4px"></i>Download the Android app</a>
     </div>
 
     <!-- ⏱ ফ্লিপ ঘড়ি — "digital watch.mp4" ভিডিও থেকে হুবহু (ছোট আকারে)। ঢাকার সময়। -->
@@ -2067,6 +2080,8 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
         <input type="email" placeholder="your@email.com">
         <button>Subscribe</button>
       </div>
+      <div class="kh-app-btns" data-kh-app="footer" aria-label="অ্যাপ ডাউনলোড"></div>
+      <div id="khVisitors"></div>
     </div>
     <div class="ft-col">
       <h4>Quick links</h4>
@@ -2126,7 +2141,6 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
       <span class="ft-badge">Shariah-certified</span>
     </div>
   </div>
-  <div class="kh-app-btns" data-kh-app="footer" aria-label="অ্যাপ ডাউনলোড"></div>
 <div class="footer-bottom">
     <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
     <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:14.5px;color:#f08c28"></i> for humanity</div>
@@ -2647,8 +2661,8 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   tick();
 })();
 </script>
-<script src="kh-ui.js?v=65"></script>
-<script src="kh-app-downloads.js?v=65" defer></script>
+<script src="kh-ui.js?v=66"></script>
+<script src="kh-app-downloads.js?v=66" defer></script>
 
 <!-- মোবাইলের লগইন বাটন — লগইন থাকলে ড্যাশবোর্ডের বাটনে বদলে যায় -->
 <script>

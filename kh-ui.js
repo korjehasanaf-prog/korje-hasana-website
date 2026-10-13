@@ -36,8 +36,6 @@
     { href: 'donation.html',         icon: 'ti-heart',     label: 'দান'    },
     { href: 'loan-application.html', icon: 'ti-wallet',    label: 'ঋণ'     },
     { href: 'savings-portal.html',   icon: 'ti-pig-money', label: 'সঞ্চয়'  },
-    { href: 'self-service.html',     icon: 'ti-arrows-exchange', label: 'সেলফ সার্ভিস' },
-    { href: 'my-statement.html',     icon: 'ti-file-text', label: 'স্টেটমেন্ট' },
     { href: 'user-login.html',       icon: 'ti-login',     label: 'লগইন'   }
   ];
 
