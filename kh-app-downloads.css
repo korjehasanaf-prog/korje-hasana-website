@@ -102,3 +102,12 @@ footer .kh-visit-live { display: none; }
 footer .kh-visit-item { flex: 1 1 0; min-width: 0; justify-content: center; }
 footer .kh-visit-tx { text-align: center; }
 footer .kh-visit-sep { height: 22px; }
+
+/* ---------- সংশোধন: ছোট ফোনে (৪৮০px-এর নিচে) হেডারের "অ্যাপ" মেনু দেখানো ----------
+   index.html-এর একটি নিয়মে ছোট স্ক্রিনে পুরো .nav-right লুকানো থাকত, তাই মেনুটিও দেখা যেত না।
+   এখানে শুধু "অ্যাপ" মেনু দেখানো হয়; সঞ্চয়/দান বাটন আগের মতোই লুকানো থাকে। */
+@media (max-width: 480px) {
+  .nav-right { display: flex !important; }
+  .nav-right > .nav-savings-btn,
+  .nav-right > .donate-btn { display: none !important; }
+}
