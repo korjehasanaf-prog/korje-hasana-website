@@ -1,0 +1,84 @@
+/* Korje Hasana — অ্যাপ ডাউনলোড, থীম সুইচার ও রিলিজ ম্যানেজার স্টাইল
+ * kh-ui.css-এর পরে অথবা পেজের <head>-এ যোগ করুন।
+ */
+
+/* থীম-ভিত্তিক রঙ (সাইটের ডিফল্ট ডার্ক) */
+:root { --kh-menu-bg: #111827; --kh-menu-fg: #f1f5f9; }
+[data-theme="light"] { --kh-menu-bg: #ffffff; --kh-menu-fg: #0f172a; }
+
+/* ---------- ডাউনলোড বাটন ---------- */
+.kh-app-btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 18px 0; }
+.kh-app-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-width: 190px; padding: 10px 16px; border-radius: 14px;
+  border: 1px solid currentColor; background: rgba(127, 127, 127, .12);
+  color: inherit; text-decoration: none; font-weight: 600; line-height: 1.2;
+  transition: transform .15s ease, background .15s ease;
+}
+.kh-app-btn i { font-size: 24px; }
+.kh-app-btn small { display: block; font-size: 11px; font-weight: 500; opacity: .7; }
+.kh-app-btn:hover { background: rgba(127, 127, 127, .22); transform: translateY(-1px); }
+.kh-app-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.kh-app-btn.is-disabled { opacity: .55; cursor: not-allowed; transform: none; }
+.kh-app-btn--compact { min-width: 0; width: 100%; padding: 8px 12px; border-radius: 10px; }
+.kh-app-btn--compact i { font-size: 20px; }
+
+/* ---------- হেডার ড্রপডাউন ---------- */
+.kh-app-dd { position: relative; display: inline-block; }
+.kh-app-dd-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 999px; border: 1px solid currentColor;
+  background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer;
+}
+.kh-app-dd-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.kh-app-dd-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100;
+  display: flex; flex-direction: column; gap: 6px; min-width: 230px; padding: 8px;
+  background: var(--kh-menu-bg); color: var(--kh-menu-fg);
+  border: 1px solid rgba(127, 127, 127, .3); border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
+}
+.kh-app-dd-menu[hidden] { display: none; }
+
+/* ---------- ভাসমান থীম সুইচার (নিচে বাঁ দিকে) ---------- */
+.kh-theme-fab {
+  position: fixed; left: 16px; bottom: 16px; z-index: 1050;
+  display: flex; gap: 4px; padding: 4px; border-radius: 999px;
+  background: var(--kh-menu-bg); color: var(--kh-menu-fg);
+  border: 1px solid rgba(127, 127, 127, .3); box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+}
+.kh-theme-fab button {
+  width: 38px; height: 38px; border-radius: 50%; border: 0;
+  background: transparent; color: inherit; cursor: pointer;
+  display: grid; place-items: center; font-size: 18px;
+}
+.kh-theme-fab button.is-active { background: rgba(127, 127, 127, .25); }
+.kh-theme-fab button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+@media (max-width: 480px) { .kh-theme-fab { left: 12px; bottom: 12px; } }
+
+/* ---------- অ্যাডমিন রিলিজ ম্যানেজার ---------- */
+.kh-ar-form { display: grid; gap: 10px; }
+.kh-ar-form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.kh-ar-form input,
+.kh-ar-form select {
+  padding: 8px 10px; border-radius: 10px; font: inherit; color: inherit;
+  border: 1px solid rgba(127, 127, 127, .4); background: transparent;
+}
+.kh-ar-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kh-ar-submit {
+  justify-self: start; padding: 9px 18px; border-radius: 10px; border: 0;
+  background: #0d9488; color: #fff; font-weight: 700; cursor: pointer;
+}
+.kh-ar-msg { font-size: 13px; opacity: .85; }
+.kh-ar-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+.kh-ar-table th,
+.kh-ar-table td { padding: 8px; text-align: left; border-bottom: 1px solid rgba(127, 127, 127, .25); }
+.kh-ar-table tr.is-current td { font-weight: 700; }
+@media (max-width: 520px) { .kh-ar-row { grid-template-columns: 1fr; } }
+
+/* ---------- মোবাইল মেনু (ড্রয়ার) — হেডার ড্রপডাউন ছোট স্ক্রিনে লুকানো থাকে ---------- */
+.kh-app-mobile { display: none; }
+@media (max-width: 929px) {
+  .kh-app-mobile { display: block; padding: 12px 16px; }
+  .kh-app-mobile-label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+}

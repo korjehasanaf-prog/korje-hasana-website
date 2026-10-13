@@ -338,9 +338,10 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=64">
+  <link rel="stylesheet" href="kh-ui.css?v=65">
+<link rel="stylesheet" href="kh-app-downloads.css?v=65">
 </head>
-<body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
+<body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
 
 <!-- ACCESS DENIED -->
 <div id="accessDenied">
@@ -1032,6 +1033,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
 
       <div class="panel" id="panel-settings">
+<div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 10px">অ্যাপ রিলিজ ম্যানেজার</h3><div id="khAppReleaseAdmin"></div></div>
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
 
@@ -5055,6 +5057,8 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=64"></script>
+<script src="kh-ui.js?v=65"></script>
+<script src="kh-app-downloads.js?v=65" defer></script>
+<script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);});</script>
 </body>
 </html>
