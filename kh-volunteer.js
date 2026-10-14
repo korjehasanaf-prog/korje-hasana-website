@@ -9,6 +9,8 @@
     { href: 'volunteer.html#about',        icon: 'ti-heart-handshake', t: 'ভলেন্টিয়ার পরিচিতি ও শপথ' },
     { href: 'volunteer.html#profile',      icon: 'ti-id-badge-2',      t: 'নিবন্ধন ও আমার প্রোফাইল' },
     { href: 'volunteer.html#tasks',        icon: 'ti-checklist',       t: 'সেবার কাজ' },
+    { href: 'volunteer.html#assist',     icon: 'ti-users-group',     t: 'অ্যাসিস্ট মোড' },
+    { href: 'volunteer.html#batch',      icon: 'ti-stack-2',         t: 'আমার ব্যাচ' },
     { href: 'volunteer.html#certificates', icon: 'ti-certificate',     t: 'সার্টিফিকেট ও যাচাই' },
     { href: 'volunteer.html#channel',      icon: 'ti-brand-whatsapp',  t: 'ভলেন্টিয়ার চ্যানেল' },
     { href: 'volunteer.html#ratings',      icon: 'ti-star',            t: 'রেটিং ও সেবা পয়েন্ট' }
