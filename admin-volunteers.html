@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>ভলেন্টিয়ার ম্যানেজমেন্ট (অ্যাডমিন) | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root { --ink:#1f2937; --muted:#6b7280; --teal:#0f766e; --teal2:#14b8a6; --violet:#7048e8; --line:#e5e7eb; --bg:#f6f7fb; --card:#ffffff; --ok:#16a34a; --bad:#dc2626; --warn:#d97706; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e5e7eb; --muted:#9ca3af; --line:#2b3442; --bg:#0f1520; --card:#162030; } }
+    html[data-theme="dark"] { --ink:#e5e7eb; --muted:#9ca3af; --line:#2b3442; --bg:#0f1520; --card:#162030; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hind Siliguri', 'Inter', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 15px; }
+    .top { background: linear-gradient(118deg,#0b3b38,#0f766e 55%,#4c2f9e); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .top h1 { font-size: 20px; } .top a { color: #fff; text-decoration: none; font-size: 14px; opacity: .9; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 18px 16px 60px; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .tabs button { font: inherit; font-weight: 600; font-size: 14px; padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+    .tabs button.on { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .panel { display: none; } .panel.on { display: block; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .card h2 { font-size: 17px; margin-bottom: 10px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+    .stat b { display: block; font-size: 24px; color: var(--teal); } .stat span { font-size: 13px; color: var(--muted); }
+    .row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .row:last-child { border-bottom: 0; }
+    .row .t { font-weight: 700; } .row .m { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
+    .acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .chip { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--line); }
+    .chip.approved, .chip.verified, .chip.done { background: rgba(22,163,74,.18); }
+    .chip.pending, .chip.open, .chip.in_progress { background: rgba(217,119,6,.18); }
+    .chip.rejected, .chip.suspended, .chip.cancelled { background: rgba(220,38,38,.16); }
+    button.btn, a.btn { font: inherit; font-size: 13.5px; font-weight: 700; padding: 8px 12px; border-radius: 10px; border: 0; cursor: pointer; background: var(--teal); color: #fff; text-decoration: none; display: inline-flex; gap: 6px; align-items: center; }
+    button.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    button.btn.bad { background: var(--bad); } button.btn.violet { background: var(--violet); }
+    button.btn:disabled { opacity: .55; cursor: not-allowed; }
+    .form { display: grid; gap: 10px; } .form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+    .form input, .form select, .form textarea { font: inherit; font-size: 14px; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--ink); width: 100%; }
+    .form textarea { min-height: 70px; resize: vertical; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .msg { font-size: 13.5px; padding: 9px 11px; border-radius: 9px; margin-top: 8px; }
+    .msg.ok { background: rgba(22,163,74,.14); } .msg.err { background: rgba(220,38,38,.12); }
+    .gate { max-width: 420px; margin: 60px auto; }
+    .muted { color: var(--muted); font-size: 13.5px; }
+    @media (max-width: 640px) { .two { grid-template-columns: 1fr; } .wrap { padding: 14px 12px 50px; } }
+  </style>
+</head>
+<body>
+<div class="top">
+  <div><h1><i class="ti ti-users-group"></i> ভলেন্টিয়ার ম্যানেজমেন্ট</h1><div style="font-size:13px;opacity:.85">সুপার অ্যাডমিন প্যানেল</div></div>
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+    <a href="dashboard.html"><i class="ti ti-arrow-left"></i> ড্যাশবোর্ড</a>
+    <a href="#" id="logoutBtn" style="display:none"><i class="ti ti-logout"></i> লগআউট</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- লগইন গেট -->
+  <div id="gate" class="gate card" style="display:none">
+    <h2>সুপার অ্যাডমিন লগইন</h2>
+    <p class="muted" style="margin:6px 0 12px">এই পেজ শুধু সুপার অ্যাডমিনদের জন্য।</p>
+    <form id="gateForm" class="form">
+      <label>ইমেইল<input type="email" name="email" required autocomplete="username"></label>
+      <label>পাসওয়ার্ড<input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit"><i class="ti ti-login"></i> লগইন</button>
+    </form>
+    <div id="gateMsg"></div>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="stats" id="stats"></div>
+    <div class="tabs">
+      <button data-tab="apps" class="on">ভলেন্টিয়ার আবেদন</button>
+      <button data-tab="certs">সার্টিফিকেট</button>
+      <button data-tab="tasks">কাজ ও রেটিং</button>
+      <button data-tab="channel">চ্যানেল ও হোয়াটসঅ্যাপ</button>
+    </div>
+
+    <!-- আবেদন -->
+    <div class="panel on" id="p-apps">
+      <div class="filters" id="appFilters">
+        <button class="btn ghost" data-f="pending">অপেক্ষমাণ</button>
+        <button class="btn ghost" data-f="approved">অনুমোদিত</button>
+        <button class="btn ghost" data-f="suspended">স্থগিত</button>
+        <button class="btn ghost" data-f="rejected">বাতিল</button>
+        <button class="btn ghost" data-f="">সব</button>
+      </div>
+      <div class="card"><div id="appList"></div></div>
+    </div>
+
+    <!-- সার্টিফিকেট -->
+    <div class="panel" id="p-certs">
+      <div class="filters" id="certFilters">
+        <button class="btn ghost" data-f="pending">অপেক্ষমাণ</button>
+        <button class="btn ghost" data-f="approved">অনুমোদিত</button>
+        <button class="btn ghost" data-f="rejected">প্রত্যাখ্যাত</button>
+      </div>
+      <div class="card"><div id="certList"></div></div>
+    </div>
+
+    <!-- কাজ ও রেটিং -->
+    <div class="panel" id="p-tasks">
+      <div class="card">
+        <h2 id="taskFormTitle">নতুন কাজ যোগ করুন</h2>
+        <form id="taskForm" class="form">
+          <input type="hidden" name="id">
+          <div class="two">
+            <label>কাজের শিরোনাম *<input name="title" required minlength="3" maxlength="200"></label>
+            <label>ধরন<select name="category">
+              <option value="loan_check">ঋণের ব্যবহার যাচাই</option>
+              <option value="find_members">যোগ্য সদস্য খোঁজা</option>
+              <option value="eligibility">ঋণ প্রাপ্তির যোগ্যতা যাচাই</option>
+              <option value="recovery">কিস্তি ও বকেয়া আদায়ে সহায়তা</option>
+              <option value="awareness">সচেতনতা</option>
+              <option value="promotion">প্রচার ও প্রসার</option>
+              <option value="fundraising">আমানত ও দান সংগ্রহ</option>
+              <option value="other">অন্যান্য</option>
+            </select></label>
+          </div>
+          <div class="two">
+            <label>এলাকা<input name="area" maxlength="120"></label>
+            <label>শেষ তারিখ<input type="date" name="due_date"></label>
+          </div>
+          <div class="two">
+            <label>পয়েন্ট (সর্বোচ্চ কাজের মান)<input type="number" name="points" min="0" max="1000" value="10"></label>
+            <label>নির্দিষ্ট ভলেন্টিয়ার (ঐচ্ছিক)<select name="assigned_to"><option value="">— খোলা রাখুন —</option></select></label>
+          </div>
+          <label>বিবরণ<textarea name="description" maxlength="2000"></textarea></label>
+          <div class="acts"><button class="btn" type="submit"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button><button class="btn ghost" type="button" id="taskReset">নতুন ফর্ম</button></div>
+          <div id="taskMsg"></div>
+        </form>
+      </div>
+      <div class="card"><h2>সব কাজ</h2><div id="taskList"></div></div>
+    </div>
+
+    <!-- চ্যানেল -->
+    <div class="panel" id="p-channel">
+      <div class="card">
+        <h2>ভলেন্টিয়ার চ্যানেলে ঘোষণা</h2>
+        <p class="muted" style="margin-bottom:10px">এখানে লেখা ঘোষণা শুধু ভলেন্টিয়ার চ্যানেলে যাবে। প্রতিষ্ঠানের সাধারণ নোটিশ/খবর সাধারণ ঘোষণা থেকেই যায়।</p>
+        <form id="msgForm" class="form">
+          <label>বার্তা *<textarea name="body" required maxlength="4000" style="min-height:100px"></textarea></label>
+          <div><button class="btn" type="submit"><i class="ti ti-send"></i> পোস্ট করুন</button></div>
+          <div id="msgMsg"></div>
+        </form>
+      </div>
+      <div class="card"><h2>হোয়াটসঅ্যাপ গ্রুপ লিংক</h2>
+        <p class="muted" style="margin-bottom:10px">গ্রুপের ইনভাইট লিংক (https://chat.whatsapp.com/…) দিন। অনুমোদিত ভলেন্টিয়ারদের প্রোফাইলে এই বাটনটি দেখাবে। গ্রুপে বার্তা পাঠাতে এডমিন নিজের হোয়াটসঅ্যাপ থেকে গ্রুপে পোস্ট করবেন।</p>
+        <form id="waForm" class="form">
+          <label>ইনভাইট লিংক<input name="url" placeholder="https://chat.whatsapp.com/..." maxlength="300"></label>
+          <div class="acts"><button class="btn" type="submit"><i class="ti ti-device-floppy"></i> সংরক্ষণ</button><button class="btn ghost" type="button" id="waClear">লিংক সরান</button></div>
+          <div id="waMsg"></div>
+        </form>
+      </div>
+      <div class="card"><h2>পোস্ট করা ঘোষণা</h2><div id="msgList"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var db = window._db;
+  var $ = function (id) { return document.getElementById(id); };
+  var STATUS_BN = { pending: 'অপেক্ষমাণ', approved: 'অনুমোদিত', suspended: 'স্থগিত', rejected: 'বাতিল', open: 'খোলা', in_progress: 'চলছে', done: 'জমা (যাচাই বাকি)', verified: 'যাচাইকৃত', cancelled: 'বাতিল' };
+  var CAT = { loan_check: 'ঋণ ব্যবহার যাচাই', find_members: 'যোগ্য সদস্য খোঁজা', eligibility: 'যোগ্যতা যাচাই', recovery: 'কিস্তি/বকেয়া', awareness: 'সচেতনতা', promotion: 'প্রচার', fundraising: 'আমানত ও দান', other: 'অন্যান্য' };
+  var ALL_VOLS = [];
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function curLoc() { try { return localStorage.getItem('kh_lang') === 'bn' ? 'bn-BD' : 'en-GB'; } catch (e) { return 'en-GB'; } }
+  function dt(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString(curLoc(), { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return String(s).slice(0, 10); } }
+  function errText(e) {
+    var m = (e && (e.message || '')) || '';
+    if (m.indexOf('forbidden') !== -1) return 'এই অ্যাকাউন্টের সুপার অ্যাডমিন অনুমতি নেই।';
+    if (m.indexOf('not_pending') !== -1) return 'এটি ইতিমধ্যে নিষ্পত্তি হয়েছে।';
+    if (m.indexOf('volunteer_not_approved') !== -1) return 'আগে ভলেন্টিয়ারকে অনুমোদন দিন।';
+    if (m.indexOf('task_not_verifiable') !== -1) return 'কাজটি কোনো ভলেন্টিয়ারকে দেওয়া হয়নি বা জমা/চলমান নেই।';
+    if (m.indexOf('invalid_whatsapp_link') !== -1) return 'লিংকটি https://chat.whatsapp.com/ দিয়ে শুরু হতে হবে।';
+    if (m.indexOf('invalid_score') !== -1) return 'রেটিং ১ থেকে ৫ এর মধ্যে হতে হবে।';
+    return 'ত্রুটি: ' + (m || 'অজানা') ;
+  }
+  async function rpc(name, args) {
+    try { var r = await db.rpc(name, args || {}); if (r.error) return { error: errText(r.error) }; return { data: r.data }; }
+    catch (e) { return { error: 'সংযোগ ত্রুটি' }; }
+  }
+  function msg(el, text, ok) { el.innerHTML = '<div class="msg ' + (ok ? 'ok' : 'err') + '">' + esc(text) + '</div>'; }
+
+  /* ---------- গেট ---------- */
+  async function start() {
+    var s = await db.auth.getSession();
+    if (s.data && s.data.session) return enter();
+    $('gate').style.display = 'block';
+  }
+  async function enter() {
+    var st = await rpc('admin_vol_stats');
+    if (st.error) {
+      await db.auth.signOut();
+      $('gate').style.display = 'block';
+      msg($('gateMsg'), st.error, false);
+      return;
+    }
+    $('gate').style.display = 'none';
+    $('app').style.display = 'block';
+    $('logoutBtn').style.display = 'inline';
+    renderStats(st.data);
+    window.__volAdminIn = true; loadVols(); loadCerts('pending'); loadTasks(); loadMsgs(); loadWa();
+  }
+  $('gateForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var r = await db.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+    if (r.error) return msg($('gateMsg'), 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।', false);
+    enter();
+  });
+  $('logoutBtn').addEventListener('click', function (e) { e.preventDefault(); db.auth.signOut().then(function () { location.reload(); }); });
+
+  /* ---------- ট্যাব ---------- */
+  document.querySelectorAll('.tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('.panel').forEach(function (p) { p.classList.toggle('on', p.id === 'p-' + b.dataset.tab); });
+    });
+  });
+
+  function renderStats(d) {
+    d = d || {};
+    var items = [
+      ['মোট ভলেন্টিয়ার', d.volunteers_total], ['অনুমোদিত', d.volunteers_approved], ['অপেক্ষমাণ আবেদন', d.volunteers_pending],
+      ['অপেক্ষমাণ সার্টিফিকেট', d.certs_pending], ['খোলা/চলমান কাজ', d.tasks_open], ['যাচাই বাকি কাজ', d.tasks_done_unverified], ['মোট সেবা পয়েন্ট', d.service_points]
+    ];
+    $('stats').innerHTML = items.map(function (i) { return '<div class="stat"><b>' + (i[1] || 0) + '</b><span>' + i[0] + '</span></div>'; }).join('');
+  }
+  function refreshStats() { rpc('admin_vol_stats').then(function (r) { if (!r.error) renderStats(r.data); }); }
+
+  /* ---------- আবেদন ---------- */
+  var appFilter = 'pending';
+  async function loadVols() {
+    var r = await rpc('admin_vol_list', { p_status: appFilter || null });
+    var box = $('appList');
+    if (r.error) return msg(box, r.error, false);
+    ALL_VOLS = (await rpc('admin_vol_list', { p_status: null })).data || [];
+    fillAssignees();
+    var list = r.data || [];
+    if (!list.length) { box.innerHTML = '<p class="muted">এই তালিকায় কিছু নেই।</p>'; return; }
+    box.innerHTML = list.map(function (v) {
+      var acts = '';
+      if (v.status !== 'approved') acts += '<button class="btn" data-set="approved" data-id="' + v.id + '"><i class="ti ti-check"></i> অনুমোদন</button>';
+      if (v.status === 'approved') acts += '<button class="btn ghost" data-set="suspended" data-id="' + v.id + '">স্থগিত</button>';
+      if (v.status !== 'rejected') acts += '<button class="btn bad" data-set="rejected" data-id="' + v.id + '">বাতিল</button>';
+      return '<div class="row"><div style="flex:1;min-width:230px"><div class="t">' + esc(v.full_name) + ' <span class="muted">· ' + esc(v.volunteer_no) + '</span></div>' +
+        '<div class="m">' + esc(v.phone) + (v.email ? ' · ' + esc(v.email) : '') + ' · ' + esc([v.upazila, v.district].filter(Boolean).join(', ')) + '<br>' +
+        'দক্ষতা: ' + esc((v.skills || []).join(', ') || '—') + ' · আগ্রহ: ' + esc((v.interests || []).map(function (k) { return CAT[k] || k; }).join(', ') || '—') + '<br>' +
+        'সময়: ' + esc(v.availability || '—') + ' · রেটিং: ' + Number(v.rating_avg || 0).toFixed(1) + ' (' + (v.rating_count || 0) + ') · পয়েন্ট: ' + (v.service_points || 0) + ' · শপথ: ' + esc(dt(v.oath_accepted_at)) + '</div>' +
+        (v.bio ? '<div class="m">' + esc(v.bio) + '</div>' : '') + '</div>' +
+        '<div class="acts"><span class="chip ' + esc(v.status) + '">' + esc(STATUS_BN[v.status] || v.status) + '</span>' + acts + '</div></div>';
+    }).join('');
+    box.querySelectorAll('button[data-set]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        if (b.dataset.set === 'rejected' && !confirm('এই আবেদন বাতিল করবেন?')) return;
+        b.disabled = true;
+        var res = await rpc('admin_vol_set_status', { p_id: b.dataset.id, p_status: b.dataset.set });
+        if (res.error) alert(res.error);
+        loadVols(); refreshStats();
+      });
+    });
+  }
+  function fillAssignees() {
+    var sel = document.querySelector('#taskForm select[name=assigned_to]');
+    var cur = sel.value;
+    sel.innerHTML = '<option value="">— খোলা রাখুন —</option>' + ALL_VOLS.filter(function (v) { return v.status === 'approved'; })
+      .map(function (v) { return '<option value="' + v.id + '">' + esc(v.full_name) + ' (' + esc(v.volunteer_no) + ')</option>'; }).join('');
+    sel.value = cur;
+  }
+  document.querySelectorAll('#appFilters button').forEach(function (b) {
+    b.addEventListener('click', function () { appFilter = b.dataset.f; loadVols(); });
+  });
+
+  /* ---------- সার্টিফিকেট ---------- */
+  var certFilter = 'pending';
+  async function loadCerts(status) {
+    if (status !== undefined) certFilter = status;
+    var r = await rpc('admin_vol_list_certs', { p_status: certFilter || null });
+    var box = $('certList');
+    if (r.error) return msg(box, r.error, false);
+    var list = r.data || [];
+    if (!list.length) { box.innerHTML = '<p class="muted">এই তালিকায় কিছু নেই।</p>'; return; }
+    box.innerHTML = list.map(function (c) {
+      var acts = c.status === 'pending' ? '<button class="btn" data-ok="1" data-id="' + c.id + '"><i class="ti ti-certificate"></i> অনুমোদন ও সনদ তৈরি</button><button class="btn bad" data-ok="0" data-id="' + c.id + '">প্রত্যাখ্যান</button>' : '';
+      return '<div class="row"><div style="flex:1;min-width:230px"><div class="t">' + esc(c.name) + ' <span class="muted">· ' + esc(c.volunteer_no) + '</span></div>' +
+        '<div class="m">উদ্দেশ্য: ' + esc(c.purpose) + '<br>সময়কাল: ' + esc(dt(c.period_from)) + ' — ' + esc(dt(c.period_to)) + ' · ঘণ্টা: ' + esc(c.hours) +
+        ' · রেটিং: ' + Number(c.rating_avg || 0).toFixed(1) + ' · পয়েন্ট: ' + (c.service_points || 0) + (c.cert_no ? '<br>সনদ নম্বর: <b>' + esc(c.cert_no) + '</b>' : '') + '</div></div>' +
+        '<div class="acts"><span class="chip ' + esc(c.status) + '">' + esc(STATUS_BN[c.status] || c.status) + '</span>' + acts + '</div></div>';
+    }).join('');
+    box.querySelectorAll('button[data-ok]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var ok = b.dataset.ok === '1';
+        var reason = null;
+        if (!ok) { reason = prompt('প্রত্যাখ্যানের কারণ (ঐচ্ছিক):') || null; }
+        b.disabled = true;
+        var res = await rpc('admin_vol_decide_cert', { p_id: b.dataset.id, p_approve: ok, p_reason: reason });
+        if (res.error) alert(res.error);
+        loadCerts(); refreshStats();
+      });
+    });
+  }
+  document.addEventListener('khlangchange', function () { if (window.__volAdminIn) { loadVols(); loadCerts(); loadTasks(); loadMsgs(); loadWa(); refreshStats(); } });
+  document.querySelectorAll('#certFilters button').forEach(function (b) {
+    b.addEventListener('click', function () { loadCerts(b.dataset.f); });
+  });
+
+  /* ---------- কাজ ও রেটিং ---------- */
+  var TASKS = [];
+  async function loadTasks() {
+    var r = await rpc('admin_vol_list_tasks');
+    var box = $('taskList');
+    if (r.error) return msg(box, r.error, false);
+    TASKS = r.data || [];
+    if (!TASKS.length) { box.innerHTML = '<p class="muted">এখনো কোনো কাজ নেই।</p>'; return; }
+    box.innerHTML = TASKS.map(function (t) {
+      var acts = '<button class="btn ghost" data-edit="' + t.id + '">সম্পাদনা</button>';
+      if ((t.status === 'done' || t.status === 'in_progress') && t.assigned_to) {
+        acts += '<button class="btn violet" data-rate="' + t.id + '"><i class="ti ti-star"></i> যাচাই ও রেটিং</button>';
+      }
+      return '<div class="row"><div style="flex:1;min-width:230px"><div class="t">' + esc(t.title) + '</div>' +
+        '<div class="m">' + esc(CAT[t.category] || '') + (t.area ? ' · ' + esc(t.area) : '') + (t.due_date ? ' · শেষ: ' + esc(dt(t.due_date)) : '') + ' · পয়েন্ট: ' + (t.points || 0) +
+        '<br>দায়িত্ব: ' + (t.assignee ? esc(t.assignee) + ' (' + esc(t.assignee_no) + ')' : 'খোলা') + '</div>' +
+        (t.description ? '<div class="m">' + esc(t.description) + '</div>' : '') + '</div>' +
+        '<div class="acts"><span class="chip ' + esc(t.status) + '">' + esc(STATUS_BN[t.status] || t.status) + '</span>' + acts + '</div></div>';
+    }).join('');
+    box.querySelectorAll('button[data-edit]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var t = TASKS.filter(function (x) { return x.id === b.dataset.edit; })[0]; if (!t) return;
+        var f = $('taskForm');
+        f.id.value = t.id; f.title.value = t.title || ''; f.category.value = t.category || 'other'; f.area.value = t.area || '';
+        f.due_date.value = t.due_date || ''; f.points.value = t.points || 10; f.description.value = t.description || '';
+        fillAssignees(); f.assigned_to.value = t.assigned_to || '';
+        $('taskFormTitle').textContent = 'কাজ সম্পাদনা';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    box.querySelectorAll('button[data-rate]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var s = prompt('রেটিং দিন (১ থেকে ৫):', '4'); if (!s) return;
+        var score = parseInt(s, 10); if (!(score >= 1 && score <= 5)) return alert('১ থেকে ৫ এর মধ্যে সংখ্যা দিন।');
+        var note = prompt('মন্তব্য (ঐচ্ছিক):') || null;
+        b.disabled = true;
+        var res = await rpc('admin_vol_verify_task', { p_task_id: b.dataset.rate, p_score: score, p_note: note });
+        if (res.error) alert(res.error);
+        loadTasks(); refreshStats();
+      });
+    });
+  }
+  $('taskForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var f = e.target, btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+    var g = function (n) { return f.elements[n].value.trim(); };
+    var res = await rpc('admin_vol_upsert_task', {
+      p_id: g('id') || null, p_title: g('title'), p_description: g('description'), p_category: g('category'),
+      p_area: g('area'), p_due: g('due_date') || null, p_points: parseInt(g('points') || '10', 10), p_assigned_to: g('assigned_to') || null
+    });
+    btn.disabled = false;
+    if (res.error) return msg($('taskMsg'), res.error, false);
+    msg($('taskMsg'), 'কাজ সংরক্ষিত হয়েছে।', true);
+    resetTask(); loadTasks(); refreshStats();
+  });
+  function resetTask() { var f = $('taskForm'); f.reset(); f.id.value = ''; $('taskFormTitle').textContent = 'নতুন কাজ যোগ করুন'; fillAssignees(); }
+  $('taskReset').addEventListener('click', resetTask);
+
+  /* ---------- চ্যানেল ও হোয়াটসঅ্যাপ ---------- */
+  function loadMsgs() {
+    $('msgList').innerHTML = '<p class="muted">পোস্ট করা ঘোষণা ভলেন্টিয়ারদের চ্যানেলে তাৎক্ষণিক দেখাবে।</p>';
+  }
+  $('msgForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var f = e.target, btn = f.querySelector('button'); btn.disabled = true;
+    var res = await rpc('admin_vol_post_message', { p_body: f.body.value.trim() });
+    btn.disabled = false;
+    if (res.error) return msg($('msgMsg'), res.error, false);
+    f.reset(); msg($('msgMsg'), 'ঘোষণা পোস্ট হয়েছে।', true);
+  });
+  async function loadWa() {
+    // বর্তমান লিংক দেখানোর জন্য সেটিংস RPC নেই; ফর্ম খালি থেকে নতুন লিংক সেট করা হয়
+  }
+  $('waForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var f = e.target; var url = f.url.value.trim();
+    var res = await rpc('admin_vol_set_whatsapp', { p_url: url || null });
+    if (res.error) return msg($('waMsg'), res.error, false);
+    msg($('waMsg'), url ? 'হোয়াটসঅ্যাপ লিংক সংরক্ষিত হয়েছে।' : 'লিংক সরানো হয়েছে।', true);
+  });
+  $('waClear').addEventListener('click', async function () {
+    var res = await rpc('admin_vol_set_whatsapp', { p_url: null });
+    msg($('waMsg'), res.error ? res.error : 'লিংক সরানো হয়েছে।', !res.error);
+  });
+
+  start();
+})();
+</script>
+<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-volunteer-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=1" defer></script>
+</body>
+</html>

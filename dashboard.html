@@ -1035,6 +1035,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <div class="panel" id="panel-settings">
 <div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 10px">অ্যাপ রিলিজ ম্যানেজার</h3><div id="khAppReleaseAdmin"></div></div>
 <div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 4px">নোটিশ বোর্ড — প্রতিবেদন ও ফাইল</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px">এখানে আপলোড করা প্রতিবেদন (মাসিক, বার্ষিক, নিরীক্ষা) ওয়েবসাইটের নোটিশ বোর্ডে দেখাবে। বন্ধ করলে সাইট থেকে সরে যাবে।</p><div id="khNoticeAdmin"></div></div>
+<div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 4px">ভলেন্টিয়ার ম্যানেজমেন্ট</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px">ভলেন্টিয়ার আবেদন অনুমোদন, সার্টিফিকেট অনুমোদন, কাজ বরাদ্দ ও রেটিং, এবং ভলেন্টিয়ার চ্যানেলে ঘোষণা।</p><a href="admin-volunteers.html" style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:10px;background:#0f766e;color:#fff;font-weight:700;text-decoration:none"><i class="ti ti-users-group"></i> ভলেন্টিয়ার প্যানেল খুলুন</a></div>
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
 
@@ -5069,6 +5070,7 @@ initAdmin();
 <script src="kh-notice.js?v=1" defer></script>
 <script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
 <script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>
 </html>

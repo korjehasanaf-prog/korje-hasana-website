@@ -37,9 +37,12 @@
     if (bnFirst && Object.prototype.hasOwnProperty.call(D.bn2en, t)) return { bn: t, en: D.bn2en[t] };
     if (Object.prototype.hasOwnProperty.call(D.en2bn, t)) return { bn: D.en2bn[t], en: t };
     if (!bnFirst && Object.prototype.hasOwnProperty.call(D.bn2en, t)) return { bn: t, en: D.bn2en[t] };
+    /* একাধিক প্যাটার্ন একই লেখায় থাকলে সবগুলো ক্রমানুসারে প্রয়োগ হয় */
+    var out = t, hit = false;
     for (var i = 0; i < PATS.length; i++) {
-      if (PATS[i].re.test(t)) return { bn: t, en: fixMonths(t.replace(PATS[i].re, PATS[i].en)) };
+      if (PATS[i].re.test(out)) { out = out.replace(PATS[i].re, PATS[i].en); hit = true; }
     }
+    if (hit) return { bn: t, en: fixMonths(out) };
     return null;
   }
   function insideManaged(node) {
