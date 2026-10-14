@@ -26,6 +26,7 @@
 
     /* ---- হেডার মেনু (kh-volunteer.js) ---- */
     "ভলেন্টিয়ার ম্যানেজমেন্ট": "Volunteer Management",
+    "ভলেন্টিয়ার": "Volunteer",
     "ভলেন্টিয়ার পরিচিতি ও শপথ": "Volunteer intro & oath",
     "সার্টিফিকেট ও যাচাই": "Certificates & verification",
     "ভলেন্টিয়ার চ্যানেল": "Volunteer channel",
