@@ -339,9 +339,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 }
 </style>
   <link rel="stylesheet" href="kh-ui.css?v=65">
-<link rel="stylesheet" href="kh-app-downloads.css?v=68">
+<link rel="stylesheet" href="kh-app-downloads.css?v=69">
 </head>
-<body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
+<body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">
 
 <!-- ACCESS DENIED -->
 <div id="accessDenied">
@@ -1034,6 +1034,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <div class="panel" id="panel-settings">
 <div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 10px">অ্যাপ রিলিজ ম্যানেজার</h3><div id="khAppReleaseAdmin"></div></div>
+<div class="card" style="padding:16px;margin:0 0 16px"><h3 style="margin:0 0 4px">নোটিশ বোর্ড — প্রতিবেদন ও ফাইল</h3><p style="font-size:13px;color:var(--muted);margin:0 0 10px">এখানে আপলোড করা প্রতিবেদন (মাসিক, বার্ষিক, নিরীক্ষা) ওয়েবসাইটের নোটিশ বোর্ডে দেখাবে। বন্ধ করলে সাইট থেকে সরে যাবে।</p><div id="khNoticeAdmin"></div></div>
         <div class="panel-title">⚙️ জেনারেল সেটিংস</div>
         <div class="panel-sub">প্রোডাক্ট ও ফর্মের নিয়ম — এখান থেকে বদলালে সাথে সাথে সাইটে কার্যকর হবে</div>
 
@@ -1055,6 +1056,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
                 <option value="donors">শুধু দাতা</option>
               </select>
             </label>
+            <label style="font-size:13px;display:flex;gap:8px;align-items:center"><input type="checkbox" id="annBoard" style="width:16px;height:16px"> ওয়েবসাইটের নোটিশ বোর্ডেও দেখান (খবর ও ঘোষণা হিসেবে, সবার জন্য দৃশ্যমান)</label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <button class="btn-primary" id="annSend" onclick="sendAnnouncement()"><i class="ti ti-send"></i> ঘোষণা পাঠান</button>
               <span id="annMsg" style="font-size:13px;color:var(--muted)"></span>
@@ -2280,10 +2282,15 @@ async function sendAnnouncement() {
   try {
     const { data, error } = await _db.rpc('admin_send_announcement', { p_title: title, p_body: body, p_audience: aud });
     if (error) throw error;
+    if (document.getElementById('annBoard') && document.getElementById('annBoard').checked && data && data.id) {
+      const bres = await _db.rpc('admin_set_announcement_public', { p_id: data.id, p_show: true });
+      if (bres.error) throw bres.error;
+    }
     msg.style.color = 'var(--green, #16a34a)';
     msg.textContent = 'পাঠানো হয়েছে — ' + (data && data.recipients != null ? data.recipients : 0) + ' জন সদস্যের ইনবক্সে।';
     document.getElementById('annTitle').value = '';
     document.getElementById('annBody').value = '';
+    if (document.getElementById('annBoard')) document.getElementById('annBoard').checked = false;
     loadAnnouncements();
   } catch (e) {
     msg.style.color = 'var(--red)';
@@ -5057,9 +5064,10 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=66"></script>
-<script src="kh-app-downloads.js?v=68" defer></script>
-<script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);});</script>
+<script src="kh-ui.js?v=67"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=1" defer></script>
+<script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
 <script src="kh-i18n-data.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

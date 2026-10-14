@@ -3020,6 +3020,9 @@
 
   KHUI.mountVisitorCounter = function () {
     if (visitDone || document.querySelector('.kh-visit')) return;
+    /* শুধু হোম পেজে (index.html / ফোল্ডারের মূল ঠিকানা) — ভিতরের পেজে নয় */
+    var _p = location.pathname;
+    if (!(/\/index\.html?$/i.test(_p) || /\/$/.test(_p) || _p === '')) return;
     var host = document.getElementById('khVisitors') ||
                document.querySelector('footer');
     if (!host) return;
