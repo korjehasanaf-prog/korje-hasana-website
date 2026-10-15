@@ -1214,8 +1214,22 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
   .vol-verify-res{margin-top:10px}
   .vol-hidden{display:none !important}
 </style>
+<style id="vol-page-css">
+body[data-vol-page] .vol-sec{display:none !important}
+body[data-vol-page] .vol-hero{display:none !important}
+body[data-vol-page] #vol-home{display:none !important}
+.vol-back{display:inline-flex;align-items:center;gap:6px;margin:18px auto 0;padding:8px 14px;border-radius:999px;text-decoration:none;font-size:14px;font-weight:600;color:inherit;border:1px solid rgba(15,118,110,.35)}
+body[data-vol-page="home"] .vol-hero{display:block !important}
+body[data-vol-page="home"] #vol-home{display:block !important}
+.vol-home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-width:1100px;margin:0 auto;padding:8px 16px 40px}
+.vol-home-card{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:14px;text-decoration:none;color:inherit;background:var(--card,rgba(255,255,255,.04));border:1px solid rgba(15,118,110,.25);transition:transform .15s,border-color .15s}
+.vol-home-card:hover{transform:translateY(-2px);border-color:#14b8a6}
+.vol-home-card i{font-size:26px;color:#14b8a6;flex-shrink:0}
+.vol-home-card b{display:block;font-size:15px;margin-bottom:4px}
+.vol-home-card span{font-size:13px;opacity:.75;line-height:1.5}
+</style>
 </head>
-<body data-kh-nav="on">
+<body data-kh-nav="on" data-vol-page="home">
 
 <!-- ═══════════════════════════════════════════════════════
      TOP BAR
@@ -1629,13 +1643,26 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
       <h1>ভলেন্টিয়ার ম্যানেজমেন্ট</h1>
       <p>ন্যায়, কল্যাণ ও সহমর্মিতার পথে একসাথে। হিলফুল ফুজুলের আদর্শে গড়া স্বেচ্ছাসেবী পরিবার, যারা মজলুমের পাশে দাঁড়ায় এবং সমাজে সুবিচার ও সচেতনতা ছড়ায়।</p>
       <div class="vol-hero-links">
-        <a href="#about">আদর্শ ও শপথ</a>
-        <a href="#profile">নিবন্ধন ও প্রোফাইল</a>
-        <a href="#tasks">সেবার কাজ</a>
-        <a href="#certificates">সার্টিফিকেট যাচাই</a>
+        <a href="volunteer-about.html">ভলেন্টিয়ার পরিচিতি ও শপথ</a>
+        <a href="volunteer-profile.html">নিবন্ধন ও আমার প্রোফাইল</a>
+        <a href="volunteer-tasks.html">সেবার কাজ</a>
+        <a href="volunteer-certificates.html">সার্টিফিকেট ও যাচাই</a>
       </div>
     </div>
   </section>
+
+<section id="vol-home" class="vol-home-wrap">
+<div class="vol-home-grid">
+  <a class="vol-home-card" href="volunteer-about.html"><i class="ti ti-heart-handshake"></i><div><b>ভলেন্টিয়ার পরিচিতি ও শপথ</b><span>আদর্শ, শপথ ও ভলেন্টিয়ারের কাজ</span></div></a>
+  <a class="vol-home-card" href="volunteer-profile.html"><i class="ti ti-id-badge-2"></i><div><b>নিবন্ধন ও আমার প্রোফাইল</b><span>নিবন্ধন, লগইন ও আমার প্রোফাইল</span></div></a>
+  <a class="vol-home-card" href="volunteer-tasks.html"><i class="ti ti-checklist"></i><div><b>সেবার কাজ</b><span>খোলা সেবার কাজে যোগ দিন ও জমা দিন</span></div></a>
+  <a class="vol-home-card" href="volunteer-assist.html"><i class="ti ti-users-group"></i><div><b>অ্যাসিস্ট মোড</b><span>গ্রাহকের সাথে বসে এন্ট্রি ও আবেদন</span></div></a>
+  <a class="vol-home-card" href="volunteer-batch.html"><i class="ti ti-stack-2"></i><div><b>আমার ব্যাচ</b><span>আপনার অবদান ও গ্রাহকদের সারসংক্ষেপ</span></div></a>
+  <a class="vol-home-card" href="volunteer-certificates.html"><i class="ti ti-certificate"></i><div><b>সার্টিফিকেট ও যাচাই</b><span>সনদ দেখুন ও সার্টিফিকেট যাচাই করুন</span></div></a>
+  <a class="vol-home-card" href="volunteer-channel.html"><i class="ti ti-brand-whatsapp"></i><div><b>ভলেন্টিয়ার চ্যানেল</b><span>ভলেন্টিয়ার চ্যানেলে যুক্ত হোন</span></div></a>
+  <a class="vol-home-card" href="volunteer-ratings.html"><i class="ti ti-star"></i><div><b>রেটিং ও সেবা পয়েন্ট</b><span>রেটিং ও সেবা পয়েন্ট দেখুন</span></div></a>
+</div>
+</section>
 
   <!-- ১. আদর্শ ও শপথ -->
   <section class="vol-sec" id="about">
@@ -1748,7 +1775,7 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
     <div class="ft-col">
       <h4>Quick links</h4>
       <div class="ft-links">
-        <a href="#about" class="ft-link">About us</a>
+        <a href="volunteer-about.html" class="ft-link">About us</a>
         <a href="loan-application.html" class="ft-link">Apply for loan</a>
         <a href="donation.html" class="ft-link">Donate</a>
         <a href="#" class="ft-link">Success stories</a>
@@ -1816,8 +1843,12 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
 <script src="kh-ui.js?v=69"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
-<script src="kh-volunteer.js?v=3" defer></script>
+<script src="kh-volunteer.js?v=4" defer></script>
 <script src="kh-must-change.js?v=1" defer></script>
+<script>
+/* পুরোনো #hash লিংক (যেমন ছাপা সনদের যাচাই লিংক) → নতুন আলাদা পেজ */
+(function(){var m={'about':'volunteer-about.html','profile':'volunteer-profile.html','tasks':'volunteer-tasks.html','assist':'volunteer-assist.html','batch':'volunteer-batch.html','certificates':'volunteer-certificates.html','channel':'volunteer-channel.html','ratings':'volunteer-ratings.html'};var h=(location.hash||"").replace("#","");if(m[h]){location.replace(m[h]);}})();
+</script>
 <script src="volunteer-assist.js?v=1" defer></script>
 <script src="kh-i18n-data.js?v=1" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
@@ -2115,12 +2146,12 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
         org: 'Korje Hasana Foundation', title: 'Certificate of Volunteer Service', lead: 'This is to certify that',
         body: 'Volunteer ID <b>' + esc(c.volunteer_no) + '</b> has rendered a total of <b>' + esc(c.hours) + '</b> hours of voluntary service to the Foundation from ' + esc(dtEn(c.period_from)) + ' to ' + esc(dtEn(c.period_to)) + '.<br>Purpose: ' + esc(c.purpose),
         cert: 'Certificate No.', issued: 'Date of issue', sign: 'Authorised Signatory',
-        verify: 'To verify, enter the certificate number at korjehasana.org/volunteer.html#certificates'
+        verify: 'To verify, enter the certificate number at korjehasana.org/volunteer-certificates.html'
       } : {
         org: 'কর্জে হাসানা ফাউন্ডেশন', title: 'সেবা সনদপত্র', lead: 'এই মর্মে প্রত্যয়ন করা যাচ্ছে যে',
         body: 'ভলেন্টিয়ার আইডি <b>' + esc(c.volunteer_no) + '</b> — ' + esc(dt(c.period_from)) + ' থেকে ' + esc(dt(c.period_to)) + ' পর্যন্ত সময়ে প্রতিষ্ঠানের স্বেচ্ছাসেবী কার্যক্রমে মোট <b>' + esc(c.hours) + '</b> ঘণ্টা সেবা প্রদান করেছেন।<br>উদ্দেশ্য: ' + esc(c.purpose),
         cert: 'সনদ নম্বর', issued: 'প্রদানের তারিখ', sign: 'কর্তৃপক্ষের স্বাক্ষর',
-        verify: 'সার্টিফিকেট নম্বর দিয়ে korjehasana.org/volunteer.html#certificates-এ যাচাই করা যাবে।'
+        verify: 'সার্টিফিকেট নম্বর দিয়ে korjehasana.org/volunteer-certificates.html-এ যাচাই করা যাবে।'
       };
       var fam = en ? '"Cormorant Garamond", serif' : '"Hind Siliguri", sans-serif';
       var nFam = (en && nameLatin) ? '"Great Vibes", cursive' : '"Hind Siliguri", sans-serif';

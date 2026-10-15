@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="কর্জে হাসানা ফাউন্ডেশনের ভলেন্টিয়ার ম্যানেজমেন্ট: নিবন্ধন, সেবার কাজ, সার্টিফিকেট, চ্যানেল ও রেটিং।">
+<title>সার্টিফিকেট ও যাচাই | ভলেন্টিয়ার | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
+      --white:   #ffffff;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
+      --text:    #1a1a1a;
+      --muted:   #6B7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; color: var(--text); background: #fff; overflow-x: hidden; }
+
+    /* ═══════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════ */
+    .topbar {
+      background: var(--dkgreen);
+      padding: 6px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-left { display: flex; gap: 20px; }
+    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 13.5px; }
+    .topbar-item i { font-size: 15.5px; color: var(--ltgreen); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-soc {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; text-decoration: none;
+    }
+    .topbar-soc:hover { background: rgba(255,255,255,.15); }
+    .topbar-soc i { font-size: 15.5px; color: rgba(255,255,255,.6); }
+
+    /* ═══ TOPBAR ADMIN BUTTON ═══ */
+    .topbar-admin-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; font-weight: 700; padding: 3px 12px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1px solid rgba(240,140,40,.35); border-radius: 20px;
+      cursor: pointer; text-decoration: none; transition: all .2s;
+      font-family: inherit;
+    }
+    .topbar-admin-btn:hover { background: var(--gold); color: #160d26; }
+    .topbar-admin-btn i { font-size: 13.5px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.1); border-radius: 20px; border: 1px solid rgba(255,255,255,.2); overflow: hidden; }
+    .lang-btn { font-size: 12.5px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
+    .lang-btn.active { background: var(--gold); color: var(--green); font-weight: 600; }
+
+
+    /* ═══════════════════════════════════════
+       MEGA MENU
+    ═══════════════════════════════════════ */
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-chevron { font-size: 12.5px; margin-left: 3px; transition: transform .2s; vertical-align: middle; }
+    .nav-item.open > .nav-link .nav-chevron { transform: rotate(180deg); }
+
+    .mega-menu {
+      display: none;
+      position: absolute;
+      top: 68px;
+      left: 50%; transform: translateX(-50%);
+      background: #fff;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.18);
+      min-width: 540px;
+      border-top: 3px solid var(--gold);
+      z-index: 3000;
+      overflow: hidden;
+      animation: megaFadeIn .15s ease;
+    }
+    @keyframes megaFadeIn {
+      from { opacity:0; transform: translateX(-50%) translateY(-6px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+    .nav-item.open > .mega-menu { display: flex; }
+
+    .mega-inner { display: flex; min-height: 180px; width: 100%; }
+
+    /* Left column */
+    .mega-l { width: 210px; background: #f7faf8; border-right: 1px solid #e5ede8; padding: 10px 0; flex-shrink: 0; }
+    .mega-l1 {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 14.5px; font-weight: 500; color: #333;
+      border-left: 3px solid transparent;
+      transition: background .15s, color .15s, border-color .15s;
+      user-select: none;
+    }
+    .mega-l1 i.l1-ico { font-size: 18px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-l1 .l1-txt { flex: 1; line-height: 1.3; }
+    .mega-l1 .l1-sub { font-size: 12px; color: var(--muted); font-weight: 400; display: block; }
+    .mega-l1 i.l1-arr { font-size: 12.5px; color: #bbb; }
+    .mega-l1:hover, .mega-l1.active {
+      background: #e6f2ec; color: var(--green);
+      border-left-color: var(--green);
+    }
+    .mega-l1:hover i.l1-ico, .mega-l1.active i.l1-ico { color: var(--green); }
+
+    /* Right column */
+    .mega-r { flex: 1; padding: 10px 8px; }
+    .mega-panel { display: none; }
+    .mega-panel.active { display: block; }
+
+    .mega-rl {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 10px; border-radius: 8px;
+      text-decoration: none; color: var(--text);
+      transition: background .15s;
+      margin-bottom: 2px;
+    }
+    .mega-rl:hover { background: #edf7f1; }
+    .mega-rl i { font-size: 21px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-rl-body { display: flex; flex-direction: column; flex: 1; }
+    .mega-rl-title { font-size: 14.5px; font-weight: 600; color: var(--text); }
+    .mega-rl-desc  { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+    .mega-badge {
+      background: var(--green); color: #fff;
+      font-size: 12px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .mega-rl:hover .mega-badge { background: var(--mdgreen); }
+
+    .mega-r-header {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted);
+      padding: 4px 10px 6px; margin-bottom: 2px;
+    }
+
+    /* Separator between mega items */
+    .mega-sep { height: 1px; background: #eee; margin: 6px 16px; }
+
+    /* Mobile: mega-menu becomes flat accordion */
+    @media (max-width: 1023px) {
+      .mega-menu { display: none !important; }
+      .nav-item { height: auto; display: block; }
+      .nav-item > .nav-link { height: auto; }
+    }
+
+    /* Tablet/mobile: মেগা-মেনু ট্যাপে খোলে, সব সাব-মেনু সোজা তালিকায় দেখা যায় */
+    @media (max-width: 1023px) {
+      .nav-item.open > .mega-menu { display:block !important; position:static; transform:none; min-width:0; width:100%; box-shadow:none; border-top:0; border-radius:0; background:transparent; overflow:visible; animation:none; }
+      .nav-item.open > .mega-menu .mega-inner { display:block; min-height:0; }
+      .nav-item.open > .mega-menu .mega-l { display:none; }
+      .nav-item.open > .mega-menu .mega-r { padding:2px 16px 10px 26px; }
+      .nav-item.open > .mega-menu .mega-panel { display:block; }
+      .nav-item.open > .mega-menu .mega-sep { display:none; }
+      .nav-item.open > .mega-menu .mega-r-header { color:var(--gold); padding:8px 0 4px; }
+      .nav-item.open > .mega-menu .mega-rl { color:#fff; padding:8px 4px; }
+      .nav-item.open > .mega-menu .mega-rl-title { color:#fff; }
+      .nav-item.open > .mega-menu .mega-rl-desc { color:rgba(255,255,255,.7); }
+      .nav-item.open > .mega-menu .mega-rl i { color:var(--gold); }
+      .nav-item.open > .mega-menu .mega-rl:hover { background:rgba(255,255,255,.06); }
+    }
+
+    /* ═══════════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════════ */
+    .navbar {
+      background:
+        linear-gradient(112deg,
+          rgba(214, 51, 108, .88) 0%,
+          rgba(233, 84, 32, .82) 34%,
+          rgba(240, 140, 40, .78) 58%,
+          rgba(112, 72, 232, .82) 100%);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 18px;
+      margin: 10px 14px 0;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 10px;
+      z-index: 1000;
+      box-shadow: 0 10px 34px rgba(120, 40, 120, .35), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 46px; height: 46px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 700; color: var(--green);
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(240,140,40,.4);
+    }
+    .logo-texts { display: flex; flex-direction: column; }
+    .logo-bn { color: #fff; font-size: 16px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
+    .logo-en { color: rgba(255,255,255,.75); font-size: 12px; line-height: 1.3; }
+    .logo-sl { color: #ffe9a8; font-size: 11px; font-style: italic; opacity: .95; }
+
+    .nav-center { display: flex; position: relative; height: 68px; align-items: center; }
+    .nav-link {
+      color: rgba(255,255,255,.8); font-size: 14.5px; font-weight: 500;
+      padding: 0 16px; height: 68px; display: flex; align-items: center;
+      cursor: pointer; position: relative; transition: color .2s;
+      text-decoration: none; white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-indicator {
+      position: absolute; bottom: 12px; height: 44px;
+      background: rgba(255,255,255,.24);
+      border: 1px solid rgba(255,255,255,.32);
+      border-radius: 999px;
+      transition: left .38s cubic-bezier(.34,1.3,.5,1), width .38s cubic-bezier(.34,1.3,.5,1);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .nav-link { z-index: 1; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ═══ NAV SAVINGS BUTTON ═══ */
+    .nav-savings-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1.5px solid rgba(240,140,40,.5);
+      font-size: 13.5px; font-weight: 700;
+      padding: 8px 18px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+      animation: navSavGlow 2.5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .nav-savings-btn:hover {
+      background: var(--gold); color: var(--green);
+      border-color: var(--gold); animation: none;
+      transform: translateY(-1px);
+    }
+    @keyframes navSavGlow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
+      50%      { box-shadow: 0 0 12px 3px rgba(240,140,40,.25); }
+    }
+    .donate-btn {
+      background: var(--gold); color: var(--green);
+      border: none; font-size: 14.5px; font-weight: 700;
+      padding: 10px 22px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,140,40,.35);
+    }
+    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(240,140,40,.55); }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, var(--green) 0%, var(--dkgreen) 100%);
+      padding: 50px 40px 40px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+      min-height: 460px; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(240,140,40,.06); pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -60px; left: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,.03); pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      font-size: 12.5px; padding: 5px 14px; border-radius: 20px;
+      border: 1px solid rgba(240,140,40,.35); margin-bottom: 14px;
+    }
+    .hero-h1 { color: #fff; font-size: 30px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+    .hero-h1 span { color: var(--gold); }
+    .hero-p { color: var(--ltgreen); font-size: 15.5px; line-height: 1.8; margin-bottom: 24px; max-width: 420px; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--green); border: none;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,140,40,.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(240,140,40,.6); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,.4);
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
+    .btn-gold-outline {
+      background: transparent; color: var(--gold);
+      border: 1.5px solid rgba(240,140,40,.5);
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-gold-outline:hover { background: rgba(240,140,40,.1); }
+
+    /* KH PHOTO CAROUSEL */
+    .khc-section { position: relative; width: 100%; padding: 8px 0; }
+    .khc-wrap {
+      position: relative; width: 100%; height: 490px;
+      perspective: 1400px; overflow: visible;
+    }
+    .khc-card {
+      position: absolute; top: 50%; left: 50%;
+      width: 280px; height: 420px;
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      will-change: transform, opacity;
+      transition: transform 0.65s cubic-bezier(.25,.46,.45,.94), opacity 0.65s ease;
+    }
+    .khc-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .khc-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 32px 14px 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      color: #fff; font-size: 14.5px; font-weight: 700;
+      font-family: 'Hind Siliguri', sans-serif;
+      text-align: center; letter-spacing: .3px;
+    }
+    .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #f08c28; }
+
+    /* ── ছবি বড় করে দেখা ──
+       মাঝের কার্ডে চাপ দিলে পুরো পর্দাজুড়ে ছবিটি খোলে। ছবির উপরে কোনো
+       ব্যাজ/লেখা বসানো হয় না — ছবিটিই পরিষ্কার দেখা যাক (সিদ্ধান্ত: ১১ সেপ্টে ২০২৬)। */
+    /* z-index ১০০০০ — হোয়াটসঅ্যাপ বাটন (৯৯৯৯), গ্লাস নেভ (৯০০০) ও চ্যাট প্যানেল
+       (৯৪০০) সবার উপরে থাকতে হবে, নাহলে ওগুলো ছবির উপর ভেসে থাকে */
+    .khc-lb {
+      position: fixed; inset: 0; z-index: 10000; display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px 16px; background: rgba(12,7,20,.95);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .khc-lb.show { display: flex; }
+    .khc-lb img {
+      max-width: 100%; max-height: 74vh; width: auto; height: auto;
+      border-radius: 16px; object-fit: contain;
+      box-shadow: 0 22px 64px rgba(0,0,0,.65);
+    }
+    .khc-lb-cap {
+      margin-top: 15px; color: #fff; text-align: center;
+      font-size: 17.5px; font-weight: 700; line-height: 1.4;
+    }
+    .khc-lb-cap span { display: block; font-size: 13px; font-weight: 400; opacity: .72; margin-top: 2px; }
+    .khc-lb-count { margin-top: 7px; color: #e0c9ff; font-size: 12.5px; letter-spacing: .4px; }
+    .khc-lb-btn {
+      position: absolute; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; cursor: pointer; color: #fff; font-size: 23px;
+      padding: 0; line-height: 1;
+      background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.34);
+    }
+    .khc-lb-x    { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 21px; }
+    .khc-lb-prev { top: 50%; left: 12px;  width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-next { top: 50%; right: 12px; width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-btn:hover { background: rgba(255,255,255,.3); }
+    @media (max-width: 480px) {
+      .khc-lb img { max-height: 68vh; }
+      .khc-lb-prev { left: 6px } .khc-lb-next { right: 6px }
+    }
+    .khc-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; z-index: 20; font-size: 19px;
+    }
+    .khc-nav:hover { background: rgba(255,255,255,.3); }
+    .khc-prev { left: -4px; } .khc-next { right: -4px; }
+
+    /* ═══════════════════════════════════════
+       QURAN & HADITH SLIDER — "পান্ডুলিপি" থীম
+
+       ⚠️ আগে পটভূমি ছিল var(--dkgreen) = #160d26 — অর্থাৎ হিরো ও
+       টপবারের প্রায় একই গাঢ় প্লাম। তাই ব্লকটি আলাদা করে চোখে
+       পড়ত না, কুরআন-হাদিসের অংশ বলেও বোঝা যেত না (ব্যবহারকারীর
+       পর্যবেক্ষণ, ১২ সেপ্টেম্বর ২০২৬)। এখন **হালকা পার্চমেন্ট**
+       পাতা — গাঢ় হিরোর ঠিক পরেই উল্টো উজ্জ্বলতা, তাই আলাদা করে
+       চেনা যায়; সাথে ইসলামি গিরিহ নকশা, সোনালি রেখা ও সবুজ কালি।
+
+       ⚠️ ভাউচার ও প্রোফাইল কার্ডের মতোই **দুই থীমেই এক** — এটি
+       "কাগজ", তাই থীমের সাথে বদলায় না। সেজন্য `kh-ui.css`-এর
+       সেকশন ৯-এর দুটি ঢালাও লাইট-থীম নিয়ম থেকে `.quran-strip`
+       বাদ দেওয়া হয়েছে (নাহলে পটভূমি ও লেখার রঙ চাপা পড়ত)।
+    ═══════════════════════════════════════ */
+    /* ⚠️ উচ্চতা আগের মাপেই ফেরানো (ব্যবহারকারীর পর্যবেক্ষণ:
+       "চওড়া বেশী হয়ে গেছে, আগের সাইজ ঠিক ছিল")। মূল ছিল
+       `22px 60px`; শিরোনামটি নতুন যোগ হয়েছে বলে সামান্য বেশি,
+       কিন্তু ভেতরের সব ফাঁক ও মাপ ছোট করে আনা হয়েছে। */
+    .quran-strip {
+      position: relative; overflow: hidden;
+      padding: 24px 60px 18px;
+      background:
+        /* নিচের সোনালি রেখা */
+        linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent)
+          bottom / 100% 3px no-repeat,
+        /* পার্চমেন্ট */
+        radial-gradient(125% 95% at 50% 0%, #fffdf6 0%, #fbf3e2 55%, #f2e4c9 100%);
+    }
+    /* উপরের সোনালি রেখা */
+    .quran-strip::after {
+      content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent);
+    }
+    /* ⚠️ নকশাটি এখন **লগইন পেজের সেই ক্যালিগ্রাফি ছবিটিই**
+       (`images/auth-bg.jpg`) — ব্যবহারকারীর সিদ্ধান্ত, ১৩ সেপ্টেম্বর
+       ২০২৬। আগে হাতে আঁকা গিরিহ তারা ছিল; এখন সাইটজুড়ে একই
+       ইসলামি ভাষা থাকে। ছবিটি লগইন পেজে আগেই লোড হয় বলে
+       বেশিরভাগ দর্শকের কাছে ক্যাশ থেকেই আসে।
+       ⚠️ ঘনত্ব ইচ্ছে করেই কম (.18) — ছবির দুই কিনারায় গাঢ় নেভি
+       আছে, বেশি দিলে ইংরেজি অনুবাদের কনট্রাস্ট AA-র নিচে নামত
+       (মেপে দেখা হয়েছে)। */
+    .quran-strip::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: .18;
+      background: url('images/auth-bg.jpg') center / cover no-repeat;
+    }
+    .quran-strip > * { position: relative; z-index: 1; }
+
+    /* ব্লকটি কী, সেটি এক নজরে বোঝানোর জন্য (ব্যবহারকারীর দাবি) */
+    /* ⚠️ শিরোনাম ও অলংকার **এক সারিতে** — আলাদা দুই সারিতে থাকলে
+       ব্যান্ডটি ৭৩px লম্বা হয়ে যেত, আর সেটিই "চওড়া বেশী" লাগার
+       কারণ ছিল (মেপে ধরা পড়ে)। এখন পুরো মাথা ~৩৬px। */
+    .quran-head {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 10px;
+    }
+    .quran-kick {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11.5px; font-weight: 800; letter-spacing: .4px;
+      padding: 5px 14px; border-radius: 22px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      box-shadow: 0 5px 13px rgba(13, 92, 67, .2);
+    }
+    .quran-kick i { font-size: 14px; color: #ffd98a; }
+    /* সোনালি ফুল-নকশার বিভাজক */
+    /* চিপের দুই পাশে সোনালি রেখা — নিছক সাজসজ্জা (`aria-hidden`),
+       কোনো তথ্য বহন করে না। ⚠️ `#cfa04a` ছিল — ক্যালিগ্রাফি ছবির
+       উপর মাত্র ১.৩:১, প্রায় মিলিয়ে যেত; এখন গাঢ় সোনালি ২.১:১।
+       (আগের হীরের আইকনটি বাদ: পার্চমেন্টে মাত্র ২.৩৬:১ দিত।) */
+    .quran-orn {
+      display: block; width: 70px; height: 1px; flex: none;
+      background: linear-gradient(90deg, transparent, #a97615);
+    }
+    .quran-orn.r { background: linear-gradient(90deg, #a97615, transparent); }
+
+    .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+    .quran-slide { min-width: 100%; text-align: center; padding: 0 56px; }
+    /* আইকনটি এখন গোল সবুজ মেডেলিয়ন — পার্চমেন্টে কমলা আইকন
+       মাত্র ২.৩:১ দিত, তাই নিজের রঙিন পটভূমি বহন করে */
+    .quran-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%; margin-bottom: 9px;
+      font-size: 16px; color: #fff;
+      background: linear-gradient(135deg, #0d5c43, #12805e);
+      box-shadow: 0 5px 14px rgba(13, 92, 67, .24), 0 0 0 5px rgba(18, 128, 94, .09);
+    }
+    .quran-text-ar {
+      color: #123a2c; font-size: 16px; font-weight: 600; line-height: 1.7;   /* ১০.২:১ */
+      margin: 0 auto 6px; font-family: 'Hind Siliguri', sans-serif;
+      max-width: 780px;
+    }
+    /* ⚠️ আগে #4a5f52 ছিল — ক্যালিগ্রাফি ছবির গাঢ় নেভি অংশের উপর
+       পড়লে ৩.৯:১-এ নেমে যেত। এখন গাঢ়, সবচেয়ে খারাপ জায়গাতেও ৫.৪:১ */
+    .quran-text-en {
+      color: #37493f; font-size: 13px; line-height: 1.6; margin: 0 auto 9px;
+      font-style: italic; max-width: 720px;
+    }
+    .quran-ref {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      padding: 4px 13px; border-radius: 20px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      border: none;
+    }
+    .quran-nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fffdf6; border: 1px solid #e2cfa6; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s, transform .2s;
+      box-shadow: 0 3px 10px rgba(120, 90, 30, .14);
+    }
+    .quran-nav-btn:hover { background: #fff; border-color: #c8912f; transform: translateY(-50%) scale(1.06); }
+    .quran-nav-btn i { font-size: 17px; color: #0d5c43; }
+    .quran-nav-l { left: 18px; }
+    .quran-nav-r { right: 18px; }
+    .quran-dots { display: flex; justify-content: center; gap: 7px; margin-top: 12px; }
+    .qdot {
+      height: 6px; width: 6px; border-radius: 3px; cursor: pointer;
+      transition: all .3s; background: #dcc9a4;
+    }
+    .qdot.active { background: linear-gradient(90deg, #c8912f, #e6ac43); width: 22px; }
+
+    @media (max-width: 640px) {
+      .quran-strip { padding: 20px 18px 14px; }
+      .quran-text-ar { font-size: 15px; line-height: 1.7; }
+      .quran-text-en { font-size: 12.5px; }
+      .quran-nav-btn { width: 28px; height: 28px; }
+      .quran-nav-btn i { font-size: 15px; }
+      .quran-nav-l { left: 4px; } .quran-nav-r { right: 4px; }
+      .quran-orn { display: none; }   /* সরু পর্দায় শুধু চিপটিই থাকে */
+    }
+
+    /* ═══════════════════════════════════════
+       IMPACT DASHBOARD
+    ═══════════════════════════════════════ */
+    .impact-section { background: #0F172A; padding: 40px; }
+    .section-title-dark {
+      text-align: center; color: rgba(255,255,255,.5);
+      font-size: 12.5px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+    .impact-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    .impact-card {
+      border-radius: 16px; padding: 20px 16px; position: relative;
+      overflow: hidden; cursor: pointer; transition: all .3s;
+    }
+    .impact-card:hover { transform: translateY(-4px); }
+    .ic-1 { background: linear-gradient(135deg,#1565C0,#1976D2); box-shadow: 0 4px 24px rgba(21,101,192,.4); }
+    .ic-2 { background: linear-gradient(135deg,#1B5E20,#2E7D32); box-shadow: 0 4px 24px rgba(27,94,32,.4); }
+    .ic-3 { background: linear-gradient(135deg,#E65100,#F57C00); box-shadow: 0 4px 24px rgba(230,81,0,.4); }
+    .ic-4 { background: linear-gradient(135deg,#4A148C,#7B1FA2); box-shadow: 0 4px 24px rgba(74,20,140,.4); }
+    .ic-1:hover { box-shadow: 0 8px 36px rgba(21,101,192,.65); }
+    .ic-2:hover { box-shadow: 0 8px 36px rgba(27,94,32,.65); }
+    .ic-3:hover { box-shadow: 0 8px 36px rgba(230,81,0,.65); }
+    .ic-4:hover { box-shadow: 0 8px 36px rgba(74,20,140,.65); }
+    .impact-card::before {
+      content: ''; position: absolute; top: -30%; right: -20%;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(255,255,255,.08); pointer-events: none;
+    }
+    .ic-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .ic-num { font-size: 34px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .ic-lbl { font-size: 13.5px; color: rgba(255,255,255,.75); margin-bottom: 10px; line-height: 1.4; }
+    .ic-bar { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
+    .ic-bar-inner { height: 100%; background: rgba(255,255,255,.75); border-radius: 2px; width: 0; transition: width 1.5s ease; }
+    .ic-trend { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 6px; }
+    .ic-trend span { color: #4FC3F7; font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       SECTION COMMONS
+    ═══════════════════════════════════════ */
+    .section { padding: 60px 40px; }
+    .section-alt { background: var(--offwhite); }
+    .sec-hd { text-align: center; margin-bottom: 40px; }
+    .sec-tag {
+      display: inline-block; background: #EAF3DE; color: #3B6D11;
+      font-size: 12.5px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sec-h2 { font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+    .sec-p { font-size: 15.5px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    /* ═══════════════════════════════════════
+       SERVICES
+    ═══════════════════════════════════════ */
+    .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .srv-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px 20px; transition: all .25s; cursor: pointer;
+    }
+    .srv-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.12); }
+    .srv-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 23.5px; margin-bottom: 14px;
+    }
+    .srv-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .srv-desc { font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+    .srv-amt { font-size: 13.5px; color: var(--gold); font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+    .srv-amt i { font-size: 15.5px; }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-section { background: var(--green); padding: 60px 40px; }
+    .how-section .sec-h2 { color: #fff; }
+    .how-section .sec-p { color: var(--ltgreen); }
+    .how-section .sec-tag { background: rgba(240,140,40,.15); color: var(--gold); border: 1px solid rgba(240,140,40,.3); }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; margin-top: 40px; }
+    .steps::before {
+      content: ''; position: absolute; top: 28px; left: 12%; right: 12%; height: 1px;
+      background: rgba(255,255,255,.2); pointer-events: none;
+    }
+    .step { text-align: center; padding: 0 12px; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--gold); color: var(--green);
+      font-size: 21px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; position: relative; z-index: 1;
+      box-shadow: 0 0 24px rgba(240,140,40,.5);
+    }
+    .step-title { font-size: 15.5px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step-desc { font-size: 13.5px; color: var(--ltgreen); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       CUSTOMER CARE STRIP
+    ═══════════════════════════════════════ */
+    .cc-strip {
+      background: #fff6ef; border-top: 3px solid var(--gold);
+      border-bottom: 1px solid #F0D080;
+      padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cc-left { display: flex; align-items: center; gap: 16px; }
+    .cc-icon-wrap { position: relative; }
+    .cc-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 0 20px rgba(37,211,102,.4);
+    }
+    .cc-icon i { font-size: 28px; color: #fff; }
+    .cc-ring {
+      position: absolute; top: -4px; right: -4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid #25D366;
+      animation: ringPulse 1.6s infinite;
+    }
+    @keyframes ringPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2.5);opacity:0} }
+    .cc-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+    .cc-sub { font-size: 13.5px; color: var(--muted); }
+    .cc-actions { display: flex; gap: 10px; }
+    .wa-btn {
+      background: #25D366; color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all .2s; box-shadow: 0 4px 16px rgba(37,211,102,.4);
+      text-decoration: none;
+    }
+    .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.6); }
+    /* ⚠️ আগে এটি ছিল `background:transparent` + `color:var(--green)`।
+       কিন্তু kh-ui.css-এর "রঙিন ফিলের উপর বসা বাটন" তালিকায় `.call-btn`ও
+       আছে, যা `color:#fff !important` দেয় — ফলে ক্রিম পটভূমিতে সাদা লেখা,
+       দুই থীমেই অদৃশ্য। এখন বাটনটি নিজের গ্র্যাডিয়েন্ট বহন করে
+       (প্রকল্পের ২ নম্বর নিয়ম: সাদা লেখা = রঙিন পটভূমি)। */
+    .call-btn {
+      background: linear-gradient(112deg,#c2255c 0%,#8b1fb0 55%,#7048e8 100%);
+      color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .2s; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(139,31,176,.38);
+    }
+    .call-btn i { color: #fff; }
+    .call-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,31,176,.55); }
+
+    /* ── মোবাইলে স্ট্রিপটি দাঁড়িয়ে যায় ──
+       ডেস্কটপে এটি `space-between` করা এক সারি; ছোট পর্দায় বাঁয়ের
+       লম্বা দুই লাইনের লেখা আর ডানের দুটি বাটন একে অপরকে চেপে ধরত। */
+    @media (max-width: 860px) {
+      .cc-strip { flex-direction: column; align-items: center; gap: 18px; padding: 24px 20px; text-align: center; }
+      .cc-left { flex-direction: column; gap: 12px; }
+      .cc-title { font-size: 15px; line-height: 1.45; }
+      .cc-sub { font-size: 12.5px; line-height: 1.65; }
+      .cc-actions { width: 100%; max-width: 430px; }
+      .wa-btn, .call-btn { flex: 1; justify-content: center; min-height: 46px; }
+    }
+    @media (max-width: 430px) {
+      .cc-actions { flex-direction: column; }
+    }
+
+    /* ═══════════════════════════════════════
+       SUCCESS STORIES
+    ═══════════════════════════════════════ */
+    .stories-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .story-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .story-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .story-img {
+      height: 100px; display: flex; align-items: center; justify-content: center;
+      font-size: 43px;
+    }
+    .story-body { padding: 16px; }
+    .story-tag { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .story-quote { font-size: 14.5px; color: var(--text); line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .story-quote::before { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-quote::after { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-meta { font-size: 12.5px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       NEWS
+    ═══════════════════════════════════════ */
+    .news-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .news-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(36,21,57,.1); }
+    .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+    .news-body { padding: 14px; }
+    .news-cat { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
+    .news-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+    .news-date { font-size: 12.5px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       CTA BAND
+    ═══════════════════════════════════════ */
+    .cta-band {
+      background: linear-gradient(135deg, var(--gold) 0%, #e95420 100%);
+      padding: 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cta-band h3 { font-size: 21px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+    .cta-band p { font-size: 14.5px; color: rgba(0,0,0,.55); }
+    .cta-btns { display: flex; gap: 12px; }
+    .cta-btn1 {
+      background: var(--green); color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .cta-btn1:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
+    .cta-btn2 {
+      background: transparent; color: var(--green);
+      border: 2px solid var(--green);
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s;
+    }
+    .cta-btn2:hover { background: rgba(0,0,0,.06); }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer { background: var(--dkgreen); padding: 50px 40px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 32px; margin-bottom: 36px; }
+    .ft-logo-bn { color: #fff; font-size: 17px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; }
+    .ft-logo-en { color: var(--ltgreen); font-size: 12.5px; margin-bottom: 3px; }
+    .ft-logo-sl { color: var(--gold); font-size: 12px; font-style: italic; margin-bottom: 14px; }
+    .ft-about { color: rgba(255,255,255,.45); font-size: 13.5px; line-height: 1.8; margin-bottom: 16px; }
+    .ft-nl { display: flex; gap: 8px; }
+    .ft-nl input {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px; padding: 8px 14px; font-size: 13.5px; color: #fff; flex: 1;
+    }
+    .ft-nl input::placeholder { color: rgba(255,255,255,.35); }
+    .ft-nl button {
+      background: var(--gold); color: var(--green); border: none;
+      border-radius: 24px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    }
+    .ft-col h4 { color: var(--ltgreen); font-size: 13.5px; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.1); text-transform: uppercase; letter-spacing: .5px; }
+    .ft-links { display: flex; flex-direction: column; gap: 8px; }
+    .ft-link {
+      color: rgba(255,255,255,.45); font-size: 13.5px; text-decoration: none;
+      display: flex; align-items: center; gap: 5px; transition: all .2s;
+    }
+    .ft-link::before { content: '›'; opacity: .4; font-size: 15.5px; transition: opacity .2s; }
+    .ft-link:hover { color: var(--gold); padding-left: 4px; }
+    .ft-link:hover::before { opacity: 1; color: var(--gold); }
+    .ft-contact { display: flex; flex-direction: column; gap: 8px; }
+    .ft-contact-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 13.5px; }
+    .ft-contact-item i { font-size: 15.5px; color: var(--ltgreen); }
+    .footer-mid {
+      border-top: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 16px 0; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-socs { display: flex; gap: 10px; }
+    .foot-soc {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s; text-decoration: none;
+    }
+    .foot-soc i { font-size: 19px; color: rgba(255,255,255,.5); transition: color .25s; }
+    .foot-soc:hover { transform: translateY(-3px); }
+    .foot-soc.fb:hover { background: #1877F2; border-color: #1877F2; }
+    .foot-soc.fb:hover i { color: #fff; }
+    .foot-soc.yt:hover { background: #FF0000; border-color: #FF0000; }
+    .foot-soc.yt:hover i { color: #fff; }
+    .foot-soc.wa:hover { background: #25D366; border-color: #25D366; }
+    .foot-soc.wa:hover i { color: #fff; }
+    .foot-soc.li:hover { background: #0A66C2; border-color: #0A66C2; }
+    .foot-soc.li:hover i { color: #fff; }
+    .ft-badges { display: flex; gap: 8px; }
+    .ft-badge {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.4); font-size: 12px; padding: 4px 10px; border-radius: 12px;
+    }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .ft-copy { color: rgba(255,255,255,.3); font-size: 12.5px; }
+
+    /* ═══════════════════════════════════════
+       FLOATING BUTTONS
+    ═══════════════════════════════════════ */
+    .wa-float {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .wa-float-btn {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,.5);
+      cursor: pointer; transition: all .2s; text-decoration: none;
+      animation: waPulse 2.5s infinite;
+      position: relative;
+    }
+    @keyframes waPulse {
+      0%,100%  { box-shadow: 0 4px 20px rgba(37,211,102,.5); }
+      50%      { box-shadow: 0 4px 30px rgba(37,211,102,.8), 0 0 0 10px rgba(37,211,102,.15); }
+    }
+    .wa-float-btn i { font-size: 30px; color: #fff; }
+    .wa-float-tooltip {
+      background: #fff; color: var(--green); font-size: 13.5px; font-weight: 700;
+      padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      display: none; white-space: nowrap;
+    }
+    .wa-float:hover .wa-float-tooltip { display: block; }
+
+    .btt-btn {
+      position: fixed; bottom: 98px; right: 28px; z-index: 9999;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--green); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s;
+      opacity: 0; pointer-events: none;
+      box-shadow: 0 4px 16px rgba(36,21,57,.35);
+    }
+    .btt-btn.visible { opacity: 1; pointer-events: all; }
+    .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.5); }
+    .btt-btn i { font-size: 21px; color: var(--gold); }
+
+    /* ═══════════════════════════════════════
+       DIVIDER
+    ═══════════════════════════════════════ */
+    .divider { height: 1px; background: var(--border); margin: 0 40px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 30px 20px; }
+      /* Carousel: show as single card on tablet/mobile */
+      .khc-section { display: block; margin-top: 12px; }
+      /* মোবাইলে শুধু মাঝের কার্ডটি থাকে — তাই সেটিকে যতটা সম্ভব বড় দেখানো হয় */
+      .khc-wrap { height: 456px; }
+      .khc-card { width: 276px; height: 414px; }
+      .khc-card:not(.is-active) { opacity: 0 !important; pointer-events: none !important; }
+      .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
+      .impact-grid { grid-template-columns: repeat(2,1fr); }
+      .steps { grid-template-columns: repeat(2,1fr); gap: 20px; }
+      .steps::before { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      /* Hamburger + dropdown nav */
+      .nav-center { display: none; height: auto !important; }
+      .nav-hamburger { display: flex; }
+      .nav-links { display: none !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--dkgreen); padding: 8px 0; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,.3); border-top: 2px solid var(--gold); width: 100%; }
+      /* height:auto — নাহলে মেনু ৬৮px-এ আটকে গিয়ে আইটেমগুলো
+         হিরো সেকশনের লেখার ওপরে ব্যাকগ্রাউন্ড ছাড়া ভেসে উঠত */
+      .nav-links.open { display: flex !important; height: auto !important; align-items: stretch !important; }
+      .nav-link { padding: 13px 20px !important; border-bottom: 1px solid rgba(255,255,255,.07); width: 100%; height: auto; }
+      .nav-indicator { display: none; }
+      .cta-band { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ মোবাইলের লগইন / সাইন আপ বাটন ═══
+   ডেস্কটপে টপবারে ও নেভ-CTA-তে লগইন আছে, কিন্তু মোবাইলে দুটোই লুকানো
+   (.topbar ও .nav-cta → display:none) — তাই লগইন শুধু হ্যামবার্গারে থাকত।
+   এই বাটনটি হিরোতেই সেই পথ খুলে দেয়। ৭৬৮px-এর উপরে সম্পূর্ণ লুকানো। */
+.kh-mauth { display:none; }
+@media (max-width:768px) {
+  .kh-mauth {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; margin:0 0 14px; padding:14px 20px; min-height:48px;
+    border:none; border-radius:13px; cursor:pointer;
+    font-family:inherit; font-size:15.5px; font-weight:800;
+    /* সাদা লেখা — তাই পটভূমি অবশ্যই গাঢ় গ্র্যাডিয়েন্ট (কনট্রাস্ট ৫.৩–৭.২:১) */
+    color:#fff !important; text-decoration:none;
+    background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#c0307a);
+    box-shadow:0 6px 22px rgba(160,33,201,.35);
+  }
+  .kh-mauth i { font-size:19px; color:#fff !important; }
+  .kh-mauth:active { transform:translateY(1px); }
+}
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; }
+  .nav-center { height:auto !important; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); width:100%; }
+  .nav-links.open { display:flex !important; height:auto !important; align-items:stretch !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  /* footer-mid: stack on mobile */
+  .footer-mid { flex-direction:column !important; align-items:center !important; gap:12px !important; text-align:center !important; }
+  .ft-badges { flex-wrap:wrap !important; justify-content:center !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:26px !important; }
+  .page-hero p { font-size:14.5px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:23.5px !important; }
+  /* hero */
+  .hero-section { padding:40px 16px 80px !important; }
+  .hero-title { font-size:28px !important; }
+  .hero-sub { font-size:15.5px !important; }
+  .hero-btns { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
+  .hero-btn, .btn-apply, .btn-learn { text-align:center !important; padding:14px 20px !important; }
+  /* stats */
+  .stats-row, .stats-grid { grid-template-columns:1fr 1fr !important; gap:12px !important; padding:0 16px !important; }
+  /* features */
+  .features-grid, .feat-grid, .services-grid { grid-template-columns:1fr !important; gap:16px !important; }
+  /* process */
+  .process-steps, .steps-row { flex-direction:column !important; gap:20px !important; }
+  .step-connector { display:none !important; }
+  /* testimonials */
+  .testimonials-grid { grid-template-columns:1fr !important; }
+  /* footer */
+  .footer-grid, .ft-grid, .footer-cols { grid-template-columns:1fr !important; gap:24px !important; }
+  .footer-top { padding:40px 16px !important; }
+  .footer-bottom { flex-direction:column !important; gap:10px !important; text-align:center !important; }
+  /* section padding */
+  section, .section { padding:40px 16px !important; }
+  .container, .section-inner { padding:0 16px !important; }
+  .quran-strip { padding:18px 20px !important; }
+  .impact-section { padding:32px 16px !important; }
+  .mv-section { padding:40px 16px !important; }
+  .cta-band { padding:28px 16px !important; }
+  .divider { margin:0 16px !important; }
+  .footer { padding:40px 16px 20px !important; }
+  .cta-btns { justify-content:center !important; flex-wrap:wrap !important; }
+}
+    /* Very small screens */
+    @media (max-width:480px) {
+      .nav-right { display:none; }
+      .logo-sl { display:none; }
+      .logo-en { display:none; }
+      .logo-bn { font-size:14.5px; }
+      .logo-icon { width:36px; height:36px; font-size:14.5px; }
+      /* ছোট ফোনে কার্ড ও ঘর একসাথে ছোট হয় — নাহলে কার্ডটি ঘরের চেয়ে লম্বা হয়ে
+         যায় আর .hero-র overflow:hidden নিচের নামটুকু কেটে দেয় */
+      .khc-wrap { height:392px; }
+      .khc-card { width:236px; height:354px; }
+      .hero { padding:24px 16px; }
+    }
+
+    /* ═══════════════════════════════════════
+       MISSION & VISION SECTION
+    ═══════════════════════════════════════ */
+    .mv-section {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #071e0f 0%, #160d26 45%, #0a2e1a 100%);
+      padding: 72px 40px;
+    }
+    .mv-orb { position:absolute; border-radius:50%; filter:blur(70px); opacity:.18; pointer-events:none; }
+    .mv-orb1 { width:420px;height:420px; background:#7048e8; top:-100px; left:-80px; }
+    .mv-orb2 { width:320px;height:320px; background:#f08c28; bottom:-80px; right:-60px; }
+    .mv-orb3 { width:200px;height:200px; background:#cbb6f5; top:40%; left:45%; }
+    .mv-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+    .mv-hd { text-align:center; margin-bottom:52px; }
+    .mv-tag {
+      display:inline-block; background:rgba(240,140,40,.15);
+      border:1px solid rgba(240,140,40,.35); color:#f08c28;
+      font-size:12.5px; font-weight:700; letter-spacing:1.5px;
+      text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:14px;
+    }
+    .mv-title { color:#fff; font-size:34px; font-weight:900; font-family:'Hind Siliguri',sans-serif; line-height:1.2; margin-bottom:10px; }
+    .mv-sub { color:rgba(255,255,255,.5); font-size:15.5px; }
+    .mv-cards { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-bottom:36px; }
+    .mv-card {
+      position:relative; overflow:hidden; border-radius:20px; padding:36px 32px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .mv-card-glow { position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; filter:blur(55px); opacity:.45; }
+    .mv-card.mission { background:linear-gradient(135deg,rgba(36,21,57,.6),rgba(22,13,38,.85)); }
+    .mv-card.mission .mv-card-glow { background:#f08c28; }
+    .mv-card.vision  { background:linear-gradient(135deg,rgba(112,72,232,.5),rgba(9,45,25,.85)); }
+    .mv-card.vision  .mv-card-glow { background:#cbb6f5; }
+    .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; position:relative; z-index:1; }
+    .mission .mv-card-icon { background:linear-gradient(135deg,#f08c28,#ffc46b); color:#241539; }
+    .vision  .mv-card-icon { background:linear-gradient(135deg,#7048e8,#cbb6f5); color:#fff; }
+    .mv-card-tag { font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
+    .mission .mv-card-tag { color:#f08c28; }
+    .vision  .mv-card-tag  { color:#cbb6f5; }
+    .mv-card-h { font-size:21px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
+    .mv-card-p { font-size:15.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
+    .mv-card-en { font-size:13.5px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
+    .mv-values { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px; }
+    .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:14.5px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
+    .mv-val i { font-size:17px; }
+    .mv-val-1 { background:rgba(240,140,40,.12);  color:#ffc46b; }
+    .mv-val-2 { background:rgba(112,72,232,.2);   color:#cbb6f5; }
+    .mv-val-3 { background:rgba(96,165,250,.12); color:#93C5FD; }
+    .mv-val-4 { background:rgba(232,121,249,.1); color:#E879F9; }
+    .mv-val-5 { background:rgba(52,211,153,.12); color:#6EE7B7; }
+    .mv-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .mv-tgt { text-align:center; padding:20px 14px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
+    .mv-tgt-num { font-size:30px; font-weight:900; color:#f08c28; }
+    .mv-tgt-lbl { font-size:13.5px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
+    @media (max-width:768px) {
+      .mv-section { padding:48px 20px; }
+      .mv-cards { grid-template-columns:1fr; }
+      .mv-targets { grid-template-columns:repeat(2,1fr); }
+      .mv-title { font-size:26px; }
+    }
+
+
+    /* ═══ SAVINGS GLOW BUTTON ═══ */
+    .btn-savings-glow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; font-size: 15.5px; font-weight: 700;
+      background: linear-gradient(135deg, #f08c28 0%, #ff9500 100%);
+      color: #160d26; border: none; border-radius: 50px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      animation: savGlow 2.4s ease-in-out infinite;
+      transition: transform .2s;
+      white-space: nowrap;
+    }
+    .btn-savings-glow:hover { transform: translateY(-2px) scale(1.03); animation-duration:.7s; }
+    @keyframes savGlow {
+      0%   { box-shadow: 0 0 0 0 rgba(240,140,40,.75); }
+      65%  { box-shadow: 0 0 0 16px rgba(240,140,40,0); }
+      100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
+    }
+</style>
+  <link rel="stylesheet" href="kh-ui.css?v=65">
+<link rel="stylesheet" href="kh-app-downloads.css?v=69">
+<style>
+/* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
+   নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
+   ⚠️ সেকশন ৯-এর ঢালাও লাইট-থীম নিয়ম (০,২,২) div/span-এর রঙ বদলে দেয়,
+   তাই প্রতিটি রঙের নির্বাচক `html .khfc.khfc …` = (০,৩,১)+ ও !important। */
+.khfc{
+  --w:30px; --h:42px;
+  --amber:#ffa52f; --amber-glow:rgba(255,165,47,.5);
+  --font-digit:'Oswald','Bebas Neue','Arial Narrow',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  display:inline-flex; flex-direction:column; align-items:center; gap:9px;
+  margin-top:22px; padding:14px 18px 12px;
+  background:#121212 !important; border-radius:18px;
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03);
+}
+html .khfc.khfc .khfc-live{
+  display:flex; align-items:center; gap:6px;
+  font:500 10px/1 var(--mono); letter-spacing:.22em; color:#9a9a9a !important;
+}
+.khfc-head{display:flex;align-items:center;gap:10px}
+/* AM/PM বাটন — নিজের গাঢ় পটভূমি বহন করে, দুই থীমে এক */
+@media (max-width:768px){ html .khfc.khfc{display:none !important} }
+html .khfc.khfc .khfc-ap{
+  font:500 9.5px/1 var(--mono); letter-spacing:.14em;
+  padding:4px 8px; border-radius:6px; cursor:pointer; min-height:0;
+  background:#1f1f24 !important; color:#c9c9c9 !important;
+  border:1px solid rgba(255,255,255,.1); transition:background .2s,color .2s,border-color .2s;
+}
+html .khfc.khfc .khfc-ap:hover{border-color:rgba(255,165,47,.45)}
+html .khfc.khfc .khfc-ap[aria-pressed="true"]{
+  background:#2a2018 !important; color:var(--amber) !important;
+  border-color:rgba(255,165,47,.4); text-shadow:0 0 8px var(--amber-glow);
+}
+.khfc-ap:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.khfc-live i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;animation:khfcPulse 1.6s ease-in-out infinite}
+@keyframes khfcPulse{50%{opacity:.35;box-shadow:0 0 2px #ef4444}}
+.khfc-house{
+  position:relative; display:flex; align-items:center; gap:7px;
+  padding:9px 12px; border-radius:11px;
+  background:linear-gradient(180deg,#1c1c20,#161619) !important;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 10px 24px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.khfc-screw{position:absolute;width:3px;height:3px;border-radius:50%;background:#34343a}
+.khfc-screw.s1{top:5px;left:5px}.khfc-screw.s2{top:5px;right:5px}
+.khfc-screw.s3{bottom:5px;left:5px}.khfc-screw.s4{bottom:5px;right:5px}
+.khfc-grp{display:flex;gap:3px}
+.khfc-col{display:flex;flex-direction:column;gap:7px;padding:0 1px}
+.khfc-col i{width:3px;height:3px;border-radius:50%;background:#45454c}
+
+/* ── একটি অঙ্ক: উপরের অর্ধেক · নিচের অর্ধেক · উল্টে পড়া পাতা ── */
+.khfc-flip{
+  position:relative; width:var(--w); height:var(--h);
+  perspective:260px;
+  font-family:var(--font-digit); font-weight:700;
+  font-size:calc(var(--h) * .72);
+}
+.khfc-half{position:absolute;left:0;right:0;height:50%;overflow:hidden}
+.khfc-top,.khfc-front{top:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#2b2c31,#25262a) !important}
+.khfc-bot,.khfc-back{bottom:0;border-radius:0 0 5px 5px;background:linear-gradient(180deg,#1f2024,#1b1c1f) !important}
+html .khfc.khfc .khfc-half span{
+  position:absolute; left:0; width:100%; height:var(--h);
+  line-height:var(--h); text-align:center;
+  color:var(--amber) !important; text-shadow:0 0 18px var(--amber-glow);
+}
+.khfc-top span,.khfc-front span{top:0}
+.khfc-bot span{bottom:0}
+/* মাঝের ভাঁজ-রেখা */
+.khfc-flip::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:rgba(0,0,0,.65);z-index:3}
+.khfc-leaf{
+  position:absolute; top:0; left:0; right:0; height:50%;
+  transform-origin:50% 100%; transform-style:preserve-3d; z-index:2;
+}
+.khfc-leaf .khfc-half{height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.khfc-leaf .khfc-back{top:0;bottom:auto;transform:rotateX(180deg)}
+.khfc-leaf .khfc-back span{top:calc(var(--h) * -.5)}
+.khfc-leaf.turning{
+  transition:transform .42s cubic-bezier(.6,.04,.4,1);
+  transform:rotateX(-180deg);
+}
+html .khfc.khfc .khfc-lbl{
+  font:500 8.5px/1 var(--mono); letter-spacing:.24em; color:#8c8c8c !important;
+}
+html .khfc.khfc .khfc-date{
+  font:400 11px/1.2 var(--mono); letter-spacing:.02em; color:#a3a3a3 !important; min-height:1.2em;
+}
+/* 🟠 ডার্ক থীমে ঘড়ির ফ্রেম কমলা (ব্যবহারকারীর সিদ্ধান্ত, ২৬ সেপ্টে ২০২৬) —
+   গাঢ় হিরোতে কালো ফ্রেম মিলিয়ে যেত। লাইট থীমে আগের গাঢ় ফ্রেমই থাকে।
+   ফ্রেমের লেখা গাঢ় কালি (কমলার দুই প্রান্তে ≥৫.৩:১); অঙ্কের ঘর আগের মতোই গাঢ়। */
+html:not([data-theme="light"]) .khfc.khfc{
+  background:linear-gradient(145deg,#f39a3a 0%,#f08c28 45%,#e95420 100%) !important;
+  border-color:rgba(255,255,255,.28);
+  box-shadow:0 18px 40px rgba(233,84,32,.35), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html:not([data-theme="light"]) .khfc.khfc .khfc-live,
+html:not([data-theme="light"]) .khfc.khfc .khfc-lbl,
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ color:#2a1206 !important; }
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ font-weight:500; }
+html:not([data-theme="light"]) .khfc .khfc-live i{ background:#b3001b; box-shadow:0 0 6px rgba(179,0,27,.7); }
+html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); box-shadow:0 10px 22px rgba(80,20,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
+@media (max-width:480px){
+  .khfc{--w:27px;--h:38px;padding:12px 14px 11px;margin-top:18px}
+  .khfc-house{gap:6px;padding:8px 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  .khfc-leaf.turning{transition:none}
+  .khfc-live i{animation:none}
+}
+</style>
+<style>
+  /* ── ভলেন্টিয়ার পেজ (volunteer.html) ── থিম-নিরপেক্ষ: কার্ড বর্তমান টেক্সট কালার নেয় */
+  .vol-main{max-width:1080px;margin:0 auto;padding:0 18px 60px;color:inherit}
+  .vol-hero{background:linear-gradient(118deg,#0b3b38 0%,#0f766e 45%,#4c2f9e 100%);color:#fff;padding:64px 22px 56px;margin:0 -18px 34px;text-align:center;position:relative;overflow:hidden}
+  .vol-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(255,255,255,.14),transparent 45%);pointer-events:none}
+  .vol-hero-in{position:relative;z-index:1;max-width:760px;margin:0 auto}
+  .vol-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);font-size:13px;font-weight:600;margin-bottom:14px}
+  .vol-hero h1{font-size:clamp(28px,5vw,44px);line-height:1.2;margin-bottom:12px}
+  .vol-hero p{font-size:16px;opacity:.92;line-height:1.7}
+  .vol-hero-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .vol-hero-links a{color:#fff;text-decoration:none;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);font-size:14px;font-weight:600}
+  .vol-hero-links a:hover{background:rgba(255,255,255,.26)}
+  .vol-sec{padding:26px 0 8px;scroll-margin-top:90px}
+  .vol-sec h2{font-size:22px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .vol-sec h2 i{color:#14b8a6}
+  .vol-lead{opacity:.8;font-size:14.5px;line-height:1.7;margin-bottom:16px}
+  .vol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .vol-card{background:rgba(127,127,127,.07);border:1px solid rgba(127,127,127,.22);border-radius:16px;padding:18px;margin-bottom:14px}
+  .vol-card h3{font-size:16px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .vol-card h3 i{color:#0f766e;font-size:20px}
+  .vol-card p{font-size:14px;line-height:1.65;opacity:.9}
+  .vol-principle{border-left:4px solid #14b8a6}
+  .vol-oath{background:linear-gradient(120deg,rgba(15,118,110,.14),rgba(112,72,232,.14));border:1px solid rgba(20,184,166,.45);border-radius:18px;padding:22px;margin:16px 0}
+  .vol-oath h3{font-size:18px;margin-bottom:10px}
+  .vol-oath ol{padding-left:22px;line-height:1.9;font-size:15px}
+  .vol-form{display:grid;gap:12px}
+  .vol-form label{display:grid;gap:5px;font-size:13.5px;font-weight:600}
+  .vol-form input,.vol-form select,.vol-form textarea{font:inherit;font-size:14.5px;padding:10px 12px;border-radius:10px;border:1px solid rgba(127,127,127,.4);background:transparent;color:inherit;width:100%}
+  .vol-form textarea{min-height:80px;resize:vertical}
+  .vol-checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px 14px;font-size:14px}
+  .vol-checks label{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+  .vol-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.vol-two{grid-template-columns:1fr}.vol-main{padding:0 16px 50px}.vol-hero{margin:0 -16px 26px}}
+  .vol-btn{font:inherit;font-weight:700;font-size:14.5px;padding:11px 18px;border-radius:12px;border:0;cursor:pointer;background:linear-gradient(120deg,#0f766e,#14b8a6);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:7px;justify-content:center}
+  .vol-btn:hover{filter:brightness(1.07)}
+  .vol-btn:disabled{opacity:.6;cursor:not-allowed}
+  .vol-btn.ghost{background:transparent;color:inherit;border:1px solid rgba(127,127,127,.5)}
+  .vol-btn.violet{background:linear-gradient(120deg,#5b3fd1,#7048e8)}
+  .vol-btn.sm{padding:7px 12px;font-size:13px;border-radius:10px}
+  .vol-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .vol-tabs button{font:inherit;font-size:14px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid rgba(127,127,127,.4);background:transparent;color:inherit;cursor:pointer}
+  .vol-tabs button.on{background:#0f766e;color:#fff;border-color:#0f766e}
+  .vol-msg{font-size:14px;padding:10px 12px;border-radius:10px;margin-top:6px;line-height:1.6}
+  .vol-msg.ok{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.5)}
+  .vol-msg.err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.5)}
+  .vol-chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(127,127,127,.16)}
+  .vol-chip.approved,.vol-chip.verified,.vol-chip.done{background:rgba(34,197,94,.2)}
+  .vol-chip.pending,.vol-chip.open,.vol-chip.in_progress{background:rgba(245,158,11,.2)}
+  .vol-chip.rejected,.vol-chip.suspended,.vol-chip.cancelled{background:rgba(239,68,68,.18)}
+  .vol-idcard{background:linear-gradient(125deg,#0b3b38,#0f766e 55%,#4c2f9e);color:#fff;border-radius:20px;padding:22px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;box-shadow:0 18px 40px rgba(15,118,110,.25);max-width:560px}
+  .vol-idcard .k{font-size:11px;letter-spacing:.14em;opacity:.8;text-transform:uppercase}
+  .vol-idcard .n{font-size:21px;font-weight:700;margin:4px 0}
+  .vol-idcard .no{font-family:Inter,monospace;font-size:15px;font-weight:600;letter-spacing:.04em}
+  .vol-idcard .meta{font-size:13px;opacity:.9;margin-top:6px;line-height:1.6}
+  .vol-qr{background:#fff;border-radius:10px;padding:6px;width:96px;height:96px;display:flex;align-items:center;justify-content:center}
+  .vol-qr svg{width:84px;height:84px}
+  .vol-stars{color:#fbbf24;letter-spacing:2px}
+  .vol-list{display:grid;gap:10px}
+  .vol-item{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+  .vol-item .t{font-weight:700;font-size:15px;margin-bottom:4px}
+  .vol-item .m{font-size:13px;opacity:.8;line-height:1.6}
+  .vol-msgitem{border-left:3px solid #7048e8;padding:10px 12px;background:rgba(112,72,232,.08);border-radius:10px}
+  .vol-msgitem .d{font-size:12px;opacity:.7;margin-bottom:4px}
+  .vol-empty{font-size:14px;opacity:.7;padding:14px;text-align:center;border:1px dashed rgba(127,127,127,.4);border-radius:12px}
+  .vol-locked{font-size:14px;opacity:.75;padding:18px;border:1px dashed rgba(127,127,127,.4);border-radius:14px;text-align:center}
+  .vol-verify-res{margin-top:10px}
+  .vol-hidden{display:none !important}
+</style>
+<style id="vol-page-css">
+body[data-vol-page] .vol-sec{display:none !important}
+body[data-vol-page] .vol-hero{display:none !important}
+body[data-vol-page] #vol-home{display:none !important}
+.vol-back{display:inline-flex;align-items:center;gap:6px;margin:18px auto 0;padding:8px 14px;border-radius:999px;text-decoration:none;font-size:14px;font-weight:600;color:inherit;border:1px solid rgba(15,118,110,.35)}
+body[data-vol-page="certificates"] #certificates{display:block !important}
+</style>
+</head>
+<body data-kh-nav="on" data-vol-page="certificates">
+
+<!-- ═══════════════════════════════════════════════════════
+     TOP BAR
+════════════════════════════════════════════════════════ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-item"><i class="ti ti-phone"></i>+880 1711-515952 / +880 1733-256731</div>
+    <div class="topbar-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+    <div class="topbar-item"><i class="ti ti-map-pin"></i>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
+  </div>
+  <div class="topbar-right">
+    <a href="#" class="topbar-soc"><i class="ti ti-brand-facebook"></i></a>
+    <a href="#" class="topbar-soc"><i class="ti ti-brand-youtube"></i></a>
+    <a href="https://wa.me/880XXXXXXXXXX" class="topbar-soc" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
+    <div class="lang-toggle">
+      <button class="lang-btn active" data-lang-set="en">EN</button>
+      <button class="lang-btn" data-lang-set="bn">বাং</button>
+    </div>
+    <a href="user-login.html" class="topbar-admin-btn kh-login-link" style="background:rgba(112,72,232,.18);color:#cbb6f5;border-color:rgba(112,72,232,.45)"><i class="ti ti-user-circle"></i> লগইন</a>
+    <a href="admin-login.html" class="topbar-admin-btn">
+      <i class="ti ti-shield-lock"></i> Admin
+    </a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="logo-wrap">
+    <div class="logo-icon">KH</div>
+    <div class="logo-texts">
+      <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="logo-en">Korje Hasana Foundation</div>
+      <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+    </div>
+  </a>
+  <div class="nav-center nav-links" id="navCenter">
+<div class="kh-app-mobile"><span class="kh-app-mobile-label">অ্যাপ ডাউনলোড</span><div class="kh-app-btns" data-kh-app="footer"></div></div>
+    <a class="nav-link active" href="#hero" data-i18n="nav-home">Home</a>
+
+    <!-- ABOUT mega-menu -->
+    <div class="nav-item" id="mi-about">
+      <a class="nav-link" href="about.html" data-i18n="nav-about">
+        About <i class="ti ti-chevron-down nav-chevron"></i>
+      </a>
+      <div class="mega-menu">
+        <div class="mega-inner">
+          <div class="mega-l">
+            <div class="mega-l1 active" data-panel="p-khf">
+              <i class="ti ti-info-circle l1-ico"></i>
+              <span class="l1-txt">About Korje Hasana<span class="l1-sub">Foundation overview</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-committee">
+              <i class="ti ti-users-group l1-ico"></i>
+              <span class="l1-txt">Committee<span class="l1-sub">4 committees · 24 members</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-founders">
+              <i class="ti ti-award l1-ico"></i>
+              <span class="l1-txt">Founder &amp; Co-Founder<span class="l1-sub">Leadership &amp; vision</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+          </div>
+          <div class="mega-r">
+            <!-- Panel: About KHF -->
+            <div class="mega-panel active" id="p-khf">
+              <div class="mega-r-header">About</div>
+              <a class="mega-rl" href="about.html#mission">
+                <i class="ti ti-target"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Mission &amp; Vision</span>
+                  <span class="mega-rl-desc">Our goals, values and aspirations</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="about.html#story">
+                <i class="ti ti-book"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Our Story</span>
+                  <span class="mega-rl-desc">How Korje Hasana Foundation began</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="about.html#values">
+                <i class="ti ti-heart"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Core Values</span>
+                  <span class="mega-rl-desc">Islamic principles &amp; ethics</span>
+                </div>
+              </a>
+            </div>
+            <!-- Panel: Committee -->
+            <div class="mega-panel" id="p-committee">
+              <div class="mega-r-header">Committees</div>
+              <a class="mega-rl" href="committee.html">
+                <i class="ti ti-writing-sign"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Join a Committee</span>
+                  <span class="mega-rl-desc">কমিটিতে যোগ দিন — সম্মতিপত্র পূরণ করুন</span>
+                </div>
+                <span class="mega-badge">নতুন</span>
+              </a>
+              <a class="mega-rl" href="about.html#executive">
+                <i class="ti ti-briefcase"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Executive Committee</span>
+                  <span class="mega-rl-desc">কার্যনির্বাহী কমিটি</span>
+                </div>
+                <span class="mega-badge">11</span>
+              </a>
+              <a class="mega-rl" href="about.html#advisory">
+                <i class="ti ti-crown"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Advisory Council</span>
+                  <span class="mega-rl-desc">উপদেষ্টা পরিষদ</span>
+                </div>
+                <span class="mega-badge">5</span>
+              </a>
+              <a class="mega-rl" href="about.html#loan-review">
+                <i class="ti ti-file-check"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Loan Review Committee</span>
+                  <span class="mega-rl-desc">ঋণ পর্যালোচনা কমিটি</span>
+                </div>
+                <span class="mega-badge">5</span>
+              </a>
+              <a class="mega-rl" href="about.html#shariah">
+                <i class="ti ti-mosque"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Shariah Advisory Board</span>
+                  <span class="mega-rl-desc">শরীয়া উপদেষ্টা বোর্ড</span>
+                </div>
+                <span class="mega-badge">3</span>
+              </a>
+            </div>
+            <!-- Panel: Founders -->
+            <div class="mega-panel" id="p-founders">
+              <div class="mega-r-header">Leadership</div>
+              <a class="mega-rl" href="about.html#founder">
+                <i class="ti ti-user-star"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">মোঃ তৌহিদুজ্জামান</span>
+                  <span class="mega-rl-desc">Founder &amp; Executive Director</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="about.html#cofounder">
+                <i class="ti ti-user-check"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">মোঃ আমিমুল এহসান</span>
+                  <span class="mega-rl-desc">Co-Founder &amp; Vice President</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAMS mega-menu -->
+    <div class="nav-item" id="mi-programs">
+      <a class="nav-link" href="#programs" data-i18n="nav-programs">
+        Programs <i class="ti ti-chevron-down nav-chevron"></i>
+      </a>
+      <div class="mega-menu">
+        <div class="mega-inner">
+          <div class="mega-l">
+            <div class="mega-l1 active" data-panel="p-loans">
+              <i class="ti ti-cash l1-ico"></i>
+              <span class="l1-txt">Loan Programs<span class="l1-sub">0% interest financing</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-savings">
+              <i class="ti ti-piggy-bank l1-ico"></i>
+              <span class="l1-txt">সুদবিহীন সঞ্চয়<span class="l1-sub">Interest-free savings</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-welfare">
+              <i class="ti ti-heart-handshake l1-ico"></i>
+              <span class="l1-txt">Welfare &amp; Charity<span class="l1-sub">Zakat, Sadaqah distribution</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+          </div>
+          <div class="mega-r">
+            <div class="mega-panel active" id="p-loans">
+              <div class="mega-r-header">Loan Types</div>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-building-store"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Small Business Loan</span>
+                  <span class="mega-rl-desc">ক্ষুদ্র ব্যবসায়িক ঋণ</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-school"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Education Loan</span>
+                  <span class="mega-rl-desc">শিক্ষা ঋণ</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-ambulance"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Emergency Loan</span>
+                  <span class="mega-rl-desc">জরুরি ঋণ</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-home"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Housing Loan</span>
+                  <span class="mega-rl-desc">গৃহ নির্মাণ ঋণ</span>
+                </div>
+              </a>
+            </div>
+            <div class="mega-panel" id="p-savings">
+              <div class="mega-r-header">সঞ্চয় স্কীম</div>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-sun"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">দৈনিক আমানত</span>
+                  <span class="mega-rl-desc">Daily Savings — যেকোনো পরিমাণ</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-calendar-week"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">পাক্ষিক আমানত</span>
+                  <span class="mega-rl-desc">Fortnightly Savings</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-calendar-month"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">মাসিক আমানত</span>
+                  <span class="mega-rl-desc">Monthly Savings</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-infinity"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">যখন খুশি আমানত</span>
+                  <span class="mega-rl-desc">Flexible Savings</span>
+                </div>
+              </a>
+            </div>
+            <div class="mega-panel" id="p-welfare">
+              <div class="mega-r-header">Welfare Programs</div>
+              <a class="mega-rl" href="donation.html">
+                <i class="ti ti-hand-finger"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Zakat Distribution</span>
+                  <span class="mega-rl-desc">যাকাত বিতরণ কার্যক্রম</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="donation.html">
+                <i class="ti ti-gift"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">Sadaqah &amp; Charity</span>
+                  <span class="mega-rl-desc">সদকা ও দাতব্য কার্যক্রম</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a class="nav-link" href="loan-application.html" data-i18n="nav-apply">Apply</a>
+
+    <!-- PORTAL mega-menu -->
+    <div class="nav-item" id="mi-portal">
+      <a class="nav-link" href="#" data-i18n="nav-portal">
+        Portal <i class="ti ti-chevron-down nav-chevron"></i>
+      </a>
+      <div class="mega-menu">
+        <div class="mega-inner" style="min-height:140px">
+          <div class="mega-l">
+            <div class="mega-l1 active" data-panel="p-member-portal">
+              <i class="ti ti-piggy-bank l1-ico"></i>
+              <span class="l1-txt">সদস্য পোর্টাল<span class="l1-sub">Savings & account</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+            <div class="mega-sep"></div>
+            <div class="mega-l1" data-panel="p-borrower-portal">
+              <i class="ti ti-hand-holding l1-ico"></i>
+              <span class="l1-txt">ঋণগ্রহীতা পোর্টাল<span class="l1-sub">Loan status & history</span></span>
+              <i class="ti ti-chevron-right l1-arr"></i>
+            </div>
+          </div>
+          <div class="mega-r">
+            <div class="mega-panel active" id="p-member-portal">
+              <div class="mega-r-header">সদস্য পোর্টাল</div>
+              <a class="mega-rl" href="savings-portal.html">
+                <i class="ti ti-piggy-bank"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">সুদবিহীন সঞ্চয়</span>
+                  <span class="mega-rl-desc">ব্যালেন্স দেখুন, জমা ও উত্তোলন করুন</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="savings-portal.html#register">
+                <i class="ti ti-user-plus"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">নতুন নিবন্ধন</span>
+                  <span class="mega-rl-desc">সঞ্চয় অ্যাকাউন্ট খুলুন</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="self-service.html">
+                <i class="ti ti-arrows-exchange"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">সেলফ সার্ভিস</span>
+                  <span class="mega-rl-desc">স্থানান্তর ও নিজের হিসাব পরিচালনা</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="my-statement.html">
+                <i class="ti ti-file-text"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">স্টেটমেন্ট</span>
+                  <span class="mega-rl-desc">হিসাব বিবরণী দেখুন ও ডাউনলোড করুন</span>
+                </div>
+              </a>
+            </div>
+            <div class="mega-panel" id="p-borrower-portal">
+              <div class="mega-r-header">ঋণগ্রহীতা পোর্টাল</div>
+              <a class="mega-rl" href="borrower-portal.html">
+                <i class="ti ti-search"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">ঋণের তথ্য দেখুন</span>
+                  <span class="mega-rl-desc">NID দিয়ে লগইন করুন</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="loan-application.html">
+                <i class="ti ti-file-plus"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">নতুন ঋণ আবেদন</span>
+                  <span class="mega-rl-desc">কর্জে হাসানার জন্য আবেদন</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- CONTACT mega-menu -->
+    <div class="nav-item" id="mi-contact">
+      <a class="nav-link" href="contact.html" data-i18n="nav-contact">
+        Contact <i class="ti ti-chevron-down nav-chevron"></i>
+      </a>
+      <div class="mega-menu">
+        <div class="mega-inner">
+          <div class="mega-l" style="width:100%;border-right:none">
+            <div class="mega-l1 active" style="cursor:default;pointer-events:none">
+              <i class="ti ti-phone l1-ico"></i>
+              <span class="l1-txt">যোগাযোগ করুন<span class="l1-sub">Phone, email, address</span></span>
+            </div>
+          </div>
+          <div class="mega-r" style="flex:2">
+            <div class="mega-panel active" id="p-contact-us">
+              <div class="mega-r-header">যোগাযোগ</div>
+              <a class="mega-rl" href="contact.html">
+                <i class="ti ti-mail"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">ইমেইল করুন</span>
+                  <span class="mega-rl-desc">info@korjehasana.org</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="contact.html#map">
+                <i class="ti ti-map-pin"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">আমাদের খুঁজুন</span>
+                  <span class="mega-rl-desc">খলিলপুর, ফরিদপুর</span>
+                </div>
+              </a>
+              <a class="mega-rl" href="https://wa.me/8801971515952" target="_blank">
+                <i class="ti ti-brand-whatsapp"></i>
+                <div class="mega-rl-body">
+                  <span class="mega-rl-title">WhatsApp</span>
+                  <span class="mega-rl-desc">01711-515952</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-indicator" id="navInd"></div>
+  </div>
+  <div class="nav-right">
+<div class="kh-app-dd">
+  <button type="button" class="kh-app-dd-btn" aria-expanded="false" aria-controls="khAppDdMenu"><i class="ti ti-download"></i> অ্যাপ</button>
+  <div class="kh-app-dd-menu" id="khAppDdMenu" data-kh-app="menu" hidden></div>
+</div>
+    <a href="savings-portal.html" class="nav-savings-btn"><i class="ti ti-piggy-bank" style="font-size:16px"></i>সুদ বিহীন সঞ্চয়</a>
+    <button class="donate-btn" onclick="window.location.href='donation.html'" data-i18n="nav-donate">Donate now</button>
+  </div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+</nav>
+<main class="vol-main" id="volMain">
+  <a class="vol-back" href="volunteer.html"><i class="ti ti-arrow-left"></i> ভলেন্টিয়ার হোমে ফিরুন</a>
+
+  <section class="vol-hero" id="top">
+    <div class="vol-hero-in">
+      <span class="vol-badge"><i class="ti ti-heart-handshake"></i> সেবার অঙ্গীকার</span>
+      <h1>ভলেন্টিয়ার ম্যানেজমেন্ট</h1>
+      <p>ন্যায়, কল্যাণ ও সহমর্মিতার পথে একসাথে। হিলফুল ফুজুলের আদর্শে গড়া স্বেচ্ছাসেবী পরিবার, যারা মজলুমের পাশে দাঁড়ায় এবং সমাজে সুবিচার ও সচেতনতা ছড়ায়।</p>
+      <div class="vol-hero-links">
+        <a href="volunteer-about.html">ভলেন্টিয়ার পরিচিতি ও শপথ</a>
+        <a href="volunteer-profile.html">নিবন্ধন ও আমার প্রোফাইল</a>
+        <a href="volunteer-tasks.html">সেবার কাজ</a>
+        <a href="volunteer-certificates.html">সার্টিফিকেট ও যাচাই</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ১. আদর্শ ও শপথ -->
+  <section class="vol-sec" id="about">
+    <h2><i class="ti ti-scale"></i> আমাদের আদর্শ</h2>
+    <p class="vol-lead">হিলফুল ফুজুলের মূল কথা ছিল: কোনো দুর্বল ও মজলুম ব্যক্তির হক নষ্ট হলে জাতি, গোত্র বা পরিচয় নির্বিশেষে সবাই তার পাশে দাঁড়াবে। আমরা সেই চেতনায় কাজ করি।</p>
+    <div class="vol-grid">
+      <div class="vol-card vol-principle"><h3><i class="ti ti-shield-check"></i> মজলুমের পাশে দাঁড়ানো</h3><p>ঋণ বা বকেয়া নিয়ে কোনো সদস্য বিপদে পড়লে তাকে সহায়তা ও সঠিক পথ দেখানো।</p></div>
+      <div class="vol-card vol-principle"><h3><i class="ti ti-balance-scale"></i> সবার জন্য ন্যায়</h3><p>জাতি, ধর্ম, লিঙ্গ বা অবস্থান নির্বিশেষে সেবা। কোনো ভেদাভেদ নয়।</p></div>
+      <div class="vol-card vol-principle"><h3><i class="ti ti-user-search"></i> দুর্বলের হক</h3><p>যোগ্য দরিদ্র মানুষ খুঁজে বের করা, যাতে সহায়তা তাদের কাছেই পৌঁছায়।</p></div>
+      <div class="vol-card vol-principle"><h3><i class="ti ti-mood-smile"></i> সম্মানজনক আদায়</h3><p>কিস্তি ও বকেয়া আদায়ে কোনো হয়রানি, চাপ বা বলপ্রয়োগ নিষিদ্ধ। আলাপ ও বোঝাপড়াই পথ।</p></div>
+      <div class="vol-card vol-principle"><h3><i class="ti ti-users"></i> যৌথ অঙ্গীকার</h3><p>নিবন্ধনের সময় শপথ নেওয়া হয় এবং প্রতি বছর নবায়নের সময় পুনরায় শপথ।</p></div>
+      <div class="vol-card vol-principle"><h3><i class="ti ti-building-community"></i> সমাজ গড়া</h3><p>আর্থিক সাক্ষরতা, সঞ্চয়ের অভ্যাস ও সুদমুক্ত অর্থায়ন নিয়ে সচেতনতা ছড়ানো।</p></div>
+    </div>
+
+    <div class="vol-oath">
+      <h3><i class="ti ti-writing-sign"></i> ভলেন্টিয়ারের শপথ</h3>
+      <ol>
+        <li>আমি মজলুম ও দুর্বল মানুষের পাশে দাঁড়াব এবং সাধ্যমতো তাদের হক রক্ষায় কাজ করব।</li>
+        <li>জাতি, ধর্ম, লিঙ্গ বা অবস্থান নির্বিশেষে সবার সাথে ন্যায্য ও সম্মানজনক আচরণ করব।</li>
+        <li>সদস্যদের তথ্য ও গোপনীয়তা রক্ষা করব এবং নিজের স্বার্থে তা ব্যবহার করব না।</li>
+        <li>কোনো টাকা-পয়সা নিজের হাতে গ্রহণ করব না। আমানত ও দান কেবল প্রতিষ্ঠানের অফিসিয়াল চ্যানেলে জমা হবে।</li>
+        <li>কিস্তি আদায়ে কোনো প্রকার হয়রানি বা বলপ্রয়োগ করব না।</li>
+        <li>প্রতিষ্ঠানের আদর্শ, শৃঙ্খলা ও নির্দেশনা মেনে চলব।</li>
+      </ol>
+    </div>
+
+    <h3 style="font-size:17px;margin:20px 0 10px">ভলেন্টিয়ারের কাজ</h3>
+    <div class="vol-grid">
+      <div class="vol-card"><h3><i class="ti ti-file-search"></i> ঋণের ব্যবহার যাচাই</h3><p>ঋণের টাকা নির্ধারিত কাজে ব্যবহার হচ্ছে কি না, মাঠ পর্যায়ে যাচাই।</p></div>
+      <div class="vol-card"><h3><i class="ti ti-user-check"></i> যোগ্য সদস্য খোঁজা ও যোগ্যতা যাচাই</h3><p>প্রয়োজনীয় ও ঋণ পাওয়ার যোগ্য মানুষ চিহ্নিত করা এবং যাচাই করা।</p></div>
+      <div class="vol-card"><h3><i class="ti ti-cash"></i> কিস্তি ও বকেয়া আদায়ে সহায়তা</h3><p>সম্মানজনক আলোচনার মাধ্যমে কিস্তি আদায়ে প্রতিষ্ঠানকে সহায়তা।</p></div>
+      <div class="vol-card"><h3><i class="ti ti-speakerphone"></i> সচেতনতা ও প্রচার</h3><p>বিভিন্ন কর্মসূচি ও সুদমুক্ত সঞ্চয়-ঋণের ধারণা সমাজে ছড়িয়ে দেওয়া।</p></div>
+      <div class="vol-card"><h3><i class="ti ti-heart-plus"></i> আমানত ও দান সংগ্রহ</h3><p>অফিসিয়াল ব্যাংক বা মোবাইল ব্যাংকিং চ্যানেলের মাধ্যমে আমানত ও দান সংগ্রহে সহায়তা।</p></div>
+    </div>
+  </section>
+
+  <!-- ২. নিবন্ধন ও প্রোফাইল -->
+  <section class="vol-sec" id="profile">
+    <h2><i class="ti ti-id-badge-2"></i> নিবন্ধন ও আমার প্রোফাইল</h2>
+    <div id="volAccount"><div class="vol-empty">লোড হচ্ছে…</div></div>
+  </section>
+
+  <!-- ৩. সেবার কাজ -->
+  <section class="vol-sec" id="tasks">
+    <h2><i class="ti ti-checklist"></i> সেবার কাজ</h2>
+    <p class="vol-lead">খোলা কাজে নিজে যোগ দিন, অথবা এডমিন আপনাকে নির্দিষ্ট কাজ দিতে পারবেন। কাজ শেষে জমা দিলে এডমিন যাচাই করে রেটিং দেবেন।</p>
+    <div id="volTasks"></div>
+  </section>
+
+  <!-- ৩ক. অ্যাসিস্ট মোড -->
+  <section class="vol-sec" id="assist">
+    <h2><i class="ti ti-users-group"></i> অ্যাসিস্ট মোড</h2>
+    <p class="vol-lead">গ্রাহকের সাথে বসে নতুন নিবন্ধন, সঞ্চয় হিসাব, জমা, দান, ঋণ আবেদন ও কিস্তি জমা দিন। সব জমা এডমিন অনুমোদনের পর কার্যকর হবে।</p>
+    <div id="volAssist"></div>
+  </section>
+
+  <!-- ৩খ. আমার ব্যাচ -->
+  <section class="vol-sec" id="batch">
+    <h2><i class="ti ti-stack-2"></i> আমার ব্যাচ</h2>
+    <p class="vol-lead">আপনার অবদান ও গ্রাহকদের সারসংক্ষেপ।</p>
+    <div id="volBatch"></div>
+  </section>
+
+  <!-- ৪. সার্টিফিকেট -->
+  <section class="vol-sec" id="certificates">
+    <h2><i class="ti ti-certificate"></i> সার্টিফিকেট ও যাচাই</h2>
+    <div id="volCerts"></div>
+    <div class="vol-card" style="margin-top:14px">
+      <h3><i class="ti ti-shield-search"></i> সার্টিফিকেট যাচাই করুন</h3>
+      <p style="margin-bottom:10px">সার্টিফিকেট নম্বর (যেমন KHV-C-2026-00001) লিখে আসলতা যাচাই করুন।</p>
+      <form id="volVerifyForm" class="vol-form" style="grid-template-columns:1fr auto;align-items:end">
+        <label style="grid-column:1/2">সার্টিফিকেট নম্বর<input id="volVerifyNo" required maxlength="40" placeholder="KHV-C-2026-00001"></label>
+        <button class="vol-btn" type="submit" style="grid-column:2/3"><i class="ti ti-search"></i> যাচাই</button>
+      </form>
+      <div id="volVerifyRes" class="vol-verify-res"></div>
+    </div>
+  </section>
+
+  <!-- ৫. চ্যানেল -->
+  <section class="vol-sec" id="channel">
+    <h2><i class="ti ti-brand-whatsapp"></i> ভলেন্টিয়ার চ্যানেল</h2>
+    <div id="volChannel"></div>
+  </section>
+
+  <!-- ৬. রেটিং -->
+  <section class="vol-sec" id="ratings">
+    <h2><i class="ti ti-star"></i> রেটিং ও সেবা পয়েন্ট</h2>
+    <div id="volRatings"></div>
+  </section>
+
+</main>
+
+
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="ft-logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="ft-logo-en">Korje Hasana Foundation</div>
+      <div class="ft-logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+      <div class="ft-about">Mosque-based 0% interest microfinance. Helping families across Faridpur District break free from the cycle of debt — since 2026. All disbursements are in-kind; no cash is given.</div>
+      <div style="color:rgba(255,255,255,.4);font-size:12.5px;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Stay updated</div>
+      <div class="ft-nl">
+        <input type="email" placeholder="your@email.com">
+        <button>Subscribe</button>
+      </div>
+      <div class="kh-app-btns" data-kh-app="footer" aria-label="অ্যাপ ডাউনলোড"></div>
+      <div id="khVisitors"></div>
+    </div>
+    <div class="ft-col">
+      <h4>Quick links</h4>
+      <div class="ft-links">
+        <a href="volunteer-about.html" class="ft-link">About us</a>
+        <a href="loan-application.html" class="ft-link">Apply for loan</a>
+        <a href="donation.html" class="ft-link">Donate</a>
+        <a href="#" class="ft-link">Success stories</a>
+        <a href="#" class="ft-link">Annual report</a>
+        <a href="#" class="ft-link">FAQ</a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Programs</h4>
+      <div class="ft-links">
+        <a href="#programs" class="ft-link">Agriculture loan</a>
+        <a href="#programs" class="ft-link">Small business</a>
+        <a href="#programs" class="ft-link">Education loan</a>
+        <a href="#programs" class="ft-link">Medical loan</a>
+        <a href="#programs" class="ft-link">Family need</a>
+        <a href="#programs" class="ft-link">Emergency loan</a>
+      </div>
+    </div>
+    <div class="ft-col ft-tc">
+     <div class="ft-sub">
+      <h4>Transparency</h4>
+      <div class="ft-links">
+        <a href="#dashboard" class="ft-link">Live dashboard</a>
+        <a href="statements.html" class="ft-link">Monthly statement</a>
+        <a href="#" class="ft-link">Annual reports</a>
+        <a href="#" class="ft-link">Committee members</a>
+        <a href="#" class="ft-link">Volunteers</a>
+        <a href="#" class="ft-link">Privacy policy</a>
+      </div>
+     </div>
+     <div class="ft-sub">
+      <h4 style="margin-top:20px">Contact</h4>
+      <div class="ft-contact">
+        <div class="ft-contact-item"><i class="ti ti-map-pin"></i>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
+        <div class="ft-contact-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+        <div class="ft-contact-item"><i class="ti ti-brand-whatsapp"></i>+880 1711-515952 / +880 1733-256731</div>
+      </div>
+     </div>
+    </div>
+  </div>
+  <div class="footer-mid">
+    <div class="footer-socs">
+      <a href="#" class="foot-soc fb"><i class="ti ti-brand-facebook"></i></a>
+      <a href="#" class="foot-soc yt"><i class="ti ti-brand-youtube"></i></a>
+      <a href="https://wa.me/880XXXXXXXXXX" class="foot-soc wa" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
+      <a href="#" class="foot-soc li"><i class="ti ti-brand-linkedin"></i></a>
+    </div>
+    <div style="color:rgba(255,255,255,.35);font-size:12.5px">Registered · সমাজসেবা অধিদফতর · NGOAB (pending)</div>
+    <div class="ft-badges">
+      <span class="ft-badge">🔒 SSL Secured</span>
+      <span class="ft-badge">Non-profit</span>
+      <span class="ft-badge">Shariah-certified</span>
+    </div>
+  </div>
+<div class="footer-bottom">
+    <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
+    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:14.5px;color:#f08c28"></i> for humanity</div>
+  </div>
+</footer>
+<div class="wa-float"><a class="wa-btn" href="https://wa.me/8801971515952" target="_blank" title="WhatsApp" style="position:fixed;right:18px;bottom:18px;width:52px;height:52px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;z-index:900"><i class="ti ti-brand-whatsapp"></i></a></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>function toggleMenu(){var l=document.querySelector(".nav-links"),b=document.querySelector(".nav-hamburger");if(!l||!b)return;l.classList.toggle("open");b.classList.toggle("active");}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="_supabase.js"></script>
+<script src="kh-ui.js?v=69"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-volunteer.js?v=4" defer></script>
+<script src="kh-must-change.js?v=1" defer></script>
+<script src="volunteer-assist.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-volunteer-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=1" defer></script>
+<script>
+(function () {
+  'use strict';
+  var db = window._db;
+  var $ = function (id) { return document.getElementById(id); };
+
+  var SKILLS = [
+    ['survey', 'সার্ভে ও তথ্য সংগ্রহ'], ['training', 'প্রশিক্ষণ ও সভা পরিচালনা'], ['awareness', 'সচেতনতা প্রচার'],
+    ['digital', 'ডিজিটাল/মোবাইল সাপোর্ট'], ['accounts', 'হিসাব ও কাগজপত্র'], ['social', 'সামাজিক যোগাযোগ'], ['counsel', 'পরামর্শ ও মধ্যস্থতা']
+  ];
+  var INTERESTS = [
+    ['loan_check', 'ঋণের ব্যবহার যাচাই'], ['find_members', 'যোগ্য সদস্য খোঁজা'], ['eligibility', 'ঋণ প্রাপ্তির যোগ্যতা যাচাই'],
+    ['recovery', 'কিস্তি ও বকেয়া আদায়ে সহায়তা'], ['awareness', 'সচেতনতা বৃদ্ধি'], ['promotion', 'প্রচার ও প্রসার'],
+    ['fundraising', 'আমানত ও দান সংগ্রহ (অফিসিয়াল চ্যানেলে)']
+  ];
+  var CAT = { loan_check: 'ঋণ ব্যবহার যাচাই', find_members: 'যোগ্য সদস্য খোঁজা', eligibility: 'যোগ্যতা যাচাই', recovery: 'কিস্তি/বকেয়া আদায়', awareness: 'সচেতনতা', promotion: 'প্রচার ও প্রসার', fundraising: 'আমানত ও দান', other: 'অন্যান্য' };
+  var STATUS_BN = { pending: 'আবেদন পর্যালোচনাধীন', approved: 'অনুমোদিত', suspended: 'স্থগিত', rejected: 'বাতিল', open: 'খোলা', in_progress: 'চলছে', done: 'জমা দেওয়া (যাচাই বাকি)', verified: 'যাচাইকৃত', cancelled: 'বাতিল' };
+  var ERR_BN = {
+    login_required: 'আগে লগইন করুন।', oath_required: 'নিবন্ধনের আগে শপথে সম্মতি দিন।', already_registered: 'আপনি ইতিমধ্যে ভলেন্টিয়ার হিসেবে নিবন্ধিত।',
+    approved_volunteer_only: 'এই সুবিধা শুধু অনুমোদিত ভলেন্টিয়ারদের জন্য।', task_not_available: 'এই কাজটি এখন আর পাওয়া যাচ্ছে না।',
+    pending_request_exists: 'আপনার একটি সার্টিফিকেট আবেদন ইতিমধ্যে অপেক্ষমাণ আছে।', certificate_not_available: 'সার্টিফিকেটটি এখনো অনুমোদিত হয়নি।',
+    not_found_or_rejected: 'প্রোফাইল পাওয়া যায়নি বা বাতিল করা হয়েছে।', invalid_whatsapp_link: 'হোয়াটসঅ্যাপ লিংক সঠিক নয়।'
+  };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function errMsg(e) {
+    var m = (e && (e.message || e.details || e.hint)) || '';
+    for (var k in ERR_BN) { if (m.indexOf(k) !== -1) return ERR_BN[k]; }
+    if (/duplicate key|unique/i.test(m)) return 'এই তথ্য ইতিমধ্যে আছে।';
+    return 'ত্রুটি হয়েছে — ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।';
+  }
+  function rpc(name, args) {
+    return Promise.resolve().then(function () { return db.rpc(name, args || {}); })
+      .then(function (r) { return r.error ? { error: errMsg(r.error) } : { data: r.data }; })
+      .catch(function () { return { error: 'সংযোগ ত্রুটি — ইন্টারনেট দেখুন।' }; });
+  }
+  function msg(el, text, ok) { el.innerHTML = '<div class="vol-msg ' + (ok ? 'ok' : 'err') + '">' + esc(text) + '</div>'; }
+  function curLoc() { try { return localStorage.getItem('kh_lang') === 'bn' ? 'bn-BD' : 'en-GB'; } catch (e) { return 'en-GB'; } }
+  function dt(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString(curLoc(), { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return String(s).slice(0, 10); } }
+  function stars(avg) { var n = Math.round(Number(avg) || 0); var s = ''; for (var i = 1; i <= 5; i++) s += i <= n ? '★' : '☆'; return '<span class="vol-stars">' + s + '</span>'; }
+  function checks(name, list, selected) {
+    return '<div class="vol-checks">' + list.map(function (p) {
+      return '<label><input type="checkbox" name="' + name + '" value="' + p[0] + '"' + ((selected || []).indexOf(p[0]) !== -1 ? ' checked' : '') + '> ' + esc(p[1]) + '</label>';
+    }).join('') + '</div>';
+  }
+  function picked(form, name) {
+    var out = []; form.querySelectorAll('input[name="' + name + '"]:checked').forEach(function (i) { out.push(i.value); }); return out;
+  }
+  function locked(text) { return '<div class="vol-locked"><i class="ti ti-lock"></i> ' + esc(text) + '</div>'; }
+
+  var STATE = { user: null, vol: null };
+
+  /* ---------- অ্যাকাউন্ট (লগইন / নিবন্ধন / প্রোফাইল) ---------- */
+  function renderAccount() {
+    var box = $('volAccount');
+    if (!STATE.user) return renderAuth(box);
+    if (!STATE.vol) return renderRegister(box);
+    renderProfile(box, STATE.vol);
+  }
+
+  /* প্রোফাইল একবার লোড করে তারপর সব সেকশন আঁকে — সেকশনগুলো STATE.vol-এর ওপর নির্ভরশীল */
+  async function loadVol() {
+    STATE.vol = null;
+    if (!STATE.user) return;
+    var r = await rpc('vol_me');
+    if (!r.error) STATE.vol = r.data || null;
+  }
+
+  function renderAuth(box) {
+    box.innerHTML =
+      '<div class="vol-card"><div class="vol-tabs"><button type="button" data-t="login" class="on">লগইন</button><button type="button" data-t="signup">নতুন অ্যাকাউন্ট</button></div>' +
+      '<form id="volLoginForm" class="vol-form"><label>ইমেইল<input type="email" name="email" required autocomplete="email"></label>' +
+      '<label>পাসওয়ার্ড<input type="password" name="password" required autocomplete="current-password"></label>' +
+      '<button class="vol-btn" type="submit"><i class="ti ti-login"></i> লগইন করুন</button></form>' +
+      '<form id="volSignForm" class="vol-form vol-hidden"><label>ইমেইল<input type="email" name="email" required autocomplete="email"></label>' +
+      '<label>পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>' +
+      '<button class="vol-btn" type="submit"><i class="ti ti-user-plus"></i> অ্যাকাউন্ট খুলুন</button>' +
+      '<p style="font-size:13px;opacity:.8">অ্যাকাউন্ট খোলার পর ইমেইলে যাচাই লিংক আসতে পারে। যাচাইয়ের পর লগইন করে ভলেন্টিয়ার আবেদন পূরণ করুন।</p></form>' +
+      '<div id="volAuthMsg"></div></div>';
+    box.querySelectorAll('.vol-tabs button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        box.querySelectorAll('.vol-tabs button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        $('volLoginForm').classList.toggle('vol-hidden', b.dataset.t !== 'login');
+        $('volSignForm').classList.toggle('vol-hidden', b.dataset.t !== 'signup');
+      });
+    });
+    $('volLoginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var f = e.target, btn = f.querySelector('button'); btn.disabled = true;
+      try {
+        var res = await db.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+        if (res.error) msg($('volAuthMsg'), 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।', false);
+        else { STATE.user = res.data.user; renderAll(); }
+      } catch (err) { msg($('volAuthMsg'), 'সংযোগ ত্রুটি — আবার চেষ্টা করুন।', false); }
+      btn.disabled = false;
+    });
+    $('volSignForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var f = e.target, btn = f.querySelector('button'); btn.disabled = true;
+      try {
+        var res = await db.auth.signUp({ email: f.email.value.trim(), password: f.password.value });
+        if (res.error) msg($('volAuthMsg'), 'অ্যাকাউন্ট খোলা যায়নি: ' + res.error.message, false);
+        else if (res.data.session) { STATE.user = res.data.user; renderAll(); }
+        else msg($('volAuthMsg'), 'অ্যাকাউন্ট তৈরি হয়েছে। ইমেইলের যাচাই লিংকে ক্লিক করে এখানে লগইন করুন।', true);
+      } catch (err) { msg($('volAuthMsg'), 'সংযোগ ত্রুটি — আবার চেষ্টা করুন।', false); }
+      btn.disabled = false;
+    });
+  }
+
+  function regFields(v) {
+    v = v || {};
+    return '<div class="vol-two">' +
+      '<label>পূর্ণ নাম *<input name="full_name" required maxlength="120" value="' + esc(v.full_name || '') + '"></label>' +
+      '<label>মোবাইল নম্বর *<input name="phone" required maxlength="20" value="' + esc(v.phone || '') + '"></label>' +
+      '<label>ইমেইল<input name="email" type="email" value="' + esc(v.email || '') + '"></label>' +
+      '<label>শিক্ষাগত যোগ্যতা<input name="education" maxlength="120" value="' + esc(v.education || '') + '"></label>' +
+      '<label>জেলা<input name="district" maxlength="80" value="' + esc(v.district || '') + '"></label>' +
+      '<label>উপজেলা / থানা<input name="upazila" maxlength="80" value="' + esc(v.upazila || '') + '"></label>' +
+      '</div>' +
+      '<label>ঠিকানা<textarea name="address" maxlength="300">' + esc(v.address || '') + '</textarea></label>' +
+      '<div><strong style="font-size:14px">আমার দক্ষতা</strong>' + checks('skills', SKILLS, v.skills) + '</div>' +
+      '<div><strong style="font-size:14px">কোন কাজে আগ্রহী</strong>' + checks('interests', INTERESTS, v.interests) + '</div>' +
+      '<label>কখন সময় দিতে পারবেন<select name="availability">' +
+        ['সপ্তাহে ১–২ দিন', 'সপ্তাহে ৩–৫ দিন', 'ছুটির দিনে', 'যখন সুযোগ হয়'].map(function (o) {
+          return '<option' + (v.availability === o ? ' selected' : '') + '>' + o + '</option>';
+        }).join('') + '</select></label>' +
+      '<label>সংক্ষিপ্ত পরিচিতি<textarea name="bio" maxlength="600">' + esc(v.bio || '') + '</textarea></label>';
+  }
+
+  function renderRegister(box) {
+    box.innerHTML =
+      '<div class="vol-card"><h3><i class="ti ti-id-badge-2"></i> ভলেন্টিয়ার হিসেবে নিবন্ধন</h3>' +
+      '<p style="margin-bottom:14px">আবেদন জমার পর এডমিন যাচাই করে অনুমোদন দেবেন। অনুমোদনের পর আপনি কাজ, সার্টিফিকেট ও চ্যানেল ব্যবহার করতে পারবেন। জাতীয় পরিচয়পত্রের নম্বর চাওয়া হয় না।</p>' +
+      '<form id="volRegForm" class="vol-form">' + regFields({}) +
+      '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:500"><input type="checkbox" name="oath" required style="margin-top:4px;width:auto"> আমি উপরের শপথ পড়েছি, বুঝেছি এবং মেনে চলতে সম্মত।</label>' +
+      '<div><button class="vol-btn" type="submit"><i class="ti ti-send"></i> আবেদন জমা দিন</button></div>' +
+      '<div id="volRegMsg"></div></form></div>';
+    $('volRegForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var f = e.target, btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+      var g = function (n) { return f.elements[n] ? f.elements[n].value.trim() : ''; };
+      var r = await rpc('vol_register', {
+        p_full_name: g('full_name'), p_phone: g('phone'), p_email: g('email'), p_district: g('district'),
+        p_upazila: g('upazila'), p_address: g('address'), p_education: g('education'),
+        p_skills: picked(f, 'skills'), p_interests: picked(f, 'interests'),
+        p_availability: g('availability'), p_bio: g('bio'), p_oath: !!f.elements.oath.checked
+      });
+      if (r.error) { msg($('volRegMsg'), r.error, false); btn.disabled = false; return; }
+      STATE.vol = r.data;
+      msg($('volRegMsg'), 'আবেদন জমা হয়েছে। এডমিন অনুমোদন দিলে এখানে সব সুবিধা খুলে যাবে।', true);
+      setTimeout(function () { renderAll(); }, 900);
+    });
+  }
+
+  function renderProfile(box, v) {
+    var banner = v.status === 'approved' ? 'অনুমোদিত ভলেন্টিয়ার' : (STATUS_BN[v.status] || v.status);
+    var note = v.status === 'pending' ? '<div class="vol-msg ok" style="margin-bottom:14px">আপনার আবেদন যাচাইয়ের অপেক্ষায় আছে। অনুমোদনের পর কাজ ও সার্টিফিকেটের সুবিধা খুলবে।</div>'
+      : v.status === 'suspended' ? '<div class="vol-msg err" style="margin-bottom:14px">আপনার ভলেন্টিয়ার সুবিধা সাময়িক স্থগিত আছে। বিস্তারিত জানতে প্রতিষ্ঠানের সাথে যোগাযোগ করুন।</div>'
+      : v.status === 'rejected' ? '<div class="vol-msg err" style="margin-bottom:14px">আপনার আবেদন বাতিল হয়েছে। প্রয়োজনে প্রতিষ্ঠানের সাথে যোগাযোগ করুন।</div>' : '';
+    box.innerHTML = note +
+      '<div class="vol-idcard">' +
+        '<div><div class="k">Korje Hasana · Volunteer ID</div>' +
+        '<div class="n">' + esc(v.full_name) + '</div>' +
+        '<div class="no">' + esc(v.volunteer_no) + '</div>' +
+        '<div class="meta">' + esc(banner) + '<br>' + esc([v.upazila, v.district].filter(Boolean).join(', ')) + '<br>' +
+        stars(v.rating_avg) + ' <span style="opacity:.85">(' + (v.rating_count || 0) + ' টি রেটিং) · সেবা পয়েন্ট: ' + (v.service_points || 0) + '</span></div></div>' +
+        '<div class="vol-qr" id="volQr" aria-label="ভলেন্টিয়ার আইডি QR"></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin:14px 0 6px;flex-wrap:wrap"><button class="vol-btn ghost sm" id="volLogout" type="button"><i class="ti ti-logout"></i> লগআউট</button></div>' +
+      '<div class="vol-card" style="margin-top:12px"><h3><i class="ti ti-edit"></i> প্রোফাইল হালনাগাদ</h3>' +
+      '<form id="volProfForm" class="vol-form">' + regFields(v) +
+      '<div><button class="vol-btn sm" type="submit"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button></div><div id="volProfMsg"></div></form></div>';
+    drawQr(v.volunteer_no);
+    $('volLogout').addEventListener('click', function () { db.auth.signOut().then(function () { STATE.user = null; STATE.vol = null; renderAll(); }); });
+    box.dataset.vid = v.id;
+    $('volProfForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var f = e.target, btn = f.querySelector('button'); btn.disabled = true;
+      var g = function (n) { return f.elements[n] ? f.elements[n].value.trim() : ''; };
+      var r = await rpc('vol_update_profile', {
+        p_phone: g('phone'), p_email: g('email'), p_district: g('district'), p_upazila: g('upazila'),
+        p_address: g('address'), p_education: g('education'), p_skills: picked(f, 'skills'),
+        p_interests: picked(f, 'interests'), p_availability: g('availability'), p_bio: g('bio')
+      });
+      if (r.error) msg($('volProfMsg'), r.error, false); else { STATE.vol = r.data; msg($('volProfMsg'), 'প্রোফাইল সংরক্ষিত হয়েছে।', true); }
+      btn.disabled = false;
+    });
+  }
+
+  function drawQr(text) {
+    var el = $('volQr');
+    try {
+      if (typeof qrcode !== 'function') { el.textContent = 'QR'; return; }
+      var q = qrcode(0, 'M'); q.addData('KHV:' + text); q.make();
+      el.innerHTML = q.createSvgTag({ cellSize: 3, margin: 0 });
+    } catch (e) { el.textContent = 'QR'; }
+  }
+
+  /* ---------- কাজ ---------- */
+  function renderTasks() {
+    var box = $('volTasks');
+    if (!STATE.user || !STATE.vol) { box.innerHTML = locked('কাজের তালিকা দেখতে ভলেন্টিয়ার হিসেবে লগইন ও অনুমোদন দরকার।'); return; }
+    if (STATE.vol.status !== 'approved') { box.innerHTML = locked('অনুমোদনের পর এখানে সেবার কাজ দেখা যাবে।'); return; }
+    rpc('vol_list_tasks').then(function (r) {
+      if (r.error) return msg(box, r.error, false);
+      var list = r.data || [];
+      if (!list.length) { box.innerHTML = '<div class="vol-empty">এখন কোনো খোলা কাজ নেই।</div>'; return; }
+      box.innerHTML = '<div class="vol-list">' + list.map(function (t) {
+        var act = '';
+        if (!t.mine && t.status === 'open') act = '<button class="vol-btn sm" data-act="claim" data-id="' + esc(t.id) + '"><i class="ti ti-hand-finger"></i> কাজটি নিন</button>';
+        if (t.mine && t.status === 'in_progress') act = '<button class="vol-btn sm violet" data-act="complete" data-id="' + esc(t.id) + '"><i class="ti ti-check"></i> কাজ জমা দিন</button>';
+        return '<div class="vol-card vol-item"><div style="flex:1;min-width:220px"><div class="t">' + esc(t.title) + '</div>' +
+          '<div class="m">' + esc(CAT[t.category] || '') + (t.area ? ' · ' + esc(t.area) : '') + (t.due_date ? ' · শেষ তারিখ: ' + dt(t.due_date) : '') +
+          ' · পয়েন্ট: ' + (t.points || 0) + '</div>' + (t.description ? '<div class="m" style="margin-top:6px">' + esc(t.description) + '</div>' : '') +
+          '</div><div style="display:grid;gap:8px;justify-items:end"><span class="vol-chip ' + esc(t.status) + '">' + esc(STATUS_BN[t.status] || t.status) + '</span>' +
+          (t.mine ? '<span class="vol-chip">আমার কাজ</span>' : '') + act + '</div></div>';
+      }).join('') + '</div><div id="volTaskMsg"></div>';
+      box.querySelectorAll('button[data-act]').forEach(function (b) {
+        b.addEventListener('click', async function () {
+          b.disabled = true;
+          var fn = b.dataset.act === 'claim' ? 'vol_claim_task' : 'vol_complete_task';
+          var res = await rpc(fn, { p_task_id: b.dataset.id });
+          if (res.error) msg($('volTaskMsg'), res.error, false);
+          else msg($('volTaskMsg'), b.dataset.act === 'claim' ? 'কাজটি আপনার নামে নেওয়া হয়েছে।' : 'কাজ জমা হয়েছে। এডমিন যাচাই করে রেটিং দেবেন।', true);
+          renderTasks();
+        });
+      });
+    });
+  }
+
+  /* ---------- সার্টিফিকেট ---------- */
+  function renderCerts() {
+    var box = $('volCerts');
+    if (!STATE.user || !STATE.vol) { box.innerHTML = locked('সার্টিফিকেটের আবেদন করতে ভলেন্টিয়ার হিসেবে লগইন করুন।'); return; }
+    if (STATE.vol.status !== 'approved') { box.innerHTML = locked('অনুমোদিত ভলেন্টিয়াররা সার্টিফিকেটের জন্য আবেদন করতে পারবেন।'); return; }
+    rpc('vol_my_certificates').then(function (r) {
+      if (r.error) return msg(box, r.error, false);
+      var list = r.data || [];
+      var pending = list.some(function (c) { return c.status === 'pending'; });
+      var form = pending ? '<div class="vol-msg ok">একটি আবেদন ইতিমধ্যে অপেক্ষমাণ আছে।</div>' :
+        '<div class="vol-card"><h3><i class="ti ti-file-plus"></i> সার্টিফিকেটের আবেদন</h3>' +
+        '<form id="volCertForm" class="vol-form"><label>উদ্দেশ্য *<input name="purpose" required minlength="3" maxlength="500" placeholder="যেমন: চাকরির আবেদন / শিক্ষাপ্রতিষ্ঠানে আবেদন"></label>' +
+        '<div class="vol-two"><label>সেবার শুরু *<input type="date" name="from" required></label><label>সেবার শেষ *<input type="date" name="to" required></label></div>' +
+        '<label>মোট সময় (ঘণ্টা)<input type="number" name="hours" min="0" step="0.5" value="0"></label>' +
+        '<div><button class="vol-btn sm" type="submit"><i class="ti ti-send"></i> আবেদন পাঠান</button></div><div id="volCertMsg"></div></form></div>';
+      var items = list.length ? '<div class="vol-list">' + list.map(function (c) {
+        var act = c.status === 'approved' ? '<button class="vol-btn sm violet" data-cert="' + esc(c.id) + '"><i class="ti ti-download"></i> সার্টিফিকেট ডাউনলোড (PDF)</button>' : '';
+        var extra = c.status === 'rejected' && c.reject_reason ? '<div class="m">কারণ: ' + esc(c.reject_reason) + '</div>' : '';
+        return '<div class="vol-card vol-item"><div style="flex:1;min-width:220px"><div class="t">' + esc(c.purpose) + '</div>' +
+          '<div class="m">' + dt(c.period_from) + ' — ' + dt(c.period_to) + ' · ' + esc(c.hours) + ' ঘণ্টা' + (c.cert_no ? ' · নম্বর: ' + esc(c.cert_no) : '') + '</div>' + extra + '</div>' +
+          '<div style="display:grid;gap:8px;justify-items:end"><span class="vol-chip ' + esc(c.status) + '">' + esc(STATUS_BN[c.status] || c.status) + '</span>' + act + '</div></div>';
+      }).join('') + '</div>' : '<div class="vol-empty">এখনো কোনো সার্টিফিকেট আবেদন নেই।</div>';
+      box.innerHTML = form + '<div style="margin-top:14px">' + items + '</div><div id="volCertListMsg"></div>';
+      var cf = $('volCertForm');
+      if (cf) cf.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var f = e.target, btn = f.querySelector('button'); btn.disabled = true;
+        var res = await rpc('vol_request_certificate', { p_purpose: f.purpose.value.trim(), p_from: f.from.value, p_to: f.to.value, p_hours: Number(f.hours.value || 0) });
+        if (res.error) { msg($('volCertMsg'), res.error, false); btn.disabled = false; }
+        else renderCerts();
+      });
+      box.querySelectorAll('button[data-cert]').forEach(function (b) {
+        b.addEventListener('click', async function () {
+          b.disabled = true;
+          var res = await rpc('vol_certificate_data', { p_id: b.dataset.cert });
+          b.disabled = false;
+          if (res.error) return msg($('volCertListMsg'), res.error, false);
+          openCertificate(res.data);
+        });
+      });
+    });
+  }
+
+  /* ---------- সার্টিফিকেট: ক্যালিগ্রাফি ডিজাইন; ইংরেজি ডিফল্ট, বাংলাও (বাটনে বদলানো যায়) ---------- */
+  function isLatinText(s) { return /^[\x20-\x7EÀ-ɏ.'’\-]*$/.test(String(s || '')); }
+  function dtEn(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }); } catch (e) { return String(s).slice(0, 10); } }
+
+  function openCertificate(c) {
+    var w = window.open('', '_blank');
+    if (!w) { alert('পপআপ ব্লক হয়েছে। ব্রাউজারে অনুমতি দিয়ে আবার চেষ্টা করুন।'); return; }
+    var corner = '<svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke-width="1.3" stroke-linecap="round">' +
+      '<path d="M4 58 C4 26 26 4 58 4"/><path d="M12 58 C12 32 32 12 58 12" stroke-width=".7"/>' +
+      '<path d="M22 22 C36 30 44 40 40 56 C58 44 46 24 22 22 Z"/><path d="M30 30 C42 36 48 46 46 58" stroke-width=".7"/>' +
+      '<circle cx="66" cy="66" r="3" fill="#b08d3c" stroke="none"/><path d="M76 76 C92 72 104 58 104 40"/></g></svg>';
+    var corners = '<div class="cn tl">' + corner + '</div><div class="cn tr">' + corner + '</div>' +
+      '<div class="cn bl">' + corner + '</div><div class="cn br">' + corner + '</div>';
+    var nameLatin = isLatinText(c.name);
+
+    function doc(en) {
+      var t = en ? {
+        org: 'Korje Hasana Foundation', title: 'Certificate of Volunteer Service', lead: 'This is to certify that',
+        body: 'Volunteer ID <b>' + esc(c.volunteer_no) + '</b> has rendered a total of <b>' + esc(c.hours) + '</b> hours of voluntary service to the Foundation from ' + esc(dtEn(c.period_from)) + ' to ' + esc(dtEn(c.period_to)) + '.<br>Purpose: ' + esc(c.purpose),
+        cert: 'Certificate No.', issued: 'Date of issue', sign: 'Authorised Signatory',
+        verify: 'To verify, enter the certificate number at korjehasana.org/volunteer-certificates.html'
+      } : {
+        org: 'কর্জে হাসানা ফাউন্ডেশন', title: 'সেবা সনদপত্র', lead: 'এই মর্মে প্রত্যয়ন করা যাচ্ছে যে',
+        body: 'ভলেন্টিয়ার আইডি <b>' + esc(c.volunteer_no) + '</b> — ' + esc(dt(c.period_from)) + ' থেকে ' + esc(dt(c.period_to)) + ' পর্যন্ত সময়ে প্রতিষ্ঠানের স্বেচ্ছাসেবী কার্যক্রমে মোট <b>' + esc(c.hours) + '</b> ঘণ্টা সেবা প্রদান করেছেন।<br>উদ্দেশ্য: ' + esc(c.purpose),
+        cert: 'সনদ নম্বর', issued: 'প্রদানের তারিখ', sign: 'কর্তৃপক্ষের স্বাক্ষর',
+        verify: 'সার্টিফিকেট নম্বর দিয়ে korjehasana.org/volunteer-certificates.html-এ যাচাই করা যাবে।'
+      };
+      var fam = en ? '"Cormorant Garamond", serif' : '"Hind Siliguri", sans-serif';
+      var nFam = (en && nameLatin) ? '"Great Vibes", cursive' : '"Hind Siliguri", sans-serif';
+      var issued = en ? dtEn(c.issued_at) : dt(c.issued_at);
+      return '<div class="doc"' + (en ? '' : ' hidden') + ' id="doc-' + (en ? 'en' : 'bn') + '" lang="' + (en ? 'en' : 'bn') + '">' +
+        '<div class="cert" style="font-family:' + fam + '">' + corners +
+        '<div class="inner"><div class="org">' + esc(t.org) + '</div><h1>' + esc(t.title) + '</h1><div class="rule"></div>' +
+        '<div class="lead">' + esc(t.lead) + '</div>' +
+        '<div class="name" style="font-family:' + nFam + '">' + esc(c.name) + '</div>' +
+        '<div class="body">' + t.body + '</div>' +
+        '<div class="meta"><div>' + esc(t.cert) + ': <b>' + esc(c.cert_no) + '</b><br>' + esc(t.issued) + ': ' + esc(issued) + '</div>' +
+        '<div class="sig"><span>' + esc(t.sign) + '</span></div></div>' +
+        '<div class="vf">' + esc(t.verify) + '</div></div></div></div>';
+    }
+
+    var css = '@page{size:A4 landscape;margin:0}*{box-sizing:border-box}' +
+      'body{margin:0;background:#f4f1fb;font-family:"Hind Siliguri",sans-serif}' +
+      '[hidden]{display:none!important}' +
+      '.bar{padding:10px;text-align:center}' +
+      '.bar button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #0f766e;background:#fff;color:#0f766e;cursor:pointer;margin:0 4px}' +
+      '.bar button.on,.bar button.pr{background:#0f766e;color:#fff}' +
+      '.cert{position:relative;width:277mm;height:190mm;margin:0 auto;background:#fffdf7;border:3px double #b08d3c;color:#2b2b2b;box-shadow:0 6px 24px rgba(0,0,0,.12)}' +
+      '.cert:before{content:"";position:absolute;inset:8mm;border:1px solid #c9a961;pointer-events:none}' +
+      '.inner{position:absolute;inset:0;padding:16mm 28mm;text-align:center}' +
+      '.org{font-family:"Cormorant Garamond",serif;letter-spacing:.3em;text-transform:uppercase;font-size:14px;color:#0b3b38}' +
+      'h1{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:40px;margin:6px 0 0;color:#0b3b38;letter-spacing:.03em}' +
+      '.rule{width:180px;height:1px;background:#b08d3c;margin:10px auto}' +
+      '.lead{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:19px;color:#4c2f9e}' +
+      '.name{font-size:56px;line-height:1.3;margin:4px 0;color:#1d1d1d}' +
+      '.body{font-size:16px;line-height:1.85;max-width:190mm;margin:0 auto}' +
+      '.meta{display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px;font-size:13px;color:#444}' +
+      '.sig span{display:inline-block;border-top:1px solid #333;padding-top:4px;min-width:200px;font-family:"Cormorant Garamond",serif;font-size:15px}' +
+      '.vf{font-size:11px;color:#777;margin-top:10px}' +
+      '.cn{position:absolute;width:64px;height:64px;stroke:#b08d3c}.cn svg{width:100%;height:100%}' +
+      '.tl{top:6mm;left:6mm}.tr{top:6mm;right:6mm;transform:scaleX(-1)}.bl{bottom:6mm;left:6mm;transform:scaleY(-1)}.br{bottom:6mm;right:6mm;transform:scale(-1,-1)}' +
+      '@media print{.bar{display:none}body{background:#fff}.cert{box-shadow:none}}';
+
+    var js = 'function sw(l){var en=l==="en";document.getElementById("doc-en").hidden=!en;document.getElementById("doc-bn").hidden=en;' +
+      'document.getElementById("bEn").className=en?"on":"";document.getElementById("bBn").className=en?"":"on";}';
+
+    var html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Certificate — ' + esc(c.cert_no) + '</title>' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+      '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Great+Vibes&family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+      '<style>' + css + '</style></head><body>' +
+      '<div class="bar"><button id="bEn" class="on" onclick="sw(\'en\')">English</button><button id="bBn" onclick="sw(\'bn\')">বাংলা</button> <button class="pr" onclick="window.print()">Print / Save PDF</button></div>' +
+      doc(true) + doc(false) +
+      '<script>' + js + '<\/script></body></html>';
+    w.document.open(); w.document.write(html); w.document.close();
+  }
+
+  function renderVerify() {
+    $('volVerifyForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var no = $('volVerifyNo').value.trim(); var box = $('volVerifyRes');
+      var r = await rpc('verify_volunteer_certificate', { p_cert_no: no });
+      if (r.error) return msg(box, r.error, false);
+      if (!r.data || !r.data.valid) return msg(box, 'এই নম্বরে কোনো অনুমোদিত সার্টিফিকেট পাওয়া যায়নি।', false);
+      var d = r.data;
+      box.innerHTML = '<div class="vol-msg ok"><b>সার্টিফিকেট বৈধ ✔</b><br>নাম: ' + esc(d.name) + ' · ভলেন্টিয়ার আইডি: ' + esc(d.volunteer_no) +
+        '<br>সময়কাল: ' + esc(dt(d.period_from)) + ' — ' + esc(dt(d.period_to)) + ' · মোট ঘণ্টা: ' + esc(d.hours) + '<br>সনদ নম্বর: ' + esc(d.cert_no) + '</div>';
+    });
+  }
+
+  /* ---------- চ্যানেল ---------- */
+  function renderChannel() {
+    var box = $('volChannel');
+    if (!STATE.user || !STATE.vol) { box.innerHTML = locked('ভলেন্টিয়ার চ্যানেল দেখতে অনুমোদিত ভলেন্টিয়ার হিসেবে লগইন করুন।'); return; }
+    if (STATE.vol.status !== 'approved') { box.innerHTML = locked('অনুমোদনের পর চ্যানেলের ঘোষণা ও হোয়াটসঅ্যাপ গ্রুপের লিংক পাবেন।'); return; }
+    Promise.all([rpc('vol_channel_messages', { p_limit: 100 }), rpc('vol_whatsapp_link')]).then(function (res) {
+      var m = res[0], w = res[1];
+      var wa = (!w.error && w.data) ? '<a class="vol-btn" href="' + esc(w.data) + '" target="_blank" rel="noopener"><i class="ti ti-brand-whatsapp"></i> হোয়াটসঅ্যাপ গ্রুপে যোগ দিন</a>'
+        : '<div class="vol-empty">হোয়াটসঅ্যাপ গ্রুপের লিংক শীঘ্রই যুক্ত করা হবে।</div>';
+      var list = (m.data || []);
+      var items = list.length ? list.map(function (x) {
+        return '<div class="vol-msgitem"><div class="d">' + esc(dt(x.created_at)) + '</div><div>' + esc(x.body).replace(/\n/g, '<br>') + '</div></div>';
+      }).join('') : '<div class="vol-empty">এখনো কোনো ঘোষণা নেই।</div>';
+      box.innerHTML = '<div class="vol-card" style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:200px"><h3>ভলেন্টিয়ার গ্রুপ</h3><p>এডমিনের ঘোষণা ও নির্দেশনা এখানে ও হোয়াটসঅ্যাপ গ্রুপে পাবেন।</p></div>' + wa + '</div>' +
+        '<div class="vol-list">' + items + '</div>';
+    });
+  }
+
+  /* ---------- রেটিং ---------- */
+  function renderRatings() {
+    var box = $('volRatings');
+    if (!STATE.user || !STATE.vol) { box.innerHTML = locked('রেটিং দেখতে ভলেন্টিয়ার হিসেবে লগইন করুন।'); return; }
+    if (STATE.vol.status !== 'approved') { box.innerHTML = locked('অনুমোদনের পর আপনার রেটিং ও সেবা পয়েন্ট দেখা যাবে।'); return; }
+    rpc('vol_my_ratings').then(function (r) {
+      if (r.error) return msg(box, r.error, false);
+      var d = r.data || {}; var items = d.items || [];
+      box.innerHTML = '<div class="vol-grid" style="margin-bottom:14px">' +
+        '<div class="vol-card"><h3>গড় রেটিং</h3><p style="font-size:26px;font-weight:700">' + Number(d.rating_avg || 0).toFixed(1) + ' / ৫</p>' + stars(d.rating_avg) + '</div>' +
+        '<div class="vol-card"><h3>মোট মূল্যায়ন</h3><p style="font-size:26px;font-weight:700">' + (d.rating_count || 0) + '</p><p>যাচাইকৃত কাজ</p></div>' +
+        '<div class="vol-card"><h3>সেবা পয়েন্ট</h3><p style="font-size:26px;font-weight:700">' + (d.service_points || 0) + '</p><p>কাজের মান ও সময় অনুযায়ী</p></div></div>' +
+        (items.length ? '<div class="vol-list">' + items.map(function (x) {
+          return '<div class="vol-card vol-item"><div style="flex:1;min-width:200px"><div class="t">' + esc(x.task_title || 'কাজ') + '</div>' +
+            '<div class="m">' + dt(x.created_at) + (x.note ? ' · ' + esc(x.note) : '') + '</div></div><div>' + stars(x.score) + '</div></div>';
+        }).join('') + '</div>' : '<div class="vol-empty">এখনো কোনো যাচাইকৃত কাজ নেই। কাজ শেষ করে জমা দিলে এখানে রেটিং দেখা যাবে।</div>');
+    });
+  }
+
+  async function renderAll() {
+    await loadVol();
+    renderAccount(); renderTasks(); renderCerts(); renderChannel(); renderRatings();
+    if (window.KHVolAssist) window.KHVolAssist.render(STATE.user, STATE.vol);
+    else window.__khVolState = { user: STATE.user, vol: STATE.vol };
+  }
+
+  async function init() {
+    try { var s = await db.auth.getSession(); STATE.user = s.data && s.data.session ? s.data.session.user : null; } catch (e) { STATE.user = null; }
+    db.auth.onAuthStateChange(function (ev) {
+      if (ev === 'SIGNED_OUT') { STATE.user = null; STATE.vol = null; }
+    });
+    renderVerify();
+    renderAll();
+    document.addEventListener('khlangchange', function () { renderAll(); });
+  }
+  init();
+})();
+</script>
+<script>
+  // ─── MEGA MENU (ডেস্কটপ: হোভার · মোবাইল: ট্যাপ) ───
+  (function(){
+    var mq = window.matchMedia('(max-width: 1023px)');
+    var items = document.querySelectorAll('.nav-item');
+    items.forEach(function(item){
+      var closeTimer;
+      function openMenu(){ if (mq.matches) return; clearTimeout(closeTimer); item.classList.add('open'); }
+      function scheduleClose(){ if (mq.matches) return; closeTimer = setTimeout(function(){ item.classList.remove('open'); }, 120); }
+      item.addEventListener('mouseenter', openMenu);
+      item.addEventListener('mouseleave', scheduleClose);
+      item.querySelectorAll('.mega-l1').forEach(function(l1){
+        l1.addEventListener('mouseenter', function(){
+          var panelId = l1.getAttribute('data-panel');
+          if(!panelId) return;
+          item.querySelectorAll('.mega-l1').forEach(function(x){ x.classList.remove('active'); });
+          item.querySelectorAll('.mega-panel').forEach(function(x){ x.classList.remove('active'); });
+          l1.classList.add('active');
+          var panel = item.querySelector('#'+panelId);
+          if(panel) panel.classList.add('active');
+        });
+      });
+    });
+  })();
+
+/* ── মোবাইল মেগা-মেনু: মূল লিংকে ট্যাপ = সাব-মেনু খোলা/বন্ধ (পেজে চলে যাবে না) ── */
+(function(){
+  var mq = window.matchMedia('(max-width: 1023px)');
+  var items = document.querySelectorAll('.nav-item');
+  items.forEach(function(item){
+    var a = item.querySelector('.nav-link');
+    if (!a || !item.querySelector('.mega-menu')) return;
+    a.addEventListener('click', function(e){
+      if (!mq.matches) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      var open = !item.classList.contains('open');
+      items.forEach(function(x){ x.classList.remove('open'); });
+      item.classList.toggle('open', open);
+    }, true);
+  });
+})();
+</script>
+</body>
+</html>
