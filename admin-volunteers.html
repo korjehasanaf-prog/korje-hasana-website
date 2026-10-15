@@ -49,6 +49,24 @@
     .gate { max-width: 420px; margin: 60px auto; }
     .muted { color: var(--muted); font-size: 13.5px; }
     @media (max-width: 640px) { .two { grid-template-columns: 1fr; } .wrap { padding: 14px 12px 50px; } }
+    /* প্রোফাইল ওভারলে */
+    .pm-back { position: fixed; inset: 0; background: rgba(15,23,32,.55); z-index: 50; display: none; align-items: flex-start; justify-content: center; padding: 24px 12px; overflow-y: auto; }
+    .pm-box { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; width: 100%; max-width: 900px; padding: 18px; }
+    .pm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .pm-head h2 { font-size: 18px; }
+    .pm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; font-size: 14px; }
+    .pm-grid b { display: block; color: var(--muted); font-weight: 600; font-size: 12.5px; margin-bottom: 2px; }
+    .pm-sec { margin-top: 18px; }
+    .pm-sec h3 { font-size: 15px; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .kpis .stat b { font-size: 20px; }
+    .tblwrap { overflow-x: auto; }
+    .tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .tbl th, .tbl td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .tbl th { color: var(--muted); font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+    .tbl .acts { margin-top: 4px; }
+    .hidden-by-role { display: none !important; }
+    @media (max-width: 640px) { .pm-grid { grid-template-columns: 1fr; } .pm-back { padding: 12px 8px; } .pm-box { padding: 14px; } }
   </style>
 <!-- brand-round -->
 <link rel="icon" type="image/png" sizes="16x16" href="assets/brand/favicon-16.png">
@@ -58,18 +76,29 @@
 </head>
 <body>
 <div class="top">
-  <div><h1><i class="ti ti-users-group"></i> ভলেন্টিয়ার ম্যানেজমেন্ট</h1><div style="font-size:13px;opacity:.85">সুপার অ্যাডমিন প্যানেল</div></div>
+  <div><h1><i class="ti ti-users-group"></i> ভলেন্টিয়ার ম্যানেজমেন্ট</h1><div id="roleLabel" style="font-size:13px;opacity:.85">অ্যাডমিন প্যানেল</div></div>
   <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
     <a href="dashboard.html"><i class="ti ti-arrow-left"></i> ড্যাশবোর্ড</a>
     <a href="#" id="logoutBtn" style="display:none"><i class="ti ti-logout"></i> লগআউট</a>
   </div>
 </div>
 
+<!-- প্রোফাইল ওভারলে -->
+<div id="profModal" class="pm-back" role="dialog" aria-modal="true" aria-labelledby="profTitle">
+  <div class="pm-box">
+    <div class="pm-head">
+      <h2 id="profTitle">ভলেন্টিয়ার প্রোফাইল</h2>
+      <button class="btn ghost" type="button" id="profClose"><i class="ti ti-x"></i> বন্ধ করুন</button>
+    </div>
+    <div id="profBody"><p class="muted">লোড হচ্ছে...</p></div>
+  </div>
+</div>
+
 <div class="wrap">
   <!-- লগইন গেট -->
   <div id="gate" class="gate card" style="display:none">
-    <h2>সুপার অ্যাডমিন লগইন</h2>
-    <p class="muted" style="margin:6px 0 12px">এই পেজ শুধু সুপার অ্যাডমিনদের জন্য।</p>
+    <h2>অ্যাডমিন লগইন</h2>
+    <p class="muted" style="margin:6px 0 12px">এই পেজ শুধু অ্যাডমিন ও সুপার অ্যাডমিনদের জন্য।</p>
     <form id="gateForm" class="form">
       <label>ইমেইল<input type="email" name="email" required autocomplete="username"></label>
       <label>পাসওয়ার্ড<input type="password" name="password" required autocomplete="current-password"></label>
@@ -83,8 +112,8 @@
     <div class="tabs">
       <button data-tab="apps" class="on">ভলেন্টিয়ার আবেদন</button>
       <button data-tab="certs">সার্টিফিকেট</button>
-      <button data-tab="tasks">কাজ ও রেটিং</button>
-      <button data-tab="channel">চ্যানেল ও হোয়াটসঅ্যাপ</button>
+      <button data-tab="tasks" data-super="1">কাজ ও রেটিং</button>
+      <button data-tab="channel" data-super="1">চ্যানেল ও হোয়াটসঅ্যাপ</button>
     </div>
 
     <!-- আবেদন -->
@@ -176,13 +205,17 @@
   var STATUS_BN = { pending: 'অপেক্ষমাণ', approved: 'অনুমোদিত', suspended: 'স্থগিত', rejected: 'বাতিল', open: 'খোলা', in_progress: 'চলছে', done: 'জমা (যাচাই বাকি)', verified: 'যাচাইকৃত', cancelled: 'বাতিল' };
   var CAT = { loan_check: 'ঋণ ব্যবহার যাচাই', find_members: 'যোগ্য সদস্য খোঁজা', eligibility: 'যোগ্যতা যাচাই', recovery: 'কিস্তি/বকেয়া', awareness: 'সচেতনতা', promotion: 'প্রচার', fundraising: 'আমানত ও দান', other: 'অন্যান্য' };
   var ALL_VOLS = [];
+  var IS_SUPER = false;   /* সুপার এডমিন হলে কাজ/রেটিং/ঘোষণা/হোয়াটসঅ্যাপ দেখা যাবে */
+  var PROF_ID = null;     /* খোলা প্রোফাইলের ভলেন্টিয়ার আইডি */
+  function tk(n) { return '৳' + Math.round(Number(n) || 0).toLocaleString('bn-BD'); }
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function curLoc() { try { return localStorage.getItem('kh_lang') === 'bn' ? 'bn-BD' : 'en-GB'; } catch (e) { return 'en-GB'; } }
   function dt(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString(curLoc(), { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return String(s).slice(0, 10); } }
   function errText(e) {
     var m = (e && (e.message || '')) || '';
-    if (m.indexOf('forbidden') !== -1) return 'এই অ্যাকাউন্টের সুপার অ্যাডমিন অনুমতি নেই।';
+    if (m.indexOf('forbidden') !== -1) return 'এই অ্যাকাউন্টের এই পেজ বা কাজের অনুমতি নেই।';
+    if (m.indexOf('not_found') !== -1) return 'ভলেন্টিয়ার খুঁজে পাওয়া যায়নি।';
     if (m.indexOf('not_pending') !== -1) return 'এটি ইতিমধ্যে নিষ্পত্তি হয়েছে।';
     if (m.indexOf('volunteer_not_approved') !== -1) return 'আগে ভলেন্টিয়ারকে অনুমোদন দিন।';
     if (m.indexOf('task_not_verifiable') !== -1) return 'কাজটি কোনো ভলেন্টিয়ারকে দেওয়া হয়নি বা জমা/চলমান নেই।';
@@ -205,16 +238,22 @@
   async function enter() {
     var st = await rpc('admin_vol_stats');
     if (st.error) {
-      await db.auth.signOut();
+      /* সদস্য/অ-অ্যাডমিন অ্যাকাউন্টের সেশন মোছা হবে না — শুধু এই পেজে ঢোকা আটকানো */
       $('gate').style.display = 'block';
       msg($('gateMsg'), st.error, false);
       return;
     }
+    var me = await rpc('get_my_admin_info');
+    var info = (me.data && me.data[0]) || null;
+    IS_SUPER = !!(info && info.role === 'super_admin');
+    $('roleLabel').textContent = IS_SUPER ? 'সুপার অ্যাডমিন প্যানেল' : 'অ্যাডমিন প্যানেল';
+    document.querySelectorAll('.tabs button[data-super]').forEach(function (b) { b.classList.toggle('hidden-by-role', !IS_SUPER); });
     $('gate').style.display = 'none';
     $('app').style.display = 'block';
     $('logoutBtn').style.display = 'inline';
     renderStats(st.data);
-    window.__volAdminIn = true; loadVols(); loadCerts('pending'); loadTasks(); loadMsgs(); loadWa();
+    window.__volAdminIn = true; loadVols(); loadCerts('pending');
+    if (IS_SUPER) { loadTasks(); loadMsgs(); loadWa(); }
   }
   $('gateForm').addEventListener('submit', async function (e) {
     e.preventDefault();
@@ -239,6 +278,7 @@
       ['মোট ভলেন্টিয়ার', d.volunteers_total], ['অনুমোদিত', d.volunteers_approved], ['অপেক্ষমাণ আবেদন', d.volunteers_pending],
       ['অপেক্ষমাণ সার্টিফিকেট', d.certs_pending], ['খোলা/চলমান কাজ', d.tasks_open], ['যাচাই বাকি কাজ', d.tasks_done_unverified], ['মোট সেবা পয়েন্ট', d.service_points]
     ];
+    if (!IS_SUPER) items = items.filter(function (i) { return i[0] !== 'খোলা/চলমান কাজ' && i[0] !== 'যাচাই বাকি কাজ'; });
     $('stats').innerHTML = items.map(function (i) { return '<div class="stat"><b>' + (i[1] || 0) + '</b><span>' + i[0] + '</span></div>'; }).join('');
   }
   function refreshStats() { rpc('admin_vol_stats').then(function (r) { if (!r.error) renderStats(r.data); }); }
@@ -254,7 +294,7 @@
     var list = r.data || [];
     if (!list.length) { box.innerHTML = '<p class="muted">এই তালিকায় কিছু নেই।</p>'; return; }
     box.innerHTML = list.map(function (v) {
-      var acts = '';
+      var acts = '<button class="btn ghost" data-prof="' + v.id + '"><i class="ti ti-user-circle"></i> প্রোফাইল</button>';
       if (v.status !== 'approved') acts += '<button class="btn" data-set="approved" data-id="' + v.id + '"><i class="ti ti-check"></i> অনুমোদন</button>';
       if (v.status === 'approved') acts += '<button class="btn ghost" data-set="suspended" data-id="' + v.id + '">স্থগিত</button>';
       if (v.status !== 'rejected') acts += '<button class="btn bad" data-set="rejected" data-id="' + v.id + '">বাতিল</button>';
@@ -265,6 +305,9 @@
         (v.bio ? '<div class="m">' + esc(v.bio) + '</div>' : '') + '</div>' +
         '<div class="acts"><span class="chip ' + esc(v.status) + '">' + esc(STATUS_BN[v.status] || v.status) + '</span>' + acts + '</div></div>';
     }).join('');
+    box.querySelectorAll('button[data-prof]').forEach(function (b) {
+      b.addEventListener('click', function () { openProfile(b.dataset.prof); });
+    });
     box.querySelectorAll('button[data-set]').forEach(function (b) {
       b.addEventListener('click', async function () {
         if (b.dataset.set === 'rejected' && !confirm('এই আবেদন বাতিল করবেন?')) return;
@@ -314,7 +357,7 @@
       });
     });
   }
-  document.addEventListener('khlangchange', function () { if (window.__volAdminIn) { loadVols(); loadCerts(); loadTasks(); loadMsgs(); loadWa(); refreshStats(); } });
+  document.addEventListener('khlangchange', function () { if (window.__volAdminIn) { loadVols(); loadCerts(); if (IS_SUPER) { loadTasks(); loadMsgs(); loadWa(); } refreshStats(); if (PROF_ID) loadProfile(); } });
   document.querySelectorAll('#certFilters button').forEach(function (b) {
     b.addEventListener('click', function () { loadCerts(b.dataset.f); });
   });
@@ -403,6 +446,155 @@
     var res = await rpc('admin_vol_set_whatsapp', { p_url: null });
     msg($('waMsg'), res.error ? res.error : 'লিংক সরানো হয়েছে।', !res.error);
   });
+
+  /* ---------- ভলেন্টিয়ার প্রোফাইল (সবার জন্য দেখা; স্ট্যাটাস ও সার্টিফিকেট অ্যাকশন সহ) ---------- */
+  function kpi(label, val) { return '<div class="stat"><b>' + esc(val) + '</b><span>' + esc(label) + '</span></div>'; }
+  function openProfile(id) {
+    PROF_ID = id;
+    $('profModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    $('profBody').innerHTML = '<p class="muted">লোড হচ্ছে...</p>';
+    loadProfile();
+  }
+  function closeProfile() {
+    PROF_ID = null;
+    $('profModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  $('profClose').addEventListener('click', closeProfile);
+  $('profModal').addEventListener('click', function (e) { if (e.target === $('profModal')) closeProfile(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && PROF_ID) closeProfile(); });
+
+  async function loadProfile() {
+    var id = PROF_ID;
+    if (!id) return;
+    var r = await rpc('admin_vol_profile', { p_id: id });
+    if (id !== PROF_ID) return;   /* মাঝপথে বন্ধ বা অন্য প্রোফাইল খোলা হলে পুরোনো উত্তর উপেক্ষা */
+    if (r.error) return msg($('profBody'), r.error, false);
+    renderProfile(r.data || {});
+  }
+
+  function renderProfile(d) {
+    var v = d.volunteer || {}, c = d.contrib || {}, totals = c.totals || {}, items = c.items || [];
+    var assisted = d.assisted || [], certs = d.certs || [], tasks = d.tasks || [];
+    $('profTitle').textContent = (v.full_name || 'ভলেন্টিয়ার') + (v.volunteer_no ? ' · ' + v.volunteer_no : '');
+
+    var acts = '';
+    if (v.status !== 'approved') acts += '<button class="btn" data-pset="approved"><i class="ti ti-check"></i> অনুমোদন</button>';
+    if (v.status === 'approved') acts += '<button class="btn ghost" data-pset="suspended">স্থগিত</button>';
+    if (v.status !== 'rejected') acts += '<button class="btn bad" data-pset="rejected">বাতিল</button>';
+
+    var h = '';
+    h += '<div class="acts" style="margin-bottom:12px"><span class="chip ' + esc(v.status) + '">' + esc(STATUS_BN[v.status] || v.status) + '</span>' + acts + '</div>';
+    h += '<div class="pm-grid">' +
+      '<div><b>ফোন</b>' + esc(v.phone || '—') + '</div>' +
+      '<div><b>ইমেইল</b>' + esc(v.email || '—') + '</div>' +
+      '<div><b>জেলা / উপজেলা</b>' + esc([v.district, v.upazila].filter(Boolean).join(' / ') || '—') + '</div>' +
+      '<div><b>ঠিকানা</b>' + esc(v.address || '—') + '</div>' +
+      '<div><b>শিক্ষা</b>' + esc(v.education || '—') + '</div>' +
+      '<div><b>সময়</b>' + esc(v.availability || '—') + '</div>' +
+      '<div><b>দক্ষতা</b>' + esc((v.skills || []).join(', ') || '—') + '</div>' +
+      '<div><b>আগ্রহ</b>' + esc((v.interests || []).map(function (k) { return CAT[k] || k; }).join(', ') || '—') + '</div>' +
+      '<div><b>শপথ গ্রহণের তারিখ</b>' + esc(dt(v.oath_accepted_at) || '—') + '</div>' +
+      '<div><b>অনুমোদনের তারিখ</b>' + esc(dt(v.approved_at) || '—') + '</div>' +
+      '<div><b>নিবন্ধনের তারিখ</b>' + esc(dt(v.created_at) || '—') + '</div>' +
+      '</div>';
+    if (v.bio) h += '<div class="muted" style="margin-top:10px">' + esc(v.bio) + '</div>';
+
+    var certApproved = certs.filter(function (x) { return x.status === 'approved'; }).length;
+    h += '<div class="pm-sec"><h3>সারসংক্ষেপ</h3><div class="kpis">' +
+      kpi('রেটিং (মোট)', Number(v.rating_avg || 0).toFixed(1) + ' (' + (v.rating_count || 0) + ')') +
+      kpi('সেবা পয়েন্ট', v.service_points || 0) +
+      kpi('সহায়তায় যুক্ত সদস্য', assisted.length) +
+      kpi('বরাদ্দকৃত কাজ', tasks.length) +
+      kpi('অনুমোদিত সনদ', certApproved) +
+      kpi('অনুমোদিত অবদান', c.approved || 0) +
+      '</div></div>';
+
+    /* সনদ — অপেক্ষমাণ হলে এখান থেকেই নিষ্পত্তি */
+    h += '<div class="pm-sec"><h3>সার্টিফিকেট আবেদন</h3>';
+    if (!certs.length) h += '<p class="muted">কোনো সার্টিফিকেট আবেদন নেই।</p>';
+    else h += '<div class="tblwrap"><table class="tbl"><thead><tr><th>উদ্দেশ্য</th><th>সময়কাল</th><th>ঘণ্টা</th><th>অবস্থা</th><th>সনদ নম্বর</th></tr></thead><tbody>' +
+      certs.map(function (x) {
+        var a = x.status === 'pending' ? '<div class="acts"><button class="btn" data-pc="1" data-id="' + esc(x.id) + '">অনুমোদন ও সনদ</button><button class="btn bad" data-pc="0" data-id="' + esc(x.id) + '">প্রত্যাখ্যান</button></div>' : '';
+        return '<tr><td>' + esc(x.purpose) + '</td><td>' + esc(dt(x.period_from)) + ' — ' + esc(dt(x.period_to)) + '</td><td>' + esc(x.hours) +
+          '</td><td><span class="chip ' + esc(x.status) + '">' + esc(STATUS_BN[x.status] || x.status) + '</span>' +
+          (x.reject_reason ? '<div class="muted">কারণ: ' + esc(x.reject_reason) + '</div>' : '') + a + '</td><td>' + esc(x.cert_no || '—') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    h += '</div>';
+
+    /* অবদান */
+    var kinds = Object.keys(totals);
+    h += '<div class="pm-sec"><h3>অবদান</h3>';
+    if (!kinds.length) h += '<p class="muted">এখনো কোনো অবদান রেকর্ড হয়নি।</p>';
+    else {
+      h += '<div class="tblwrap"><table class="tbl"><thead><tr><th>ধরন</th><th>সংখ্যা</th></tr></thead><tbody>' +
+        kinds.map(function (k) { return '<tr><td>' + esc(k) + '</td><td>' + esc(totals[k]) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+      if (items.length) {
+        h += '<div class="tblwrap" style="margin-top:10px"><table class="tbl"><thead><tr><th>তারিখ</th><th>ধরন</th><th>পরিমাণ</th><th>অবস্থা</th></tr></thead><tbody>' +
+          items.slice(0, 50).map(function (x) {
+            return '<tr><td>' + esc(dt(x.created_at)) + '</td><td>' + esc(x.kind) + '</td><td>' + (x.amount ? tk(x.amount) : '—') + '</td><td>' + esc(x.status || '—') + '</td></tr>';
+          }).join('') + '</tbody></table></div>';
+      }
+    }
+    h += '</div>';
+
+    /* বরাদ্দকৃত কাজ ও রেটিং (পঠন) */
+    h += '<div class="pm-sec"><h3>বরাদ্দকৃত কাজ ও রেটিং</h3>';
+    if (!tasks.length) h += '<p class="muted">এখনো কোনো কাজ বরাদ্দ হয়নি।</p>';
+    else h += '<div class="tblwrap"><table class="tbl"><thead><tr><th>কাজ</th><th>ধরন</th><th>পয়েন্ট</th><th>অবস্থা</th><th>রেটিং</th></tr></thead><tbody>' +
+      tasks.map(function (t) {
+        var rate = t.score != null ? esc(t.score) + ' / ৫' + (t.note ? '<div class="muted">' + esc(t.note) + '</div>' : '') : '—';
+        return '<tr><td>' + esc(t.title) + (t.area ? '<div class="muted">' + esc(t.area) + '</div>' : '') + '</td><td>' + esc(CAT[t.category] || '') +
+          '</td><td>' + esc(t.points || 0) + '</td><td><span class="chip ' + esc(t.status) + '">' + esc(STATUS_BN[t.status] || t.status) + '</span></td><td>' + rate + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    h += '</div>';
+
+    /* সহায়তায় যুক্ত সদস্য — শুধু সদস্য-কোড ও তারিখ (নাম/ব্যক্তিগত তথ্য নয়) */
+    h += '<div class="pm-sec"><h3>সহায়তায় যুক্ত সদস্য</h3>';
+    if (!assisted.length) h += '<p class="muted">কোনো সদস্য এই ভলেন্টিয়ারের মাধ্যমে যুক্ত হননি।</p>';
+    else h += '<div class="tblwrap"><table class="tbl"><thead><tr><th>সদস্য-কোড</th><th>যুক্ত হওয়ার তারিখ</th><th>সদস্যপদ</th></tr></thead><tbody>' +
+      assisted.map(function (a) {
+        return '<tr><td>' + esc(a.user_code || '—') + '</td><td>' + esc(dt(a.assisted_at) || '—') + '</td><td>' + (a.membership_ended_at ? 'শেষ হয়েছে' : 'সক্রিয়') + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      (assisted.length >= 300 ? '<p class="muted" style="margin-top:6px">সর্বশেষ ৩০০ জন দেখানো হচ্ছে।</p>' : '');
+    h += '</div>';
+
+    $('profBody').innerHTML = h;
+    bindProfileActions();
+  }
+
+  function bindProfileActions() {
+    var body = $('profBody');
+    body.querySelectorAll('button[data-pset]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var st = b.dataset.pset;
+        if (st === 'rejected' && !confirm('এই ভলেন্টিয়ারকে বাতিল করবেন?')) return;
+        b.disabled = true;
+        var res = await rpc('admin_vol_set_status', { p_id: PROF_ID, p_status: st });
+        if (res.error) { alert(res.error); b.disabled = false; return; }
+        refreshAfterChange();
+      });
+    });
+    body.querySelectorAll('button[data-pc]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var ok = b.dataset.pc === '1';
+        var reason = ok ? null : (prompt('প্রত্যাখ্যানের কারণ (ঐচ্ছিক):') || null);
+        if (!ok && reason === null && !confirm('কারণ ছাড়াই এই সনদ আবেদন প্রত্যাখ্যান করবেন?')) return;
+        b.disabled = true;
+        var res = await rpc('admin_vol_decide_cert', { p_id: b.dataset.id, p_approve: ok, p_reason: reason });
+        if (res.error) { alert(res.error); b.disabled = false; return; }
+        refreshAfterChange();
+      });
+    });
+  }
+
+  function refreshAfterChange() {
+    refreshStats();
+    loadVols();
+    loadCerts();
+    loadProfile();
+  }
 
   start();
 })();

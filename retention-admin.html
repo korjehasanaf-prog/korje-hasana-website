@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>সদস্য তথ্য সংরক্ষণ (অ্যাডমিন) | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root { --ink:#1f2937; --muted:#6b7280; --teal:#0f766e; --line:#e5e7eb; --bg:#f6f7fb; --card:#ffffff; --bad:#dc2626; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink:#e5e7eb; --muted:#9ca3af; --line:#2b3442; --bg:#0f1520; --card:#162030; } }
+    html[data-theme="dark"] { --ink:#e5e7eb; --muted:#9ca3af; --line:#2b3442; --bg:#0f1520; --card:#162030; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Hind Siliguri', 'Inter', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; font-size: 15px; }
+    .top { background: linear-gradient(118deg,#0b3b38,#0f766e 55%,#4c2f9e); color: #fff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .top h1 { font-size: 20px; }
+    .top button { color: #fff; font: inherit; font-size: 14px; background: none; border: 0; cursor: pointer; opacity: .9; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 18px 16px 60px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    .card h2 { font-size: 17px; margin-bottom: 8px; }
+    .muted { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+    .gate { max-width: 420px; margin: 60px auto; }
+    .form { display: grid; gap: 10px; }
+    .form label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+    .form input, .form select { font: inherit; font-size: 14px; padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--ink); width: 100%; }
+    .row { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .row:last-child { border-bottom: 0; }
+    .row .t { font-weight: 700; }
+    .row .m { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 2px; }
+    .acts { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .acts select { font: inherit; font-size: 13px; padding: 7px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+    .chip { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--line); }
+    .chip.ok { background: rgba(22,163,74,.18); }
+    .chip.end { background: rgba(220,38,38,.16); }
+    button.btn { font: inherit; font-size: 13.5px; font-weight: 700; padding: 8px 12px; border-radius: 10px; border: 0; cursor: pointer; background: var(--teal); color: #fff; }
+    button.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    button.btn.bad { background: var(--bad); }
+    button.btn:disabled { opacity: .55; cursor: not-allowed; }
+    .msg { font-size: 13.5px; padding: 9px 11px; border-radius: 9px; margin-top: 8px; }
+    .msg.ok { background: rgba(22,163,74,.14); }
+    .msg.err { background: rgba(220,38,38,.12); }
+    .hidden { display: none !important; }
+    .log { font-size: 13px; line-height: 1.8; }
+    @media (max-width: 640px) { .wrap { padding: 14px 12px 50px; } }
+  </style>
+</head>
+<body>
+<div class="top">
+  <h1><i class="ti ti-shield-lock"></i> সদস্য তথ্য সংরক্ষণ</h1>
+  <button id="logoutBtn" class="hidden" type="button"><i class="ti ti-logout"></i> লগআউট</button>
+</div>
+
+<div class="wrap">
+  <div id="gate" class="gate card hidden">
+    <h2>সুপার অ্যাডমিন লগইন</h2>
+    <p class="muted" style="margin:6px 0 12px">এই পেজ শুধু সুপার অ্যাডমিনদের জন্য।</p>
+    <form id="gateForm" class="form">
+      <label>ইমেইল<input type="email" name="email" required autocomplete="username"></label>
+      <label>পাসওয়ার্ড<input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn" type="submit"><i class="ti ti-login"></i> লগইন</button>
+    </form>
+    <div id="gateMsg"></div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="card">
+      <h2>নীতি</h2>
+      <p class="muted">সদস্যপদ সক্রিয় থাকা পর্যন্ত সদস্যের এনআইডি, স্বাক্ষর, ছবি এবং জন্ম তারিখ ও পিতা-মাতার নাম সংরক্ষিত থাকবে। সদস্যপদ শেষ হলে এখান থেকে এসব ব্যক্তিগত নথি ও পরিচয়-তথ্য মুছে ফেলা যাবে। সদস্যের নাম, মোবাইল ও লেনদেনের হিসাব-রেকর্ড মোছা হবে না। সদস্যপদ শেষ, চালু ও মোছার প্রতিটি ঘটনা লগে থাকবে।</p>
+    </div>
+    <div class="card">
+      <h2>সদস্যরা</h2>
+      <div id="notice"></div>
+      <div id="list"></div>
+    </div>
+    <div class="card">
+      <h2>সংরক্ষণ লগ</h2>
+      <div id="log" class="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var db = window._db;
+  var FN = 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1/kh-drive';
+  var $ = function (id) { return document.getElementById(id); };
+  var REASON = { resigned: 'সদস্যপদ ত্যাগ', deceased: 'মৃত্যু', inactive: 'নিষ্ক্রিয়', other: 'অন্যান্য' };
+  var ACT = { membership_ended: 'সদস্যপদ শেষ', membership_reopened: 'সদস্যপদ চালু', purged: 'ব্যক্তিগত ডাটা মোছা হয়েছে' };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function dt(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString('bn-BD', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (e) { return String(s).slice(0, 10); } }
+  function errText(e) {
+    var m = (e && (e.message || '')) || '';
+    if (m.indexOf('forbidden') !== -1) return 'এই অ্যাকাউন্টের সুপার অ্যাডমিন অনুমতি নেই।';
+    if (m.indexOf('reason required') !== -1) return 'সদস্যপদ শেষের কারণ বাছাই করুন।';
+    if (m.indexOf('member not found') !== -1) return 'সদস্য পাওয়া যায়নি।';
+    return 'ত্রুটি: ' + (m || 'অজানা');
+  }
+  function purgeText(reason) {
+    if (reason === 'membership_active') return 'সদস্যপদ এখনও সক্রিয় — আগে সদস্যপদ শেষ চিহ্নিত করুন।';
+    if (reason === 'forbidden') return 'এই অ্যাকাউন্টের সুপার অ্যাডমিন অনুমতি নেই।';
+    if (reason === 'confirm') return 'নিশ্চিতকরণ মেলেনি — কিছু মোছা হয়নি।';
+    if (reason === 'storage_list' || reason === 'storage_remove' || reason === 'drive_delete') {
+      return 'মুছতে সমস্যা হয়েছে — আবার চেষ্টা করুন। আগেই মোছা হয়ে থাকা অংশ ফেরত আসবে না।';
+    }
+    return 'মোছা সম্পন্ন হয়নি — আবার চেষ্টা করুন।';
+  }
+  async function rpc(name, args) {
+    try { var r = await db.rpc(name, args || {}); if (r.error) return { error: errText(r.error) }; return { data: r.data }; }
+    catch (e) { return { error: 'সংযোগ ত্রুটি' }; }
+  }
+  function msg(el, text, ok) { el.innerHTML = '<div class="msg ' + (ok ? 'ok' : 'err') + '">' + esc(text) + '</div>'; }
+
+  /* ---------- গেট ---------- */
+  async function start() {
+    var s = await db.auth.getSession();
+    if (s.data && s.data.session) return enter();
+    $('gate').classList.remove('hidden');
+  }
+  async function enter() {
+    var sa = await rpc('is_super_admin');
+    if (sa.error || sa.data !== true) {
+      await db.auth.signOut();
+      $('gate').classList.remove('hidden');
+      msg($('gateMsg'), sa.error || 'এই অ্যাকাউন্টের সুপার অ্যাডমিন অনুমতি নেই।', false);
+      return;
+    }
+    $('gate').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    $('logoutBtn').classList.remove('hidden');
+    await reload('');
+  }
+  $('gateForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var r = await db.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+    if (r.error) return msg($('gateMsg'), 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।', false);
+    enter();
+  });
+  $('logoutBtn').addEventListener('click', function (e) {
+    e.preventDefault();
+    db.auth.signOut().then(function () { location.reload(); });
+  });
+
+  /* ---------- তালিকা ---------- */
+  async function reload(text) {
+    var r = await rpc('admin_retention_overview');
+    if (r.error) return msg($('notice'), r.error, false);
+    render(r.data || []);
+    $('notice').innerHTML = text ? '<div class="msg ok">' + esc(text) + '</div>' : '';
+    loadLog();
+  }
+
+  function render(rows) {
+    if (!rows.length) { $('list').innerHTML = '<p class="muted">কোনো সদস্য নেই।</p>'; return; }
+    $('list').innerHTML = rows.map(function (m) {
+      var ended = !!m.membership_ended_at;
+      var docs = [];
+      if (m.has_nid) docs.push('এনআইডি');
+      if (m.has_signature) docs.push('স্বাক্ষর');
+      if (m.has_photo) docs.push('ছবি');
+      var files = (m.drive_docs || 0) + (m.storage_docs || 0);
+      var hasData = docs.length > 0 || files > 0;
+      var status = ended
+        ? '<span class="chip end">সদস্যপদ শেষ · ' + esc(dt(m.membership_ended_at)) + ' · ' + esc(REASON[m.membership_ended_reason] || '') + '</span>'
+        : '<span class="chip ok">সদস্যপদ সক্রিয়</span>';
+      var info = '<div class="m">কোড: ' + esc(m.user_code || '—') + ' · সংরক্ষিত নথি: ' + (docs.length ? esc(docs.join(', ')) : 'নেই') + (files ? ' · ফাইল: ' + files : '') + '</div>';
+      var actions;
+      if (!ended) {
+        actions = '<select data-reason-for="' + esc(m.member_id) + '"><option value="">কারণ বাছাই</option>' +
+          Object.keys(REASON).map(function (k) { return '<option value="' + k + '">' + REASON[k] + '</option>'; }).join('') +
+          '</select>' +
+          '<button class="btn ghost" data-end="' + esc(m.member_id) + '" type="button"><i class="ti ti-user-off"></i> সদস্যপদ শেষ</button>';
+      } else {
+        actions = '<button class="btn ghost" data-reopen="' + esc(m.member_id) + '" type="button"><i class="ti ti-user-check"></i> সদস্যপদ চালু</button>' +
+          (hasData ? '<button class="btn bad" data-purge="' + esc(m.member_id) + '" data-code="' + esc(m.user_code || '') + '" type="button"><i class="ti ti-trash"></i> ব্যক্তিগত ডাটা মুছুন</button>' : '');
+      }
+      return '<div class="row"><div><div class="t">' + esc(m.full_name || 'নাম নেই') + '</div>' + info + '</div>' +
+             '<div class="acts">' + status + '</div><div class="acts">' + actions + '</div></div>' +
+             '<div id="m-' + esc(m.member_id) + '"></div>';
+    }).join('');
+  }
+
+  $('list').addEventListener('click', async function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var id = b.dataset.end || b.dataset.reopen || b.dataset.purge;
+    if (!id) return;
+    var box = document.getElementById('m-' + id);
+
+    if (b.dataset.end) {
+      var sel = document.querySelector('select[data-reason-for="' + id + '"]');
+      var reason = sel ? sel.value : '';
+      if (!reason) return msg(box, 'প্রথমে সদস্যপদ শেষের কারণ বাছাই করুন।', false);
+      if (!confirm('এই সদস্যের সদস্যপদ শেষ হিসেবে চিহ্নিত করবেন? এরপর ব্যক্তিগত ডাটা মোছা যাবে।')) return;
+      var r = await rpc('admin_set_membership_end', { p_user: id, p_ended: true, p_reason: reason });
+      if (r.error) return msg(box, r.error, false);
+      return reload('সদস্যপদ শেষ হিসেবে চিহ্নিত হয়েছে।');
+    }
+
+    if (b.dataset.reopen) {
+      var r2 = await rpc('admin_set_membership_end', { p_user: id, p_ended: false, p_reason: null });
+      if (r2.error) return msg(box, r2.error, false);
+      return reload('সদস্যপদ আবার চালু হয়েছে।');
+    }
+
+    if (b.dataset.purge) {
+      var code = b.dataset.code || 'DELETE';
+      var typed = prompt('ব্যক্তিগত নথি ও পরিচয়-ছবি স্থায়ীভাবে মুছে যাবে, ফেরত পাওয়া যাবে না।\nনিশ্চিত হলে এই সদস্যের কোড লিখুন: ' + code);
+      if (typed === null) return;
+      if (typed.trim() !== code) return msg(box, 'কোড মেলেনি — কিছু মোছা হয়নি।', false);
+      b.disabled = true;
+      try {
+        var s = await db.auth.getSession();
+        var tok = s.data && s.data.session ? s.data.session.access_token : '';
+        var res = await fetch(FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok },
+          body: JSON.stringify({ action: 'purge_member', user_id: id, confirm: true })
+        });
+        var j = await res.json().catch(function () { return {}; });
+        if (!j.ok) { b.disabled = false; return msg(box, purgeText(j.reason), false); }
+        var c = j.counts || {};
+        return reload('ব্যক্তিগত ডাটা মুছে ফেলা হয়েছে (ফাইল ' + ((c.drive_files || 0) + (c.storage_objects || 0)) + ')।');
+      } catch (err) {
+        b.disabled = false;
+        return msg(box, 'সংযোগ ত্রুটি — আবার চেষ্টা করুন।', false);
+      }
+    }
+  });
+
+  /* ---------- লগ ---------- */
+  async function loadLog() {
+    var r = await rpc('admin_retention_log', { p_limit: 50 });
+    if (r.error) { $('log').innerHTML = '<span class="muted">' + esc(r.error) + '</span>'; return; }
+    var rows = r.data || [];
+    $('log').innerHTML = rows.length ? rows.map(function (x) {
+      var extra = '';
+      if (x.reason) extra = ' · ' + (REASON[x.reason] || x.reason);
+      if (x.action === 'purged' && x.counts) {
+        extra = ' · ফাইল ' + ((x.counts.drive_files || 0) + (x.counts.storage_objects || 0)) + ', আবেদন ' + (x.counts.committee_apps || 0);
+      }
+      return '<div>' + esc(dt(x.created_at)) + ' · ' + esc(ACT[x.action] || x.action) + esc(extra) + '</div>';
+    }).join('') : '<span class="muted">এখনও কোনো লগ নেই।</span>';
+  }
+
+  start();
+})();
+</script>
+</body>
+</html>
