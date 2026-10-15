@@ -339,7 +339,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 }
 </style>
   <link rel="stylesheet" href="kh-ui.css?v=65">
-<link rel="stylesheet" href="kh-app-downloads.css?v=69">
+<link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">
 
@@ -812,16 +812,19 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       <!-- ══════════════ PANEL: LOAN APPROVAL ══════════════ -->
       <div class="panel" id="panel-loan-approve">
         <div class="panel-title">✅ ঋণ আবেদন অনুমোদন</div>
-        <div class="panel-sub">অপেক্ষমাণ ঋণ আবেদনসমূহ পর্যালোচনা করুন</div>
+        <div class="panel-sub">সব ঋণ আবেদন, প্রতিটির বর্তমান ধাপ ও সম্পূর্ণ বিবরণ</div>
+
+        <div id="loanFlowBoard"></div>
 
         <div class="filter-bar">
-          <div class="fpill active" onclick="filterLoanApps('pending',this)">অপেক্ষমাণ</div>
-          <div class="fpill" onclick="filterLoanApps('review',this)">পর্যালোচনাধীন</div>
-          <div class="fpill" onclick="filterLoanApps('committee_recommended',this)">যাচাই কমিটি সুপারিশ</div>
-          <div class="fpill" onclick="filterLoanApps('recommended',this)">অ্যাডমিন সুপারিশ (অনুমোদন বাকি)</div>
-          <div class="fpill" onclick="filterLoanApps('approved',this)">অনুমোদিত (বিতরণ বাকি)</div>
-          <div class="fpill" onclick="filterLoanApps('disbursed',this)">বিতরিত</div>
-          <div class="fpill" onclick="filterLoanApps('rejected',this)">বাতিল</div>
+          <div class="fpill active" data-st="all" onclick="filterLoanApps('all',this)">সব আবেদন</div>
+          <div class="fpill" data-st="pending" onclick="filterLoanApps('pending',this)">অপেক্ষমাণ</div>
+          <div class="fpill" data-st="review" onclick="filterLoanApps('review',this)">পর্যালোচনাধীন</div>
+          <div class="fpill" data-st="committee_recommended" onclick="filterLoanApps('committee_recommended',this)">যাচাই কমিটি সুপারিশ</div>
+          <div class="fpill" data-st="recommended" onclick="filterLoanApps('recommended',this)">অ্যাডমিন সুপারিশ (অনুমোদন বাকি)</div>
+          <div class="fpill" data-st="approved" onclick="filterLoanApps('approved',this)">অনুমোদিত (বিতরণ বাকি)</div>
+          <div class="fpill" data-st="disbursed" onclick="filterLoanApps('disbursed',this)">বিতরিত</div>
+          <div class="fpill" data-st="rejected" onclick="filterLoanApps('rejected',this)">বাতিল</div>
         </div>
 
         <div id="loanAppsContainer">
@@ -1629,7 +1632,7 @@ function switchPanel(name) {
   document.getElementById('tbTitle').textContent = PANEL_TITLES[name] || name;
   window.scrollTo({top: 0, behavior: 'smooth'});
   // Lazy load panels
-  if (name === 'loan-approve') loadLoanApps('pending');
+  if (name === 'loan-approve') loadLoanApps('all');
   if (name === 'donation-online') loadDonationApprovals('pending');
   if (name === 'savings-approve') loadSavingsApprovals();
   if (name === 'cards') loadCards();
@@ -3649,13 +3652,22 @@ let _loanFilter = 'pending';
    সুপারিশকারী ও অনুমোদনকারী ও বিতরণকারী আলাদা ব্যক্তি হতে হবে (মেকার-চেকার); সব কাজ RPC দিয়ে। */
 async function loadLoanApps(status) {
   _loanFilter = status;
+  document.querySelectorAll('#panel-loan-approve .fpill').forEach(p => p.classList.toggle('active', p.dataset.st === status));
   const c = document.getElementById('loanAppsContainer');
-  c.innerHTML='<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
-  const {data} = await _db.from('loan_applications')
-    .select('id,app_no,applicant_name,applicant_mobile,applicant_nid,purpose,purpose_detail,loan_type,amount_requested,approved_amount,tenure_months,installment_kind,first_installment_date,monthly_income,existing_loans,repayment_mobile,refs,vendor_name,status,created_at,review_notes,approved_by,recommended_by,committee_recommended_by,disbursed_loan_id')
-    .eq('status',status).order('created_at',{ascending:false}).limit(30);
-  _allLoanApps = data||[];
+  c.innerHTML = '<div class="empty-state"><i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>লোড হচ্ছে...</p></div>';
+  try {
+    let q = _db.from('loan_applications').select('*').order('created_at', { ascending: false }).limit(200);
+    if (status && status !== 'all') q = q.eq('status', status);
+    const { data, error } = await q;
+    if (error) throw error;
+    _allLoanApps = data || [];
+  } catch (e) {
+    c.innerHTML = '<div class="empty-state"><i class="ti ti-alert-triangle"></i><p>আবেদন লোড করা যায়নি: ' + esc(e.message || '') + '</p></div>';
+    return;
+  }
+  _loanNewCount = 0;
   renderLoanApps(_allLoanApps);
+  loadLoanFlow();
 }
 
 function filterLoanApps(status, el) {
@@ -3668,42 +3680,46 @@ function loanTierBn(amt){ amt=Number(amt)||0; if(amt>=5000&&amt<=15000)return 1;
 
 function renderLoanApps(rows) {
   const c = document.getElementById('loanAppsContainer');
-  if (!rows.length){c.innerHTML='<div class="empty-state"><i class="ti ti-file-unknown"></i><p>কোনো আবেদন নেই</p></div>';return;}
+  if (!rows.length) { c.innerHTML = '<div class="empty-state"><i class="ti ti-file-unknown"></i><p>এই অবস্থায় কোনো আবেদন নেই</p></div>'; return; }
   const isSuper = _adminInfo && _adminInfo.role === 'super_admin';
-  const me = _adminInfo && _adminInfo.auth_id;
-  c.innerHTML = rows.map(r=>{
+  const me = _currentUser && _currentUser.id;
+  c.innerHTML = rows.map(r => {
     const tier = loanTierBn(r.amount_requested);
-    const refs = (Array.isArray(r.refs)?r.refs:[]).map(x=>`${esc(x.name)} (${esc(x.relation)}, ${esc(x.mobile)}, এনআইডি ${esc(x.nid||'—')})`).join('; ')||'—';
-    const info = `<div class="apv-info">আবেদন নং: ${esc(r.app_no)} · মোবাইল: ${esc(r.applicant_mobile||'—')}<br>ধরন: ${esc(r.loan_type||r.purpose)} · ধাপ ${tier||'—'} · মেয়াদ: ${r.tenure_months?r.tenure_months+' মাস':'—'} · কিস্তি: ${({monthly:'মাসিক',biweekly:'পাক্ষিক',weekly:'সাপ্তাহিক'})[r.installment_kind]||'—'}${r.first_installment_date?' · প্রথম কিস্তি: '+esc(r.first_installment_date):''}<br>উদ্দেশ্য: ${esc(r.purpose_detail||'—')}${r.vendor_name?' · বিক্রেতা: '+esc(r.vendor_name):''}<br>এনআইডি: ${esc(r.applicant_nid||'—')} · পেশা: ${esc(r.existing_loans||'—')} · আয়: ${r.monthly_income?'৳'+fmt(r.monthly_income):'—'} · বিকাশ/নগদ: ${esc(r.repayment_mobile||'—')}<br>গ্যারান্টর/রেফারেন্স: ${refs}<br>তারিখ: ${fmtDate(r.created_at)}</div>`;
+    const maker = !!me && (r.committee_recommended_by === me || r.recommended_by === me);
+    const info = `<div class="apv-info">আবেদন নং: ${esc(r.app_no)} · জমা: ${fmtDate(r.created_at)} · শেষ পরিবর্তন: ${ageBn(r.updated_at)}<br>মোবাইল: ${esc(r.applicant_mobile || '—')} · ধরন: ${esc(r.loan_type || r.purpose || '—')} · ধাপ ${tier || '—'} · মেয়াদ: ${r.tenure_months ? esc(r.tenure_months) + ' মাস' : '—'}</div>`;
     const head = `<div class="apv-top"><div><div class="apv-name">${esc(r.applicant_name)}</div>${info}</div>
-      <div style="text-align:right"><div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>${r.approved_amount?`<div style="font-size:12.5px">অনুমোদিত: ৳${fmt(r.approved_amount)}</div>`:''}<span class="badge ${statusBadge(r.status)}">${statusBn(r.status)}</span></div></div>`;
+      <div style="text-align:right"><div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>${r.approved_amount ? `<div style="font-size:12.5px">অনুমোদিত: ৳${fmt(r.approved_amount)}</div>` : ''}<span class="badge ${statusBadge(r.status)}">${esc(statusBn(r.status))}</span></div></div>`;
+    const detailBtn = `<div class="apv-btns" style="margin-bottom:8px"><button class="btn btn-gold" onclick="openLoanDetail('${r.id}')"><i class="ti ti-file-text"></i> সম্পূর্ণ আবেদন দেখুন</button></div>`;
     const note = `<div class="apv-note"><textarea id="ln-note-${r.id}" placeholder="নোট / কারণ..."></textarea></div>`;
     let actions = '';
-    if (r.status==='pending' || r.status==='review') {
+    if (r.status === 'pending' || r.status === 'review') {
       actions = `<div class="apv-btns">
         <button class="btn btn-success" onclick="loanAct('committee','${r.id}')"><i class="ti ti-users"></i> ঋণ যাচাই কমিটির সুপারিশ (সরেজমিন পরিদর্শন সম্পন্ন)</button>
         <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
-    } else if (r.status==='committee_recommended') {
+    } else if (r.status === 'committee_recommended') {
       actions = `<div class="apv-btns">
         <button class="btn btn-success" onclick="loanAct('recommend','${r.id}')"><i class="ti ti-send"></i> অ্যাডমিন/কার্যনির্বাহী কমিটির সুপারিশ</button>
         <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
-    } else if (r.status==='recommended') {
-      actions = `<div class="apv-btns">
-        ${isSuper ? `<button class="btn btn-success" onclick="loanAct('approve','${r.id}')"><i class="ti ti-check"></i> সুপার অ্যাডমিনের অনুমোদন</button>` : `<span style="font-size:12.5px;color:var(--muted)">অনুমোদন সুপার অ্যাডমিনের (কার্যনির্বাহী কমিটি) সিদ্ধান্ত</span>`}
+    } else if (r.status === 'recommended') {
+      const approveBtn = (isSuper && !maker)
+        ? `<button class="btn btn-success" onclick="loanAct('approve','${r.id}')"><i class="ti ti-check"></i> সুপার অ্যাডমিনের অনুমোদন</button>`
+        : `<span style="font-size:12.5px;color:var(--muted)">${maker ? 'আপনি এই আবেদনের সুপারিশকারী, তাই অনুমোদন দিতে পারবেন না (মেকার-চেকার)' : 'এই ধাপে শুধু সুপার এডমিন অনুমোদন দিতে পারেন'}</span>`;
+      actions = `<div class="apv-btns">${approveBtn}
         <button class="btn btn-danger" onclick="loanAct('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button></div>`;
-    } else if (r.status==='approved') {
-      actions = `<div class="apv-btns"><button class="btn btn-success" onclick="loanDisburseForm('${r.id}', ${Number(r.approved_amount)||0}, ${Number(r.tenure_months)||0})"><i class="ti ti-cash"></i> বিতরণ করুন</button></div>
+    } else if (r.status === 'approved') {
+      actions = `<div class="apv-btns"><button class="btn btn-success" onclick="loanDisburseForm('${r.id}', ${Number(r.approved_amount) || 0}, ${Number(r.tenure_months) || 0})"><i class="ti ti-cash"></i> বিতরণ করুন</button></div>
         <div id="ld-form-${r.id}"></div>`;
     } else {
-      actions = `<div style="font-size:12.5px;color:var(--muted);font-family:'Hind Siliguri',sans-serif">${esc(r.review_notes||'')}</div>`;
+      actions = `<div style="font-size:12.5px;color:var(--muted)">${esc(r.review_notes || '')}</div>`;
     }
-    return `<div class="apv-card">${head}${(r.status==='pending'||r.status==='review'||r.status==='recommended')?note:''}${actions}</div>`;
+    const showNote = (r.status === 'pending' || r.status === 'review' || r.status === 'recommended');
+    return `<div class="apv-card">${head}${detailBtn}${showNote ? note : ''}${actions}</div>`;
   }).join('');
 }
 
-async function loanAct(kind, id) {
+async function loanAct(kind, id, noteOverride) {
   const noteEl = document.getElementById('ln-note-'+id);
-  const note = noteEl ? noteEl.value.trim() : '';
+  const note = (noteOverride !== undefined) ? noteOverride : (noteEl ? noteEl.value.trim() : '');
   const row = (_allLoanApps||[]).find(x=>x.id===id);
   let res;
   try {
@@ -3764,6 +3780,367 @@ async function loanDisburseSubmit(id) {
   loadLoanApps(_loanFilter);
   loadPendingBadges();
 }
+
+// ════════════════════════════════════════
+//  ঋণ আবেদন — ফ্লো বোর্ড, সম্পূর্ণ বিবরণ ও স্বয়ংক্রিয় রিফ্রেশ
+//  (শুধু দেখা ও সিদ্ধান্ত পাঠানো; অনুমোদনের নিয়ম — মেকার-চেকার সহ — সার্ভারেই)
+// ════════════════════════════════════════
+const LOAN_STAGES = [
+  { k:'pending',               t:'জমা (অপেক্ষমাণ)',       next:'ঋণ যাচাই কমিটির সরেজমিন পরিদর্শন ও সুপারিশ',               who:'অ্যাডমিন' },
+  { k:'review',                t:'পর্যালোচনাধীন',          next:'ঋণ যাচাই কমিটির সুপারিশ',                                  who:'অ্যাডমিন' },
+  { k:'committee_recommended', t:'যাচাই কমিটির সুপারিশ',  next:'অ্যাডমিন/কার্যনির্বাহী কমিটির সুপারিশ',                    who:'অ্যাডমিন' },
+  { k:'recommended',           t:'অ্যাডমিন সুপারিশ',       next:'সুপার এডমিনের অনুমোদন (সুপারিশকারী নিজে দিতে পারবেন না)',  who:'সুপার এডমিন' },
+  { k:'approved',              t:'অনুমোদিত',               next:'বিতরণ',                                                     who:'অ্যাডমিন' },
+  { k:'disbursed',             t:'বিতরিত',                 next:'সম্পন্ন',                                                   who:'—' },
+  { k:'rejected',              t:'বাতিল',                  next:'সমাপ্ত',                                                    who:'—' }
+];
+const LOAN_TERMINAL = ['disbursed', 'rejected'];
+const LOAN_STUCK_DAYS = 3;
+let _loanFlowTotal = null;   // শেষবার কতগুলো আবেদন দেখা গেছে
+let _loanNewCount = 0;       // ড্যাশবোর্ড খোলা থাকাকালে নতুন যতগুলো এসেছে
+let _adminNameMap = null;
+let _dtRow = null;           // বিস্তারিত ভিউতে এখন যে আবেদনটি খোলা
+
+function ensureLoanStyle() {
+  if (document.getElementById('ldStyle')) return;
+  const s = document.createElement('style');
+  s.id = 'ldStyle';
+  s.textContent = `
+  .ld-flow-head{font-size:13.5px;color:var(--muted);margin-bottom:10px;font-weight:600}
+  .ld-flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+  .ld-stage{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .ld-stage.ld-stuck{border-color:var(--warn)}
+  .ld-st-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px;color:var(--text)}
+  .ld-st-top b{font-size:20px;color:var(--gold)}
+  .ld-st-meta{font-size:12px;color:var(--muted);line-height:1.55}
+  .ld-banner{background:rgba(240,140,40,.12);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--text)}
+  .ld-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:860px;width:100%;padding:20px;color:var(--text)}
+  .ld-h{font-size:17px;font-weight:700;margin-bottom:4px}
+  .ld-sec{font-size:13.5px;font-weight:700;color:var(--gold);margin:16px 0 8px;border-bottom:1px solid var(--border);padding-bottom:4px}
+  .ld-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 18px}
+  .ld-k{font-size:11.5px;color:var(--muted)}
+  .ld-v{font-size:13.5px;color:var(--text);word-break:break-word}
+  .ld-note{font-size:12.5px;color:var(--muted);background:var(--bg3);border-radius:10px;padding:10px 12px;line-height:1.6;margin-bottom:6px}
+  .ld-step{display:flex;gap:10px;padding:7px 0;font-size:13px;border-bottom:1px dashed var(--border)}
+  .ld-dot{width:18px;text-align:center;font-weight:700;flex:0 0 18px}
+  .ld-step.done .ld-dot{color:var(--success)}
+  .ld-step.cur .ld-dot{color:var(--gold)}
+  .ld-step.cur{font-weight:600}
+  .ld-step.todo .ld-dot{color:var(--muted)}
+  .ld-step.rej .ld-dot{color:var(--red)}
+  .ld-input{width:100%;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13.5px}
+  @media (max-width:640px){ .ld-grid{grid-template-columns:1fr} .ld-box{padding:16px} }
+  `;
+  document.head.appendChild(s);
+}
+
+function loanDays(d) {
+  if (!d) return null;
+  return Math.floor((Date.now() - new Date(d).getTime()) / 86400000);
+}
+function ageBn(d) {
+  const n = loanDays(d);
+  if (n === null) return '—';
+  return n <= 0 ? 'আজ' : (n.toLocaleString('bn-BD') + ' দিন আগে');
+}
+function loanStageOf(status) {
+  return LOAN_STAGES.find(s => s.k === status) || { t: status, next: '—', who: '—' };
+}
+
+/* ── ফ্লো বোর্ড: কোন ধাপে কতগুলো, কতদিন ধরে আটকে আছে ── */
+async function loadLoanFlow() {
+  ensureLoanStyle();
+  const board = document.getElementById('loanFlowBoard');
+  if (!board) return;
+  let rows;
+  try {
+    const { data, error } = await _db.from('loan_applications')
+      .select('id,status,created_at,updated_at')
+      .order('created_at', { ascending: false }).limit(1000);
+    if (error) throw error;
+    rows = data || [];
+  } catch (e) {
+    board.innerHTML = '<div class="empty-state"><p>ফ্লো বোর্ড লোড করা যায়নি</p></div>';
+    return;
+  }
+  if (_loanFlowTotal !== null && rows.length > _loanFlowTotal) {
+    _loanNewCount += rows.length - _loanFlowTotal;
+  }
+  _loanFlowTotal = rows.length;
+  renderLoanFlowBoard(rows);
+}
+
+function renderLoanFlowBoard(rows) {
+  const board = document.getElementById('loanFlowBoard');
+  if (!board) return;
+  const byStatus = {};
+  LOAN_STAGES.forEach(s => { byStatus[s.k] = []; });
+  rows.forEach(r => { if (byStatus[r.status]) byStatus[r.status].push(r); });
+  const active = rows.filter(r => !LOAN_TERMINAL.includes(r.status)).length;
+  const banner = _loanNewCount > 0
+    ? `<div class="ld-banner"><span>নতুন ${_loanNewCount.toLocaleString('bn-BD')}টি ঋণ আবেদন এসেছে</span><button class="btn btn-gold" onclick="refreshLoanNew()"><i class="ti ti-refresh"></i> তালিকা রিফ্রেশ</button></div>`
+    : '';
+  const cards = LOAN_STAGES.map(s => {
+    const list = byStatus[s.k] || [];
+    const n = list.length;
+    let oldest = null;
+    list.forEach(r => {
+      const t = new Date(r.updated_at || r.created_at).getTime();
+      if (oldest === null || t < oldest) oldest = t;
+    });
+    const days = oldest === null ? null : Math.floor((Date.now() - oldest) / 86400000);
+    const terminal = LOAN_TERMINAL.includes(s.k);
+    const stuck = !terminal && days !== null && days >= LOAN_STUCK_DAYS;
+    const meta = n
+      ? `এই ধাপে সবচেয়ে পুরোনো: ${Math.max(days, 0).toLocaleString('bn-BD')} দিন${stuck ? ' · আটকে আছে' : ''}`
+      : 'এই ধাপে কোনো আবেদন নেই';
+    return `<div class="ld-stage${stuck ? ' ld-stuck' : ''}">
+      <div class="ld-st-top"><span>${esc(s.t)}</span><b>${n.toLocaleString('bn-BD')}</b></div>
+      <div class="ld-st-meta">পরবর্তী ধাপ: ${esc(s.next)}<br>দায়িত্ব: ${esc(s.who)}</div>
+      <div class="ld-st-meta">${meta}</div>
+      ${n ? `<button class="btn btn-gold" onclick="showLoanStage('${s.k}')">তালিকা দেখুন</button>` : ''}
+    </div>`;
+  }).join('');
+  board.innerHTML = `<div class="ld-flow-head">ঋণ প্রক্রিয়ার অবস্থা · মোট ${rows.length.toLocaleString('bn-BD')}টি · চলমান ${active.toLocaleString('bn-BD')}টি</div>${banner}<div class="ld-flow">${cards}</div>`;
+}
+
+function showLoanStage(k) {
+  const pill = document.querySelector('#panel-loan-approve .fpill[data-st="' + k + '"]');
+  if (pill) filterLoanApps(k, pill); else loadLoanApps(k);
+}
+function refreshLoanNew() {
+  _loanNewCount = 0;
+  loadLoanApps(_loanFilter);
+}
+
+/* ── সম্পূর্ণ আবেদনের বিস্তারিত ── */
+async function loadAdminNameMap() {
+  if (_adminNameMap) return _adminNameMap;
+  _adminNameMap = {};
+  try {
+    const { data } = await _db.rpc('get_all_admin_roles');
+    (data || []).forEach(a => { _adminNameMap[a.user_id] = a.name_bn || a.email || 'অ্যাডমিন'; });
+  } catch (e) { /* নাম না পেলে 'অ্যাডমিন' দেখাবে */ }
+  return _adminNameMap;
+}
+
+function closeLoanDetail() {
+  const ov = document.getElementById('loanDetailOv');
+  if (ov) { ov.style.display = 'none'; ov.innerHTML = ''; }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLoanDetail(); });
+
+async function openLoanDetail(id) {
+  ensureLoanStyle();
+  let ov = document.getElementById('loanDetailOv');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'loanDetailOv';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px';
+    ov.addEventListener('click', e => { if (e.target === ov) closeLoanDetail(); });
+    document.body.appendChild(ov);
+  }
+  ov.style.display = 'flex';
+  ov.innerHTML = '<div class="ld-box"><div class="empty-state"><p>লোড হচ্ছে...</p></div></div>';
+
+  let r;
+  try {
+    const { data, error } = await _db.from('loan_applications').select('*').eq('id', id).single();
+    if (error) throw error;
+    r = data;
+  } catch (e) {
+    ov.innerHTML = '<div class="ld-box"><p>আবেদনটি লোড করা যায়নি: ' + esc(e.message || '') + '</p><button class="btn btn-gold" onclick="closeLoanDetail()">বন্ধ করুন</button></div>';
+    return;
+  }
+  _dtRow = r;
+
+  const names = await loadAdminNameMap();
+  const nameOf = uid => (uid ? (names[uid] || 'অ্যাডমিন') : '');
+
+  let loanNo = null;
+  if (r.disbursed_loan_id) {
+    try {
+      const { data } = await _db.from('loans').select('loan_no').eq('id', r.disbursed_loan_id).maybeSingle();
+      loanNo = data && data.loan_no;
+    } catch (e) { /* ঋণ নম্বর না পেলে ফাঁকা থাকবে */ }
+  }
+
+  const isSuper = _adminInfo && _adminInfo.role === 'super_admin';
+  const me = _currentUser && _currentUser.id;
+  const maker = !!me && (r.committee_recommended_by === me || r.recommended_by === me);
+  const canApprove = !!isSuper && !maker && r.status === 'recommended';
+  const terminal = LOAN_TERMINAL.includes(r.status);
+  const nominees = Array.isArray(r.refs) ? r.refs : [];
+
+  const T = v => esc(v === null || v === undefined || v === '' ? '—' : String(v));
+  const M = v => (v === null || v === undefined || v === '' ? '—' : '৳' + fmt(v));
+  const row = (k, v) => `<div><div class="ld-k">${esc(k)}</div><div class="ld-v">${v}</div></div>`;
+
+  const grid1 = [
+    row('আবেদন নং', T(r.app_no)),
+    row('আবেদনের তারিখ', fmtDate(r.created_at)),
+    row('সর্বশেষ পরিবর্তন', fmtDate(r.updated_at) + ' (' + ageBn(r.updated_at) + ')'),
+    row('বর্তমান অবস্থা', T(statusBn(r.status))),
+    row('ঋণের ধরন', T(r.loan_type || r.purpose)),
+    row('আবেদিত পরিমাণ', M(r.amount_requested)),
+    row('অনুমোদিত পরিমাণ', M(r.approved_amount)),
+    row('মেয়াদ', r.tenure_months ? T(r.tenure_months) + ' মাস' : '—'),
+    row('কিস্তির ধরন', T(r.installment_kind)),
+    row('প্রথম কিস্তির তারিখ', fmtDate(r.first_installment_date)),
+    row('মাসিক আয়', M(r.monthly_income)),
+    row('পেশা / বিদ্যমান ঋণ', T(r.existing_loans))
+  ].join('');
+
+  const grid2 = [
+    row('আবেদকের নাম', T(r.applicant_name)),
+    row('আবেদকের মোবাইল', T(r.applicant_mobile)),
+    row('এনআইডি', T(r.applicant_nid)),
+    row('কিস্তি পরিশোধের মোবাইল', T(r.repayment_mobile)),
+    row('উদ্দেশ্য', T(r.purpose)),
+    row('উদ্দেশ্যের বিবরণ', T(r.purpose_detail)),
+    row('বিতরণের ধরন', T(r.disbursement_mode)),
+    row('বিক্রেতা / প্রতিষ্ঠান', T(r.vendor_name)),
+    row('বিক্রেতার মোবাইল', T(r.vendor_mobile)),
+    row('পণ্য / সেবার বিবরণ', T(r.item_description))
+  ].join('');
+
+  const nomHtml = nominees.length
+    ? nominees.map((x, i) => {
+        const n = x || {};
+        return `<div class="ld-note">${i + 1}. ${esc(n.name || '—')} · ${esc(n.relation || '—')} · মোবাইল ${esc(n.mobile || '—')} · এনআইডি ${esc(n.nid || '—')}</div>`;
+      }).join('')
+    : '<div class="ld-note">কোনো নমিনি নেই</div>';
+
+  const steps = [
+    { t: 'আবেদন জমা', at: r.created_at, by: 'আবেদনকারী', d: '' },
+    { t: 'ঋণ যাচাই কমিটির সুপারিশ (সরেজমিন পরিদর্শন)', at: r.committee_recommended_at, by: nameOf(r.committee_recommended_by), d: '' },
+    { t: 'অ্যাডমিন/কার্যনির্বাহী কমিটির সুপারিশ', at: r.recommended_at, by: nameOf(r.recommended_by), d: r.recommended_committee || '' },
+    { t: 'সুপার এডমিনের অনুমোদন', at: r.approved_at, by: nameOf(r.approved_by), d: r.approved_amount ? 'অনুমোদিত ৳' + fmt(r.approved_amount) : '' },
+    { t: 'বিতরণ', at: r.disbursed_at, by: nameOf(r.disbursed_by), d: loanNo ? 'ঋণ নম্বর ' + loanNo : '' }
+  ];
+  if (r.rejected_at || r.status === 'rejected') {
+    steps.push({ t: 'বাতিল', at: r.rejected_at, by: '', d: r.rejection_reason || '', rej: true });
+  }
+  let firstOpen = true;
+  const timeline = steps.map(s => {
+    let cls, mark, when;
+    if (s.rej) { cls = 'rej'; mark = '✕'; }
+    else if (s.at) { cls = 'done'; mark = '✓'; }
+    else if (firstOpen && !terminal) { cls = 'cur'; mark = '●'; }
+    else { cls = 'todo'; mark = '○'; }
+    if (!s.at && !s.rej && cls === 'cur') firstOpen = false;
+    if (s.at) when = fmtDate(s.at) + (s.by ? ' · ' + esc(s.by) : '');
+    else if (cls === 'cur') when = 'এখন এই ধাপে আটকে আছে';
+    else when = 'এখনো হয়নি';
+    const extra = s.d ? ' · ' + esc(s.d) : '';
+    return `<div class="ld-step ${cls}"><span class="ld-dot">${mark}</span><div style="flex:1"><div>${esc(s.t)}</div><div class="ld-k">${when}${extra}</div></div></div>`;
+  }).join('');
+
+  let actionHtml = '';
+  if (!terminal) {
+    const stage = loanStageOf(r.status);
+    let btns = '';
+    if (r.status === 'pending' || r.status === 'review') {
+      btns += `<button class="btn btn-success" onclick="loanActDetail('committee','${r.id}')"><i class="ti ti-users"></i> যাচাই কমিটির সুপারিশ (সরেজমিন পরিদর্শন সম্পন্ন)</button>`;
+    }
+    if (r.status === 'committee_recommended') {
+      btns += `<button class="btn btn-success" onclick="loanActDetail('recommend','${r.id}')"><i class="ti ti-send"></i> অ্যাডমিন/কার্যনির্বাহী কমিটির সুপারিশ</button>`;
+    }
+    if (canApprove) {
+      btns += `<button class="btn btn-success" onclick="loanActDetail('approve','${r.id}')"><i class="ti ti-check"></i> সুপার অ্যাডমিনের অনুমোদন</button>`;
+    }
+    if (r.status === 'approved') {
+      btns += `<button class="btn btn-success" onclick="loanDisburseFromDetail('${r.id}')"><i class="ti ti-cash"></i> বিতরণ করুন</button>`;
+    }
+    btns += `<button class="btn btn-danger" onclick="loanActDetail('reject','${r.id}')"><i class="ti ti-x"></i> বাতিল</button>`;
+
+    let hint = '';
+    if (r.status === 'recommended' && !isSuper) {
+      hint = '<div class="ld-note">এই ধাপে শুধু সুপার এডমিন অনুমোদন দিতে পারেন।</div>';
+    } else if (r.status === 'recommended' && isSuper && maker) {
+      hint = '<div class="ld-note">আপনি এই আবেদনের যাচাই বা সুপারিশকারী, তাই মেকার-চেকার নিয়মে এখানে অনুমোদন দিতে পারবেন না।</div>';
+    }
+    actionHtml = `
+      <div class="ld-sec">এখন কী করতে হবে</div>
+      <div class="ld-note">পরবর্তী ধাপ: ${esc(stage.next)} · দায়িত্ব: ${esc(stage.who)}</div>
+      ${hint}
+      <textarea id="dt-note-${r.id}" class="ld-input" placeholder="নোট / কারণ..." style="min-height:60px;margin:6px 0"></textarea>
+      <div class="apv-btns" style="flex-wrap:wrap">${btns}</div>
+      <div id="dt-disb-${r.id}"></div>`;
+  }
+
+  ov.innerHTML = `<div class="ld-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+      <div><div class="ld-h">${T(r.applicant_name)}</div><div class="ld-k">আবেদন নং ${T(r.app_no)}</div></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge ${statusBadge(r.status)}">${esc(statusBn(r.status))}</span><button class="btn btn-gold" onclick="closeLoanDetail()"><i class="ti ti-x"></i> বন্ধ</button></div>
+    </div>
+    <div class="ld-sec">ঋণের তথ্য</div>
+    <div class="ld-grid">${grid1}</div>
+    <div class="ld-sec">আবেদকের ও উদ্দেশ্যের তথ্য</div>
+    <div class="ld-grid">${grid2}</div>
+    <div class="ld-sec">নমিনি</div>
+    ${nomHtml}
+    <div class="ld-sec">ডকুমেন্ট ও ফাইল</div>
+    <div class="ld-note">এই আবেদনের ছবি বা ডকুমেন্ট ফাইল ডাটাবেজে সংরক্ষিত হয়নি। ফর্মের আপলোড ঘরে শুধু থাম্বনেইল দেখায়। প্রয়োজনে আবেদনকারীর কাছ থেকে সরাসরি নিন।</div>
+    <div class="ld-sec">অবস্থার ইতিহাস ও কোন ধাপে আটকে আছে</div>
+    ${timeline}
+    ${r.review_notes ? `<div class="ld-sec">সর্বশেষ নোট</div><div class="ld-note">${esc(r.review_notes)}</div>` : ''}
+    ${actionHtml}
+  </div>`;
+}
+
+async function loanActDetail(kind, id) {
+  const note = ((document.getElementById('dt-note-' + id) || {}).value || '').trim();
+  await loanAct(kind, id, note);
+  openLoanDetail(id);
+}
+
+function loanDisburseFromDetail(id) {
+  const host = document.getElementById('dt-disb-' + id);
+  if (!host || !_dtRow) return;
+  const approved = Number(_dtRow.approved_amount) || 0;
+  const today = new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10);
+  host.innerHTML = `
+    <div class="ld-sec">বিতরণ</div>
+    <div class="ld-grid">
+      <div><div class="ld-k">বিতরণের পরিমাণ (৳) — সর্বোচ্চ ${fmt(approved)}</div><input type="number" id="dtd-amt" class="ld-input" value="${approved}" min="1"></div>
+      <div><div class="ld-k">বিতরণের তারিখ</div><input type="date" id="dtd-date" class="ld-input" value="${today}"></div>
+      <div><div class="ld-k">ধরন</div><select id="dtd-mode" class="ld-input"><option value="vendor">বিক্রেতাকে সরাসরি</option><option value="goods">পণ্য ক্রয় করে</option><option value="bill">বিল পরিশোধ</option></select></div>
+      <div><div class="ld-k">বিক্রেতা / প্রতিষ্ঠান</div><input type="text" id="dtd-vendor" class="ld-input"></div>
+      <div><div class="ld-k">রশিদ / বিল নম্বর</div><input type="text" id="dtd-bill" class="ld-input"></div>
+      <div><div class="ld-k">পণ্য / সেবার বিবরণ</div><input type="text" id="dtd-item" class="ld-input"></div>
+    </div>
+    <div class="apv-btns" style="margin-top:10px"><button class="btn btn-success" onclick="loanDisburseSubmitDetail('${id}')"><i class="ti ti-check"></i> নিশ্চিত করে বিতরণ</button></div>`;
+}
+
+async function loanDisburseSubmitDetail(id) {
+  const v = k => (document.getElementById(k) || {}).value || '';
+  const amt = Math.round(Number(String(v('dtd-amt')).replace(/[^0-9]/g, '')));
+  if (!amt) { alert('সঠিক পরিমাণ দিন।'); return; }
+  if (!confirm('৳' + fmt(amt) + ' বিতরণ নিশ্চিত করবেন? এটি ফেরানো যাবে না।')) return;
+  let res;
+  try {
+    res = await _db.rpc('admin_disburse_loan', {
+      p_id: id, p_amount: amt, p_date: v('dtd-date'), p_mode: v('dtd-mode'),
+      p_vendor: v('dtd-vendor') || null, p_bill: v('dtd-bill') || null, p_item: v('dtd-item') || null
+    });
+  } catch (e) { alert('সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'); return; }
+  if (res.error) { alert('ত্রুটি: ' + res.error.message); return; }
+  const d = res.data || {};
+  alert('বিতরণ সম্পন্ন — ঋণ নম্বর ' + (d.loan_no || '') + ' · ' + (d.installments || '') + 'টি কিস্তি');
+  loadLoanApps(_loanFilter);
+  loadPendingBadges();
+  openLoanDetail(id);
+}
+
+/* ── নতুন আবেদন এলে নিজে থেকে জানানো (প্রতি ১ মিনিটে, শুধু এই প্যানেল খোলা থাকলে) ── */
+setInterval(() => {
+  const p = document.getElementById('panel-loan-approve');
+  if (!p || !p.classList.contains('active') || document.hidden) return;
+  loadLoanFlow();
+  loadPendingBadges();
+}, 60000);
+
 
 // ════════════════════════════════════════
 //  DONATION APPROVAL

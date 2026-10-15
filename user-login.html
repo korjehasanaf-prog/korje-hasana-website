@@ -239,6 +239,7 @@
         <button class="chip on" type="button" data-role="depositor" onclick="tog(this)"><i class="ti ti-pig-money ico"></i><i class="ti ti-check tick"></i>আমানতকারী</button>
         <button class="chip" type="button" data-role="borrower" onclick="tog(this)"><i class="ti ti-wallet ico"></i><i class="ti ti-check tick"></i>ঋণগ্রহীতা</button>
         <button class="chip" type="button" data-role="donor" onclick="tog(this)"><i class="ti ti-heart ico"></i><i class="ti ti-check tick"></i>দাতা সদস্য</button>
+        <button class="chip" type="button" data-role="volunteer" onclick="tog(this)"><i class="ti ti-heart-handshake ico"></i><i class="ti ti-check tick"></i>ভলেন্টিয়ার (স্বেচ্ছাসেবক)</button>
       </div>
 
       <div class="sect">তথ্য</div>
@@ -530,6 +531,7 @@ function route(prof) {
 /* ══════════════════════════════════════════════════════════
    Sign up
    ══════════════════════════════════════════════════════════ */
+var signupRoles = [];
 async function doSignup() {
   var name   = document.getElementById('sn').value.trim();
   var mobile = normMobile(document.getElementById('sm').value);
@@ -545,6 +547,7 @@ async function doSignup() {
 
   var roles = [].map.call(document.querySelectorAll('.chip.on'), function (c) { return c.dataset.role; });
   if (!roles.length) { msg('regMsg', 'অন্তত একটি ভূমিকা নির্বাচন করুন।'); shake(); return; }
+  signupRoles = roles;
 
   /* ── the member chooses how to verify ── */
   if (!(window.KHUI && KHUI.chooseVerify)) { emailStep(name, mobile, email, pass); return; }
@@ -609,7 +612,10 @@ async function finishSignup(name, mobile, email, pass) {
     var prof = pr.data;
     msg('regMsg', 'স্বাগতম! মোবাইল ও ই-মেইল যাচাই সম্পন্ন। আপনার সদস্য আইডি: ' +
         (prof && prof.user_code ? prof.user_code : '—'), 'ok');
-    setTimeout(function () { route(prof); }, 1500);
+    setTimeout(function () {
+      if (signupRoles.indexOf('volunteer') >= 0) { location.href = 'volunteer.html'; }
+      else { route(prof); }
+    }, 1500);
   } catch (err) {
     msg('regMsg', 'সংযোগ ত্রুটি। আবার চেষ্টা করুন।');
     busy('regBtn', false); shake();
@@ -737,11 +743,11 @@ function showSignOut() {
 }
 </script>
 <link rel="stylesheet" href="kh-ui.css?v=65">
-<link rel="stylesheet" href="kh-app-downloads.css?v=69">
+<link rel="stylesheet" href="kh-app-downloads.css?v=70">
 <script src="kh-ui.js?v=67"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
-<script src="kh-volunteer.js?v=2" defer></script>
+<script src="kh-volunteer.js?v=5" defer></script>
 <script src="kh-i18n-data.js?v=1" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>

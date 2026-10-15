@@ -123,3 +123,31 @@ html[data-theme="dark"] .kh-app-dd-btn {
 }
 .kh-app-dd-btn:hover { filter: brightness(1.08); }
 .kh-app-dd-btn i { color: #ffffff; }
+
+/* ---------- সংশোধন (মোবাইল ভিউ): হেডারের "অ্যাপ" বাটন ----------
+   আগে .nav-hamburger-এর margin-left:auto থাকায় বাটনটি ব্র্যান্ড-লেখার গায়ে বসে যেত।
+   এখন বাটনটি হ্যামবার্গারের ঠিক বামে থাকে, ব্র্যান্ড-লেখার জায়গা খালি থাকে। */
+@media (max-width: 768px) {
+  .navbar .nav-right { margin-left: auto; }
+  .navbar .nav-hamburger { margin-left: 0; }
+}
+
+/* ---------- সংশোধন (মোবাইল মেনু): অ্যাপ ডাউনলোড ব্লক — মেনুর একদম নিচে ----------
+   মেনু-ড্রয়ার সবসময় গাঢ় পটভূমিতে থাকে (থীম নির্বিশেষে), তাই লেখা ও বাটনের রঙ এখানে স্থির। */
+.nav-links .kh-app-mobile {
+  order: 2; width: 100%; box-sizing: border-box; margin: 6px 0 0;
+  padding: 14px 20px 18px; border-top: 1px solid rgba(255, 255, 255, .12);
+  color: #f1f5f9;
+}
+.nav-links .kh-app-mobile-label { color: #ffe9a8; font-size: 13.5px; font-weight: 700; margin-bottom: 10px; }
+.nav-links .kh-app-btns { margin: 0; gap: 10px; justify-content: stretch; }
+.nav-links .kh-app-btn {
+  flex: 1 1 0; min-width: 0; padding: 10px; border-radius: 12px;
+  background: rgba(255, 255, 255, .08) !important; border: 1px solid rgba(255, 255, 255, .3) !important;
+  color: #f1f5f9 !important;
+}
+.nav-links .kh-app-btn:hover { background: rgba(255, 255, 255, .16) !important; }
+.nav-links .kh-app-btn * { color: #f1f5f9 !important; }
+.nav-links .kh-app-btn i { font-size: 22px; color: #5eead4 !important; }
+.nav-links .kh-app-btn small { color: #cbd5e1 !important; opacity: 1; }
+.nav-links .kh-app-btn.is-disabled { opacity: .7; }

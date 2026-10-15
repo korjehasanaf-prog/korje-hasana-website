@@ -33,8 +33,9 @@
     '.kh-vol-item .kh-vol-sub{position:static;transform:none;min-width:0;margin:0;padding:0 0 0 14px;' +
     'border:0;box-shadow:none;background:transparent;color:inherit}' +
     '.kh-vol-item.open > .kh-vol-sub{display:flex}' +
-    '.kh-vol-sub a{padding:8px 4px}' +
-    'html .kh-vol-item .kh-vol-sub{background:transparent;border:0;box-shadow:none;color:inherit}' +
+    '.kh-vol-sub a{padding:8px 4px;color:#e5f3f1}' +
+    '.kh-vol-sub a i{color:#5eead4}' +
+    'html .kh-vol-item .kh-vol-sub{background:transparent;border:0;box-shadow:none;color:#e5f3f1}' +
     '}';
 
   /* ভলেন্টিয়ার থীম: টিল (#0f766e→#14b8a6) + বেগুনি (#4c2f9e / #7048e8).
