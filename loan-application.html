@@ -254,7 +254,7 @@
       .navbar { padding: 0 16px; }
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=65">
+  <link rel="stylesheet" href="kh-ui.css?v=66">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-kh-nav="on" data-kh-requires="loan">
@@ -715,11 +715,11 @@
             <input type="tel" class="form-input" id="l_bkash" placeholder="01XXXXXXXXX">
           </div>
 
-          <div class="field-section"><i class="ti ti-users"></i>References (2 required)</div>
+          <div class="field-section"><i class="ti ti-users"></i><span id="guarHeading">Guarantors</span></div>
         </div>
 
         <!-- REF 1 -->
-        <div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 1 <span class="req" style="color:var(--error)">*</span></div>
+        <div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Guarantor 1 <span class="req" style="color:var(--error)">*</span></div>
         <div class="ref-item">
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r1_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r1_rel" placeholder="e.g. Neighbour"></div>
@@ -727,7 +727,7 @@
           <div class="form-group"><label class="form-label">NID (গ্যারান্টর)</label><input type="text" class="form-input" id="r1_nid" inputmode="numeric" placeholder="১০/১৩/১৭ সংখ্যা"></div>
         </div>
         <!-- REF 2 -->
-        <div id="r2_block"><div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Reference 2 <span class="req" style="color:var(--error)">*</span></div>
+        <div id="r2_block"><div style="font-size:13.5px;font-weight:600;color:var(--muted);margin:0 0 6px">Guarantor 2 <span class="req" style="color:var(--error)">*</span></div>
         <div class="ref-item">
           <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="r2_name" placeholder="Full name"></div>
           <div class="form-group"><label class="form-label">Relation</label><input type="text" class="form-input" id="r2_rel" placeholder="e.g. Mosque imam"></div>
@@ -859,12 +859,15 @@ let cameraStream = null;
 /* গঠনতন্ত্র ধারা ৭.২ — ঋণের ধাপ (সার্ভারের loan_tier_for()-এর সাথে হুবহু মেলে) */
 const LOAN_MIN = 5000, LOAN_MAX = 200000;
 const LOAN_TIERS = [
-  { tier:1, min:5000,  max:15000,  months:[6,9,12],   guarantors:1 },
-  { tier:2, min:15000, max:35000,  months:[12,15,18], guarantors:2 },
-  { tier:3, min:35000, max:75000,  months:[18,21,24], guarantors:2 },
-  { tier:4, min:75000, max:200000, months:[24,30,36], guarantors:2, special:true }
+  { tier:1, min:5000,  max:15000,  months:[6,9,12] },
+  { tier:2, min:15000, max:35000,  months:[12,15,18] },
+  { tier:3, min:35000, max:75000,  months:[18,21,24] },
+  { tier:4, min:75000, max:200000, months:[24,30,36], special:true }
 ];
 function loanTierFor(amt) { return LOAN_TIERS.find(t => amt >= t.min && amt <= t.max) || null; }
+/* গ্যারান্টর নিয়ম: ১০,০০০ টাকার কম ঋণে ১ জন; ১০,০০০ টাকা ও তার বেশি হলে ২ জন (ডাটাবেজের guarantors_required-এর সাথে মেলানো) */
+const GUAR_THRESHOLD = 10000;
+function guarantorsFor(amt) { return amt >= GUAR_THRESHOLD ? 2 : 1; }
 const DEFAULT_LOAN_PRODUCTS = {
   Agriculture:{maxAmt:LOAN_MAX}, Business:{maxAmt:LOAN_MAX}, Education:{maxAmt:LOAN_MAX},
   Medical:{maxAmt:LOAN_MAX}, 'Family need':{maxAmt:LOAN_MAX}, Emergency:{maxAmt:LOAN_MAX}
@@ -1568,15 +1571,17 @@ function syncLoanTier(force) {
   durSel.value = (t && t.months.includes(cur)) ? String(cur) : '';
   const hint = document.getElementById('l_tierHint');
   if (hint) hint.textContent = t
-    ? ('ধাপ ' + t.tier + ' · মেয়াদ ' + t.months[0] + '–' + t.months[t.months.length-1] + ' মাস · গ্যারান্টর/রেফারেন্স ' + t.guarantors + ' জন' + (t.special ? ' · বিশেষ ঋণ — কমিটির বিশেষ অনুমোদন প্রয়োজন' : ''))
+    ? ('ধাপ ' + t.tier + ' · মেয়াদ ' + t.months[0] + '–' + t.months[t.months.length-1] + ' মাস · গ্যারান্টর ' + guarantorsFor(amt) + ' জন' + (t.special ? ' · বিশেষ ঋণ — কমিটির বিশেষ অনুমোদন প্রয়োজন' : ''))
     : ('পরিমাণ ৳' + LOAN_MIN.toLocaleString('en-IN') + ' থেকে ৳' + LOAN_MAX.toLocaleString('en-IN') + ' এর মধ্যে দিন');
+  const n = guarantorsFor(amt);
+  const gh = document.getElementById('guarHeading');
+  if (gh) gh.textContent = 'Guarantors (' + n + ' required)';
   const r2 = document.getElementById('r2_block');
-  if (r2) r2.style.display = (t && t.guarantors >= 2) ? '' : 'none';
+  if (r2) r2.style.display = n >= 2 ? '' : 'none';
 }
 function refsForTier() {
   const amt = parseFloat(document.getElementById('l_amount').value) || 0;
-  const t = loanTierFor(amt);
-  const n = t ? t.guarantors : 2;
+  const n = guarantorsFor(amt);
   const all = [
     { name: 'r1_name', rel: 'r1_rel', phone: 'r1_phone', nid: 'r1_nid' },
     { name: 'r2_name', rel: 'r2_rel', phone: 'r2_phone', nid: 'r2_nid' }
@@ -1929,8 +1934,9 @@ function buildReview() {
     ['Purpose', document.getElementById('l_purpose').value || '—'],
     ['Vendor / supplier', document.getElementById('l_vendor').value || '—'],
     ['Repayment method', document.getElementById('l_repay').value || '—'],
-    ['Reference 1', (document.getElementById('r1_name').value || '—') + ' · ' + (document.getElementById('r1_phone').value || '')],
-    ['Reference 2', (document.getElementById('r2_name').value || '—') + ' · ' + (document.getElementById('r2_phone').value || '')],
+    ['Guarantor 1', (document.getElementById('r1_name').value || '—') + ' · ' + (document.getElementById('r1_phone').value || '')],
+    ...(guarantorsFor(parseFloat(document.getElementById('l_amount').value) || 0) >= 2
+      ? [['Guarantor 2', (document.getElementById('r2_name').value || '—') + ' · ' + (document.getElementById('r2_phone').value || '')]] : []),
   ];
   document.getElementById('reviewLoan').innerHTML = lrows.map(r => `<tr><td>${r[0]}</td><td><strong>${r[1]}</strong></td></tr>`).join('');
 }

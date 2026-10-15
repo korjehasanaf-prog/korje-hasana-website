@@ -1034,7 +1034,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=65">
+  <link rel="stylesheet" href="kh-ui.css?v=66">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 <style>
 /* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
@@ -1233,6 +1233,46 @@ body[data-vol-page="home"] #vol-home{display:block !important}
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon-180.png">
 <style>img.brand-round{background:none!important;box-shadow:none!important;border-radius:50%;object-fit:contain;padding:0!important;display:block;flex-shrink:0}</style>
+<style id="kh-header-v3">
+/* ═══ হেডার v3 — গোল লোগো বড় ও স্পষ্ট, চারপাশে ঘূর্ণায়মান রিং, ফোন নম্বর ডানে, নাম একবার ═══ */
+@media (min-width: 821px) {
+  .topbar { justify-content: flex-end !important; gap: 22px; }
+  .navbar { height: 84px; }
+}
+.navbar .logo-wrap { gap: 14px; }
+.logo-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; isolation: isolate; }
+.logo-badge::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(#f08c28, #d6336c, #7048e8, #22c55e, #f6c343, #f08c28);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: khLogoSpin 6s linear infinite; }
+.logo-badge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; z-index: -2; animation: khLogoPulse 2.6s ease-out infinite; }
+.logo-round { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: contain; background: none; box-shadow: none; }
+@keyframes khLogoSpin { to { transform: rotate(360deg); } }
+@keyframes khLogoPulse { 0% { box-shadow: 0 0 0 0 rgba(240,140,40,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(240,140,40,0); } }
+@media (min-width: 821px) and (max-width: 1180px) {
+  .logo-sl { display: none; }
+  .navbar .logo-wrap { flex-shrink: 0; }
+  .logo-badge { width: 52px; height: 52px; }
+  .navbar .logo-bn { font-size: 14.5px; }
+  .navbar .nav-link { padding: 0 6px; font-size: 13px; }
+  .nav-savings-btn { padding: 7px 9px; font-size: 12px; white-space: nowrap; }
+  .donate-btn { padding: 8px 10px; font-size: 12.5px; white-space: nowrap; }
+}
+/* ট্যাবলেটে (৭৬৯–৯০০px) মেনু আগে কোথাও ছিল না — হ্যামবার্গার বন্ধ, লিংকও লুকানো (CSS-এর ক্রম) */
+@media (min-width: 769px) and (max-width: 900px) { .nav-hamburger { display: flex !important; } }
+/* ৭৬৯–৯০০px: হ্যামবার্গারসহ নামের পাশে App/সঞ্চয়/Donate — তাই নাম ও বাটনের মাঝে ফাঁক রাখতে একটু ছোট */
+@media (min-width: 769px) and (max-width: 900px) {
+  .navbar .logo-bn { font-size: 14px; }
+  .navbar .nav-right { gap: 6px; margin-left: 16px; }
+  .nav-savings-btn { padding: 6px 9px; font-size: 11.5px; }
+}
+/* ৮২১–১০২৩px-এ ঠিকানা লাইন তিন লাইনে ভাঙত; ঠিকানা ফুটারেও আছে */
+@media (min-width: 821px) and (max-width: 1023px) { .topbar-left .topbar-item:nth-child(3) { display: none; } }
+@media (max-width: 768px) { .logo-badge { width: 50px; height: 50px; } .logo-badge::before { inset: -4px; } }
+@media (max-width: 480px) { .logo-badge { width: 44px; height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .logo-badge::before, .logo-badge::after { animation: none; } }
+</style>
 </head>
 <body data-kh-nav="on" data-vol-page="home">
 
@@ -1265,10 +1305,9 @@ body[data-vol-page="home"] #vol-home{display:block !important}
 ════════════════════════════════════════════════════════ -->
 <nav class="navbar" id="navbar">
   <a href="#" class="logo-wrap">
-    <img class="brand-round logo-icon" src="assets/brand/korje-round-logo-256.png" alt="কর্জে হাসানা ফাউন্ডেশন লোগো" width="256" height="256">
+    <span class="logo-badge"><img class="logo-round" src="assets/brand/korje-round-logo-256.png" alt="কর্জে হাসানা ফাউন্ডেশন লোগো" width="256" height="256"></span>
     <div class="logo-texts">
       <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
-      <div class="logo-en">Korje Hasana Foundation</div>
       <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
     </div>
   </a>

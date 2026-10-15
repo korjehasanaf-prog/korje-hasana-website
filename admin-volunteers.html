@@ -65,6 +65,24 @@
     .tbl th, .tbl td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
     .tbl th { color: var(--muted); font-weight: 600; font-size: 12.5px; white-space: nowrap; }
     .tbl .acts { margin-top: 4px; }
+    /* অনুমোদিত তালিকা (ছবি) ও প্রোফাইল সম্পন্নতার সবুজ রিং */
+    .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .pcard { font: inherit; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; cursor: pointer; }
+    .pcard:hover, .pcard:focus-visible { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,118,110,.15); outline: none; }
+    .pcard span { display: block; }
+    .pcard .pname { font-weight: 700; font-size: 14.5px; line-height: 1.3; }
+    .pcard .pmeta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .pav { position: relative; width: 84px; height: 84px; margin: 0 auto 8px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--teal), var(--violet)); color: #fff; font-size: 28px; font-weight: 700; }
+    .pav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ring { position: relative; width: 124px; height: 124px; margin: 0 auto; flex-shrink: 0; }
+    .ring svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+    .ring .rt { fill: none; stroke: var(--line); stroke-width: 10; }
+    .ring .rv { fill: none; stroke: #16a34a; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+    .ring .pav { position: absolute; inset: 14px; width: auto; height: auto; margin: 0; font-size: 30px; }
+    .ring .rpct { position: absolute; bottom: -2px; left: 50%; transform: translateX(-50%); background: #16a34a; color: #fff; font-size: 12.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+    .pm-top { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .pm-top-info { flex: 1; min-width: 220px; }
+    .pm-top-name { font-size: 18px; font-weight: 700; }
     .hidden-by-role { display: none !important; }
     @media (max-width: 640px) { .pm-grid { grid-template-columns: 1fr; } .pm-back { padding: 12px 8px; } .pm-box { padding: 14px; } }
   </style>
@@ -111,6 +129,7 @@
     <div class="stats" id="stats"></div>
     <div class="tabs">
       <button data-tab="apps" class="on">ভলেন্টিয়ার আবেদন</button>
+      <button data-tab="photos">অনুমোদিত তালিকা (ছবি)</button>
       <button data-tab="certs">সার্টিফিকেট</button>
       <button data-tab="tasks" data-super="1">কাজ ও রেটিং</button>
       <button data-tab="channel" data-super="1">চ্যানেল ও হোয়াটসঅ্যাপ</button>
@@ -126,6 +145,15 @@
         <button class="btn ghost" data-f="">সব</button>
       </div>
       <div class="card"><div id="appList"></div></div>
+    </div>
+
+    <!-- অনুমোদিত ভলেন্টিয়ার (ছবি) -->
+    <div class="panel" id="p-photos">
+      <div class="card">
+        <h2>অনুমোদিত ভলেন্টিয়ার</h2>
+        <p class="muted" style="margin-bottom:12px">কারও ছবিতে ক্লিক করলে বিস্তারিত প্রোফাইল খুলবে।</p>
+        <div id="photoGrid"></div>
+      </div>
     </div>
 
     <!-- সার্টিফিকেট -->
@@ -204,6 +232,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var STATUS_BN = { pending: 'অপেক্ষমাণ', approved: 'অনুমোদিত', suspended: 'স্থগিত', rejected: 'বাতিল', open: 'খোলা', in_progress: 'চলছে', done: 'জমা (যাচাই বাকি)', verified: 'যাচাইকৃত', cancelled: 'বাতিল' };
   var CAT = { loan_check: 'ঋণ ব্যবহার যাচাই', find_members: 'যোগ্য সদস্য খোঁজা', eligibility: 'যোগ্যতা যাচাই', recovery: 'কিস্তি/বকেয়া', awareness: 'সচেতনতা', promotion: 'প্রচার', fundraising: 'আমানত ও দান', other: 'অন্যান্য' };
+  var MISS_BN = { photo: 'প্রোফাইল ছবি', phone: 'মোবাইল নম্বর (১১ ডিজিট)', email: 'ইমেইল', district: 'জেলা', upazila: 'উপজেলা', address: 'ঠিকানা', education: 'শিক্ষা', skills: 'দক্ষতা', interests: 'আগ্রহের ক্ষেত্র', availability: 'সেবা দেওয়ার সময়', bio: 'সংক্ষিপ্ত পরিচিতি', oath: 'শপথ গ্রহণ' };
   var ALL_VOLS = [];
   var IS_SUPER = false;   /* সুপার এডমিন হলে কাজ/রেটিং/ঘোষণা/হোয়াটসঅ্যাপ দেখা যাবে */
   var PROF_ID = null;     /* খোলা প্রোফাইলের ভলেন্টিয়ার আইডি */
@@ -252,7 +281,7 @@
     $('app').style.display = 'block';
     $('logoutBtn').style.display = 'inline';
     renderStats(st.data);
-    window.__volAdminIn = true; loadVols(); loadCerts('pending');
+    window.__volAdminIn = true; loadVols(); loadPhotos(); loadCerts('pending');
     if (IS_SUPER) { loadTasks(); loadMsgs(); loadWa(); }
   }
   $('gateForm').addEventListener('submit', async function (e) {
@@ -314,7 +343,7 @@
         b.disabled = true;
         var res = await rpc('admin_vol_set_status', { p_id: b.dataset.id, p_status: b.dataset.set });
         if (res.error) alert(res.error);
-        loadVols(); refreshStats();
+        loadVols(); loadPhotos(); refreshStats();
       });
     });
   }
@@ -328,6 +357,27 @@
   document.querySelectorAll('#appFilters button').forEach(function (b) {
     b.addEventListener('click', function () { appFilter = b.dataset.f; loadVols(); });
   });
+
+  /* ---------- অনুমোদিত ভলেন্টিয়ার (ছবিসহ) ---------- */
+  async function loadPhotos() {
+    var box = $('photoGrid');
+    if (!box) return;
+    var r = await rpc('admin_vol_list', { p_status: 'approved' });
+    if (r.error) return msg(box, r.error, false);
+    var list = r.data || [];
+    if (!list.length) { box.innerHTML = '<p class="muted">এখনো কোনো অনুমোদিত ভলেন্টিয়ার নেই।</p>'; return; }
+    box.innerHTML = '<div class="pgrid">' + list.map(function (v) {
+      return '<button type="button" class="pcard" data-pv="' + esc(v.id) + '">' + avatarHTML(v) +
+        '<span class="pname">' + esc(v.full_name) + '</span>' +
+        '<span class="pmeta">' + esc(v.volunteer_no || '') + '</span>' +
+        '<span class="pmeta">' + esc([v.upazila, v.district].filter(Boolean).join(', ')) + '</span>' +
+        (v.photo_url ? '' : '<span class="pmeta" style="color:var(--warn)">ছবি যোগ হয়নি</span>') +
+        '</button>';
+    }).join('') + '</div>';
+    box.querySelectorAll('button[data-pv]').forEach(function (b) {
+      b.addEventListener('click', function () { openProfile(b.dataset.pv); });
+    });
+  }
 
   /* ---------- সার্টিফিকেট ---------- */
   var certFilter = 'pending';
@@ -357,7 +407,7 @@
       });
     });
   }
-  document.addEventListener('khlangchange', function () { if (window.__volAdminIn) { loadVols(); loadCerts(); if (IS_SUPER) { loadTasks(); loadMsgs(); loadWa(); } refreshStats(); if (PROF_ID) loadProfile(); } });
+  document.addEventListener('khlangchange', function () { if (window.__volAdminIn) { loadVols(); loadPhotos(); loadCerts(); if (IS_SUPER) { loadTasks(); loadMsgs(); loadWa(); } refreshStats(); if (PROF_ID) loadProfile(); } });
   document.querySelectorAll('#certFilters button').forEach(function (b) {
     b.addEventListener('click', function () { loadCerts(b.dataset.f); });
   });
@@ -448,6 +498,19 @@
   });
 
   /* ---------- ভলেন্টিয়ার প্রোফাইল (সবার জন্য দেখা; স্ট্যাটাস ও সার্টিফিকেট অ্যাকশন সহ) ---------- */
+  function avatarHTML(v) {
+    var inner = v.photo_url ? '<img src="' + esc(v.photo_url) + '" alt="" loading="lazy">' : esc(String(v.full_name || '?').trim().charAt(0) || '?');
+    return '<span class="pav">' + inner + '</span>';
+  }
+  /* প্রোফাইল ছবির চারপাশে সবুজ রিং — অংশ = প্রোফাইল সম্পন্নতার শতাংশ */
+  function avatarRing(v, comp) {
+    var p = Math.max(0, Math.min(100, Math.round(Number(comp && comp.percent) || 0)));
+    var C = 339.29;
+    return '<div class="ring" role="img" aria-label="প্রোফাইল সম্পন্ন ' + p + ' শতাংশ">' +
+      '<svg viewBox="0 0 120 120" aria-hidden="true"><circle class="rt" cx="60" cy="60" r="54"></circle>' +
+      '<circle class="rv" cx="60" cy="60" r="54" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - p / 100)).toFixed(2) + '"></circle></svg>' +
+      avatarHTML(v) + '<span class="rpct">' + p + '%</span></div>';
+  }
   function kpi(label, val) { return '<div class="stat"><b>' + esc(val) + '</b><span>' + esc(label) + '</span></div>'; }
   function openProfile(id) {
     PROF_ID = id;
@@ -485,6 +548,14 @@
     if (v.status !== 'rejected') acts += '<button class="btn bad" data-pset="rejected">বাতিল</button>';
 
     var h = '';
+    var comp = d.completion || {};
+    var missing = (comp.missing || []).map(function (k) { return MISS_BN[k] || k; });
+    h += '<div class="pm-top">' + avatarRing(v, comp) +
+      '<div class="pm-top-info"><div class="pm-top-name">' + esc(v.full_name || '') + '</div>' +
+      '<div class="muted">' + esc(v.volunteer_no || '') + '</div>' +
+      '<div style="margin-top:8px"><b>প্রোফাইল সম্পন্ন:</b> ' + esc(comp.percent == null ? 0 : comp.percent) + '% (' + esc(comp.done || 0) + '/' + esc(comp.total || 12) + ')</div>' +
+      (missing.length ? '<div class="muted" style="margin-top:4px">বাকি আছে: ' + esc(missing.join(', ')) + '</div>' : '<div style="margin-top:4px;color:var(--ok);font-weight:700">প্রোফাইল ১০০% সম্পন্ন</div>') +
+      '</div></div>';
     h += '<div class="acts" style="margin-bottom:12px"><span class="chip ' + esc(v.status) + '">' + esc(STATUS_BN[v.status] || v.status) + '</span>' + acts + '</div>';
     h += '<div class="pm-grid">' +
       '<div><b>ফোন</b>' + esc(v.phone || '—') + '</div>' +
@@ -592,6 +663,7 @@
   function refreshAfterChange() {
     refreshStats();
     loadVols();
+    loadPhotos();
     loadCerts();
     loadProfile();
   }

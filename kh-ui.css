@@ -1064,6 +1064,23 @@ html[data-theme="light"] .navbar .logo-en { color: #6b6280 !important; }
 html[data-theme="light"] .navbar .logo-sl { color: #b02a80 !important; }
 html[data-theme="light"] .navbar .nav-link:hover,
 html[data-theme="light"] .navbar .nav-link.active { color: #7048e8 !important; }
+
+/* ── মোবাইল মেনু খোলা থাকলে (.nav-links.open) ──────────────────────────────
+   • লাইট থীমে ডেস্কটপের গাঢ় লেখার নিয়ম মেনুর গাঢ় বেগুনি প্যানেলের ভেতরেও ঢুকে
+     Home/About/Programs… কে প্রায় অদৃশ্য করত (কনট্রাস্ট ১.৩৫–১.৯:১)। প্যানেল লাইট থীমেও
+     গাঢ়, তাই লেখা হালকা। ভলেন্টিয়ার সাব-মেনু (.kh-vol-sub) আলাদা রঙে আগে থেকেই ঠিক
+     ছিল — সেটিতে হাত দেওয়া হয়নি।
+   • খোলা মেনুর নিচে Notice Board, চ্যাট ও সহকারীর ভাসমান বাটন "Download app" কার্ডের
+     লেখা ঢেকে দিত — মেনু খোলা থাকলে সেগুলো সাময়িক লুকায়। */
+html[data-theme="light"] body:not([data-kh-nav="off"]) .navbar .nav-links.open .nav-link { color: #f3edff !important; }
+html[data-theme="light"] body:not([data-kh-nav="off"]) .navbar .nav-links.open .nav-link.active { color: #ffffff !important; }
+html.kh-vol-theme[data-theme="light"] body:not([data-kh-nav="off"]) .navbar .nav-links.open .kh-vol-item > .nav-link { color: #5eead4 !important; }
+@media (max-width: 1023px) {
+  body:has(.nav-links.open) .kh-nb-tab,
+  body:has(.nav-links.open) .kh-chat-launch,
+  body:has(.nav-links.open) .kh-bot-launch,
+  body:has(.nav-links.open) .wa-float { display: none !important; }
+}
 html[data-theme="light"] .nav-indicator {
   background: rgba(112, 72, 232, .13) !important;
   border-color: rgba(112, 72, 232, .26) !important;

@@ -1034,7 +1034,7 @@
       100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
     }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=65">
+  <link rel="stylesheet" href="kh-ui.css?v=66">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 <style>
 /* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
@@ -1195,6 +1195,18 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
   .vol-chip.approved,.vol-chip.verified,.vol-chip.done{background:rgba(34,197,94,.2)}
   .vol-chip.pending,.vol-chip.open,.vol-chip.in_progress{background:rgba(245,158,11,.2)}
   .vol-chip.rejected,.vol-chip.suspended,.vol-chip.cancelled{background:rgba(239,68,68,.18)}
+  .vol-avrow{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .vol-ring{position:relative;width:124px;height:124px;flex-shrink:0}
+  .vol-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+  .vol-ring .rt{fill:none;stroke:rgba(127,127,127,.22);stroke-width:10}
+  .vol-ring .rv{fill:none;stroke:#16a34a;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+  .vol-ring .pav{position:absolute;inset:14px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f766e,#7048e8);color:#fff;font-size:30px;font-weight:700}
+  .vol-ring .pav img{width:100%;height:100%;object-fit:cover;display:block}
+  .vol-ring .rpct{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .vol-avinfo{flex:1;min-width:200px}
+  .vol-avinfo .t{font-size:17px;font-weight:700}
+  .vol-avinfo ul{margin:6px 0 0 18px;font-size:14px;line-height:1.7}
+  .vol-avinfo .ok{color:#16a34a;font-weight:700;margin-top:8px;font-size:14.5px}
   .vol-idcard{background:linear-gradient(125deg,#0b3b38,#0f766e 55%,#4c2f9e);color:#fff;border-radius:20px;padding:22px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;box-shadow:0 18px 40px rgba(15,118,110,.25);max-width:560px}
   .vol-idcard .k{font-size:11px;letter-spacing:.14em;opacity:.8;text-transform:uppercase}
   .vol-idcard .n{font-size:21px;font-weight:700;margin:4px 0}
@@ -1226,6 +1238,46 @@ body[data-vol-page="profile"] #profile{display:block !important}
 <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon-180.png">
 <style>img.brand-round{background:none!important;box-shadow:none!important;border-radius:50%;object-fit:contain;padding:0!important;display:block;flex-shrink:0}</style>
+<style id="kh-header-v3">
+/* ═══ হেডার v3 — গোল লোগো বড় ও স্পষ্ট, চারপাশে ঘূর্ণায়মান রিং, ফোন নম্বর ডানে, নাম একবার ═══ */
+@media (min-width: 821px) {
+  .topbar { justify-content: flex-end !important; gap: 22px; }
+  .navbar { height: 84px; }
+}
+.navbar .logo-wrap { gap: 14px; }
+.logo-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; isolation: isolate; }
+.logo-badge::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(#f08c28, #d6336c, #7048e8, #22c55e, #f6c343, #f08c28);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: khLogoSpin 6s linear infinite; }
+.logo-badge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; z-index: -2; animation: khLogoPulse 2.6s ease-out infinite; }
+.logo-round { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: contain; background: none; box-shadow: none; }
+@keyframes khLogoSpin { to { transform: rotate(360deg); } }
+@keyframes khLogoPulse { 0% { box-shadow: 0 0 0 0 rgba(240,140,40,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(240,140,40,0); } }
+@media (min-width: 821px) and (max-width: 1180px) {
+  .logo-sl { display: none; }
+  .navbar .logo-wrap { flex-shrink: 0; }
+  .logo-badge { width: 52px; height: 52px; }
+  .navbar .logo-bn { font-size: 14.5px; }
+  .navbar .nav-link { padding: 0 6px; font-size: 13px; }
+  .nav-savings-btn { padding: 7px 9px; font-size: 12px; white-space: nowrap; }
+  .donate-btn { padding: 8px 10px; font-size: 12.5px; white-space: nowrap; }
+}
+/* ট্যাবলেটে (৭৬৯–৯০০px) মেনু আগে কোথাও ছিল না — হ্যামবার্গার বন্ধ, লিংকও লুকানো (CSS-এর ক্রম) */
+@media (min-width: 769px) and (max-width: 900px) { .nav-hamburger { display: flex !important; } }
+/* ৭৬৯–৯০০px: হ্যামবার্গারসহ নামের পাশে App/সঞ্চয়/Donate — তাই নাম ও বাটনের মাঝে ফাঁক রাখতে একটু ছোট */
+@media (min-width: 769px) and (max-width: 900px) {
+  .navbar .logo-bn { font-size: 14px; }
+  .navbar .nav-right { gap: 6px; margin-left: 16px; }
+  .nav-savings-btn { padding: 6px 9px; font-size: 11.5px; }
+}
+/* ৮২১–১০২৩px-এ ঠিকানা লাইন তিন লাইনে ভাঙত; ঠিকানা ফুটারেও আছে */
+@media (min-width: 821px) and (max-width: 1023px) { .topbar-left .topbar-item:nth-child(3) { display: none; } }
+@media (max-width: 768px) { .logo-badge { width: 50px; height: 50px; } .logo-badge::before { inset: -4px; } }
+@media (max-width: 480px) { .logo-badge { width: 44px; height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .logo-badge::before, .logo-badge::after { animation: none; } }
+</style>
 </head>
 <body data-kh-nav="on" data-vol-page="profile">
 
@@ -1258,10 +1310,9 @@ body[data-vol-page="profile"] #profile{display:block !important}
 ════════════════════════════════════════════════════════ -->
 <nav class="navbar" id="navbar">
   <a href="#" class="logo-wrap">
-    <img class="brand-round logo-icon" src="assets/brand/korje-round-logo-256.png" alt="কর্জে হাসানা ফাউন্ডেশন লোগো" width="256" height="256">
+    <span class="logo-badge"><img class="logo-round" src="assets/brand/korje-round-logo-256.png" alt="কর্জে হাসানা ফাউন্ডেশন লোগো" width="256" height="256"></span>
     <div class="logo-texts">
       <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
-      <div class="logo-en">Korje Hasana Foundation</div>
       <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
     </div>
   </a>
@@ -1856,10 +1907,11 @@ body[data-vol-page="profile"] #profile{display:block !important}
     login_required: 'আগে লগইন করুন।', oath_required: 'নিবন্ধনের আগে শপথে সম্মতি দিন।', already_registered: 'আপনি ইতিমধ্যে ভলেন্টিয়ার হিসেবে নিবন্ধিত।',
     approved_volunteer_only: 'এই সুবিধা শুধু অনুমোদিত ভলেন্টিয়ারদের জন্য।', task_not_available: 'এই কাজটি এখন আর পাওয়া যাচ্ছে না।',
     pending_request_exists: 'আপনার একটি সার্টিফিকেট আবেদন ইতিমধ্যে অপেক্ষমাণ আছে।', certificate_not_available: 'সার্টিফিকেটটি এখনো অনুমোদিত হয়নি।',
-    not_found_or_rejected: 'প্রোফাইল পাওয়া যায়নি বা বাতিল করা হয়েছে।', invalid_whatsapp_link: 'হোয়াটসঅ্যাপ লিংক সঠিক নয়।'
+    not_found_or_rejected: 'প্রোফাইল পাওয়া যায়নি বা বাতিল করা হয়েছে।', invalid_whatsapp_link: 'হোয়াটসঅ্যাপ লিংক সঠিক নয়।', profile_incomplete: 'সার্টিফিকেটের আবেদনের আগে প্রোফাইল ১০০% সম্পন্ন করুন।'
   };
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var MISS_BN = { photo: 'প্রোফাইল ছবি', phone: 'মোবাইল নম্বর (১১ ডিজিট)', email: 'ইমেইল', district: 'জেলা', upazila: 'উপজেলা', address: 'ঠিকানা', education: 'শিক্ষা', skills: 'দক্ষতা (কমপক্ষে একটি)', interests: 'আগ্রহের ক্ষেত্র (কমপক্ষে একটি)', availability: 'সেবা দেওয়ার সময়', bio: 'সংক্ষিপ্ত পরিচিতি', oath: 'শপথ গ্রহণ' };
   function errMsg(e) {
     var m = (e && (e.message || e.details || e.hint)) || '';
     for (var k in ERR_BN) { if (m.indexOf(k) !== -1) return ERR_BN[k]; }
@@ -1885,7 +1937,7 @@ body[data-vol-page="profile"] #profile{display:block !important}
   }
   function locked(text) { return '<div class="vol-locked"><i class="ti ti-lock"></i> ' + esc(text) + '</div>'; }
 
-  var STATE = { user: null, vol: null };
+  var STATE = { user: null, vol: null, comp: null };
 
   /* ---------- অ্যাকাউন্ট (লগইন / নিবন্ধন / প্রোফাইল) ---------- */
   function renderAccount() {
@@ -1901,6 +1953,8 @@ body[data-vol-page="profile"] #profile{display:block !important}
     if (!STATE.user) return;
     var r = await rpc('vol_me');
     if (!r.error) STATE.vol = r.data || null;
+    STATE.comp = null;
+    if (STATE.vol) await refreshComp();
   }
 
   function renderAuth(box) {
@@ -1994,7 +2048,7 @@ body[data-vol-page="profile"] #profile{display:block !important}
     var note = v.status === 'pending' ? '<div class="vol-msg ok" style="margin-bottom:14px">আপনার আবেদন যাচাইয়ের অপেক্ষায় আছে। অনুমোদনের পর কাজ ও সার্টিফিকেটের সুবিধা খুলবে।</div>'
       : v.status === 'suspended' ? '<div class="vol-msg err" style="margin-bottom:14px">আপনার ভলেন্টিয়ার সুবিধা সাময়িক স্থগিত আছে। বিস্তারিত জানতে প্রতিষ্ঠানের সাথে যোগাযোগ করুন।</div>'
       : v.status === 'rejected' ? '<div class="vol-msg err" style="margin-bottom:14px">আপনার আবেদন বাতিল হয়েছে। প্রয়োজনে প্রতিষ্ঠানের সাথে যোগাযোগ করুন।</div>' : '';
-    box.innerHTML = note +
+    box.innerHTML = note + '<div class="vol-card" id="volAvatarCard"></div>' +
       '<div class="vol-idcard">' +
         '<div><div class="k">Korje Hasana · Volunteer ID</div>' +
         '<div class="n">' + esc(v.full_name) + '</div>' +
@@ -2008,6 +2062,7 @@ body[data-vol-page="profile"] #profile{display:block !important}
       '<form id="volProfForm" class="vol-form">' + regFields(v) +
       '<div><button class="vol-btn sm" type="submit"><i class="ti ti-device-floppy"></i> সংরক্ষণ করুন</button></div><div id="volProfMsg"></div></form></div>';
     drawQr(v.volunteer_no);
+    renderAvatarCard();
     $('volLogout').addEventListener('click', function () { db.auth.signOut().then(function () { STATE.user = null; STATE.vol = null; renderAll(); }); });
     box.dataset.vid = v.id;
     $('volProfForm').addEventListener('submit', async function (e) {
@@ -2019,11 +2074,80 @@ body[data-vol-page="profile"] #profile{display:block !important}
         p_address: g('address'), p_education: g('education'), p_skills: picked(f, 'skills'),
         p_interests: picked(f, 'interests'), p_availability: g('availability'), p_bio: g('bio')
       });
-      if (r.error) msg($('volProfMsg'), r.error, false); else { STATE.vol = r.data; msg($('volProfMsg'), 'প্রোফাইল সংরক্ষিত হয়েছে।', true); }
+      if (r.error) msg($('volProfMsg'), r.error, false); else { STATE.vol = r.data; msg($('volProfMsg'), 'প্রোফাইল সংরক্ষিত হয়েছে।', true); refreshComp().then(function () { renderAvatarCard(); renderCerts(); }); }
       btn.disabled = false;
     });
   }
 
+  function refreshComp() {
+    return rpc('vol_my_completion').then(function (r) { STATE.comp = r.data || null; return STATE.comp; });
+  }
+  /* প্রোফাইল ছবির চারপাশে সবুজ রিং — অংশ = প্রোফাইল সম্পন্নতার শতাংশ */
+  function renderAvatarCard() {
+    var box = $('volAvatarCard'), v = STATE.vol;
+    if (!box || !v) return;
+    var comp = STATE.comp || {};
+    var pct = Math.max(0, Math.min(100, Math.round(Number(comp.percent) || 0)));
+    var C = 339.29;
+    var missing = (comp.missing || []).map(function (k) { return MISS_BN[k] || k; });
+    var inner = v.photo_url ? '<img src="' + esc(v.photo_url) + '" alt="">' : esc(String(v.full_name || '?').trim().charAt(0) || '?');
+    box.innerHTML = '<div class="vol-avrow">' +
+      '<div class="vol-ring" role="img" aria-label="প্রোফাইল সম্পন্ন ' + pct + ' শতাংশ">' +
+        '<svg viewBox="0 0 120 120" aria-hidden="true"><circle class="rt" cx="60" cy="60" r="54"></circle>' +
+        '<circle class="rv" cx="60" cy="60" r="54" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - pct / 100)).toFixed(2) + '"></circle></svg>' +
+        '<div class="pav">' + inner + '</div><span class="rpct">' + pct + '%</span></div>' +
+      '<div class="vol-avinfo"><div class="t">প্রোফাইল সম্পন্ন: ' + pct + '%</div>' +
+        (missing.length
+          ? '<div style="font-size:14px;margin-top:6px">যা বাকি আছে:</div><ul>' + missing.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>'
+          : '<div class="ok">প্রোফাইল ১০০% সম্পন্ন — এখন সার্টিফিকেটের আবেদন করা যাবে।</div>') +
+        '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="vol-btn sm ghost" type="button" id="volPhotoBtn"><i class="ti ti-camera"></i> ' + (v.photo_url ? 'ছবি বদলান' : 'ছবি আপলোড করুন') + '</button>' +
+        '<input type="file" id="volPhotoFile" accept="image/*" hidden></div>' +
+        '<div id="volPhotoMsg"></div>' +
+      '</div></div>';
+    $('volPhotoBtn').addEventListener('click', function () { $('volPhotoFile').click(); });
+    $('volPhotoFile').addEventListener('change', function (e) {
+      var f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (f) handlePhoto(f);
+    });
+  }
+  async function handlePhoto(file) {
+    var m = function (t, ok) { var el = $('volPhotoMsg'); if (el) msg(el, t, ok); };
+    if (!STATE.user || !STATE.vol) return;
+    if (!/^image\//i.test(file.type)) return m('শুধু ছবি ফাইল (JPG বা PNG) আপলোড করুন।', false);
+    var btn = $('volPhotoBtn'); if (btn) btn.disabled = true;
+    try {
+      m('ছবি প্রস্তুত করা হচ্ছে…', true);
+      var blob = (window.KHUI && KHUI.compressImage) ? await KHUI.compressImage(file, { maxDim: 512, maxBytes: 1024 * 1024 }) : file;
+      if (!blob || blob.size > 1024 * 1024) return m('ছবিটি ছোট করা যাচ্ছে না। অন্য ছবি দিন।', false);
+      m('আপলোড হচ্ছে…', true);
+      var path = STATE.user.id + '/avatar.jpg';
+      var up = await db.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+      if (up.error) throw up.error;
+      var pub = db.storage.from('avatars').getPublicUrl(path);
+      var url = pub && pub.data ? pub.data.publicUrl + '?t=' + Date.now() : null;
+      if (!url) throw new Error('no_url');
+      var r = await rpc('vol_set_photo', { p_url: url });
+      if (r.error) return m(r.error, false);
+      STATE.vol.photo_url = (r.data && r.data.photo_url) || url;
+      if (r.data && r.data.completion) STATE.comp = r.data.completion;
+      renderAvatarCard();
+      renderCerts();
+      m('ছবি সংরক্ষিত হয়েছে।', true);
+    } catch (e) {
+      m('ছবি আপলোড করা যায়নি। ইন্টারনেট দেখে আবার চেষ্টা করুন।', false);
+    } finally {
+      var b2 = $('volPhotoBtn'); if (b2) b2.disabled = false;
+    }
+  }
+  /* সার্টিফিকেট আবেদনের আগে প্রোফাইল ১০০% না হলে আবেদন ফর্ম বন্ধ থাকবে */
+  function profileGate(comp) {
+    var miss = (comp.missing || []).map(function (k) { return MISS_BN[k] || k; });
+    return '<div class="vol-card"><h3><i class="ti ti-lock"></i> সার্টিফিকেটের আবেদনের আগে প্রোফাইল ১০০% সম্পন্ন করুন</h3>' +
+      '<p style="font-size:14px;margin:6px 0 8px">আপনার প্রোফাইল এখন <b>' + esc(comp.percent || 0) + '%</b> সম্পন্ন। নিচের তথ্যগুলো পূরণ করলে সার্টিফিকেটের আবেদন খুলবে:</p>' +
+      '<ul style="margin:0 0 8px 18px;line-height:1.8;font-size:14px">' + miss.map(function (m) { return '<li>' + esc(m) + '</li>'; }).join('') + '</ul>' +
+      '<p style="font-size:13.5px;opacity:.85">তথ্য ও ছবি যোগ করতে উপরের “নিবন্ধন ও আমার প্রোফাইল” অংশে যান।</p></div>';
+  }
   function drawQr(text) {
     var el = $('volQr');
     try {
@@ -2070,6 +2194,8 @@ body[data-vol-page="profile"] #profile{display:block !important}
     var box = $('volCerts');
     if (!STATE.user || !STATE.vol) { box.innerHTML = locked('সার্টিফিকেটের আবেদন করতে ভলেন্টিয়ার হিসেবে লগইন করুন।'); return; }
     if (STATE.vol.status !== 'approved') { box.innerHTML = locked('অনুমোদিত ভলেন্টিয়াররা সার্টিফিকেটের জন্য আবেদন করতে পারবেন।'); return; }
+    if (!STATE.comp) { box.innerHTML = locked('প্রোফাইলের সম্পন্নতা লোড করা যায়নি। পেজ রিফ্রেশ করে আবার দেখুন।'); return; }
+    if (Number(STATE.comp.percent) < 100) { box.innerHTML = profileGate(STATE.comp); return; }
     rpc('vol_my_certificates').then(function (r) {
       if (r.error) return msg(box, r.error, false);
       var list = r.data || [];

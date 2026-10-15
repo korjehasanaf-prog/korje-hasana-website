@@ -338,7 +338,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
   .apv-top{flex-direction:column}
 }
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=65">
+  <link rel="stylesheet" href="kh-ui.css?v=66">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">
@@ -3975,7 +3975,6 @@ async function openLoanDetail(id) {
   const maker = !!me && (r.committee_recommended_by === me || r.recommended_by === me);
   const canApprove = !!isSuper && !maker && r.status === 'recommended';
   const terminal = LOAN_TERMINAL.includes(r.status);
-  const nominees = Array.isArray(r.refs) ? r.refs : [];
 
   const T = v => esc(v === null || v === undefined || v === '' ? '—' : String(v));
   const M = v => (v === null || v === undefined || v === '' ? '—' : '৳' + fmt(v));
@@ -4009,12 +4008,6 @@ async function openLoanDetail(id) {
     row('পণ্য / সেবার বিবরণ', T(r.item_description))
   ].join('');
 
-  const nomHtml = nominees.length
-    ? nominees.map((x, i) => {
-        const n = x || {};
-        return `<div class="ld-note">${i + 1}. ${esc(n.name || '—')} · ${esc(n.relation || '—')} · মোবাইল ${esc(n.mobile || '—')} · এনআইডি ${esc(n.nid || '—')}</div>`;
-      }).join('')
-    : '<div class="ld-note">কোনো নমিনি নেই</div>';
 
   const steps = [
     { t: 'আবেদন জমা', at: r.created_at, by: 'আবেদনকারী', d: '' },
@@ -4083,8 +4076,8 @@ async function openLoanDetail(id) {
     <div class="ld-grid">${grid1}</div>
     <div class="ld-sec">আবেদকের ও উদ্দেশ্যের তথ্য</div>
     <div class="ld-grid">${grid2}</div>
-    <div class="ld-sec">নমিনি</div>
-    ${nomHtml}
+    <div class="ld-sec">গ্যারান্টর ও সম্মতি</div>
+    <div id="ld-guar-${r.id}"><div class="ld-note">গ্যারান্টর তথ্য লোড হচ্ছে…</div></div>
     <div class="ld-sec">ডকুমেন্ট ও ফাইল</div>
     <div class="ld-note">এই আবেদনের ছবি বা ডকুমেন্ট ফাইল ডাটাবেজে সংরক্ষিত হয়নি। ফর্মের আপলোড ঘরে শুধু থাম্বনেইল দেখায়। প্রয়োজনে আবেদনকারীর কাছ থেকে সরাসরি নিন।</div>
     <div class="ld-sec">অবস্থার ইতিহাস ও কোন ধাপে আটকে আছে</div>
@@ -4092,6 +4085,224 @@ async function openLoanDetail(id) {
     ${r.review_notes ? `<div class="ld-sec">সর্বশেষ নোট</div><div class="ld-note">${esc(r.review_notes)}</div>` : ''}
     ${actionHtml}
   </div>`;
+  loadGuarantorPanel(r.id);
+}
+
+/* ── গ্যারান্টর ও সম্মতি (লোন আবেদন) ── */
+function _guarNowLocal() { return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
+function _guarToday() { return new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10); }
+function _rpcErr(e) { return (e && (e.userMsg || e.message)) || 'সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'; }
+
+async function loadGuarantorPanel(appId) {
+  const host = document.getElementById('ld-guar-' + appId);
+  if (!host) return;
+  let g;
+  try {
+    const { data, error } = await _db.rpc('admin_guarantor_list', { p_app: appId });
+    if (error) throw error;
+    g = data || {};
+  } catch (e) {
+    host.innerHTML = '<div class="ld-note">গ্যারান্টর তথ্য আনা যায়নি: ' + esc(_rpcErr(e)) + '</div>';
+    return;
+  }
+  const items = g.items || [];
+  const req = Number(g.required) || 0;
+  const done = items.filter(x => x.consent_status === 'confirmed').length;
+  const open = ['pending', 'review', 'committee_recommended', 'recommended'].includes(g.status);
+  const today = _guarToday();
+  const banner = g.ready
+    ? '<div class="ld-note" style="border:1px solid var(--success)">✓ সব গ্যারান্টরের যোগাযোগ ও সম্মতি নিশ্চিত — এখন অনুমোদন দেওয়া যাবে।</div>'
+    : '<div class="ld-note" style="border:1px solid var(--warn)">এই ঋণে ' + KHUI.bn(req) + ' জন গ্যারান্টর লাগবে; সম্মতি নিশ্চিত হয়েছে ' + KHUI.bn(done) + ' জনের। অনুমোদনের আগে সব গ্যারান্টরের যোগাযোগ ও সম্মতি সম্পূর্ণ করুন।</div>';
+  const cards = items.map(x => {
+    const contacted = !!x.contact_method;
+    const ok = x.consent_status === 'confirmed';
+    const badge = ok ? ['b-approved', 'সম্মতি নিশ্চিত'] : contacted ? ['b-review', 'যোগাযোগ হয়েছে'] : ['b-pending', 'যোগাযোগ বাকি'];
+    let h = '<div style="border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>' + esc(x.slot) + '. ' + esc(x.full_name || '—') + '</b><span class="badge ' + badge[0] + '">' + badge[1] + '</span></div>';
+    h += '<div class="ld-k" style="margin-top:4px">' + esc(x.relation || '—') + ' · মোবাইল ' + esc(x.mobile || '—') + ' · এনআইডি ' + esc(x.nid || '—') + '</div>';
+    if (contacted) h += '<div class="ld-k" style="margin-top:4px">যোগাযোগ: ' + (x.contact_method === 'physical' ? 'সশরীরে' : 'ফোনে') + ' · ' + esc(fmtDate(x.contacted_at)) + ' · ' + esc(x.contact_note || '') + '</div>';
+    if (ok) h += '<div class="ld-k" style="margin-top:4px">সম্মতিপত্র: স্বাক্ষর ' + esc(fmtDate(x.consent_signed_on)) + ' · নিশ্চিত ' + esc(fmtDate(x.confirmed_at)) + (x.consent_doc_ref ? ' <button class="btn btn-sm" onclick="openStoredDoc(\'' + esc(x.consent_doc_ref) + '\',\'consent\')"><i class="ti ti-file-check"></i> সম্মতিপত্র দেখুন</button>' : '') + '</div>';
+    if (open && !contacted) {
+      h += '<div class="ld-grid" style="margin-top:10px">' +
+        '<div><div class="ld-k">যোগাযোগের ধরন</div><select id="gc-m-' + x.id + '" class="ld-input"><option value="physical">সশরীরে (ফিজিক্যাল)</option><option value="phone">ফোনে</option></select></div>' +
+        '<div><div class="ld-k">যোগাযোগের তারিখ ও সময়</div><input type="datetime-local" id="gc-t-' + x.id + '" class="ld-input" value="' + _guarNowLocal() + '"></div>' +
+        '<div style="grid-column:1/-1"><div class="ld-k">কী কথা হয়েছে (সংক্ষিপ্ত নোট)</div><input type="text" id="gc-n-' + x.id + '" class="ld-input" maxlength="300" placeholder="যেমন: বাড়িতে গিয়ে সরাসরি কথা হয়েছে, সম্মত"></div>' +
+        '</div><div class="apv-btns" style="margin-top:8px"><button class="btn btn-success" onclick="guarSaveContact(\'' + x.id + '\',\'' + appId + '\')"><i class="ti ti-phone-check"></i> যোগাযোগের তথ্য সংরক্ষণ</button></div>';
+    }
+    if (open && contacted && !ok) {
+      h += '<div class="ld-grid" style="margin-top:10px">' +
+        '<div><div class="ld-k">স্বাক্ষরের তারিখ</div><input type="date" id="gs-d-' + x.id + '" class="ld-input" value="' + today + '"></div>' +
+        '<div><div class="ld-k">স্বাক্ষরিত সম্মতিপত্র (ছবি বা PDF, ৫ MB পর্যন্ত)</div><input type="file" id="gs-f-' + x.id + '" class="ld-input" accept="image/*,application/pdf"></div>' +
+        '</div><div class="apv-btns" style="margin-top:8px"><button class="btn btn-success" onclick="guarSaveConsent(\'' + x.id + '\',\'' + appId + '\')"><i class="ti ti-file-check"></i> সম্মতিপত্র আপলোড ও নিশ্চিত করুন</button></div>';
+    }
+    if (open && (contacted || ok)) {
+      h += '<div class="apv-btns" style="margin-top:8px"><input type="text" id="gr-r-' + x.id + '" class="ld-input" maxlength="300" placeholder="সংশোধনের কারণ (বাধ্যতামূলক)" style="flex:1;min-width:200px"><button class="btn btn-danger" onclick="guarReset(\'' + x.id + '\',\'' + appId + '\')"><i class="ti ti-refresh"></i> যোগাযোগ/সম্মতি বাতিল করে নতুন করে দিন</button></div>';
+    }
+    return h + '</div>';
+  }).join('');
+  host.innerHTML = banner + (cards || '<div class="ld-note">কোনো গ্যারান্টর নিবন্ধিত নেই।</div>');
+}
+
+async function guarSaveContact(gid, appId) {
+  const v = k => ((document.getElementById(k) || {}).value || '').trim();
+  const method = v('gc-m-' + gid), when = v('gc-t-' + gid), note = v('gc-n-' + gid);
+  if (note.length < 3) return alert('কী কথা হয়েছে তার সংক্ষিপ্ত নোট লিখুন।');
+  const at = new Date(when);
+  if (!when || isNaN(at.getTime())) return alert('যোগাযোগের তারিখ ও সময় সঠিকভাবে দিন।');
+  if (!confirm('এই যোগাযোগের তথ্য সংরক্ষণ করবেন?')) return;
+  try {
+    const { error } = await _db.rpc('admin_guarantor_contact', { p_id: gid, p_method: method, p_at: at.toISOString(), p_note: note });
+    if (error) throw error;
+  } catch (e) { return alert('ত্রুটি: ' + _rpcErr(e)); }
+  loadGuarantorPanel(appId);
+}
+
+async function guarSaveConsent(gid, appId) {
+  const day = ((document.getElementById('gs-d-' + gid) || {}).value || '');
+  const file = (((document.getElementById('gs-f-' + gid) || {}).files) || [])[0];
+  if (!day) return alert('স্বাক্ষরের তারিখ দিন।');
+  if (!file) return alert('স্বাক্ষরিত সম্মতিপত্রের ছবি বা PDF বেছে নিন।');
+  if (!/^image\/|^application\/pdf$/i.test(file.type)) return alert('শুধু ছবি (JPG/PNG) বা PDF ফাইল দিন।');
+  if (file.size > 5 * 1024 * 1024) return alert('ফাইলটি ৫ MB-র বেশি হতে পারবে না।');
+  if (!confirm('সম্মতিপত্র সংযুক্ত করে এই গ্যারান্টরের সম্মতি নিশ্চিত করবেন?')) return;
+  let blob = file;
+  try {
+    if (/^image\//i.test(file.type) && window.KHUI && KHUI.compressImage) {
+      blob = (await KHUI.compressImage(file, { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 })) || file;
+    }
+  } catch (e) { blob = file; }
+  let ref = null;
+  try {
+    ref = await KHUI.drive.upload(blob, { kind: 'consent', name: 'consent-' + gid + (blob.type === 'application/pdf' ? '.pdf' : '.jpg') });
+  } catch (e) { return alert(_rpcErr(e)); }
+  if (!ref) return alert('ফাইল সংরক্ষণের ব্যবস্থা এখন কনফিগার করা নেই — সম্মতিপত্র সংরক্ষণ করা যাচ্ছে না।');
+  try {
+    const { error } = await _db.rpc('admin_guarantor_consent', { p_id: gid, p_doc: ref, p_signed_on: day });
+    if (error) throw error;
+  } catch (e) { return alert('ত্রুটি: ' + _rpcErr(e)); }
+  loadGuarantorPanel(appId);
+}
+
+async function guarReset(gid, appId) {
+  const reason = ((document.getElementById('gr-r-' + gid) || {}).value || '').trim();
+  if (reason.length < 3) return alert('সংশোধনের কারণ লিখুন।');
+  if (!confirm('এই গ্যারান্টরের যোগাযোগ ও সম্মতির তথ্য বাতিল করে আবার শুরু করবেন?')) return;
+  try {
+    const { error } = await _db.rpc('admin_guarantor_reset', { p_id: gid, p_reason: reason });
+    if (error) throw error;
+  } catch (e) { return alert('ত্রুটি: ' + _rpcErr(e)); }
+  loadGuarantorPanel(appId);
+}
+
+/* ── সদস্যের ডিজিটাল প্রোফাইল (পরিচয়পত্রের ফাঁকা অংশে ক্লিক) ── */
+function closeMemberDigital() {
+  const ov = document.getElementById('memberDigitalOv');
+  if (ov) ov.style.display = 'none';
+}
+async function digiDocUrl(path, bucket) {
+  if (!path) return null;
+  if (/^https?:/i.test(path)) return path;
+  try {
+    if (window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) return await KHUI.drive.url(path);
+    const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
+    return (r.data && r.data.signedUrl) || null;
+  } catch (e) { return null; }
+}
+async function openMemberDigital(id) {
+  if (!id) return;
+  ensureLoanStyle();
+  let ov = document.getElementById('memberDigitalOv');
+  if (!ov) {
+    ov = document.createElement('div');
+    ov.id = 'memberDigitalOv';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:2000;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px';
+    ov.addEventListener('click', e => { if (e.target === ov) closeMemberDigital(); });
+    document.body.appendChild(ov);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMemberDigital(); });
+  }
+  ov.style.display = 'flex';
+  ov.innerHTML = '<div class="ld-box"><div class="empty-state"><p>ডিজিটাল প্রোফাইল লোড হচ্ছে...</p></div></div>';
+  let d;
+  try {
+    const { data, error } = await _db.rpc('admin_member_profile', { p_id: id });
+    if (error) throw error;
+    d = data || {};
+  } catch (e) {
+    ov.innerHTML = '<div class="ld-box"><p>প্রোফাইল দেখানো যায়নি: ' + esc(_rpcErr(e)) + '</p><button class="btn btn-gold" onclick="closeMemberDigital()">বন্ধ করুন</button></div>';
+    return;
+  }
+  renderMemberDigital(d);
+}
+function renderMemberDigital(d) {
+  const ov = document.getElementById('memberDigitalOv');
+  if (!ov) return;
+  const p = d.profile || {}, c = d.card || {};
+  const T = v => esc(v === null || v === undefined || v === '' ? '—' : String(v));
+  const M = v => (v === null || v === undefined || v === '' ? '—' : '৳' + fmt(v));
+  const D = v => esc(v ? fmtDate(v) : '—');
+  const row = (k, v) => '<div><div class="ld-k">' + esc(k) + '</div><div class="ld-v">' + v + '</div></div>';
+  const sec = t => '<div class="ld-sec">' + esc(t) + '</div>';
+  const table = (heads, rows) => {
+    if (!rows.length) return '<div class="ld-note">কোনো তথ্য নেই</div>';
+    const th = heads.map(h => '<th style="text-align:left;color:var(--muted);font-weight:600;padding:5px 6px;border-bottom:1px solid var(--border);white-space:nowrap">' + esc(h) + '</th>').join('');
+    const tr = rows.map(r => '<tr>' + r.map(x => '<td style="padding:6px;border-bottom:1px solid var(--border);vertical-align:top">' + x + '</td>').join('') + '</tr>').join('');
+    return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr>' + th + '</tr></thead><tbody>' + tr + '</tbody></table></div>';
+  };
+  const docBox = (label, path) => {
+    if (!path) return '<div style="flex:1;min-width:200px"><div class="ld-k">' + esc(label) + '</div><div class="ld-note">আপলোড হয়নি</div></div>';
+    return '<div style="flex:1;min-width:200px"><div class="ld-k">' + esc(label) + '</div>' +
+      '<div style="position:relative;min-height:140px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--bg3)">' +
+      '<span class="digi-ph ld-note" style="margin:0">লোড হচ্ছে…</span>' +
+      '<img data-digi-doc="' + esc(path) + '" data-digi-bucket="nid-docs" alt="' + esc(label) + '" style="max-width:100%;max-height:260px;display:block"></div>' +
+      '<button class="btn btn-sm" style="margin-top:6px" onclick="openStoredDoc(\'' + esc(path) + '\',\'nid-docs\')"><i class="ti ti-external-link"></i> বড় করে দেখুন</button></div>';
+  };
+  const photo = p.photo_url
+    ? '<img data-digi-doc="' + esc(p.photo_url) + '" data-digi-bucket="avatars" alt="ছবি" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--border);flex-shrink:0">'
+    : '<div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#7048e8);display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:700;color:#fff;flex-shrink:0">' + esc(String(p.full_name || 'স').trim().charAt(0)) + '</div>';
+  const chips = [p.is_depositor && 'আমানতকারী', p.is_borrower && 'ঋণগ্রহীতা', p.is_donor && 'দানকারী', p.membership_ended_at && 'সদস্যপদ শেষ']
+    .filter(Boolean).map(t => '<span class="badge b-approved">' + esc(t) + '</span>').join(' ');
+  const head = '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">' + photo +
+    '<div style="flex:1;min-width:220px"><div class="ld-h">' + T(p.full_name_bn || p.full_name) + '</div>' +
+    '<div class="ld-k">' + T(p.user_code) + ' · ' + T(p.mobile) + '</div>' +
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">' + chips + '</div></div>' +
+    '<button class="btn btn-gold" onclick="closeMemberDigital()"><i class="ti ti-x"></i> বন্ধ</button></div>';
+  const cardSum = row('সদস্য কোড', T(c.code || p.user_code)) + row('সঞ্চয় স্থিতি', M(c.savings && c.savings.balance)) +
+    row('মোট দান', M(c.donation && c.donation.total)) + row('ঋণের বকেয়া', M(c.loan && c.loan.outstanding));
+  const body =
+    sec('ডিজিটাল পরিচয়পত্রের সারসংক্ষেপ') + '<div class="ld-grid">' + cardSum + '</div>' +
+    sec('ব্যক্তিগত তথ্য') + '<div class="ld-grid">' +
+      row('নাম (ইংরেজি)', T(p.full_name)) + row('নাম (বাংলা)', T(p.full_name_bn)) +
+      row('পিতার নাম', T(p.father_name)) + row('মাতার নাম', T(p.mother_name)) +
+      row('জন্ম তারিখ', D(p.dob)) + row('লিঙ্গ', T(p.gender)) +
+      row('এনআইডি নম্বর (পূর্ণ)', '<b style="letter-spacing:.04em">' + T(p.nid) + '</b>') +
+      row('মোবাইল', T(p.mobile)) + row('ই-মেইল', T(p.email)) +
+      row('পেশা', T(p.occupation)) + row('জেলা', T(p.district)) +
+      row('বর্তমান ঠিকানা', T(p.address)) + row('স্থায়ী ঠিকানা', T(p.permanent_address)) +
+      row('নিবন্ধনের তারিখ', D(p.created_at)) + row('শেষ লগইন', D(p.last_login_at)) +
+      row('সর্বশেষ অনলাইন', D(d.online_last_seen)) +
+      row('সহায়তায় যুক্ত ভলেন্টিয়ার', d.assisted_by ? T(d.assisted_by.full_name) + ' · ' + T(d.assisted_by.volunteer_no) : '—') +
+      row('সদস্যপদ', p.membership_ended_at ? 'শেষ হয়েছে · ' + T(p.membership_ended_reason) : 'সক্রিয়') +
+      '</div>' +
+    sec('এনআইডির কপি') + '<div style="display:flex;gap:14px;flex-wrap:wrap">' + docBox('এনআইডি — সামনের পাতা', p.nid_url) + docBox('এনআইডি — পিছনের পাতা', p.nid_back_url) + '</div>' +
+    sec('সঞ্চয় হিসাব') + table(['হিসাব নম্বর', 'ধরন', 'কিস্তি', 'খোলার তারিখ', 'অবস্থা'], (d.accounts || []).map(a => [T(a.account_no), T(a.scheme_type), M(a.instalment), D(a.opened_on), T(a.status)])) +
+    sec('সঞ্চয় লেনদেন (সাম্প্রতিক ৪০টি)') + table(['তারিখ', 'ধরন', 'পরিমাণ', 'অবস্থা', 'রেফারেন্স'], (d.savings_tx || []).map(t => [D(t.created_at), T(t.type), M(t.amount), T(t.status), T(t.reference)])) +
+    sec('দান') + table(['তারিখ', 'দান নম্বর', 'পরিমাণ', 'উদ্দেশ্য', 'অবস্থা'], (d.donations || []).map(x => [D(x.created_at), T(x.donation_no), M(x.amount), T(x.purpose), T(x.status)])) +
+    sec('ঋণ') + table(['ঋণ নম্বর', 'মূল পরিমাণ', 'মাসিক কিস্তি', 'পরিশোধিত', 'অবস্থা', 'বিতরণ'], (d.loans || []).map(l => [T(l.loan_no), M(l.principal), M(l.monthly_emi), M(l.paid_amount), T(l.status), D(l.disbursement_date)])) +
+    sec('ঋণের আবেদন ও গ্যারান্টর') + table(['আবেদন নং', 'ধরন', 'আবেদিত', 'অবস্থা', 'তারিখ', 'গ্যারান্টর (সম্মতি)'], (d.loan_apps || []).map(a => [T(a.app_no), T(a.loan_type), M(a.amount), T(statusBn(a.status)), D(a.created_at), (a.guarantors || []).map(g => T(g.full_name) + ' — ' + (g.consent_status === 'confirmed' ? 'নিশ্চিত' : 'বাকি')).join('<br>') || '—'])) +
+    sec('নমিনি') + table(['নাম', 'সম্পর্ক', 'মোবাইল', 'এনআইডি', 'অংশ'], (d.nominees || []).map(n => [T(n.full_name), T(n.relation), T(n.mobile), T(n.nid), T(n.share)])) +
+    sec('কমিটির আবেদন') + table(['নাম', 'অবস্থা', 'জমার তারিখ'], (d.committee_apps || []).map(x => [T(x.name_bn), T(x.status), D(x.submitted_at)])) +
+    '<div class="ld-note" style="margin-top:14px">এনআইডির কপি ও ব্যক্তিগত তথ্য গোপনীয়। এই প্রোফাইল দেখা হলে তা রেকর্ড করা হয়।</div>';
+  ov.innerHTML = '<div class="ld-box">' + head + body + '</div>';
+  ov.querySelectorAll('img[data-digi-doc]').forEach(img => {
+    const path = img.getAttribute('data-digi-doc');
+    const bucket = img.getAttribute('data-digi-bucket') || 'nid-docs';
+    digiDocUrl(path, bucket).then(u => {
+      const ph = img.parentElement && img.parentElement.querySelector('.digi-ph');
+      if (ph) ph.remove();
+      if (u) img.src = u;
+      else img.replaceWith(Object.assign(document.createElement('div'), { className: 'ld-note', textContent: 'ছবি খোলা যায়নি' }));
+    });
+  });
 }
 
 async function loanActDetail(kind, id) {
@@ -4321,7 +4532,7 @@ function pcPaintSel() {
 
   if (!_pcSel) {
     clr.style.display = 'none';
-    note.textContent = 'কার্ডে ক্লিক করলে সেটি নির্বাচিত হয়। ভেতরের আমানত / দান / ঋণ ঘরে ক্লিক করলে সেই ক্যাটাগরির ব্যালেন্স হাইলাইট হয় — একই ইউজারকে একাধিক ক্যাটাগরির জন্যও বেছে নেওয়া যায়।';
+    note.textContent = 'কার্ডের ফাঁকা অংশে ক্লিক করলে সদস্যের ডিজিটাল প্রোফাইল খোলে। ভেতরের আমানত / দান / ঋণ ঘরে ক্লিক করলে সেই ক্যাটাগরির ব্যালেন্স হাইলাইট হয় — একই ইউজারকে একাধিক ক্যাটাগরির জন্যও বেছে নেওয়া যায়।';
     return;
   }
   clr.style.display = '';
@@ -4384,7 +4595,8 @@ async function loadCards(cat, btn) {
           return;
         }
         const box = ev.target.closest('.kh-pc-stat');
-        const c   = box ? box.getAttribute('data-kh-cat') : _pcCat;
+        if (!box) { openMemberDigital(id); return; }   /* কার্ডের ফাঁকা অংশ → সদস্যের ডিজিটাল প্রোফাইল */
+        const c   = box.getAttribute('data-kh-cat');
         /* একই ঘরে আবার ক্লিক করলে নির্বাচন উঠে যায় */
         _pcSel = (_pcSel && _pcSel.id === id && _pcSel.cat === c) ? null : { id, cat: c };
         pcPaintSel();
