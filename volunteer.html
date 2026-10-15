@@ -155,6 +155,22 @@
       .nav-item > .nav-link { height: auto; }
     }
 
+    /* Tablet/mobile: মেগা-মেনু ট্যাপে খোলে, সব সাব-মেনু সোজা তালিকায় দেখা যায় */
+    @media (max-width: 1023px) {
+      .nav-item.open > .mega-menu { display:block !important; position:static; transform:none; min-width:0; width:100%; box-shadow:none; border-top:0; border-radius:0; background:transparent; overflow:visible; animation:none; }
+      .nav-item.open > .mega-menu .mega-inner { display:block; min-height:0; }
+      .nav-item.open > .mega-menu .mega-l { display:none; }
+      .nav-item.open > .mega-menu .mega-r { padding:2px 16px 10px 26px; }
+      .nav-item.open > .mega-menu .mega-panel { display:block; }
+      .nav-item.open > .mega-menu .mega-sep { display:none; }
+      .nav-item.open > .mega-menu .mega-r-header { color:var(--gold); padding:8px 0 4px; }
+      .nav-item.open > .mega-menu .mega-rl { color:#fff; padding:8px 4px; }
+      .nav-item.open > .mega-menu .mega-rl-title { color:#fff; }
+      .nav-item.open > .mega-menu .mega-rl-desc { color:rgba(255,255,255,.7); }
+      .nav-item.open > .mega-menu .mega-rl i { color:var(--gold); }
+      .nav-item.open > .mega-menu .mega-rl:hover { background:rgba(255,255,255,.06); }
+    }
+
     /* ═══════════════════════════════════════
        NAVIGATION
     ═══════════════════════════════════════ */
@@ -1797,7 +1813,7 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
 <script>function toggleMenu(){var l=document.querySelector(".nav-links"),b=document.querySelector(".nav-hamburger");if(!l||!b)return;l.classList.toggle("open");b.classList.toggle("active");}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=68"></script>
+<script src="kh-ui.js?v=69"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
 <script src="kh-volunteer.js?v=3" defer></script>
@@ -2222,6 +2238,49 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
     document.addEventListener('khlangchange', function () { renderAll(); });
   }
   init();
+})();
+</script>
+<script>
+  // ─── MEGA MENU (ডেস্কটপ: হোভার · মোবাইল: ট্যাপ) ───
+  (function(){
+    var mq = window.matchMedia('(max-width: 1023px)');
+    var items = document.querySelectorAll('.nav-item');
+    items.forEach(function(item){
+      var closeTimer;
+      function openMenu(){ if (mq.matches) return; clearTimeout(closeTimer); item.classList.add('open'); }
+      function scheduleClose(){ if (mq.matches) return; closeTimer = setTimeout(function(){ item.classList.remove('open'); }, 120); }
+      item.addEventListener('mouseenter', openMenu);
+      item.addEventListener('mouseleave', scheduleClose);
+      item.querySelectorAll('.mega-l1').forEach(function(l1){
+        l1.addEventListener('mouseenter', function(){
+          var panelId = l1.getAttribute('data-panel');
+          if(!panelId) return;
+          item.querySelectorAll('.mega-l1').forEach(function(x){ x.classList.remove('active'); });
+          item.querySelectorAll('.mega-panel').forEach(function(x){ x.classList.remove('active'); });
+          l1.classList.add('active');
+          var panel = item.querySelector('#'+panelId);
+          if(panel) panel.classList.add('active');
+        });
+      });
+    });
+  })();
+
+/* ── মোবাইল মেগা-মেনু: মূল লিংকে ট্যাপ = সাব-মেনু খোলা/বন্ধ (পেজে চলে যাবে না) ── */
+(function(){
+  var mq = window.matchMedia('(max-width: 1023px)');
+  var items = document.querySelectorAll('.nav-item');
+  items.forEach(function(item){
+    var a = item.querySelector('.nav-link');
+    if (!a || !item.querySelector('.mega-menu')) return;
+    a.addEventListener('click', function(e){
+      if (!mq.matches) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      var open = !item.classList.contains('open');
+      items.forEach(function(x){ x.classList.remove('open'); });
+      item.classList.toggle('open', open);
+    }, true);
+  });
 })();
 </script>
 </body>
