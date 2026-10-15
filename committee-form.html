@@ -378,7 +378,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=65">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=67"></script>
+<script src="kh-ui.js?v=68"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -705,7 +705,8 @@
       if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
       el(stId).innerHTML = 'আপলোড হচ্ছে…';
       try{
-        var f = await shrink(file, key === 'photo' ? 900 : 1800);
+        var f = key === 'photo' ? await shrink(file, 900)
+          : ((window.KHUI && KHUI.nidPrepare) ? await KHUI.nidPrepare(file) : await shrink(file, 1800));
         var path = await upload(BUCKET[key], folder, key, f);
         DOCS[key] = path;
         if(!ME) BUCKET[key] = 'committee-docs';      /* প্রিভিউ ঠিক বাকেট থেকে আসবে */

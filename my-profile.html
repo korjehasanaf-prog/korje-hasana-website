@@ -293,6 +293,11 @@
       <div class="nidprev" id="nidBackPrev"></div>
     </div>
 
+    <div class="nidlog" id="nidLogBox" style="display:none;margin-top:14px">
+      <div class="nidside-t"><i class="ti ti-history"></i> এনআইডি নথির রেকর্ড <span class="nidst">সর্বশেষ ১০টি ঘটনা</span></div>
+      <div id="nidLogList" style="font-size:13px;line-height:1.8;opacity:.9"></div>
+    </div>
+
     <div class="upnote">ছবি বা PDF · শুধুমাত্র আপনি ও অ্যাডমিন দেখতে পারবেন · এনআইডির তথ্য (নাম, জন্ম তারিখ, পিতা/মাতার নাম, নম্বর) উপরের ঘরে নিজে লিখুন</div>
 
   </div>
@@ -327,7 +332,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=65">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=67"></script>
+<script src="kh-ui.js?v=68"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -550,6 +555,28 @@
       showNidPreview('nidBackPrev', prof.nid_back_url);
     }
 
+    /* এনআইডি নথির রেকর্ড — কখন আপলোড/মোছা/দেখা হয়েছে (অ্যাডমিন হলে "প্রশাসক", নাম নয়) */
+    var NID_ACT = { upload:'আপলোড', view:'দেখা হয়েছে', delete:'মুছে ফেলা হয়েছে', integrity_fail:'নিরাপত্তা যাচাই ব্যর্থ' };
+    var NID_DOC = { nid:'এনআইডি', consent:'সম্মতিপত্র' };
+    function nidEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    async function loadNidLog(){
+      var box = el('nidLogBox'), list = el('nidLogList');
+      if(!box || !list) return;
+      if(!prof.nid_url && !prof.nid_back_url){ box.style.display = 'none'; return; }
+      try{
+        var r = await sb().rpc('my_nid_access_log', { p_limit: 10 });
+        if(r.error) throw r.error;
+        var rows = r.data || [];
+        list.innerHTML = rows.length ? rows.map(function(x){
+          var when = new Date(x.created_at).toLocaleString('bn-BD', { dateStyle:'medium', timeStyle:'short' });
+          return '<div>' + nidEsc(when) + ' · ' + nidEsc(NID_ACT[x.action] || x.action) + ' · ' +
+                 nidEsc(NID_DOC[x.doc_kind] || x.doc_kind) + ' · ' + nidEsc(x.actor_label) + '</div>';
+        }).join('') : '<div>এখনও কোনো ঘটনা নেই।</div>';
+        box.style.display = '';
+      }catch(e){ box.style.display = 'none'; }
+    }
+    loadNidLog();
+
     /* নতুন প্রোফাইল হলে মোবাইল ঘর খোলা রাখতে হবে (তৈরি করতে লাগে) */
     if (isNew) {
       el('fMob').removeAttribute('readonly');
@@ -606,11 +633,12 @@
     /* ক্যামেরা ও গ্যালারি — দুটোই একই প্রক্রিয়ায় যায় */
     async function handleNidFile(f){
       if(!f) return;
-      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
       lastNidFile = f;
-      msg('ok','এনআইডি আপলোড হচ্ছে…');
+      msg('ok','এনআইডি প্রস্তুত করা হচ্ছে…');
       try{
-        var path = await saveNid(f, 'front');
+        var prep = await KHUI.nidPrepare(f);
+        msg('ok','এনআইডি আপলোড হচ্ছে…');
+        var path = await saveNid(prep, 'front');
         var r = KHUI.drive.isRef(path)
           ? await sb().rpc('set_my_doc_urls', { p_nid_front: path })
           : await sb().rpc('update_my_profile', { p_nid_url: path });
@@ -619,10 +647,11 @@
         el('nidView').style.display='';
         prof.nid_url = path;
         showNidPreview('nidPrev', path);
+        loadNidLog();
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডি কপি সংরক্ষণ হয়েছে (গোপনীয়)।');
-      }catch(e){ msg('err','এনআইডি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+      }catch(e){ msg('err', e && e.userMsg ? e.message : 'এনআইডি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     }
 
     el('nidFile').addEventListener('change', function(){ handleNidFile(this.files[0]); this.value=''; });
@@ -646,10 +675,11 @@
     /* ── এনআইডির পিছনের পাতা ── */
     async function handleNidBack(f){
       if(!f) return;
-      if(f.size > 5*1024*1024){ msg('err','ফাইলটি ৫ MB-এর বেশি। ছোট ছবি দিন।'); return; }
-      msg('ok','পিছনের পাতা আপলোড হচ্ছে…');
+      msg('ok','পিছনের পাতা প্রস্তুত করা হচ্ছে…');
       try{
-        var path = await saveNid(f, 'back');
+        var prep = await KHUI.nidPrepare(f);
+        msg('ok','পিছনের পাতা আপলোড হচ্ছে…');
+        var path = await saveNid(prep, 'back');
         var r = KHUI.drive.isRef(path)
           ? await sb().rpc('set_my_doc_urls', { p_nid_back: path })
           : await sb().rpc('update_my_profile', { p_nid_back_url: path });
@@ -658,10 +688,11 @@
         el('nidBackView').style.display='';
         prof.nid_back_url = path;
         showNidPreview('nidBackPrev', path);
+        loadNidLog();
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','এনআইডির পিছনের পাতা সংরক্ষণ হয়েছে (গোপনীয়)।');
-      }catch(e){ msg('err','পিছনের পাতা আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+      }catch(e){ msg('err', e && e.userMsg ? e.message : 'পিছনের পাতা আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
     }
 
     el('nidBackFile').addEventListener('change', function(){ handleNidBack(this.files[0]); this.value=''; });

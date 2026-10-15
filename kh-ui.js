@@ -1452,7 +1452,9 @@
         var h = Math.max(1, Math.round(im.height * scale));
         var cv = document.createElement('canvas');
         cv.width = w; cv.height = h;
-        cv.getContext('2d').drawImage(im, 0, 0, w, h);
+        var cx = cv.getContext('2d');
+        cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);   /* স্বচ্ছ PNG → সাদা (JPEG-এ কালো না হয়) */
+        cx.drawImage(im, 0, 0, w, h);
         return _canvasBlob(cv, Q[i]).then(function (b) {
           if (b && b.size <= maxBytes) return b;
           return step(i + 1, Math.round(dim * 0.8));
@@ -2860,6 +2862,18 @@
      upload() null দেয় — ডাকার কোড তখন আগের Supabase Storage পথে নামে। */
   var DRV_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1/kh-drive';
   var drvBlobCache = {};
+  /* ব্যবহারকারীকে দেখানোর মতো বার্তা (kh-drive-এর কারণ-কোড → বাংলা) */
+  var DRV_REASON = {
+    login: 'আগে লগইন করুন',
+    bad_content: 'ফাইলের ভেতরের ধরন মেলে না — শুধু JPG, PNG, WEBP ছবি বা PDF দিন',
+    bad_type: 'শুধু ছবি বা PDF দেওয়া যাবে',
+    size: 'ফাইলটি অনেক বড় — ছোট করে আবার দিন',
+    limit: 'এই আমন্ত্রণে নথি আপলোডের সীমা শেষ হয়েছে',
+    integrity: 'ফাইলের নিরাপত্তা-যাচাই ব্যর্থ হয়েছে — অ্যাডমিনকে জানান',
+    audit: 'নিরাপত্তা-রেকর্ড লেখা যায়নি — একটু পরে আবার চেষ্টা করুন',
+    forbidden: 'এই নথিতে আপনার অনুমতি নেই'
+  };
+  function drvErr(m) { var e = new Error(m); e.userMsg = true; return e; }
   function drvB64(blob) {
     return new Promise(function (res, rej) {
       var fr = new FileReader();
@@ -2892,14 +2906,14 @@
             invite_token: opts.invite || undefined, replace_id: opts.replace || undefined
           })
         });
-        if (r.status === 503) return null;
-        var j = await r.json();
+        if (r.status === 503) return null;               /* কনফিগার নেই → পুরোনো বাকেট পথ */
+        var j = await r.json().catch(function () { return null; });
         if (j && j.ok) return j.ref;
-        if (j && j.reason === 'login') throw new Error('আগে লগইন করুন');
-        return null;
+        /* ড্রাইভ ফাইল বাতিল/ব্যর্থ — নথি চুপচাপ পুরোনো বাকেটে যাবে না (রেকর্ড ভাঙবে না) */
+        throw drvErr((j && DRV_REASON[j.reason]) || 'আপলোড হয়নি — একটু পরে আবার চেষ্টা করুন');
       } catch (e) {
-        if (e && e.message === 'আগে লগইন করুন') throw e;
-        return null;
+        if (e && e.userMsg) throw e;
+        throw drvErr('সংযোগে সমস্যা — একটু পরে আবার চেষ্টা করুন');
       }
     },
     /* দেখার জন্য blob: URL (অনুমতি সার্ভারে যাচাই হয়) */
@@ -2917,6 +2931,25 @@
       try { await fetch(DRV_URL, { method: 'POST', headers: await drvHeaders(), body: JSON.stringify({ action: 'delete', id: ref }) }); } catch (e) {}
       delete drvBlobCache[ref];
     }
+  };
+
+  /* ── এনআইডি ছবি/PDF আপলোডের আগে প্রস্তুত ──
+     ছবি → JPEG (সর্বোচ্চ ১৬০০px, ≤ ১.৫ MB). ক্যানভাসে নতুন করে আঁকা হয় বলে EXIF/GPS তথ্য মুছে যায়।
+     PDF → অপরিবর্তিত, ≤ ৫ MB। অন্য ধরনের ফাইল নেওয়া হয় না। */
+  KHUI.nidPrepare = async function (file) {
+    if (!file) throw drvErr('কোনো ফাইল পাওয়া যায়নি');
+    var name = file.name || '';
+    if (file.type === 'application/pdf' || /\.pdf$/i.test(name)) {
+      if (file.size > 5 * 1024 * 1024) throw drvErr('PDF ৫ MB-এর বেশি — ছোট করে দিন');
+      return new File([file], 'nid.pdf', { type: 'application/pdf' });
+    }
+    var isImg = /^image\//i.test(file.type || '') || /\.(jpe?g|png|webp)$/i.test(name);
+    if (!isImg) throw drvErr('শুধু ছবি (JPG/PNG/WEBP) বা PDF দেওয়া যাবে');
+    if (file.size > 25 * 1024 * 1024) throw drvErr('ছবিটি ২৫ MB-এর বেশি — ছোট করে দিন');
+    var blob;
+    try { blob = await KHUI.compressImage(file, { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 }); }
+    catch (e) { throw drvErr('এই ছবিটি পড়া যায়নি — JPG বা PNG ছবি দিন (iPhone হলে ক্যামেরা সেটিংসে "Most Compatible" বেছে নিন)'); }
+    return new File([blob], 'nid.jpg', { type: 'image/jpeg' });
   };
 
   /* ── স্বাক্ষর সংরক্ষণ: ড্রাইভে (না থাকলে বাকেটে) তুলে প্রোফাইলে রেফারেন্স বসানো ── */
