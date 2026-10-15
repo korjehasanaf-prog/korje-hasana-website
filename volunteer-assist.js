@@ -203,7 +203,7 @@
       '<p style="margin-bottom:10px">ধাপ ১: গ্রাহককে ওটিপি পাঠান। ধাপ ২: গ্রাহক যে কোড পাবেন তা নিয়ে যাচাই করুন। ধাপ ৩: আবেদন জমা দিন। গ্রাহকের পাসওয়ার্ড বদলানো থাকতে হবে।</p>' +
       '<form id="vaLoanForm" class="vol-form">' + custSelect('vaLoanCust') +
       '<div class="vol-two"><label>ঋণের ধরন *<select name="loan_type">' + opts([['Agriculture', 'কৃষি'], ['Business', 'ব্যবসা'], ['Education', 'শিক্ষা'], ['Medical', 'চিকিৎসা'], ['Family need', 'পারিবারিক প্রয়োজন'], ['Emergency', 'জরুরি']], 'Business') + '</select></label>' +
-      '<label>পরিমাণ (৳৫,০০০–২,০০,০০০) *<input name="amount" type="number" min="5000" max="200000" step="1" required></label></div>' +
+      '<label>পরিমাণ (৳, সর্বনিম্ন ৳৫,০০০) *<input name="amount" type="number" min="5000" step="1" required></label></div>' +
       '<div class="vol-two"><label>মেয়াদ (মাস) *<input name="duration" type="number" min="1" max="60" required></label>' +
       '<label>কিস্তির ধরন *<select name="installment_kind">' + opts([['monthly', 'মাসিক'], ['biweekly', 'পাক্ষিক'], ['weekly', 'সাপ্তাহিক']], 'monthly') + '</select></label></div>' +
       '<div class="vol-two"><label>প্রথম কিস্তির তারিখ *<input name="first_installment_date" type="date" required></label>' +
