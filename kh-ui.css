@@ -3211,7 +3211,7 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 .kh-bot-panel {
   position: fixed; right: 20px; bottom: 168px; z-index: 9401;
   width: 366px; max-width: calc(100vw - 28px);
-  height: 540px; max-height: calc(100vh - 210px);
+  height: 600px; max-height: calc(100vh - 210px);
   display: none; flex-direction: column; overflow: hidden;
   background: #fff; border-radius: 20px;
   box-shadow: 0 26px 70px rgba(36, 21, 57, .4);
@@ -3312,8 +3312,11 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 
 /* ── বার্তা ── */
 .kh-bot-body {
-  flex: 1; overflow-y: auto; padding: 14px; background: #faf7fd;
+  flex: 1; min-height: 0; overflow-y: auto; padding: 14px; background: #faf7fd;
   display: flex; flex-direction: column; gap: 10px;
+  /* স্ক্রল যেন পেছনের পেজে না গড়ায় ও টাচে (আঙুল দিয়ে টানা) সহজে চলে —
+     লম্বা উত্তর উপর থেকে পড়ার জন্য */
+  overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
 .kh-bot-msg {
   max-width: 86%; padding: 10px 13px; border-radius: 14px;
@@ -3336,7 +3339,7 @@ html[data-theme="light"] .kh-stats-foot { color: #5b5170; }
 @keyframes khBotDot { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
 
 /* প্রস্তাবিত প্রশ্ন */
-.kh-bot-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; background: #faf7fd; }
+.kh-bot-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; background: #faf7fd; flex-shrink: 0; }
 .kh-bot-chip {
   background: #fff; border: 1px solid #ddd0ee; color: #4a3a80;
   border-radius: 999px; padding: 7px 12px; font-family: inherit;
@@ -3574,6 +3577,28 @@ body.kh-stm-lock { overflow: hidden; }
 }
 .kh-stm-cap[hidden] { display: none; }
 .kh-stm-cap b { display: block; font-size: 11.5px; font-weight: 700; color: #ffcf70; margin-bottom: 2px; }
+
+/* ভাষা নির্বাচন — Speak to Me-র আগের পর্দা (বাংলা ও English) */
+.kh-stm.kh-stm-pick { z-index: 10061; }
+.kh-stm-pickcard {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  max-width: 380px; text-align: center; padding: 0 8px;
+}
+.kh-stm-pq {
+  margin: 0; font: 700 21px/1.5 'Hind Siliguri', system-ui, sans-serif; color: #fff;   /* ১৮:১ */
+}
+.kh-stm-pq-en {
+  margin: 0 0 14px; font: 600 16px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #e7dcf7;
+}
+.kh-stm-pickbtns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.kh-stm-pickbtn {
+  min-width: 150px; min-height: 60px; padding: 0 24px; border: none; border-radius: 18px; cursor: pointer;
+  background: linear-gradient(135deg, #7048e8, #a021c9); color: #fff;                    /* ৫.৮:১ */
+  font: 700 18px/1 'Hind Siliguri', system-ui, sans-serif;
+  box-shadow: 0 10px 28px -10px rgba(160, 33, 201, .7);
+}
+.kh-stm-pickbtn:hover { filter: brightness(1.08); }
+.kh-stm-pickbtn:focus-visible { outline: 3px solid #ffcf70; outline-offset: 3px; }
 
 /* লগইনের দেয়াল */
 .kh-stm-gate {
