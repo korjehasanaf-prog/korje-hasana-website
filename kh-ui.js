@@ -3841,7 +3841,19 @@
       d.className = 'kh-bot-msg ' + (kind || 'bot');
       d.textContent = text;
       body.appendChild(d);
-      body.scrollTop = body.scrollHeight;
+      if (kind === 'bot') {
+        /* উত্তর এলে তার **শুরু** দেখানো হয়, শেষ নয় — লম্বা উত্তরের প্রথম
+           লাইন ও প্রশ্নটি যেন চোখের সামনে থাকে। বাকিটুকু নিচে টেনে পড়া যায়।
+           (getBoundingClientRect — offsetParent-এর ওপর নির্ভর নয়) */
+        /* প্রশ্নটি (ঠিক আগের বার্তা) উপরে থাকে, উত্তর তার নিচে — প্রশ্ন ও উত্তরের শুরু একসাথে */
+        var anchor = d;
+        var prev = d.previousElementSibling;
+        if (prev && prev.classList.contains('me')) anchor = prev;
+        var top = anchor.getBoundingClientRect().top - body.getBoundingClientRect().top;
+        body.scrollTop = Math.max(0, body.scrollTop + top - 8);
+      } else {
+        body.scrollTop = body.scrollHeight;   /* প্রশ্ন/ত্রুটি: নিচে */
+      }
       return d;
     }
 
@@ -4543,6 +4555,36 @@
       stm.cap.hidden = !(stm.cc || force) || !text;   /* force — কণ্ঠ না চললে উত্তর যেন হারিয়ে না যায় */
     }
 
+    /* ══ 🪧 বাক্য ধরে লেখা — কণ্ঠের সাথে তাল মিলিয়ে, একবারে এক বাক্য ══════════
+       উত্তর একটি অডিও-অনুরোধে আসে (কণ্ঠের সুর এক রাখতে), তাই বাক্যগুলো আলাদা আসে
+       না। অডিওর দৈর্ঘ্যকে বাক্যের অক্ষর-অনুপাতে ভাগ করে প্রতিটি বাক্য তার সময়ে
+       দেখানো হয় — পুরো উত্তর কখনো একসাথে পর্দায় আসে না। */
+    var stmCapTimers = [];
+    function stmCapClear() {
+      stmCapTimers.forEach(function (t) { clearTimeout(t); });
+      stmCapTimers = [];
+      if (stm) stmCaption('', '');
+    }
+    function stmCapTimeline(text, dur) {
+      stmCapClear();
+      if (!stm) return;
+      var id = stm.id;
+      var clean = ttsClean(text) || text;
+      var sents = (clean.match(/[^।.!?]+[।.!?]*/g) || [clean])
+        .map(function (s) { return s.trim(); }).filter(Boolean);
+      var total = 0;
+      sents.forEach(function (s) { total += s.length; });
+      if (!total) return;
+      if (!(dur > 0)) dur = Math.max(2, total / 12);     /* সময় না জানা গেলে আনুমানিক */
+      var at = 0;
+      sents.forEach(function (s, k) {
+        var show = function () { if (stmAlive(id)) stmCaption('হাসানা', s); };
+        if (k === 0) show();
+        else stmCapTimers.push(setTimeout(show, at * dur * 1000));
+        at += s.length / total;
+      });
+    }
+
     function paintStmMic() {
       if (!stm) return;
       var on = !stm.paused;
@@ -4557,6 +4599,7 @@
     /* বলা — মুখের ক্লিপ বাক্যে বাক্যে নড়ে ও থামে */
     function stmSay(text, mood, gesture, done) {
       if (!stm) return;
+      stmCapClear();
       var id = stm.id;
       stm.mood = STM_MOODS[mood] ? mood : 'neutral';
       stm.stage.setAttribute('data-mood', stm.mood);
@@ -4592,6 +4635,7 @@
         stm.el.classList.remove('is-talking');
         if (stm.face) { stm.face.level(-1); stm.face.talk(false); }
         if (/^talk/.test(stm.state) || (stmClips && stm.state === 'idle')) stmShow('idle', { fast: true });
+        stmCapClear();
         if (done) done(ok);
       }
       function playFrom(i) {
@@ -4607,8 +4651,8 @@
               reqs[i] = stmTtsFetch(parts[i]); reqs[i].retried = true;
               playFrom(i); return;
             }
-            if (started) { stmCaption('হাসানা', text, true); finish(true); return; }
-            stmBrowserSay(parts.join(' '), id, done);
+            if (started) { stmCapClear(); finish(true); return; }
+            stmBrowserSay(parts.join(' '), id, function (ok) { stmCapClear(); if (done) done(ok); });
             return;
           }
           var first = !started;
@@ -4616,7 +4660,6 @@
             started = true;
             stm.el.classList.add('is-talking');
             if (stm.face) stm.face.talk(true);
-            stmCaption('হাসানা', text);
             if (!/^talk/.test(stm.state)) stmShow(stmTalkState(), { fast: true });
           }
           /* ⚠️ সেশন ১১ — শব্দ ও ঠোঁট একসাথে শুরু: কথা বলার ক্লিপটি সত্যিই চলা শুরু
@@ -4629,7 +4672,7 @@
             stmPlay(buf, id, function () {
               if (stm && stm.face) stm.face.level(0);   /* টুকরোর মাঝে মুখ বন্ধ */
               playFrom(i + 1);
-            });
+            }, function () { if (stmAlive(id)) stmCapTimeline(text, buf.duration); });
           });
         });
       }
@@ -4734,7 +4777,7 @@
     }
     /* বাজানো + প্রতি ফ্রেমে জোর মাপা → ঠোঁট। জোরের সীমা নিজে থেকে মানিয়ে নেয়
        (নরম ও জোরে দুই রকম বাক্যেই মুখ পুরো খোলে-বন্ধ হয়)। */
-    function stmPlay(buf, id, onEnd) {
+    function stmPlay(buf, id, onEnd, onStart) {
       var ac = stm.ac;
       stmStopAudio();
       var src = ac.createBufferSource();
@@ -4775,6 +4818,7 @@
       var quietAt = 0, loudAt = 0;
       src.onended = function () { fin(true); };
       try { src.start(); } catch (e) { fin(false); return; }
+      if (onStart) onStart();
       requestAnimationFrame(loop);
     }
 
@@ -4961,11 +5005,9 @@
       t = (t || '').trim();
       if (t) {
         stm.empty = 0;
-        if (lang === 'en' || lang === 'bn') {
-          stm.lang = lang;
-          try { localStorage.setItem('kh_stm_lang', lang); } catch (e) {}
-          stm.el.setAttribute('lang', lang);
-        }
+        /* ভাষা Speak to Me-র শুরুতে দর্শক নিজে বেছে নেন — বট সেটিতেই কথা বলে;
+           শোনার সময় ধরা ভাষা (lang) সেটি বদলায় না */
+        void lang;
         stmCaption(stm.lang === 'en' ? 'You' : 'আপনি', t);
         paintStmMic();
         stmAsk(t);
@@ -5106,7 +5148,7 @@
       try { stm.gate.querySelector('a').focus(); } catch (e) {}
     }
 
-    async function openStm() {
+    async function openStm(forced) {
       if (stm) return;
       /* চ্যাট প্যানেলের মাইক ও কণ্ঠ থামানো — দুটি মাইক একসাথে নয় */
       stopListen();
@@ -5148,8 +5190,9 @@
       document.body.appendChild(el);
       document.body.classList.add('kh-stm-lock');
 
-      var cc = false;
-      try { cc = localStorage.getItem('kh_stm_cc') === '1'; } catch (e) {}
+      /* লেখা (বাক্য ধরে) ডিফল্টে চালু — বট যা বলছে তার বাক্যটুকু নিচে; 'লেখা' বোতামে বন্ধ করা যায় */
+      var cc = true;
+      try { var ccv = localStorage.getItem('kh_stm_cc'); if (ccv !== null) cc = ccv === '1'; } catch (e) {}
       stm = {
         id: ++stmSeq, el: el,
         stage: el.querySelector('.kh-stm-stage'),
@@ -5164,7 +5207,7 @@
         micB: el.querySelector('.kh-stm-mic'),
         ccB: el.querySelector('.kh-stm-cc'),
         cc: cc, paused: false, listening: false, speaking: false, busy: false, empty: 0,
-        lang: (function () { try { return localStorage.getItem('kh_stm_lang') === 'en' ? 'en' : 'bn'; } catch (e) { return 'bn'; } })()
+        lang: (forced === 'en' || forced === 'bn') ? forced : (function () { try { return localStorage.getItem('kh_stm_lang') === 'en' ? 'en' : 'bn'; } catch (e) { return 'bn'; } })()
       };
       var id = stm.id;
       stmAudio();            /* ⚠️ ক্লিকের মধ্যেই — পরে খুললে ব্রাউজার শব্দ আটকে দেয় */
@@ -5238,6 +5281,50 @@
         });
     }
 
+    /* ══ 🌐 ভাষা নির্বাচন — Speak to Me খোলার আগে ══════════════════════════
+       দর্শককে আগে জিজ্ঞেস করা হয় কোন ভাষায় কথা বলতে চান (বাংলা / English)।
+       বেছে নেওয়া ভাষায় বট কথা বলে ও শোনা হয়। প্রশ্নটি দুই ভাষাতেই। */
+    function openStmPicker() {
+      if (stm || document.querySelector('.kh-stm-pick')) return;
+      var pk = document.createElement('div');
+      pk.className = 'kh-stm kh-stm-pick';
+      pk.setAttribute('role', 'dialog');
+      pk.setAttribute('aria-modal', 'true');
+      pk.setAttribute('aria-label', 'ভাষা নির্বাচন · Choose language');
+      pk.innerHTML =
+        '<div class="kh-stm-bg" aria-hidden="true"></div>' +
+        '<div class="kh-stm-top">' +
+          '<span class="kh-stm-badge">হাসানা</span>' +
+          '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন · Close"><i class="ti ti-x" aria-hidden="true"></i></button>' +
+        '</div>' +
+        '<div class="kh-stm-pickcard">' +
+          '<p class="kh-stm-pq" lang="bn">আপনি কোন ভাষায় কথা বলতে চান?</p>' +
+          '<p class="kh-stm-pq-en" lang="en">Which language would you like to speak in?</p>' +
+          '<div class="kh-stm-pickbtns">' +
+            '<button type="button" class="kh-stm-pickbtn" data-lang="bn" lang="bn">বাংলা</button>' +
+            '<button type="button" class="kh-stm-pickbtn" data-lang="en" lang="en">English</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(pk);
+      document.body.classList.add('kh-stm-lock');
+      function shut() {
+        pk.remove();
+        document.body.classList.remove('kh-stm-lock');
+        try { stmB.focus(); } catch (e) {}
+      }
+      pk.querySelector('.kh-stm-x').onclick = shut;
+      pk.querySelectorAll('.kh-stm-pickbtn').forEach(function (b) {
+        b.onclick = function () {
+          var l = b.getAttribute('data-lang') === 'en' ? 'en' : 'bn';
+          try { localStorage.setItem('kh_stm_lang', l); } catch (e) {}
+          pk.remove();
+          document.body.classList.remove('kh-stm-lock');
+          openStm(l);       /* ⚠️ ক্লিকের মধ্যেই — AudioContext এখানেই খোলে */
+        };
+      });
+      setTimeout(function () { try { pk.querySelector('.kh-stm-pickbtn').focus(); } catch (e) {} }, 60);
+    }
+
     function closeStm() {
       if (!stm) return;
       var s = stm;
@@ -5245,6 +5332,7 @@
       s.vadStop = null;
       stmMicOff(s);                                /* মাইক সম্পূর্ণ বন্ধ — ট্যাবে লাল বিন্দু থাকে না */
       if (s.ac) { try { s.ac.close(); } catch (e) {} }
+      stmCapClear();
       stm = null;                                  /* সব কলব্যাক এখানেই থামে */
       speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
       talking(false);
@@ -5404,7 +5492,7 @@
       /* 🧕 Speak to Me — শোনা ও বলা দুটোই লাগে, তাই কেবল দুটো থাকলেই */
       if ('speechSynthesis' in window) {
         panel.querySelector('.kh-bot-stmrow').hidden = false;
-        stmB.onclick = function () { openStm(); };
+        stmB.onclick = function () { openStmPicker(); };
       }
     }
 
