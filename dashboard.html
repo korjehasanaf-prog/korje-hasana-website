@@ -382,7 +382,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 
       <div class="sb-section">প্রোডাক্ট ড্যাশবোর্ড</div>
       <div class="sb-item" id="mi-prod-savings" onclick="switchPanel('prod-savings')">
-        <i class="ti ti-pig-money"></i> আমানত (সঞ্চয়)
+        <i class="ti ti-coins"></i> আমানত (সঞ্চয়)
       </div>
       <div class="sb-item" id="mi-prod-loans" onclick="switchPanel('prod-loans')">
         <i class="ti ti-wallet"></i> ঋণ (কর্জে হাসানা)
@@ -396,7 +396,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <i class="ti ti-cash"></i> সরাসরি দান এন্ট্রি
       </div>
       <div class="sb-item" id="mi-savings-entry" onclick="switchPanel('savings-entry')">
-        <i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি
+        <i class="ti ti-coins"></i> সঞ্চয় জমা এন্ট্রি
       </div>
       <div class="sb-item" id="mi-installment" onclick="switchPanel('installment')">
         <i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি
@@ -1349,7 +1349,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
             <div style="font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">অ্যাক্সেস পারমিশন</div>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="permGrid">
               <label class="perm-item"><input type="checkbox" name="perm" value="cash_donation"><span><i class="ti ti-cash"></i> সরাসরি দান এন্ট্রি</span></label>
-              <label class="perm-item"><input type="checkbox" name="perm" value="savings_entry"><span><i class="ti ti-piggy-bank"></i> সঞ্চয় জমা এন্ট্রি</span></label>
+              <label class="perm-item"><input type="checkbox" name="perm" value="savings_entry"><span><i class="ti ti-coins"></i> সঞ্চয় জমা এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="installment"><span><i class="ti ti-calendar-dollar"></i> কিস্তি এন্ট্রি</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="expense"><span><i class="ti ti-receipt-2"></i> তহবিল ও খরচ</span></label>
               <label class="perm-item"><input type="checkbox" name="perm" value="loan_approve"><span><i class="ti ti-file-check"></i> ঋণ আবেদন অনুমোদন</span></label>
@@ -2531,7 +2531,7 @@ function rpCardsHTML(s) {
     card('rp-c1', 'ti-heart', 'দান (নিশ্চিত)', rpTk(d.amount),
       KHUI.bn(d.count || 0) + 'টি লেনদেন · অপেক্ষমাণ ' + rpTk(d.pending_amount) +
       ' (' + KHUI.bn(d.pending_count || 0) + ')'),
-    card('rp-c2', 'ti-pig-money', 'সঞ্চয় — নিট জমা',
+    card('rp-c2', 'ti-coins', 'সঞ্চয় — নিট জমা',
       rpTk((sv.deposit_amount || 0) - (sv.withdraw_amount || 0)),
       'জমা ' + rpTk(sv.deposit_amount) + ' · উত্তোলন ' + rpTk(sv.withdraw_amount) +
       '<br>মোট স্থিতি ' + rpTk(s.savings_balance)),
@@ -2618,7 +2618,7 @@ function rpDetailHTML(R) {
       })));
 
   /* ── সঞ্চয় ── */
-  out += rpSec('ti-pig-money', 'সঞ্চয় — বিস্তারিত', capNote,
+  out += rpSec('ti-coins', 'সঞ্চয় — বিস্তারিত', capNote,
     '<div class="rp-grid2" style="margin-bottom:14px">' +
       '<div>' + rpTable(['স্কীম', 'জমা', 'উত্তোলন'],
         (sv.by_scheme || []).map(function (x) {

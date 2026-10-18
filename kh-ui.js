@@ -35,7 +35,7 @@
     { href: 'index.html',            icon: 'ti-home',      label: 'হোম'    },
     { href: 'donation.html',         icon: 'ti-heart',     label: 'দান'    },
     { href: 'loan-application.html', icon: 'ti-wallet',    label: 'ঋণ'     },
-    { href: 'savings-portal.html',   icon: 'ti-pig-money', label: 'সঞ্চয়'  },
+    { href: 'savings-portal.html',   icon: 'ti-coins', label: 'সঞ্চয়'  },
     { href: 'user-login.html',       icon: 'ti-login',     label: 'লগইন'   }
   ];
 
@@ -3338,7 +3338,7 @@
       label: 'রিভলভিং ফান্ড', text: fhTk(hR.balance), sub: 'ঋণের কিস্তি বাবদ আদায় হওয়া টাকা',
       mini: [['আদায়', hR.income], ['খরচ', hR.expense]] });
 
-    cards += card({ topic: 'savingsfund', tone: 'amber', icon: 'ti-pig-money',
+    cards += card({ topic: 'savingsfund', tone: 'amber', icon: 'ti-coins',
       label: 'সঞ্চয় থেকে ঋণযোগ্য — ' + fhPct(rt.savings_lend_pct != null ? rt.savings_lend_pct : hS.pct) + '%',
       text: fhTk(hS.balance),
       sub: 'সঞ্চয় জমার ' + (rt.savings_basis === 'gross' ? 'মোট' : 'নিট') + ' অঙ্কের এই অংশ ঋণে ব্যবহারযোগ্য',
@@ -3449,7 +3449,7 @@
                  sub: stNum(d.count) + 'টি দান · ' + stNum(d.donors) + ' জন দাতা',
                  mini: [['আজ', d.today], ['চলতি মাসে', d.month]] }) +
 
-        stCard({ topic: 'savings', tone: 'amber', icon: 'ti-pig-money',
+        stCard({ topic: 'savings', tone: 'amber', icon: 'ti-coins',
                  label: 'মোট সঞ্চয় জমা', value: sv.deposit,
                  sub: stNum(sv.accounts) + 'টি হিসাব · ' + stNum(sv.members) + ' জন সদস্য',
                  mini: [['উত্তোলন', sv.withdraw], ['স্থিতি', sv.balance]] }) +
