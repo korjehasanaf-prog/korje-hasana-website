@@ -3578,27 +3578,19 @@ body.kh-stm-lock { overflow: hidden; }
 .kh-stm-cap[hidden] { display: none; }
 .kh-stm-cap b { display: block; font-size: 11.5px; font-weight: 700; color: #ffcf70; margin-bottom: 2px; }
 
-/* ভাষা নির্বাচন — Speak to Me-র আগের পর্দা (বাংলা ও English) */
-.kh-stm.kh-stm-pick { z-index: 10061; }
-.kh-stm-pickcard {
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  max-width: 380px; text-align: center; padding: 0 8px;
+/* 🌐 ভাষা টগল — ভিডিও কার্ডের কোণে, মুখ ঢাকে না */
+.kh-stm-lang {
+  position: absolute; top: 12px; right: 12px; z-index: 6;
+  display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px;
+  background: rgba(12, 8, 20, .72); border: 1px solid rgba(255, 255, 255, .18);
 }
-.kh-stm-pq {
-  margin: 0; font: 700 21px/1.5 'Hind Siliguri', system-ui, sans-serif; color: #fff;   /* ১৮:১ */
+.kh-stm-lang button {
+  min-width: 46px; min-height: 32px; padding: 0 10px; border: none; border-radius: 999px; cursor: pointer;
+  background: transparent; color: #f4f0fa;                       /* ১৪:১ */
+  font: 700 12.5px/1 'Hind Siliguri', system-ui, sans-serif;
 }
-.kh-stm-pq-en {
-  margin: 0 0 14px; font: 600 16px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif; color: #e7dcf7;
-}
-.kh-stm-pickbtns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-.kh-stm-pickbtn {
-  min-width: 150px; min-height: 60px; padding: 0 24px; border: none; border-radius: 18px; cursor: pointer;
-  background: linear-gradient(135deg, #7048e8, #a021c9); color: #fff;                    /* ৫.৮:১ */
-  font: 700 18px/1 'Hind Siliguri', system-ui, sans-serif;
-  box-shadow: 0 10px 28px -10px rgba(160, 33, 201, .7);
-}
-.kh-stm-pickbtn:hover { filter: brightness(1.08); }
-.kh-stm-pickbtn:focus-visible { outline: 3px solid #ffcf70; outline-offset: 3px; }
+.kh-stm-lang button.is-on { background: #fff; color: #3b2566; }  /* ১২.৪:১ */
+.kh-stm-lang button:focus-visible { outline: 3px solid #ffcf70; outline-offset: 2px; }
 
 /* লগইনের দেয়াল */
 .kh-stm-gate {

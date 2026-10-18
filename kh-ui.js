@@ -3916,10 +3916,11 @@
 
     /* 🌐 সেশন ৬: দ্বিভাষিক — লেখায় বাংলা হরফ থাকলে 'bn', নাহলে 'en' */
     function textLang(s) { return /[ঀ-৿]/.test(String(s || '')) ? 'bn' : 'en'; }
-    /* শোনার ভাষা — Speak to Me-র বাংলা/English বাটন যা বেছে দেয় (সব মাইকে এক) */
+    /* শোনার ভাষা — Speak to Me-র ভাষা, নাহলে সাইটের ভাষা (সব মাইকে এক) */
     function listenLang() {
       if (window.KH_VOICE_LANG) return window.KH_VOICE_LANG;
-      var l = 'bn'; try { l = localStorage.getItem('kh_stm_lang') || 'bn'; } catch (e) {}
+      /* Speak to Me খোলা থাকলে তার ভাষা (টগল), নাহলে সাইটের ভাষা */
+      var l = stm ? stm.lang : siteLang();
       return l === 'en' ? 'en-US' : 'bn-BD';
     }
     function pickVoice(lang) {
@@ -5168,13 +5169,17 @@
           '<span class="kh-stm-badge">হাসানা</span>' +
           '<button type="button" class="kh-stm-cc" aria-pressed="false" title="যা বলা হচ্ছে তা লেখায় দেখান">' +
             '<i class="ti ti-badge-cc" aria-hidden="true"></i><span>লেখা</span></button>' +
-          /* 🌐 ভাষার বাটন বাদ (সেশন ১১) — প্রশ্ন যে ভাষায়, উত্তর সেই ভাষায় (kh-stt নিজে চেনে) */
+          /* 🌐 ভাষা: ভিডিও কার্ডের কোণের "EN | বাংলা" টগল — সাইটের ভাষা থেকে শুরু, মাঝপথে বদলানো যায় */
           '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
         '</div>' +
         '<div class="kh-stm-stage" data-state="idle" data-mood="neutral">' +
           /* ভিডিওগুলো (প্রতি ক্লিপে একটি) openStm()-এ ক্লিপের তালিকা পেলে বসে */
           '<div class="kh-stm-photo" aria-hidden="true"><span class="kh-av"></span></div>' +
           '<div class="kh-stm-wave" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>' +
+          '<div class="kh-stm-lang" role="group" aria-label="কথার ভাষা · Language">' +
+            '<button type="button" data-l="en" aria-pressed="false">EN</button>' +
+            '<button type="button" data-l="bn" aria-pressed="false">বাংলা</button>' +
+          '</div>' +
           '<div class="kh-stm-cap" hidden><b></b><span></span></div>' +
           '<div class="kh-stm-gate" hidden>' +
             '<i class="ti ti-lock" aria-hidden="true"></i>' +
@@ -5207,7 +5212,8 @@
         micB: el.querySelector('.kh-stm-mic'),
         ccB: el.querySelector('.kh-stm-cc'),
         cc: cc, paused: false, listening: false, speaking: false, busy: false, empty: 0,
-        lang: (forced === 'en' || forced === 'bn') ? forced : (function () { try { return localStorage.getItem('kh_stm_lang') === 'en' ? 'en' : 'bn'; } catch (e) { return 'bn'; } })()
+        lang: (forced === 'en' || forced === 'bn') ? forced : siteLang(),
+        langB: el.querySelectorAll('.kh-stm-lang button')
       };
       var id = stm.id;
       stmAudio();            /* ⚠️ ক্লিকের মধ্যেই — পরে খুললে ব্রাউজার শব্দ আটকে দেয় */
@@ -5226,6 +5232,10 @@
         paintCC();
       };
       el.setAttribute('lang', stm.lang);
+      stm.langB.forEach(function (b) {
+        b.onclick = function () { stmSetLang(b.getAttribute('data-l')); };
+      });
+      paintLang();
       el.querySelector('.kh-stm-x').onclick = closeStm;
       el.querySelector('.kh-stm-end').onclick = closeStm;
       stm.micB.onclick = function () {
@@ -5275,54 +5285,54 @@
         stmShow('idle');
       }
 
+      stm.ready = true;
       stmSay(stm.lang === 'en' ? STM_GREET_EN : STM_GREET,
         'smile', 'greet', function () {
           if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
         });
     }
 
-    /* ══ 🌐 ভাষা নির্বাচন — Speak to Me খোলার আগে ══════════════════════════
-       দর্শককে আগে জিজ্ঞেস করা হয় কোন ভাষায় কথা বলতে চান (বাংলা / English)।
-       বেছে নেওয়া ভাষায় বট কথা বলে ও শোনা হয়। প্রশ্নটি দুই ভাষাতেই। */
-    function openStmPicker() {
-      if (stm || document.querySelector('.kh-stm-pick')) return;
-      var pk = document.createElement('div');
-      pk.className = 'kh-stm kh-stm-pick';
-      pk.setAttribute('role', 'dialog');
-      pk.setAttribute('aria-modal', 'true');
-      pk.setAttribute('aria-label', 'ভাষা নির্বাচন · Choose language');
-      pk.innerHTML =
-        '<div class="kh-stm-bg" aria-hidden="true"></div>' +
-        '<div class="kh-stm-top">' +
-          '<span class="kh-stm-badge">হাসানা</span>' +
-          '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন · Close"><i class="ti ti-x" aria-hidden="true"></i></button>' +
-        '</div>' +
-        '<div class="kh-stm-pickcard">' +
-          '<p class="kh-stm-pq" lang="bn">আপনি কোন ভাষায় কথা বলতে চান?</p>' +
-          '<p class="kh-stm-pq-en" lang="en">Which language would you like to speak in?</p>' +
-          '<div class="kh-stm-pickbtns">' +
-            '<button type="button" class="kh-stm-pickbtn" data-lang="bn" lang="bn">বাংলা</button>' +
-            '<button type="button" class="kh-stm-pickbtn" data-lang="en" lang="en">English</button>' +
-          '</div>' +
-        '</div>';
-      document.body.appendChild(pk);
-      document.body.classList.add('kh-stm-lock');
-      function shut() {
-        pk.remove();
-        document.body.classList.remove('kh-stm-lock');
-        try { stmB.focus(); } catch (e) {}
-      }
-      pk.querySelector('.kh-stm-x').onclick = shut;
-      pk.querySelectorAll('.kh-stm-pickbtn').forEach(function (b) {
-        b.onclick = function () {
-          var l = b.getAttribute('data-lang') === 'en' ? 'en' : 'bn';
-          try { localStorage.setItem('kh_stm_lang', l); } catch (e) {}
-          pk.remove();
-          document.body.classList.remove('kh-stm-lock');
-          openStm(l);       /* ⚠️ ক্লিকের মধ্যেই — AudioContext এখানেই খোলে */
-        };
+    /* 🌐 ভাষা — সাইটের ভাষা থেকে শুরু (kh-i18n: 'kh_lang'); মাঝপথে ভিডিও কার্ডের কোণের
+       "EN | বাংলা" টগলে বদলানো যায়। বট যে ভাষায় কথা বলে, প্রশ্ন শোনাও সেই ভাষায়। */
+    function siteLang() {
+      try {
+        var l = (window.KHI18N && typeof KHI18N.getLang === 'function') ? KHI18N.getLang() : localStorage.getItem('kh_lang');
+        return l === 'bn' ? 'bn' : 'en';
+      } catch (e) { return 'en'; }
+    }
+    function paintLang() {
+      if (!stm || !stm.langB) return;
+      stm.langB.forEach(function (b) {
+        var on = b.getAttribute('data-l') === stm.lang;
+        b.classList.toggle('is-on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      setTimeout(function () { try { pk.querySelector('.kh-stm-pickbtn').focus(); } catch (e) {} }, 60);
+    }
+    /* ভাষা বদলালে: চলমান কথা ও শোনা থামে, অপেক্ষারত উত্তর বাতিল (id বদলালে সেগুলো নিজে
+       থেকে থামে), আর বট নতুন ভাষায় আবার সালাম দেয় — সালামের অডিও আগে থেকে তৈরি, তাই
+       এর জন্য আলাদা সার্ভার-কণ্ঠ লাগে না। সালাম শেষ হওয়ার আগে বদলালে শুধু ভাষা বদলায়। */
+    function stmSetLang(l) {
+      if (!stm) return;
+      l = l === 'en' ? 'en' : 'bn';
+      if (stm.lang === l) return;
+      if (!stm.ready || (stm.gate && !stm.gate.hidden)) {
+        stm.lang = l; stm.el.setAttribute('lang', l); paintLang();
+        return;
+      }
+      speakSeq++; try { speechSynthesis.cancel(); } catch (e) {}
+      stmStopAudio();
+      stmStopListen();
+      if (stm.speaking) { stm.speaking = false; stm.el.classList.remove('is-talking'); if (stm.face) { stm.face.level(-1); stm.face.talk(false); } }
+      stm.id = ++stmSeq;
+      stm.busy = false;
+      stm.lang = l;
+      stm.el.setAttribute('lang', l);
+      paintLang();
+      stmCapClear();
+      var id = stm.id;
+      stmSay(l === 'en' ? STM_GREET_EN : STM_GREET, 'smile', 'greet', function () {
+        if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
+      });
     }
 
     function closeStm() {
@@ -5492,7 +5502,7 @@
       /* 🧕 Speak to Me — শোনা ও বলা দুটোই লাগে, তাই কেবল দুটো থাকলেই */
       if ('speechSynthesis' in window) {
         panel.querySelector('.kh-bot-stmrow').hidden = false;
-        stmB.onclick = function () { openStmPicker(); };
+        stmB.onclick = function () { openStm(); };
       }
     }
 
