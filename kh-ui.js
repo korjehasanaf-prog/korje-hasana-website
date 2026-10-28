@@ -298,7 +298,8 @@
       var val = boxes.map(function (b) { return b.value; }).join('');
       if (val.length < LEN) { reset(); return; }
 
-      function done(ok) {
+      /* why: সার্ভারের দেওয়া কারণ (যেমন "কোডের মেয়াদ শেষ", "আর ৩ বার চেষ্টা করা যাবে") — থাকলে সেটিই দেখায় */
+      function done(ok, why) {
         if (ok) {
           card.classList.remove('kh-bad');
           card.classList.add('kh-ok');
@@ -314,12 +315,13 @@
           card.classList.add('kh-bad');
           glyph.className = 'ti ti-lock-exclamation';
           title.textContent = 'কোড সঠিক নয়';
-          sub.textContent = 'অনুগ্রহ করে আবার চেষ্টা করুন';
+          sub.textContent = why || 'অনুগ্রহ করে আবার চেষ্টা করুন';
           setTimeout(function () {
             boxes.forEach(function (b) { b.value = ''; b.classList.remove('kh-filled'); });
             boxes[0].focus();
             reset();
-            sub.textContent = cfg.subtitle ? cfg.subtitle
+            /* কারণ থাকলে সেটি থেকে যায়, যাতে সদস্য পড়তে পারেন */
+            sub.textContent = why ? why : cfg.subtitle ? cfg.subtitle
               : (masked
                 ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
                 : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন');

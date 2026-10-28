@@ -432,6 +432,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <i class="ti ti-writing-sign"></i> সম্মতিপত্র আবেদন
         <span class="sb-badge" id="badge-committee">0</span>
       </div>
+      <div class="sb-item" id="mi-general-members" onclick="switchPanel('general-members')">
+        <i class="ti ti-users-group"></i> সাধারণ সদস্য
+      </div>
       <div class="sb-item" id="mi-committee-mgmt" onclick="switchPanel('committee-mgmt')">
         <i class="ti ti-sitemap"></i> কমিটি ব্যবস্থাপনা
       </div>
@@ -1390,7 +1393,55 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <button class="filter-pill" onclick="loadCommitteeApps('rejected',this)">বাতিল</button>
           <button class="filter-pill" onclick="loadCommitteeApps('',this)">সব</button>
         </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+          <button class="btn btn-sm" onclick="capDownloadDocs('nid')"
+            style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"><i class="ti ti-id"></i> এনআইডি (ZIP)</button>
+          <button class="btn btn-sm" onclick="capDownloadDocs('photo')"
+            style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"><i class="ti ti-photo"></i> ছবি (ZIP)</button>
+          <span style="width:1px;height:22px;background:rgba(255,255,255,.2);margin:0 4px"></span>
+          <button class="btn btn-sm" onclick="capPrintLists('committee')"><i class="ti ti-printer"></i> কমিটির তালিকা ছাপান</button>
+          <button class="btn btn-sm" onclick="capPrintLists('general')"><i class="ti ti-printer"></i> সাধারণ সদস্যের তালিকা ছাপান</button>
+          <label style="font-size:12.5px;display:inline-flex;gap:5px;align-items:center;color:var(--muted)">
+            <input type="checkbox" id="capLh" checked> লেটারহেডসহ ছাপুন</label>
+          <span style="width:1px;height:22px;background:rgba(255,255,255,.2);margin:0 4px"></span>
+          <button class="btn btn-sm" onclick="capBulkPrepare()"><i class="ti ti-user-plus"></i> অনুমোদিতদের অ্যাকাউন্ট যুক্ত করুন</button>
+          <button class="btn btn-sm" onclick="capBulkEmail()"><i class="ti ti-mail-forward"></i> বাকিদের ভেরিফিকেশন ইমেইল</button>
+          <span id="capDlMsg" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin:-6px 0 14px;line-height:1.7">
+          ডাউনলোড বর্তমানে যে ফিল্টার (যেমন "অনুমোদিত") দেখানো আছে সেই তালিকার জন্য। ছাপানো তালিকায় শুধু অনুমোদিত সদস্যরা থাকেন, এনআইডির নম্বর বা ছবি ছাপা হয় না।
+        </div>
         <div id="capps">লোড হচ্ছে…</div>
+      </div>
+
+      <!-- ══════ কমিটি: সাধারণ সদস্য ══════
+           অনুমোদিত সাধারণ সদস্য + কার্যনির্বাহী কমিটির অনুমোদিত সদস্য (স্বয়ংক্রিয়)। শুধু অ্যাডমিন দেখেন। -->
+      <div class="panel" id="panel-general-members">
+        <div class="panel-title">👥 সাধারণ সদস্য</div>
+        <div class="panel-sub">অনুমোদিত সাধারণ সদস্যদের তালিকা — কার্যনির্বাহী কমিটির অনুমোদিত সদস্যরা স্বয়ংক্রিয়ভাবে এই তালিকায় যুক্ত হন</div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+          <button class="btn btn-primary" onclick="gmInvite()"><i class="ti ti-mail-forward"></i> সাধারণ সদস্য হিসেবে আমন্ত্রণ পাঠান</button>
+          <button class="btn btn-sm" onclick="gmPrint()"><i class="ti ti-printer"></i> তালিকা ছাপান</button>
+          <label style="font-size:12.5px;display:inline-flex;gap:5px;align-items:center;color:var(--muted)">
+            <input type="checkbox" id="gmLh" checked> লেটারহেডসহ ছাপুন</label>
+        </div>
+
+        <div id="gmSummary" style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.8"></div>
+
+        <div class="filter-pills" style="margin-bottom:10px">
+          <button class="filter-pill active" onclick="gmSetFilter('',this)">সব</button>
+          <button class="filter-pill" onclick="gmSetFilter('general',this)">সরাসরি সাধারণ সদস্য</button>
+          <button class="filter-pill" onclick="gmSetFilter('executive',this)">কার্যনির্বাহী কমিটি থেকে</button>
+        </div>
+        <input id="gmQ" placeholder="নাম, মোবাইল বা সদস্য কোড দিয়ে খুঁজুন" oninput="gmRender()"
+          style="width:100%;max-width:420px;margin-bottom:12px">
+
+        <div id="gmList">লোড হচ্ছে…</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.7">
+          ছাপানো তালিকায় সব অনুমোদিত সাধারণ সদস্য থাকেন (ফিল্টার বা খোঁজ ছাপায় প্রভাব ফেলে না)। এনআইডির নম্বর বা ছবি ছাপা হয় না।
+          নতুন সাধারণ সদস্যের আবেদন যাচাই হয় "সম্মতিপত্র আবেদন" অংশে।
+        </div>
       </div>
 
       <!-- ══════ কমিটি ব্যবস্থাপনা ══════ -->
@@ -1411,7 +1462,7 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <div class="section-card" style="margin-bottom:16px">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
             <div class="fg"><label>কমিটি *</label><select id="ivCom" style="width:100%"></select></div>
-            <div class="fg"><label>পদবি *</label><select id="ivPos" style="width:100%"></select></div>
+            <div class="fg"><label>পদবি</label><select id="ivPos" style="width:100%"></select></div>
             <div class="fg"><label>প্রস্তাবিত ব্যক্তির নাম</label><input id="ivName" style="width:100%"></div>
             <div class="fg"><label>হোয়াটসঅ্যাপ / মোবাইল নম্বর *</label><input id="ivMob" inputmode="numeric" placeholder="01XXXXXXXXX" style="width:100%"></div>
             <div class="fg"><label>ই-মেইল ঠিকানা (জানা থাকলে)</label><input id="ivEmail" type="email" placeholder="ঐচ্ছিক" style="width:100%"></div>
@@ -1430,6 +1481,27 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
           <div style="font-size:12px;color:var(--muted);margin-top:9px;line-height:1.8">
             হোয়াটসঅ্যাপ বাটনে চাপলে লিংকসহ বাংলা বার্তা তৈরি হয়ে আপনার হোয়াটসঅ্যাপ খুলে যাবে —
             শুধু "Send" চাপলেই চলে যাবে। ই-মেইলে পাঠাতে ঠিকানা জানা থাকতে হবে।
+          </div>
+        </div>
+
+        <div class="section-card" style="margin-bottom:16px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:6px"><i class="ti ti-users"></i> নিবন্ধিত সদস্যদের মধ্য থেকে বাছাই</div>
+          <div style="font-size:12.5px;color:var(--muted);margin-bottom:10px;line-height:1.7">
+            যারা ইতিমধ্যে সদস্য হিসেবে নিবন্ধিত, তাদের বেছে নিন। উপরের <b>কমিটি</b> ও <b>পদবি</b> অনুযায়ী আমন্ত্রণ যাবে
+            (সাধারণ সদস্য হিসেবে আমন্ত্রণ জানাতে কমিটি হিসেবে "সাধারণ সদস্য" বেছে নিন)। ই-মেইল ছাড়া কাউকে ই-মেইল পাঠানো যাবে না।
+          </div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:10px">
+            <input id="mbQ" placeholder="নাম, মোবাইল, ই-মেইল বা সদস্য কোড" style="flex:1;min-width:220px"
+              onkeydown="if(event.key==='Enter')capMbSearch()">
+            <button class="btn" onclick="capMbSearch()"><i class="ti ti-search"></i> খুঁজুন</button>
+          </div>
+          <div id="mbList"></div>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:10px;align-items:center">
+            <span id="mbCount" style="font-size:12.5px;color:var(--muted);margin-right:auto">নির্বাচিত: ০</span>
+            <button class="btn" onclick="capMbInvite('whatsapp')"
+              style="background:rgba(13,110,86,.2);color:#6ee7b7;border:1px solid rgba(13,110,86,.45)">
+              <i class="ti ti-link"></i> আমন্ত্রণ লিংক তৈরি (হোয়াটসঅ্যাপে পাঠান)</button>
+            <button class="btn btn-primary" onclick="capMbInvite('email')"><i class="ti ti-mail"></i> নির্বাচিতদের ই-মেইলে পাঠান</button>
           </div>
         </div>
 
@@ -1581,6 +1653,7 @@ const PANEL_TITLES = {
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
   'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
   'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ',
+  'general-members':'সাধারণ সদস্য',
   'chat-kb':'চ্যাটবটের জ্ঞানভান্ডার'
 };
 /* ══════════════════════════════════════════════════════
@@ -1659,6 +1732,7 @@ function switchPanel(name) {
   if (name === 'committee-mgmt') loadCommitteeMgmt();
   if (name === 'users') loadUsersList('');
   if (name === 'committee-invite') loadInviteForm();
+  if (name === 'general-members') loadGeneralMembers();
 }
 
 // ════════════════════════════════════════
@@ -4979,6 +5053,135 @@ const CSTAT = {
 };
 let _cappFilter = 'pending';
 
+/* ── কমিটি আবেদন: সম্পূর্ণতা, ডাউনলোড ও ছাপানো (v2) ── */
+let _cappList = [];
+const capMiss = { name_bn:'নাম', father_name:'পিতা/স্বামীর নাম', nid_no:'এনআইডি নম্বর', dob:'জন্ম তারিখ',
+  occupation:'পেশা', mobile:'মোবাইল', district:'জেলা', present_address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
+  photo:'ছবি', nid_front:'এনআইডি সামনে', nid_back:'এনআইডি পিছনে', nominee_name:'নমিনির নাম',
+  nominee_relation:'নমিনির সম্পর্ক', nominee_age:'নমিনির বয়স', nominee_nid:'নমিনির এনআইডি', nominee_photo:'নমিনির ছবি',
+  nominee_nid_front:'নমিনি এনআইডি সামনে', nominee_nid_back:'নমিনি এনআইডি পিছনে', declaration:'ঘোষণায় সম্মতি',
+  email:'ই-মেইল', email_verified:'ইমেইল ভেরিফিকেশন' };
+
+function capSafe(s) { return String(s == null ? '' : s).replace(/[\\\/:*?"<>|\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+function capCompBadge(c) {
+  if (!c) return '';
+  const col = c.percent >= 100 ? 'rgba(13,110,86,.35)' : c.percent >= 60 ? 'rgba(240,140,40,.28)' : 'rgba(214,51,108,.28)';
+  return '<span class="badge" style="background:' + col + '">প্রোফাইল ' + bnYear(c.percent) + '%</span>';
+}
+
+function capCompBar(c) {
+  if (!c) return '';
+  const miss = (c.missing || []).map(function (k) { return capMiss[k] || k; });
+  return '<div style="margin:-2px 0 12px">' +
+    '<div style="height:7px;border-radius:20px;background:rgba(255,255,255,.12);overflow:hidden">' +
+    '<div style="height:100%;width:' + (c.percent || 0) + '%;background:linear-gradient(90deg,#d6336c,#f08c28,#1d9e75)"></div></div>' +
+    (miss.length
+      ? '<div style="font-size:12px;color:#fca5a5;margin-top:6px">বাকি: ' + esc(miss.join(', ')) + '</div>'
+      : '<div style="font-size:12px;color:#6ee7b7;margin-top:6px"><i class="ti ti-check"></i> সব তথ্য ও নথি পূর্ণ</div>') +
+    '</div>';
+}
+
+function capDlBtn(a, label, path, bucket) {
+  const fn = capSafe((a.name_bn || a.name_en || 'নামহীন') + ' - ' + label);
+  return '<button class="btn btn-sm" title="ডাউনলোড" data-path="' + esc(path) + '" data-bucket="' + bucket +
+    '" data-fn="' + esc(fn) + '" onclick="capDlEl(this)" style="background:rgba(112,72,232,.2);color:#c9b5f5;' +
+    'border:1px solid rgba(112,72,232,.45)"><i class="ti ti-download"></i></button>';
+}
+
+/* নথির ব্লব (ড্রাইভ / স্টোরেজ / সরাসরি URL) */
+async function capDocBlob(path, bucket) {
+  let url = null;
+  if (/^https?:/i.test(path)) url = path;
+  else if (window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) url = await KHUI.drive.url(path);
+  else {
+    const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
+    url = r.data && r.data.signedUrl;
+  }
+  if (!url) return null;
+  const res = await fetch(url);
+  return res.ok ? await res.blob() : null;
+}
+
+function capExt(path, blob) {
+  const m = /\.([a-z0-9]{2,4})(?:$|\?)/i.exec(path || '');
+  if (m) { const e = m[1].toLowerCase(); return e === 'jpeg' ? 'jpg' : e; }
+  const t = blob && blob.type ? blob.type.split('/')[1].split(';')[0] : '';
+  return (t || 'jpg').replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+}
+
+function capSave(blob, name) {
+  const u = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = u; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+}
+
+async function capDlEl(btn) {
+  const old = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2"></i>';
+  try {
+    const b = await capDocBlob(btn.dataset.path, btn.dataset.bucket);
+    if (!b) throw new Error('ফাইলটি আনা যায়নি');
+    capSave(b, btn.dataset.fn + '.' + capExt(btn.dataset.path, b));
+  } catch (e) { alert('ডাউনলোড ব্যর্থ: ' + (e.message || '')); }
+  btn.disabled = false; btn.innerHTML = old;
+}
+
+let _capJSZipP = null;
+function capJSZip() {
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  if (!_capJSZipP) _capJSZipP = new Promise(function (res, rej) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = function () { res(window.JSZip); };
+    s.onerror = function () { _capJSZipP = null; rej(new Error('ZIP লাইব্রেরি লোড হয়নি — ইন্টারনেট সংযোগ দেখুন')); };
+    document.head.appendChild(s);
+  });
+  return _capJSZipP;
+}
+
+/* কেবল এনআইডি বা কেবল ছবি — বর্তমানে যে তালিকা দেখানো আছে তার জন্য একটি ZIP */
+async function capDownloadDocs(kind) {
+  const list = _cappList || [];
+  if (!list.length) { alert('ডাউনলোডের জন্য কোনো আবেদন নেই।'); return; }
+  const items = [];
+  list.forEach(function (a, idx) {
+    const base = String(idx + 1).padStart(3, '0') + '_' + capSafe(a.name_bn || a.name_en || 'নামহীন').slice(0, 40);
+    if (kind === 'photo') {
+      items.push([a.photo_url, 'avatars', base + '_প্রার্থী_ছবি']);
+      items.push([a.nominee_photo_url, 'nid-docs', base + '_নমিনি_ছবি']);
+    } else {
+      items.push([a.nid_front_url, 'nid-docs', base + '_প্রার্থী_এনআইডি_সামনে']);
+      items.push([a.nid_back_url, 'nid-docs', base + '_প্রার্থী_এনআইডি_পিছনে']);
+      items.push([a.nominee_nid_front_url, 'nid-docs', base + '_নমিনি_এনআইডি_সামনে']);
+      items.push([a.nominee_nid_back_url, 'nid-docs', base + '_নমিনি_এনআইডি_পিছনে']);
+    }
+  });
+  const todo = items.filter(function (x) { return x[0]; });
+  if (!todo.length) { alert('এই তালিকায় কোনো ' + (kind === 'photo' ? 'ছবি' : 'এনআইডি') + ' জমা নেই।'); return; }
+  if (!confirm(todo.length + 'টি ফাইল একটি ZIP-এ ডাউনলোড হবে। নিশ্চিত?')) return;
+
+  const prog = document.getElementById('capDlMsg');
+  let JSZ;
+  try { JSZ = await capJSZip(); } catch (e) { alert(e.message); return; }
+  const zip = new JSZ();
+  const failed = [];
+  for (let i = 0; i < todo.length; i++) {
+    if (prog) prog.textContent = 'আনা হচ্ছে ' + bnYear(i + 1) + '/' + bnYear(todo.length) + '…';
+    try {
+      const b = await capDocBlob(todo[i][0], todo[i][1]);
+      if (b) zip.file(todo[i][2] + '.' + capExt(todo[i][0], b), b); else failed.push(todo[i][2]);
+    } catch (e) { failed.push(todo[i][2]); }
+  }
+  if (prog) prog.textContent = 'ZIP তৈরি হচ্ছে…';
+  const out = await zip.generateAsync({ type: 'blob' });
+  capSave(out, 'committee_' + (kind === 'photo' ? 'photos' : 'NID') + '_' + new Date().toISOString().slice(0, 10) + '.zip');
+  if (prog) prog.textContent = '';
+  if (failed.length) alert(failed.length + 'টি ফাইল আনা যায়নি:\n' + failed.join('\n'));
+}
+
 async function openStoredDoc(path, bucket) {
   if (!path) return;
   if (/^https?:/i.test(path)) { window.open(path, '_blank'); return; }
@@ -5009,24 +5212,31 @@ async function loadCommitteeApps(status, btn) {
     list = r.data || [];
   } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
 
+  _cappList = list;
   if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো আবেদন নেই।</div>'; return; }
 
   c.innerHTML = list.map(a => {
     const st = CSTAT[a.status] || CSTAT.pending;
     const doc = (label, path, bucket, icon) => path
-      ? `<button class="btn btn-sm" onclick="openStoredDoc('${esc(path)}','${bucket}')"
+      ? `<span style="display:inline-flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm" onclick="openStoredDoc('${esc(path)}','${bucket}')"
            style="background:rgba(13,110,86,.18);color:#6ee7b7;border:1px solid rgba(13,110,86,.4)">
-           <i class="ti ${icon}"></i> ${label}</button>`
+           <i class="ti ${icon}"></i> ${label}</button>${capDlBtn(a, label, path, bucket)}</span>`
       : `<span style="font-size:12px;color:var(--muted)">${label}: নেই</span>`;
     const row = (k, v) => v ? `<div><span style="color:var(--muted)">${k}:</span> <b>${esc(v)}</b></div>` : '';
     return `<div class="section-card" style="margin-bottom:14px">
       <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px">
         <div style="flex:1;min-width:220px">
           <div style="font-size:16px;font-weight:700">${esc(a.name_bn || a.name_en || '—')}</div>
-          <div style="font-size:13px;color:var(--muted)">${esc(a.committee_name || '')} · ${esc(a.position_title || '—')}</div>
+          <div style="font-size:13px;color:var(--muted)">${esc(a.committee_name || '')}${a.position_title ? ' · ' + esc(a.position_title) : (a.committee_code === 'general' ? '' : ' · —')}</div>
         </div>
         <span class="badge ${st[1]}">${st[0]}</span>
+        ${(a.committee_code ? (a.committee_code === 'general' || a.committee_code === 'executive') : a.general_member)
+          ? '<span class="badge" style="background:rgba(112,72,232,.22)">সাধারণ সদস্য</span>' : ''}
+        ${capCompBadge(a.completion)}
+        ${capStatusBadges(a)}
       </div>
+      ${capCompBar(a.completion)}
+      ${capAccountRow(a)}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:7px;font-size:13px;margin-bottom:12px">
         ${row('পিতা / স্বামী', a.father_name)}
         ${row('মাতার নাম', a.mother_name)}
@@ -5042,12 +5252,19 @@ async function loadCommitteeApps(status, btn) {
         ${row('বর্তমান ঠিকানা', a.present_address)}
         ${row('স্থায়ী ঠিকানা', a.permanent_address)}
         ${row('দাখিল', a.submitted_at ? new Date(a.submitted_at).toLocaleString('bn-BD') : '')}
+        ${row('নমিনির নাম', a.nominee_name)}
+        ${row('নমিনির সম্পর্ক', a.nominee_relation)}
+        ${row('নমিনির বয়স', a.nominee_age)}
+        ${row('নমিনির এনআইডি', a.nominee_nid)}
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
         ${doc('ছবি', a.photo_url || a.profile_photo, 'avatars', 'ti-user-circle')}
         ${doc('এনআইডি সামনে', a.nid_front_url, 'nid-docs', 'ti-id')}
         ${doc('এনআইডি পিছনে', a.nid_back_url, 'nid-docs', 'ti-id-off')}
         ${doc('স্বাক্ষরিত কপি', a.consent_scan_url, 'committee-docs', 'ti-file-text')}
+        ${doc('নমিনির ছবি', a.nominee_photo_url, 'nid-docs', 'ti-user-circle')}
+        ${doc('নমিনি এনআইডি সামনে', a.nominee_nid_front_url, 'nid-docs', 'ti-id')}
+        ${doc('নমিনি এনআইডি পিছনে', a.nominee_nid_back_url, 'nid-docs', 'ti-id-off')}
       </div>
       ${a.declaration_accepted ? '<div style="font-size:12.5px;color:#6ee7b7;margin-bottom:10px"><i class="ti ti-check"></i> ঘোষণায় সম্মতি দেওয়া হয়েছে</div>'
                               : '<div style="font-size:12.5px;color:#fca5a5;margin-bottom:10px"><i class="ti ti-alert-triangle"></i> ঘোষণায় সম্মতি নেই</div>'}
@@ -5060,6 +5277,192 @@ async function loadCommitteeApps(status, btn) {
       </div>
     </div>`;
   }).join('');
+}
+
+/* ── ছাপানো তালিকা: লেটারহেড সহ (অথবা প্যাডে ছাপতে লেটারহেড ছাড়া) ── */
+async function capPrintLists(kind, lhOverride) {
+  const lhEl = document.getElementById('capLh');
+  const lh = typeof lhOverride === 'boolean' ? lhOverride : (lhEl ? lhEl.checked : true);
+  let list = [];
+  try {
+    /* সাধারণ সদস্য = অনুমোদিত সাধারণ সদস্য + কার্যনির্বাহী কমিটির অনুমোদিত সদস্য (সার্ভারে একজন একবারই) */
+    const r = kind === 'general'
+      ? await _db.rpc('admin_general_members')
+      : await _db.rpc('admin_committee_applications', { p_status: 'approved' });
+    if (r.error) throw r.error;
+    list = r.data || [];
+  } catch (e) { alert('তালিকা আনা যায়নি: ' + gmErrText(e)); return; }
+  if (!_cstruct.length) {
+    try { const r = await _db.rpc('get_committee_structure'); if (!r.error) _cstruct = r.data || []; } catch (e) {}
+  }
+  const today = new Date().toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+  const cells = function (arr) { return '<tr>' + arr.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; };
+  let title = '', body = '';
+
+  if (kind === 'committee') {
+    title = 'কার্যনির্বাহী কমিটির তালিকা';
+    body = _cstruct.filter(function (c) { return c.code !== 'general'; }).map(function (c) {
+      const rows = (c.positions || []).map(function (p, i) {
+        const a = list.filter(function (x) { return x.committee_id === c.id && x.position_id === p.id; })[0];
+        return cells([bnYear(i + 1), esc(p.title_bn),
+          a ? esc(a.name_bn || a.name_en || '') : '<i>শূন্য</i>',
+          a ? esc(a.father_name || '') : '', a ? esc(a.mobile || '') : '', a ? esc(a.present_address || '') : '']);
+      }).join('');
+      return '<div class="sec">' + esc(c.name_bn) + '</div>' +
+        '<table><thead><tr><th style="width:8%">ক্রমিক</th><th style="width:19%">পদবি</th><th style="width:20%">নাম</th>' +
+        '<th style="width:19%">পিতা / স্বামীর নাম</th><th style="width:13%">মোবাইল</th><th>বর্তমান ঠিকানা</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>';
+    }).join('');
+  } else {
+    title = 'সাধারণ সদস্যদের তালিকা';
+    const gen = list;   /* সার্ভার থেকেই সদস্য হওয়ার তারিখ অনুযায়ী সাজানো */
+    const nExec = gen.filter(function (a) { return a.source === 'executive'; }).length;
+    body = '<table><thead><tr><th style="width:6%">ক্রমিক</th><th style="width:16%">নাম</th><th style="width:14%">পিতা / স্বামীর নাম</th>' +
+      '<th style="width:9%">পেশা</th><th style="width:11%">মোবাইল</th><th style="width:17%">বর্তমান ঠিকানা</th>' +
+      '<th style="width:13%">নমিনি (সম্পর্ক)</th><th>অন্তর্ভুক্তি</th></tr></thead><tbody>' +
+      gen.map(function (a, i) {
+        return cells([bnYear(i + 1), esc(a.name_bn || a.name_en || ''), esc(a.father_name || ''), esc(a.occupation || ''),
+          esc(a.mobile || ''), esc(a.present_address || ''),
+          esc((a.nominee_name || '—') + (a.nominee_relation ? ' (' + a.nominee_relation + ')' : '')),
+          esc(gmSourceLabel(a))]);
+      }).join('') +
+      '</tbody></table><div class="tot">মোট সাধারণ সদস্য: ' + bnYear(gen.length) + ' জন' +
+      (nExec ? ' (কার্যনির্বাহী কমিটি থেকে ' + bnYear(nExec) + ' জন)' : '') + '</div>';
+  }
+
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  const head = lh
+    ? '<div class="lh"><div class="l"><img src="' + base + 'assets/brand/korje-round-logo-256.png" alt="">' +
+      '<div><div class="n">কর্জে হাসানা ফাউন্ডেশন</div><div class="en">Korje Hasana Foundation</div></div></div>' +
+      '<div class="r">কার্যালয়: খলিলপুর বাজার, ফরিদপুর সদর, ফরিদপুর<br>ফোন: +880 171515952 · ইমেইল: info@korjehasana.org</div></div>'
+    : '';
+  const css = [
+    '@page{size:A4;margin:12mm 14mm 14mm}',
+    '*{box-sizing:border-box}',
+    'body{font-family:"Hind Siliguri",Arial,sans-serif;color:#1a1a1a;font-size:11.5px;margin:0;padding:0}',
+    '.lh{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #F0A428;padding-bottom:8px;margin-bottom:12px}',
+    '.lh .l{display:flex;align-items:center;gap:10px}.lh img{width:62px;height:62px}',
+    '.lh .n{font-size:17px;font-weight:700;color:#3B2560}.lh .en{font-size:10px;font-weight:700;color:#3B2560;font-family:Arial}',
+    '.lh .r{text-align:right;font-size:10.5px;line-height:1.6}',
+    'h1{font-size:15px;text-align:center;color:#3B2560;margin:6px 0 2px}',
+    '.sub{text-align:center;font-size:10.5px;color:#666;margin-bottom:10px}',
+    '.sec{font-size:12.5px;font-weight:700;color:#3B2560;margin:12px 0 5px}',
+    'table{width:100%;border-collapse:collapse}',
+    'th,td{border:1px solid #9b8fb3;padding:4px 6px;vertical-align:top;text-align:left}',
+    'th{background:#ECE8F4;font-weight:700}',
+    'tr{page-break-inside:avoid}thead{display:table-header-group}',
+    '.tot{margin-top:8px;font-weight:700;text-align:right}',
+    '.noprint{text-align:center;margin-top:12px}',
+    '@media print{.noprint{display:none}}'
+  ].join('');
+  const html = '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>' + title + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+    '<style>' + css + '</style></head><body>' + head +
+    '<h1>' + title + '</h1><div class="sub">অনুমোদিত সদস্যদের তথ্য · মুদ্রণের তারিখ: ' + today + '</div>' +
+    body +
+    '<div class="noprint"><button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);' +
+    'color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">প্রিন্ট / PDF সংরক্ষণ</button></div>' +
+    '</body></html>';
+  const w = window.open('', '_blank');
+  if (!w) { alert('পপ-আপ বন্ধ আছে — ছাপানোর পৃষ্ঠা খোলার অনুমতি দিন।'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+// ════════════════════════════════════════
+//  সাধারণ সদস্য
+//  তালিকা = অনুমোদিত সাধারণ সদস্য + কার্যনির্বাহী কমিটির অনুমোদিত সদস্য (স্বয়ংক্রিয়)।
+//  একই ব্যক্তি দুই জায়গায় থাকলে সার্ভার একবারই দেয়।
+// ════════════════════════════════════════
+let _gmList = [], _gmFilter = '', _ivPreselect = '';
+
+function gmErrText(e) {
+  const m = (e && e.message) || '';
+  return /admin_general_members|schema cache|does not exist/i.test(m)
+    ? 'ডাটাবেজ আপডেট এখনও প্রয়োগ হয়নি — SQL ফাইলটি চালানোর পর আবার চেষ্টা করুন।'
+    : (m || 'আবার চেষ্টা করুন');
+}
+
+function gmSourceLabel(m) {
+  return m && m.source === 'executive'
+    ? 'কার্যনির্বাহী কমিটি' + (m.position_title ? ' · ' + m.position_title : '')
+    : 'সাধারণ সদস্য';
+}
+
+async function loadGeneralMembers() {
+  const box = document.getElementById('gmList');
+  box.innerHTML = 'লোড হচ্ছে…';
+  try {
+    const res = await Promise.all([_db.rpc('admin_general_members'), _db.rpc('get_committee_structure')]);
+    if (res[0].error) throw res[0].error;
+    _gmList = res[0].data || [];
+    if (!res[1].error && res[1].data) _cstruct = res[1].data;
+  } catch (e) {
+    _gmList = [];
+    document.getElementById('gmSummary').innerHTML = '';
+    box.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(gmErrText(e)) + '</div>';
+    return;
+  }
+  gmRender();
+}
+
+function gmSetFilter(f, btn) {
+  _gmFilter = f || '';
+  document.querySelectorAll('#panel-general-members .filter-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  gmRender();
+}
+
+function gmRows() {
+  const raw = ((document.getElementById('gmQ') || {}).value || '').trim().toLowerCase();
+  const q = raw.replace(/[০-৯]/g, d => String('০১২৩৪৫৬৭৮৯'.indexOf(d)));
+  const qd = q.replace(/\D/g, '');
+  return _gmList.filter(m => {
+    if (_gmFilter && m.source !== _gmFilter) return false;
+    if (!q) return true;
+    const txt = [m.name_bn, m.name_en, m.user_code, m.email].some(x => String(x || '').toLowerCase().indexOf(q) >= 0);
+    const mob = qd.length >= 3 && String(m.mobile || '').replace(/\D/g, '').indexOf(qd) >= 0;
+    return txt || mob;
+  });
+}
+
+function gmRender() {
+  const box = document.getElementById('gmList');
+  const sum = document.getElementById('gmSummary');
+  if (!box || !sum) return;
+  const gc = _cstruct.filter(c => c.code === 'general')[0] || null;
+  const nExec = _gmList.filter(m => m.source === 'executive').length;
+  const pend = gc ? (gc.pending_count || 0) : 0;
+  sum.innerHTML = 'মোট সাধারণ সদস্য: <b>' + bnYear(_gmList.length) + '</b> জন · সরাসরি: <b>' + bnYear(_gmList.length - nExec) +
+    '</b> · কার্যনির্বাহী কমিটি থেকে: <b>' + bnYear(nExec) + '</b>' +
+    (pend ? ' · <a href="#" onclick="switchPanel(\'committee-apps\');return false" style="color:#c9b5f5">অপেক্ষমাণ আবেদন <b>' +
+            bnYear(pend) + '</b>টি — যাচাই করুন</a>' : '');
+  if (!_gmList.length) { box.innerHTML = '<div class="empty-state">এখনো কোনো অনুমোদিত সাধারণ সদস্য নেই।</div>'; return; }
+  const rows = gmRows();
+  if (!rows.length) { box.innerHTML = '<div class="empty-state">খোঁজের সাথে মেলে এমন কেউ নেই।</div>'; return; }
+  box.innerHTML = `<div class="kh-scrollx"><table class="trx-table">
+    <thead><tr><th>ক্রমিক</th><th>নাম</th><th>পিতা / স্বামী</th><th>মোবাইল</th><th>বর্তমান ঠিকানা</th>
+      <th>নমিনি (সম্পর্ক)</th><th>অন্তর্ভুক্তি</th><th>তারিখ</th></tr></thead>
+    <tbody>${rows.map((m, i) => `<tr>
+      <td>${bnYear(i + 1)}</td>
+      <td><b>${esc(m.name_bn || m.name_en || '—')}</b>${m.user_code ? '<br><span style="font-size:11.5px;color:var(--muted)">' + esc(m.user_code) + '</span>' : ''}</td>
+      <td>${esc(m.father_name || '')}</td>
+      <td style="white-space:nowrap">${esc(m.mobile || '')}</td>
+      <td style="font-size:12.5px">${esc(m.present_address || '')}</td>
+      <td style="font-size:12.5px">${esc(m.nominee_name || '—')}${m.nominee_relation ? ' (' + esc(m.nominee_relation) + ')' : ''}</td>
+      <td><span class="badge" style="background:${m.source === 'executive' ? 'rgba(240,164,40,.25)' : 'rgba(112,72,232,.22)'}">${esc(gmSourceLabel(m))}</span></td>
+      <td style="font-size:12px;white-space:nowrap">${m.since ? new Date(m.since).toLocaleDateString('bn-BD') : '—'}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+
+/* আমন্ত্রণ অংশে গিয়ে কমিটি হিসেবে "সাধারণ সদস্য" আগেই বেছে রাখা */
+function gmInvite() {
+  _ivPreselect = 'general';
+  switchPanel('committee-invite');
+}
+
+function gmPrint() {
+  const lh = document.getElementById('gmLh');
+  capPrintLists('general', lh ? lh.checked : true);
 }
 
 async function reviewCApp(id, status) {
@@ -5091,6 +5494,7 @@ async function loadCommitteeMgmt() {
   } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
 
   c.innerHTML = _cstruct.map(k => {
+    if (k.code === 'general') return cmGeneralCard(k);
     const rows = (k.positions || []).map(p => `<tr>
       <td>${esc(p.title_bn)}${p.title_en ? '<br><span style="font-size:11.5px;color:var(--muted)">' + esc(p.title_en) + '</span>' : ''}</td>
       <td style="text-align:center">${p.seats}</td>
@@ -5129,6 +5533,31 @@ async function loadCommitteeMgmt() {
   if (_adminInfo && _adminInfo.role !== 'super_admin') {
     document.querySelectorAll('#cmgmt .super-only').forEach(el => el.style.display = 'none');
   }
+}
+
+/* "সাধারণ সদস্য" অংশ: পদ নেই, চূড়ান্ত অনুমোদন বা মোছার বোতাম নেই */
+function cmGeneralCard(k) {
+  return `<div class="section-card" style="margin-bottom:16px;border:1px solid rgba(112,72,232,.45)">
+    <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px">
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:16px;font-weight:700"><i class="ti ti-users-group"></i> ${esc(k.name_bn)}</div>
+        <div style="font-size:12.5px;color:var(--muted)">${esc(k.name_en || '')} · সরাসরি অনুমোদিত ${k.approved_count} · অপেক্ষমাণ ${k.pending_count}</div>
+      </div>
+      <span class="badge ${k.applications_open ? 'b-pending' : 'b-rejected'}">${k.applications_open ? 'আবেদন চালু' : 'আবেদন বন্ধ'}</span>
+    </div>
+    <div style="font-size:12.5px;color:var(--muted);line-height:1.8;margin-bottom:10px">
+      এই অংশে কোনো পদ নেই। কার্যনির্বাহী কমিটির অনুমোদিত সদস্যরা স্বয়ংক্রিয়ভাবে সাধারণ সদস্যের তালিকায় যুক্ত হন।
+      অংশটি মোছা যায় না।
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <button class="btn btn-sm btn-primary" onclick='editCommittee(${JSON.stringify(k).replace(/'/g, "&#39;")})'><i class="ti ti-edit"></i> সম্পাদনা</button>
+      <button class="btn btn-sm" onclick="setCommitteeState('${k.id}', ${!k.applications_open}, null)" style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)">
+        <i class="ti ti-lock-open"></i> আবেদন ${k.applications_open ? 'বন্ধ করুন' : 'চালু করুন'}</button>
+      <button class="btn btn-sm" onclick="switchPanel('general-members')" style="background:rgba(13,110,86,.2);color:#6ee7b7;border:1px solid rgba(13,110,86,.45)">
+        <i class="ti ti-list"></i> তালিকা দেখুন</button>
+    </div>
+    <div id="cform-${k.id}"></div>
+  </div>`;
 }
 
 function fieldHtml(id, label, val, type) {
@@ -5179,7 +5608,8 @@ async function deleteCommittee(id) {
     if (r.error) throw r.error;
     loadCommitteeMgmt();
   } catch (e) {
-    alert(/application/.test(e.message || '') ? 'এই কমিটিতে আবেদন জমা আছে — আগে আবেদনগুলো নিষ্পত্তি করুন।'
+    alert(/general_protected/.test(e.message || '') ? '"সাধারণ সদস্য" অংশটি মোছা যায় না।'
+        : /application/.test(e.message || '') ? 'এই কমিটিতে আবেদন জমা আছে — আগে আবেদনগুলো নিষ্পত্তি করুন।'
                                               : 'মুছে ফেলা যায়নি: ' + (e.message || ''));
   }
 }
@@ -5225,7 +5655,10 @@ async function savePosition(cid, id) {
     const r = await _db.rpc('admin_save_position', { p });
     if (r.error) throw r.error;
     loadCommitteeMgmt();
-  } catch (e) { alert('সংরক্ষণ ব্যর্থ: ' + (e.message || '')); }
+  } catch (e) {
+    alert(/general_no_positions/.test(e.message || '') ? '"সাধারণ সদস্য" অংশে কোনো পদ যোগ করা যায় না।'
+                                                       : 'সংরক্ষণ ব্যর্থ: ' + (e.message || ''));
+  }
 }
 
 async function deletePosition(id) {
@@ -5271,19 +5704,39 @@ async function loadInviteForm() {
     } catch (e) {}
   }
   cs.innerHTML = _cstruct.map(c => `<option value="${esc(c.id)}">${esc(c.name_bn)}</option>`).join('');
+  if (_ivPreselect) {                       /* "সাধারণ সদস্য" অংশ থেকে এলে */
+    const pre = _cstruct.filter(c => c.code === _ivPreselect)[0];
+    if (pre) cs.value = pre.id;
+    _ivPreselect = '';
+  }
   cs.onchange = ivFillPositions;
   ivFillPositions();
   loadInvites(_ivFilter);
+  capMbSearch();
 }
 
+function ivIsGeneral(cid) {
+  const c = _cstruct.filter(x => x.id === cid)[0];
+  return !!c && c.code === 'general';
+}
+
+/* "সাধারণ সদস্য" অংশে পদ নেই; অন্য কমিটিতে পদ বেছে নিতেই হবে */
 function ivFillPositions() {
   const cid = document.getElementById('ivCom').value;
+  const sel = document.getElementById('ivPos');
+  if (ivIsGeneral(cid)) { sel.innerHTML = '<option value="">সাধারণ সদস্য</option>'; return; }
   const c = _cstruct.filter(x => x.id === cid)[0];
   const ps = (c && c.positions) || [];
-  document.getElementById('ivPos').innerHTML = ps.map(p => {
+  sel.innerHTML = ps.map(p => {
     const full = (p.filled || 0) >= (p.seats || 1);
     return `<option value="${esc(p.id)}"${full ? ' disabled' : ''}>${esc(p.title_bn)}${full ? ' — পূর্ণ' : ''}</option>`;
-  }).join('');
+  }).join('') || '<option value="" disabled selected>এই কমিটিতে এখনো কোনো পদ নেই</option>';
+}
+
+function ivPositionMissing(cid, pid) {
+  if (pid || ivIsGeneral(cid)) return false;
+  ivMsg('err', 'পদবি বেছে নিন। সাধারণ সদস্য হিসেবে আমন্ত্রণ জানাতে কমিটি হিসেবে "সাধারণ সদস্য" বেছে নিন।');
+  return true;
 }
 
 function waLink(mobile, text) {
@@ -5297,8 +5750,10 @@ function inviteMessage(o) {
   return [
     'আসসালামু আলাইকুম' + (o.name ? ' ' + o.name : '') + ',',
     '',
-    'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে ' + o.committee +
-      (o.position ? '-এর ' + o.position + ' পদে' : '-তে') + ' দায়িত্ব গ্রহণের জন্য প্রস্তাব করা হলো।',
+    o.general
+      ? 'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে সংস্থার সাধারণ সদস্য হিসেবে যুক্ত হওয়ার আমন্ত্রণ জানানো হলো।'
+      : 'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে ' + o.committee +
+        (o.position ? '-এর ' + o.position + ' পদে' : '-তে') + ' দায়িত্ব গ্রহণের জন্য প্রস্তাব করা হলো।',
     o.note ? '' : null,
     o.note ? o.note : null,
     '',
@@ -5320,6 +5775,7 @@ async function createInvite(mode) {
   const note  = document.getElementById('ivNote').value.trim();
 
   if (!cid) { ivMsg('err','কমিটি বেছে নিন।'); return; }
+  if (ivPositionMissing(cid, pid)) return;
   if (mode === 'whatsapp' && String(mob).replace(/\D/g,'').length < 10) {
     ivMsg('err','হোয়াটসঅ্যাপে পাঠাতে সঠিক মোবাইল নম্বর দিন।'); return;
   }
@@ -5345,7 +5801,7 @@ async function createInvite(mode) {
 
     if (mode === 'whatsapp') {
       const msg = inviteMessage({ name, committee: c.name_bn || '', position: p.title_bn || '',
-                                  note, link });
+                                  note, link, general: ivIsGeneral(cid) });
       window.open(waLink(mob, msg), '_blank');
       ivMsg('ok','<b>লিংক তৈরি হয়েছে</b> — হোয়াটসঅ্যাপ খুলে গেছে, শুধু "Send" চাপুন। ' +
             'না খুললে নিচের তালিকা থেকে "হোয়াটসঅ্যাপ" বাটনে আবার চাপুন।');
@@ -5394,7 +5850,7 @@ async function loadInvites(status, btn) {
       const canAct = i.status === 'sent' || i.status === 'opened';
       return `<tr>
         <td><b>${esc(i.full_name || '—')}</b><br><span style="font-size:12px;color:var(--muted)">${esc(i.mobile || '')}${i.mobile && i.email ? ' · ' : ''}${esc(i.email || '')}</span></td>
-        <td>${esc(i.committee_name || '')}<br><span style="font-size:12px;color:var(--muted)">${esc(i.position_title || '—')}</span></td>
+        <td>${esc(i.committee_name || '')}${i.position_title ? '<br><span style="font-size:12px;color:var(--muted)">' + esc(i.position_title) + '</span>' : ''}</td>
         <td style="font-size:12.5px">${i.sent_at ? new Date(i.sent_at).toLocaleDateString('bn-BD') : '—'}
           ${i.expired && canAct ? '<br><span style="color:#fca5a5;font-size:11.5px">মেয়াদ শেষ</span>' : ''}</td>
         <td><span class="badge ${st[1]}">${st[0]}</span></td>
@@ -5416,13 +5872,215 @@ async function loadInvites(status, btn) {
 
 let _ivCache = [];
 
+/* ── নিবন্ধিত সদস্য বাছাই ও একসাথে আমন্ত্রণ ── */
+let _mbRows = [], _mbSel = {};
+
+async function capMbSearch() {
+  const q = ((document.getElementById('mbQ') || {}).value || '').trim();
+  const c = document.getElementById('mbList');
+  if (!c) return;
+  c.innerHTML = 'খোঁজা হচ্ছে…';
+  try {
+    const r = await _db.rpc('admin_list_users', { p_q: q || null, p_limit: 200 });
+    if (r.error) throw r.error;
+    _mbRows = r.data || [];
+  } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
+  capMbRender();
+}
+
+function capMbRender() {
+  const c = document.getElementById('mbList');
+  if (!c) return;
+  if (!_mbRows.length) { c.innerHTML = '<div class="empty-state">কোনো সদস্য পাওয়া যায়নি।</div>'; capMbCount(); return; }
+  c.innerHTML = `<div class="kh-scrollx" style="max-height:340px;overflow:auto"><table class="trx-table">
+    <thead><tr><th style="width:36px"></th><th>নাম</th><th>মোবাইল</th><th>ই-মেইল</th><th>সদস্য কোড</th></tr></thead>
+    <tbody>${_mbRows.map(m => `<tr>
+      <td><input type="checkbox" ${_mbSel[m.id] ? 'checked' : ''} onchange="capMbToggle('${m.id}', this.checked)"></td>
+      <td><b>${esc(m.full_name || '—')}</b></td>
+      <td>${esc(m.mobile || '')}</td>
+      <td>${esc(m.email || '—')}</td>
+      <td>${esc(m.user_code || '')}</td></tr>`).join('')}</tbody></table></div>`;
+  capMbCount();
+}
+
+function capMbToggle(id, on) {
+  const m = _mbRows.filter(x => x.id === id)[0];
+  if (on && m) _mbSel[id] = m; else delete _mbSel[id];
+  capMbCount();
+}
+
+function capMbCount() {
+  const el = document.getElementById('mbCount');
+  if (el) el.textContent = 'নির্বাচিত: ' + bnYear(Object.keys(_mbSel).length);
+}
+
+async function capSendMail(id) {
+  const s = await _db.auth.getSession();
+  const tok = s && s.data && s.data.session && s.data.session.access_token;
+  const url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/send-invite';
+  const res = await fetch(url, { method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+    body: JSON.stringify({ invite_id: id }) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error || j.detail || 'ই-মেইল পাঠানো যায়নি');
+  return j;
+}
+
+async function capMbInvite(mode) {
+  const sel = Object.keys(_mbSel).map(k => _mbSel[k]);
+  if (!sel.length) { ivMsg('err', 'কমপক্ষে একজন সদস্য নির্বাচন করুন।'); return; }
+  const cid = document.getElementById('ivCom').value;
+  const pid = document.getElementById('ivPos').value || null;
+  if (!cid) { ivMsg('err', 'কমিটি বেছে নিন।'); return; }
+  if (ivPositionMissing(cid, pid)) return;
+  const targets = mode === 'email' ? sel.filter(m => m.email) : sel;
+  if (!targets.length) { ivMsg('err', 'নির্বাচিতদের কারও ই-মেইল ঠিকানা নেই।'); return; }
+  const q = mode === 'email'
+    ? bnYear(targets.length) + ' জনকে ই-মেইলে আমন্ত্রণ পাঠানো হবে। নিশ্চিত?'
+    : bnYear(targets.length) + ' জনের জন্য আমন্ত্রণ লিংক তৈরি হবে — কোনো বার্তা নিজে থেকে পাঠানো হবে না। নিশ্চিত?';
+  if (!confirm(q)) return;
+
+  let ok = 0; const failed = [];
+  for (let i = 0; i < targets.length; i++) {
+    const m = targets[i];
+    ivMsg('info', 'আমন্ত্রণ তৈরি হচ্ছে… (' + bnYear(i + 1) + '/' + bnYear(targets.length) + ')');
+    try {
+      const r = await _db.rpc('admin_create_invite', { p: {
+        committee_id: cid, position_id: pid,
+        full_name: m.full_name || '', email: m.email || null, mobile: m.mobile || null, note: null } });
+      if (r.error) throw r.error;
+      if (mode === 'email') await capSendMail(r.data.id);
+      ok++;
+    } catch (e) { failed.push((m.full_name || '—') + ': ' + ((e && e.message) || 'ব্যর্থ')); }
+  }
+  ivMsg(failed.length ? 'err' : 'ok',
+    '<b>' + bnYear(ok) + ' জনের আমন্ত্রণ ' + (mode === 'email' ? 'ই-মেইলে পাঠানো হয়েছে' : 'তৈরি হয়েছে') + '।</b>' +
+    (failed.length ? '<br>ব্যর্থ: ' + esc(failed.join('; ')) : ''));
+  _mbSel = {};
+  capMbRender();
+  loadInvites(_ivFilter);
+}
+
+/* ── অনুমোদিত সদস্যের নিবন্ধন: অ্যাকাউন্ট যুক্ত, ভেরিফিকেশন ইমেইল, আবেদন পুনরায় খোলা ──
+   ইমেইল কেবল অ্যাডমিনের স্পষ্ট নিশ্চিতকরণের পরেই যায়। অ্যাকাউন্ট যুক্ত করা নিজে কোনো ইমেইল পাঠায় না। */
+function capIsVerified(a) { return !!(a && a.completion && (a.completion.missing || []).indexOf('email_verified') < 0); }
+function capHasAccount(a) { return !!(a && a.user_id); }
+function capFindApp(id) { return (_cappList || []).filter(a => a.id === id)[0] || null; }
+
+function capStatusBadges(a) {
+  if (!a) return '';
+  let h = '';
+  if (a.reopened_at) h += '<span class="badge" style="background:rgba(112,72,232,.28)"><i class="ti ti-lock-open"></i> পুনরায় খোলা</span>';
+  if (a.status === 'approved') {
+    h += capHasAccount(a)
+      ? (capIsVerified(a)
+          ? '<span class="badge" style="background:rgba(13,110,86,.35)"><i class="ti ti-circle-check"></i> ইমেইল ভেরিফাইড</span>'
+          : '<span class="badge" style="background:rgba(240,140,40,.28)"><i class="ti ti-mail"></i> ভেরিফিকেশন বাকি</span>')
+      : '<span class="badge" style="background:rgba(214,51,108,.28)"><i class="ti ti-user-off"></i> অ্যাকাউন্ট নেই</span>';
+  }
+  return h;
+}
+
+function capAccountRow(a) {
+  if (!a || a.status !== 'approved') return '';
+  const btn = (fn, label, icon, alt) => '<button class="btn btn-sm" onclick="' + fn + '(\'' + a.id + '\')"' +
+    (alt ? ' style="background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"' : '') +
+    '><i class="ti ' + icon + '"></i> ' + label + '</button>';
+  return '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:-2px 0 12px;padding:10px 12px;' +
+    'border-radius:12px;background:rgba(112,72,232,.1);border:1px dashed rgba(112,72,232,.4)">' +
+    '<span style="font-size:12.5px;color:var(--muted);flex:1;min-width:200px">নিবন্ধন: ' +
+      (capHasAccount(a) ? 'অ্যাকাউন্ট যুক্ত আছে' : 'অ্যাকাউন্ট তৈরি হয়নি') + ' · ' +
+      (capIsVerified(a) ? 'ইমেইল ভেরিফাইড' : 'ইমেইল ভেরিফিকেশন বাকি') + '</span>' +
+    (!capHasAccount(a) ? btn('capPrepareAccount', 'অ্যাকাউন্ট যুক্ত করুন', 'ti-user-plus') : '') +
+    ((!capIsVerified(a) && a.email) ? btn('capEmailVerify', 'ভেরিফিকেশন ইমেইল পাঠান', 'ti-mail-forward') : '') +
+    btn('capReopen', a.reopened_at ? 'নতুন ফর্ম-লিংক' : 'আবেদন পুনরায় খুলুন', 'ti-lock-open', true) +
+    '</div>';
+}
+
+async function capAccountFn(action, appId) {
+  const s = await _db.auth.getSession();
+  const tok = s && s.data && s.data.session && s.data.session.access_token;
+  const url = (window.KH_FN_BASE || 'https://fgczixybyrzkrsoqrgdl.supabase.co/functions/v1') + '/committee-accounts';
+  const res = await fetch(url, { method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok },
+    body: JSON.stringify({ action: action, application_id: appId }) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error || j.detail || 'ব্যর্থ হয়েছে');
+  return j;
+}
+
+async function capPrepareAccount(id) {
+  const a = capFindApp(id); if (!a) return;
+  if (!confirm((a.name_bn || 'এই সদস্য') + ': ইমেইল দিয়ে অ্যাকাউন্ট যুক্ত/তৈরি হবে। কোনো ইমেইল যাবে না। নিশ্চিত?')) return;
+  try {
+    const j = await capAccountFn('prepare', id);
+    alert(j.existing_account
+      ? 'এই ইমেইলে আগে থেকে অ্যাকাউন্ট আছে — নতুন নিবন্ধন লাগেনি, শুধু আবেদনটি সেই অ্যাকাউন্টের সাথে যুক্ত করা হয়েছে।'
+      : 'নতুন অ্যাকাউন্ট তৈরি হয়েছে। সদস্যকে ইমেইল ভেরিফাই করতে হবে।');
+  } catch (e) { alert('অ্যাকাউন্ট যুক্ত করা যায়নি: ' + (e.message || '')); }
+  loadCommitteeApps(_cappFilter);
+}
+
+async function capEmailVerify(id) {
+  const a = capFindApp(id); if (!a) return;
+  if (!confirm((a.name_bn || 'এই সদস্য') + '-কে ভেরিফিকেশন ইমেইল পাঠানো হবে। নিশ্চিত?')) return;
+  try {
+    const j = await capAccountFn('email', id);
+    alert('ইমেইল পাঠানো হয়েছে: ' + (j.sent_to || ''));
+  } catch (e) { alert('ইমেইল পাঠানো যায়নি: ' + (e.message || '')); }
+  loadCommitteeApps(_cappFilter);
+}
+
+async function capReopen(id) {
+  const a = capFindApp(id); if (!a) return;
+  if (!confirm((a.name_bn || 'এই সদস্য') + '-এর অনুমোদিত আবেদন পুনরায় খোলা হবে এবং নতুন ব্যক্তিগত লিংক তৈরি হবে। কোনো ইমেইল নিজে থেকে যাবে না। নিশ্চিত?')) return;
+  try {
+    const r = await _db.rpc('admin_reopen_application', { p_id: id });
+    if (r.error) throw r.error;
+    const link = location.origin + location.pathname.replace(/[^/]*$/, '') +
+      'committee-form.html?inv=' + encodeURIComponent(r.data.token);
+    let copied = false;
+    try { await navigator.clipboard.writeText(link); copied = true; } catch (e) {}
+    if (copied) alert('আবেদন পুনরায় খোলা হয়েছে। ব্যক্তিগত লিংকটি কপি করা হয়েছে — সদস্যকে পাঠান:\n\n' + link);
+    else prompt('আবেদন পুনরায় খোলা হয়েছে। এই লিংকটি কপি করে সদস্যকে পাঠান:', link);
+  } catch (e) { alert('আবেদন পুনরায় খোলা যায়নি: ' + (e.message || '')); }
+  loadCommitteeApps(_cappFilter);
+}
+
+async function capBulkPrepare() {
+  const list = (_cappList || []).filter(a => a.status === 'approved' && !a.user_id);
+  if (!list.length) { alert('অ্যাকাউন্ট যুক্ত করা বাকি কেউ নেই।'); return; }
+  if (!confirm(bnYear(list.length) + ' জনের অ্যাকাউন্ট যুক্ত/তৈরি হবে — কোনো ইমেইল যাবে না। নিশ্চিত?')) return;
+  let ok = 0; const failed = [];
+  for (const a of list) {
+    try { await capAccountFn('prepare', a.id); ok++; }
+    catch (e) { failed.push((a.name_bn || '—') + ': ' + (e.message || 'ব্যর্থ')); }
+  }
+  alert(bnYear(ok) + ' জনের অ্যাকাউন্ট প্রস্তুত হয়েছে।' + (failed.length ? '\nব্যর্থ: ' + failed.join('; ') : ''));
+  loadCommitteeApps(_cappFilter);
+}
+
+async function capBulkEmail() {
+  const list = (_cappList || []).filter(a => a.status === 'approved' && a.email && !capIsVerified(a));
+  if (!list.length) { alert('ভেরিফিকেশন বাকি এমন কাউকে পাওয়া যায়নি।'); return; }
+  if (!confirm(bnYear(list.length) + ' জনকে ভেরিফিকেশন ইমেইল পাঠানো হবে। নিশ্চিত?')) return;
+  let ok = 0; const failed = [];
+  for (const a of list) {
+    try { await capAccountFn('email', a.id); ok++; }
+    catch (e) { failed.push((a.name_bn || '—') + ': ' + (e.message || 'ব্যর্থ')); }
+  }
+  alert(bnYear(ok) + ' জনকে ইমেইল পাঠানো হয়েছে।' + (failed.length ? '\nব্যর্থ: ' + failed.join('; ') : ''));
+  loadCommitteeApps(_cappFilter);
+}
+
 function waInvite(id) {
   const i = _ivCache.filter(x => x.id === id)[0];
   if (!i) return;
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   const link = base + 'committee-form.html?inv=' + encodeURIComponent(i.token);
   const msg = inviteMessage({ name: i.full_name || '', committee: i.committee_name || '',
-                              position: i.position_title || '', note: i.note || '', link });
+                              position: i.position_title || '', note: i.note || '', link,
+                              general: ivIsGeneral(i.committee_id) });
   window.open(waLink(i.mobile, msg), '_blank');
 }
 
@@ -5659,11 +6317,11 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=72"></script>
+<script src="kh-ui.js?v=73"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
 <script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
-<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=3" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

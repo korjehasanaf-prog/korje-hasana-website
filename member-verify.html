@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ইমেইল ভেরিফিকেশন | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    :root{ --pink:#d6336c; --orange:#e95420; --violet:#7048e8; --ink:#241539; --muted:#6b6280; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Hind Siliguri','Inter',sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      padding:26px 16px; position:relative; overflow-x:hidden; color:#f3edfb;
+      background:#150c24;
+    }
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+        background:url('images/auth-bg.jpg') center/cover no-repeat}
+    @media(max-width:640px){ .bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat} }
+
+    .card{
+      position:relative; z-index:1; width:100%; max-width:420px;
+      background:rgba(26,14,45,.9);
+      border:1px solid rgba(255,255,255,.17);
+      border-radius:24px; padding:30px 26px;
+      backdrop-filter:blur(22px) saturate(155%);
+      box-shadow:0 24px 70px rgba(0,0,0,.5);
+    }
+    html[data-theme="light"] .card{
+      background:rgba(255,255,255,.95); border-color:#ece2f4; color:var(--ink);
+      box-shadow:0 24px 70px rgba(112,72,232,.28);
+    }
+
+    .ico{
+      width:66px;height:66px;border-radius:50%;margin:0 auto 14px;
+      display:flex;align-items:center;justify-content:center;font-size:29px;color:#fff;
+      background:linear-gradient(135deg,var(--pink),var(--violet));
+      box-shadow:0 8px 24px rgba(160,33,201,.4);
+    }
+    h1{font-size:22px;text-align:center;margin-bottom:5px}
+    .sub{font-size:13.5px;text-align:center;color:#cbbfdd;margin-bottom:22px;line-height:1.7}
+    html[data-theme="light"] .sub{color:var(--muted)}
+
+    .fg{margin-bottom:15px;position:relative}
+    .fg label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;color:#dccfec}
+    html[data-theme="light"] .fg label{color:#4a3568}
+    .fg input{
+      width:100%;padding:13px 14px;border-radius:12px;font-family:inherit;font-size:15px;
+      border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);color:#fff;outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    .fg input:focus{border-color:#c88ae0;box-shadow:0 0 0 3px rgba(160,33,201,.2)}
+    html[data-theme="light"] .fg input{background:#faf7fd;border-color:#e3d8ee;color:var(--ink)}
+    html[data-theme="light"] .fg input:focus{background:#fff;border-color:#a021c9}
+    .chk label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600;cursor:pointer;color:#f3edfb}
+    html[data-theme="light"] .chk label{color:var(--ink)}
+    .chk input{width:17px;height:17px;accent-color:#a021c9}
+
+    .btn{
+      width:100%;padding:14px;border:none;border-radius:12px;cursor:pointer;margin-top:4px;
+      background:linear-gradient(112deg,var(--pink),#a021c9 48%,#e83e8c);
+      color:#fff;font-family:inherit;font-size:15.5px;font-weight:700;text-decoration:none;
+      box-shadow:0 8px 24px rgba(160,33,201,.4);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .btn.ghost{background:transparent;box-shadow:none;border:1.5px solid rgba(255,255,255,.25);color:#f3edfb;margin-top:10px}
+    html[data-theme="light"] .btn.ghost{color:var(--ink);border-color:#d8cbe6}
+
+    .msg{display:none;padding:11px 14px;border-radius:11px;font-size:13.5px;margin-bottom:16px;line-height:1.65}
+    .msg.err{display:block;background:rgba(239,68,68,.16);border:1px solid rgba(239,68,68,.4);color:#fecaca}
+    .msg.ok{display:block;background:rgba(34,197,94,.16);border:1px solid rgba(34,197,94,.4);color:#bbf7d0}
+    .msg.info{display:block;background:rgba(240,140,40,.16);border:1px solid rgba(240,140,40,.4);color:#fde68a}
+    html[data-theme="light"] .msg.err{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+    html[data-theme="light"] .msg.ok{background:#dcfce7;border-color:#86efac;color:#14532d}
+    html[data-theme="light"] .msg.info{background:#fff4e6;border-color:#fcd9a0;color:#92400e}
+
+    .pbox{
+      border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 16px;margin-bottom:16px;
+      background:rgba(255,255,255,.05);text-align:center;
+    }
+    html[data-theme="light"] .pbox{background:#faf7fd;border-color:#ece2f4}
+    .pbox .pct{font-size:30px;font-weight:800;color:#f0a4c8;line-height:1.2}
+    html[data-theme="light"] .pbox .pct{color:#a021c9}
+    .pbox .lbl{font-size:13px;color:#cbbfdd}
+    html[data-theme="light"] .pbox .lbl{color:var(--muted)}
+    .pbox .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;margin:10px 0 8px}
+    html[data-theme="light"] .pbox .bar{background:#ece2f4}
+    .pbox .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--pink),var(--violet));border-radius:99px;width:0}
+    .pbox .miss{font-size:12.5px;line-height:1.7;color:#fde68a;margin-top:6px}
+    html[data-theme="light"] .pbox .miss{color:#92400e}
+
+    .alt{text-align:center;margin-top:18px;font-size:13.5px;color:#cbbfdd}
+    html[data-theme="light"] .alt{color:var(--muted)}
+    .alt a{color:#e083b4;text-decoration:none;font-weight:600}
+    html[data-theme="light"] .alt a{color:#b02a80}
+
+    .gate{text-align:center;padding:14px 0}
+    .gate .sp{font-size:34px;color:#c88ae0;animation:sp 1s linear infinite;display:inline-block}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .spin{animation:sp .9s linear infinite;display:inline-block}
+    .hide{display:none !important}
+  </style>
+</head>
+<body data-kh-nav="on">
+
+<div class="bg"></div>
+
+<div class="card">
+  <div class="ico"><i class="ti ti-mail-check"></i></div>
+  <h1 id="title">ইমেইল ভেরিফাই করুন</h1>
+  <div class="sub" id="sub">আবেদনে দেওয়া ইমেইল ঠিকানাটি লিখুন। এই ইমেইলে একটি কোড পাঠানো হবে। এই ইমেইলই ভবিষ্যতে লগইনের জন্য ব্যবহার হবে।</div>
+
+  <div class="msg" id="msg"></div>
+
+  <div class="gate hide" id="gate"><i class="ti ti-loader-2 sp"></i></div>
+
+  <div id="stepEmail">
+    <div class="fg">
+      <label for="em">ইমেইল ঠিকানা</label>
+      <input type="email" id="em" autocomplete="email" placeholder="আবেদনে দেওয়া ইমেইল">
+    </div>
+    <button class="btn" id="sendBtn" type="button"><i class="ti ti-send"></i> ভেরিফিকেশন কোড পাঠান</button>
+  </div>
+
+  <div id="stepDone" class="hide">
+    <div class="pbox">
+      <div class="lbl">আপনার প্রোফাইল সম্পূর্ণতা</div>
+      <div class="pct"><span id="pct">০</span>%</div>
+      <div class="bar"><i id="pctBar"></i></div>
+      <div class="miss" id="missTxt"></div>
+    </div>
+
+    <div class="fg chk">
+      <label><input type="checkbox" id="setPw"> পাসওয়ার্ড সেট করতে চাই (ঐচ্ছিক)</label>
+    </div>
+    <div id="pwBox" class="hide">
+      <div class="fg">
+        <label for="p1">নতুন পাসওয়ার্ড</label>
+        <input type="password" id="p1" autocomplete="new-password" placeholder="কমপক্ষে ৮ অক্ষর">
+      </div>
+      <div class="fg">
+        <label for="p2">আবার লিখুন</label>
+        <input type="password" id="p2" autocomplete="new-password" placeholder="একই পাসওয়ার্ড">
+      </div>
+      <button class="btn" id="savePw" type="button"><i class="ti ti-device-floppy"></i> পাসওয়ার্ড সংরক্ষণ করুন</button>
+    </div>
+
+    <a class="btn" id="goForm" href="committee-form.html"><i class="ti ti-file-text"></i> আমার তথ্য দেখুন / হালনাগাদ করুন</a>
+    <a class="btn ghost" href="my-profile.html"><i class="ti ti-user"></i> আমার প্রোফাইল</a>
+  </div>
+
+  <div class="alt"><a href="user-login.html">লগইন পেজে যান</a></div>
+</div>
+
+<link rel="stylesheet" href="kh-ui.css?v=73">
+<link rel="stylesheet" href="kh-app-downloads.css?v=70">
+<script src="kh-ui.js?v=73"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
+<script src="kh-volunteer.js?v=5" defer></script>
+<script>
+(function () {
+  'use strict';
+
+  var MISS_LBL = {
+    name_bn:'নাম', father_name:'পিতার নাম', nid_no:'NID নম্বর', dob:'জন্ম তারিখ',
+    occupation:'পেশা', mobile:'মোবাইল', email:'ইমেইল', district:'জেলা',
+    present_address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
+    photo:'ছবি', nid_front:'NID (সামনে)', nid_back:'NID (পিছনে)',
+    nominee_name:'নমিনির নাম', nominee_relation:'নমিনির সম্পর্ক', nominee_age:'নমিনির বয়স',
+    nominee_nid:'নমিনির NID', nominee_photo:'নমিনির ছবি',
+    nominee_nid_front:'নমিনির NID (সামনে)', nominee_nid_back:'নমিনির NID (পিছনে)',
+    declaration:'ঘোষণা', email_verified:'ইমেইল ভেরিফিকেশন'
+  };
+
+  function sb(){
+    if (window._db) return window._db;
+    try { if (typeof _db !== 'undefined' && _db) { window._db = _db; return _db; } } catch (e) {}
+    return null;
+  }
+  function el(id){ return document.getElementById(id); }
+  function bn(n){ return (window.KHUI && KHUI.bn) ? KHUI.bn(n) : String(n); }
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function msg(kind, text){
+    var m = el('msg');
+    if(!text){ m.className='msg'; m.textContent=''; return; }
+    m.className = 'msg ' + kind; m.textContent = text;
+  }
+  function busy(id, on, label){
+    var b = el(id);
+    if (!b) return;
+    if (!b.dataset.label) b.dataset.label = b.innerHTML;
+    b.disabled = !!on;
+    b.innerHTML = on ? '<i class="ti ti-loader-2 spin"></i> ' + (label || 'অপেক্ষা করুন…') : b.dataset.label;
+  }
+  function showStep(step){
+    el('stepEmail').classList.toggle('hide', step !== 'email');
+    el('stepDone').classList.toggle('hide', step !== 'done');
+    if (step === 'done') {
+      el('title').textContent = 'ইমেইল ভেরিফাই হয়েছে';
+      el('sub').textContent = 'আপনার নিবন্ধন সম্পন্ন হয়েছে। প্রোফাইল পূর্ণ করতে নিচের ধাপগুলো দেখুন।';
+    }
+  }
+
+  /* যাচাইয়ের পর: প্রোফাইল সম্পূর্ণতা দেখানো */
+  async function loadCompletion(db){
+    var r = await db.rpc('get_my_committee_applications');
+    var apps = (r && r.data) || [];
+    if (!apps.length) {
+      el('pct').textContent = bn(100);
+      el('pctBar').style.width = '100%';
+      el('missTxt').textContent = '';
+      return;
+    }
+    var c = apps[0].completion || {};
+    var pct = Number(c.percent || 0);
+    el('pct').textContent = bn(pct);
+    el('pctBar').style.width = pct + '%';
+    var miss = (c.missing || []).map(function(k){ return MISS_LBL[k] || k; });
+    el('missTxt').textContent = miss.length
+      ? 'বাকি আছে: ' + miss.join(', ') + ' — নিচের বাটনে গিয়ে যোগ করুন।'
+      : 'সব তথ্য সম্পূর্ণ আছে।';
+  }
+
+  async function afterVerify(db){
+    try { await db.rpc('link_my_committee_applications'); } catch (e) {}
+    showStep('done');
+    try { await loadCompletion(db); } catch (e) {}
+  }
+
+  async function boot(){
+    var db = sb();
+    if (!db) { msg('err','সংযোগ তৈরি হয়নি। পেজটি রিফ্রেশ করুন।'); return; }
+
+    /* ইমেইলে ৬ সংখ্যার কোড — ফাউন্ডেশনের নিজের ব্যবস্থা (signup-otp এজ ফাংশন, purpose "member")।
+       আগে Supabase-এর নিজের OTP ইমেইল ব্যবহার হত: অযাচাইকৃত একাউন্টে সেটি কোডের বদলে "কনফার্ম" লিংক পাঠাত
+       (প্রায়ই স্প্যামে), তাই অনেকে কোড পেতেন না। */
+    function otpFn(body) {
+      var fail = { ok: false, message: 'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' };
+      return db.functions.invoke('signup-otp', { body: body })
+        .then(function (r) { return (r && r.data) || fail; })
+        .catch(function () { return fail; });
+    }
+
+    /* আগে থেকে যাচাই হওয়া সেশন থাকলে সরাসরি সম্পূর্ণতা দেখাই */
+    var s = null;
+    try { s = await db.auth.getSession(); } catch (e) {}
+    var sess = s && s.data && s.data.session;
+    if (sess && sess.user && sess.user.email_confirmed_at) {
+      await afterVerify(db);
+      return;
+    }
+
+    el('em').addEventListener('keydown', function(e){ if (e.key === 'Enter') el('sendBtn').click(); });
+
+    el('sendBtn').onclick = async function(){
+      var email = (el('em').value || '').trim().toLowerCase();
+      msg('');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        msg('err','সঠিক ইমেইল ঠিকানা লিখুন।'); el('em').focus(); return;
+      }
+      busy('sendBtn', true, 'কোড পাঠানো হচ্ছে…');
+      var r = await otpFn({ action: 'send', email: email, purpose: 'member' });
+      busy('sendBtn', false);
+      /* "wait" মানে এক মিনিটের মধ্যে আগেই কোড গেছে — সেটিই ব্যবহার করা যাবে */
+      if (!r.ok && r.error !== 'wait') {
+        msg('err', r.message || 'এই ইমেইলে কোড পাঠানো যায়নি। আবেদনে যে ইমেইল দিয়েছিলেন সেটি লিখুন।');
+        return;
+      }
+      msg('info','কোড পাঠানো হয়েছে — ইমেইল দেখুন। ইনবক্সে না পেলে স্প্যাম/প্রমোশন ফোল্ডারও দেখুন।');
+
+      KHUI.otp({
+        length: 6, demo: false,
+        title: 'ইমেইল যাচাই',
+        sent: 1,
+        subtitle: esc(email) + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন (ইনবক্সে না পেলে স্প্যাম ফোল্ডার দেখুন)',
+        onVerify: async function (code, done) {
+          var v = await otpFn({ action: 'verify', email: email, code: code, purpose: 'member' });
+          if (!v.ok) { done(false, v.message); return; }
+          /* কোড মিলেছে — সার্ভার ইমেইল যাচাইকৃত করেছে ও এককালীন লগইন টোকেন দিয়েছে */
+          var ok = false;
+          if (v.token_hash) {
+            var s = await db.auth.verifyOtp({ token_hash: v.token_hash, type: 'email' });
+            if (s.error) s = await db.auth.verifyOtp({ token_hash: v.token_hash, type: 'magiclink' });
+            ok = !s.error && !!(s.data && s.data.session);
+          }
+          done(ok, 'ইমেইল যাচাই হয়েছে, কিন্তু লগইন হয়নি — আবার কোড নিয়ে চেষ্টা করুন।');
+        },
+        onResend: function (done) {
+          otpFn({ action: 'send', email: email, purpose: 'member' }).then(function (x) {
+            done(!!x.ok, x.ok ? '' : String(x.message || '').replace(/[।.\s]+$/, ''));
+          });
+        },
+        onCancel: function () { msg('info','ইমেইল যাচাই না করলে নিবন্ধন সম্পন্ন হবে না।'); },
+        onSuccess: function () {
+          msg('ok','ইমেইল ভেরিফাই হয়েছে!');
+          afterVerify(db);
+        }
+      });
+    };
+
+    /* ঐচ্ছিক — পাসওয়ার্ড সেট (ইমেইল দিয়ে কোড লগইন সবসময় কাজ করবে) */
+    el('setPw').onchange = function(){ el('pwBox').classList.toggle('hide', !this.checked); };
+    el('p2').addEventListener('keydown', function(e){ if (e.key === 'Enter') el('savePw').click(); });
+    el('savePw').onclick = async function(){
+      var a = el('p1').value, c = el('p2').value;
+      msg('');
+      if (!a) { msg('err','নতুন পাসওয়ার্ড লিখুন।'); el('p1').focus(); return; }
+      if (a.length < 8) { msg('err','পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); el('p1').focus(); return; }
+      if (a !== c) { msg('err','দুটি পাসওয়ার্ড মিলছে না।'); el('p2').focus(); return; }
+      if (window.KHUI && KHUI.score && KHUI.score(a) <= 1) {
+        msg('err','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।'); el('p1').focus(); return;
+      }
+      busy('savePw', true, 'সংরক্ষণ হচ্ছে…');
+      try {
+        var r = await db.auth.updateUser({ password: a });
+        if (r && r.error) throw r.error;
+        el('pwBox').classList.add('hide');
+        el('setPw').checked = false;
+        msg('ok','পাসওয়ার্ড সংরক্ষিত হয়েছে। এখন থেকে ইমেইল ও পাসওয়ার্ড দিয়েও লগইন করতে পারবেন।');
+      } catch (e) {
+        var t = (e && e.message) || '';
+        msg('err', /should be different|same/i.test(t)
+          ? 'নতুন পাসওয়ার্ডটি আগেরটির মতোই — অন্য একটি দিন।'
+          : ('সংরক্ষণ ব্যর্থ: ' + (t || 'আবার চেষ্টা করুন')));
+      }
+      busy('savePw', false);
+    };
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+<script src="kh-i18n-data.js?v=3" defer></script>
+<script src="kh-volunteer-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=1" defer></script>
+</body>
+</html>

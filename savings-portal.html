@@ -1265,7 +1265,9 @@ async function doLogin() {
   showMsg('loginMsg','','');
   if(!email||!pass) return showMsg('loginMsg','ইমেইল ও পাসওয়ার্ড প্রয়োজন','error');
   const { data, error } = await _db.auth.signInWithPassword({ email, password: pass });
-  if(error) return showMsg('loginMsg', error.message, 'error');
+  if(error) return showMsg('loginMsg', /confirm/i.test(error.message || '')
+    ? 'ই-মেইল যাচাই হয়নি। "নতুন হিসাব খুলুন" অংশে একই ই-মেইল দিয়ে আবার নিবন্ধন করুন — ই-মেইলে আসা ৬ সংখ্যার কোড দিলেই একাউন্ট চালু হবে।'
+    : 'ই-মেইল বা পাসওয়ার্ড মেলেনি। নিবন্ধনের সময় কোড না দিয়ে ই-মেইলের লিংকে ক্লিক করে থাকলে একই ই-মেইলে আবার নিবন্ধন করুন — কোড দিলেই একাউন্ট সম্পূর্ণ হবে।', 'error');
   await loadPortal(data.user);
 }
 
@@ -1317,7 +1319,7 @@ async function doRegister() {
 
   if(!pass) return showMsg('regMsg','পাসওয়ার্ড দিন','error');
   if(pass !== pass2) return showMsg('regMsg','পাসওয়ার্ড দুটি মিলছে না','error');
-  if(pass.length < 6) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error');
+  if(pass.length < 8) return showMsg('regMsg','পাসওয়ার্ড কমপক্ষে ৮ অক্ষর হতে হবে','error');
   if(window.KHUI && KHUI.score && KHUI.score(pass) <= 2) return showMsg('regMsg','পাসওয়ার্ডটি খুব দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।','error');
 
   // ── the member chooses how to verify before the account is created ──
@@ -1330,24 +1332,39 @@ async function doRegister() {
   });
   return;
 
-  // real email OTP via Supabase (free)
+  /* ই-মেইলে ৬ সংখ্যার কোড — ফাউন্ডেশনের নিজের ব্যবস্থা (signup-otp এজ ফাংশন, Gmail থেকে পাঠানো)।
+     আগে Supabase-এর signInWithOtp নতুন ঠিকানায় কোডের বদলে "কনফার্ম" লিংক পাঠাত (প্রায়ই স্প্যামে),
+     আর লিংকে ক্লিক করলে বেছে নেওয়া পাসওয়ার্ড সংরক্ষিত হত না — পরে লগইন হত না।
+     এখন কোড মিললে সার্ভারেই একাউন্ট তৈরি হয় (যাচাইকৃত ই-মেইল ও পাসওয়ার্ডসহ), তারপর সাধারণ লগইন। */
+  function signupFn(body) {
+    const fail = { ok: false, message: 'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' };
+    return _db.functions.invoke('signup-otp', { body: body })
+      .then(function (r) { return (r && r.data) || fail; })
+      .catch(function () { return fail; });
+  }
+
   async function emailStep() {
-    showMsg('regMsg','ই-মেইলে পাঠানো কোডটি যাচাই করুন।','info');
-    const sent = await _db.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-    if (sent.error) { showMsg('regMsg','ই-মেইল কোড পাঠানো যায়নি: '+sent.error.message,'error'); return; }
+    showMsg('regMsg','ই-মেইলে কোড পাঠানো হচ্ছে…','info');
+    const sent = await signupFn({ action: 'send', email: email, name: name });
+    /* "wait" মানে এক মিনিটের মধ্যে আগেই কোড গেছে — সেটিই ব্যবহার করা যাবে */
+    if (!sent.ok && sent.error !== 'wait') { showMsg('regMsg', sent.message || 'ই-মেইল কোড পাঠানো যায়নি।', 'error'); return; }
+    showMsg('regMsg','ই-মেইলে পাঠানো ৬ সংখ্যার কোডটি লিখুন। ইনবক্সে না পেলে স্প্যাম/প্রমোশন ফোল্ডারও দেখুন।','info');
     KHUI.otp({
       length: 6, demo: false,
       title: 'ই-মেইল যাচাই',
       sent: 1,
       onResend: function (done) {
-        _db.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } })
-          .then(function (r) { done(!(r && r.error), r && r.error ? r.error.message : ''); })
-          .catch(function () { done(false, 'সংযোগ ত্রুটি'); });
+        signupFn({ action: 'send', email: email, name: name }).then(function (r) {
+          done(!!r.ok, r.ok ? '' : String(r.message || '').replace(/[।.\s]+$/, ''));
+        });
       },
-      subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
+      subtitle: email.replace(/[<>&"]/g, '') + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন (ইনবক্সে না পেলে স্প্যাম ফোল্ডার দেখুন)',
       onVerify: async function (code, done) {
-        const v = await _db.auth.verifyOtp({ email, token: code, type: 'email' });
-        done(!v.error && v.data && v.data.session);
+        const v = await signupFn({ action: 'verify', email: email, code: code, password: pass, name: name, mobile: phone });
+        if (!v.ok) { done(false, v.message); return; }
+        const s = await _db.auth.signInWithPassword({ email: email, password: pass });
+        done(!s.error && s.data && s.data.session,
+             'একাউন্ট তৈরি হয়েছে, কিন্তু লগইন হয়নি — উপরের লগইন অংশ থেকে চেষ্টা করুন।');
       },
       onCancel:  function () { showMsg('regMsg','ই-মেইল যাচাই না করলে হিসাব সম্পূর্ণ হবে না।','error'); },
       onSuccess: finishRegister
@@ -1357,11 +1374,8 @@ async function doRegister() {
   async function finishRegister() {
     showMsg('regMsg','হিসাব তৈরি হচ্ছে…','info');
 
-    /* নতুন সদস্য (OTP পথ) হলে পাসওয়ার্ড বসানো হয়;
+    /* নতুন সদস্যের পাসওয়ার্ড কোড যাচাইয়ের সময় সার্ভারেই বসেছে ও লগইন হয়েছে;
        আগে থেকে সাইন ইন থাকলে অ্যাকাউন্টের পাসওয়ার্ডই বহাল থাকে */
-    if (!currentUser && pass) {
-      await _db.auth.updateUser({ password: pass });
-    }
     const { data: { session } } = await _db.auth.getSession();
     if (!session || !session.user) { showMsg('regMsg','যাচাই সম্পন্ন হয়নি। আবার চেষ্টা করুন।','error'); return; }
 
@@ -2997,11 +3011,11 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=72"></script>
+<script src="kh-ui.js?v=73"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
-<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=3" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

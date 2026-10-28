@@ -1,5 +1,8 @@
 /* Korje Hasana — নোটিশ বোর্ড (ওয়েব)
- * পেজের নিচে-বাম কোণে একটি বাটন। ক্লিক করলে বা কার্সর নিলে ডান দিকে একটি প্যানেল খোলে:
+ * হেডারে "নোটিশ বোর্ড" — বড় পর্দায় টপবারে (লগইন বোতামের পাশে), ছোট পর্দায় হ্যামবার্গার মেনুতে;
+ * টপবার নেই এমন পেজে হেডারের অন্য লিংকগুলোর পাশে। ক্লিক করলে ডান দিকে একটি প্যানেল খোলে।
+ * হেডারে চেনা মেনু না পাওয়া গেলেই শুধু আগের মতো নিচে-বাম কোণে ভাসমান বাটন বসে।
+ * ঠিকানায় #notice-board থাকলে পেজ খোলার সাথে সাথে প্যানেল খোলে। প্যানেলে আছে:
  *   • প্রতিবেদন  — মাসিক / বার্ষিক / নিরীক্ষা প্রতিবেদন (সুপার-এডমিন আপলোড করে)
  *   • খবর ও ঘোষণা — General Settings থেকে পাঠানো ঘোষণার যেগুলো "নোটিশ বোর্ডেও দেখান" করা
  *   • সিস্টেম প্রতিবেদন — সিস্টেম থেকে তৈরি খাতভিত্তিক তহবিলের হিসাব (public_stats)
@@ -46,7 +49,7 @@
 
   /* ---------- পাবলিক বোর্ড ---------- */
   var state = { open: false, pinned: false, tab: 'reports', cat: 'all', board: null, boardAt: 0, timer: null };
-  var tabBtn, panel;
+  var triggers = [], panel;   /* triggers: নোটিশ বোর্ড খোলার সব লিংক/বোতাম */
   var isTouch = !(window.matchMedia && window.matchMedia('(hover: hover)').matches);
 
   var CSS = [
@@ -58,6 +61,12 @@
     '.kh-nb-tab:focus-visible{outline:2px solid #fff;outline-offset:3px}',
     '.kh-nb-tab i{font-size:17px;color:#fff}',
     '@media (max-width:768px){.kh-nb-tab{bottom:96px}}',
+    '.kh-nb-navlink{cursor:pointer;white-space:nowrap}',
+    /* হ্যামবার্গার মেনুর আইটেম শুধু ছোট পর্দায়; বড় পর্দায় টপবারের বোতামটি দেখা যায় */
+    '.kh-nb-menu{display:none !important}',
+    '@media (max-width:768px){.kh-nb-menu{display:flex !important;align-items:center;gap:8px}.kh-nb-menu i{font-size:17px}}',
+    /* মাঝারি পর্দায় টপবারে জায়গা কম — তখন শুধু আইকন (নাম থাকে title/aria-label-এ) */
+    '@media (max-width:1100px){.kh-nb-top span{display:none}.kh-nb-top{padding-left:10px !important;padding-right:10px !important}}',
     '.kh-nb-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,94vw);z-index:9200;display:flex;flex-direction:column;',
     'background:#111827;color:#f1f5f9;box-shadow:-12px 0 32px rgba(0,0,0,.35);transform:translateX(105%);',
     'transition:transform .25s ease;font-family:inherit}',
@@ -95,7 +104,12 @@
   }
 
   function labels() {
-    if (tabBtn) tabBtn.querySelector('span').textContent = T('নোটিশ বোর্ড', 'Notice Board');
+    triggers.forEach(function (b) {
+      var s = b.querySelector('span');
+      if (s) s.textContent = T('নোটিশ বোর্ড', 'Notice Board');
+      b.setAttribute('title', T('নোটিশ বোর্ড', 'Notice Board'));
+      b.setAttribute('aria-label', T('নোটিশ বোর্ড', 'Notice Board'));
+    });
     var t = panel && panel.querySelector('.kh-nb-title');
     if (t) t.textContent = T('নোটিশ বোর্ড', 'Notice Board');
     var x = panel && panel.querySelector('.kh-nb-x');
@@ -183,8 +197,11 @@
     if (pin) state.pinned = true;
     panel.classList.add('open');
     panel.setAttribute('aria-hidden', 'false');
-    tabBtn.setAttribute('aria-expanded', 'true');
+    setExpanded(true);
     render();
+  }
+  function setExpanded(on) {
+    triggers.forEach(function (b) { b.setAttribute('aria-expanded', on ? 'true' : 'false'); });
   }
   function closePanel() {
     clearTimeout(state.timer);
@@ -192,7 +209,7 @@
     state.pinned = false;
     panel.classList.remove('open');
     panel.setAttribute('aria-hidden', 'true');
-    tabBtn.setAttribute('aria-expanded', 'false');
+    setExpanded(false);
   }
   function scheduleClose() {
     if (state.pinned) return;
@@ -200,18 +217,67 @@
     state.timer = setTimeout(function () { if (!state.pinned) closePanel(); }, 300);
   }
 
+  function makeLink(cls, withIcon) {
+    var a = document.createElement('a');
+    a.href = '#notice-board';
+    a.className = cls + ' kh-nb-navlink';
+    a.setAttribute('role', 'button');
+    a.innerHTML = (withIcon ? '<i class="ti ti-speakerphone" aria-hidden="true"></i> ' : '') + '<span></span>';
+    return a;
+  }
+  function put(parent, el, before) {
+    if (before && before.parentNode !== parent) before = null;
+    parent.insertBefore(el, before || null);
+    triggers.push(el);
+  }
+
+  /* হেডারে "নোটিশ বোর্ড" বসানো। সাইটে তিন ধরনের হেডার আছে:
+   *  • টপবার + মেনু (হোম, সম্পর্কে, স্বেচ্ছাসেবক পেজ): বড় পর্দায় টপবারে লগইন বোতামের পাশে; ছোট পর্দায়
+   *    (≤৭৬৮px, যেখানে টপবারের বোতাম লুকায়) হ্যামবার্গার মেনুতে — লগইন/অ্যাডমিন বোতামের মতোই।
+   *    (মূল মেনুর সারিতে বসালে ১০২৪px-এ মেনু পর্দা ছাড়িয়ে যাচ্ছিল।)
+   *  • শুধু .nav-right (সঞ্চয় পোর্টাল): অন্য লিংকগুলোর পাশে।
+   *  কিছুই না পেলে false — তখন আগের মতো ভাসমান বোতাম। */
+  function mountInHeader() {
+    var top = document.querySelector('.topbar .topbar-right');
+    var menu = document.getElementById('navCenter') || document.querySelector('.navbar .nav-links, nav .nav-links');
+    var right = document.querySelector('.navbar .nav-right, nav .nav-right');
+    if (top && menu) {
+      put(top, makeLink('topbar-admin-btn kh-nb-top', true), top.querySelector('.kh-login-link') || top.querySelector('.topbar-admin-btn'));
+      put(menu, makeLink('nav-link kh-nb-menu', true), menu.querySelector('.nav-hover-bar'));
+    } else if (menu) {
+      put(menu, makeLink('nav-link', false), menu.querySelector('.nav-hover-bar'));
+    } else if (right) {
+      put(right, makeLink(right.querySelector('a.nav-link-sm') ? 'nav-link-sm' : 'nav-link', false), right.querySelector('.nav-home-btn'));
+    }
+    return triggers.length > 0;
+  }
+
+  /* মোবাইলে মেনু খোলা থাকলে প্যানেল খোলার আগে মেনুটা বন্ধ করা (পেজের toggleMenu()-এর মতো) */
+  function closeMobileMenu() {
+    var l = document.querySelector('.nav-links.open');
+    if (l) l.classList.remove('open');
+    var b = document.querySelector('.nav-hamburger.active');
+    if (b) b.classList.remove('active');
+  }
+
   function mountPublic() {
     if (document.body && document.body.getAttribute('data-kh-notice') === 'off') return;
-    if (document.querySelector('.kh-nb-tab')) return;
+    if (document.querySelector('.kh-nb-tab, .kh-nb-navlink')) return;
     injectCss();
 
-    tabBtn = document.createElement('button');
-    tabBtn.type = 'button';
-    tabBtn.className = 'kh-nb-tab';
-    tabBtn.setAttribute('aria-expanded', 'false');
-    tabBtn.setAttribute('aria-controls', 'khNbPanel');
-    tabBtn.innerHTML = '<i class="ti ti-speakerphone" aria-hidden="true"></i><span></span>';
-    document.body.appendChild(tabBtn);
+    var inMenu = mountInHeader();
+    if (!inMenu) {
+      var fb = document.createElement('button');
+      fb.type = 'button';
+      fb.className = 'kh-nb-tab';
+      fb.innerHTML = '<i class="ti ti-speakerphone" aria-hidden="true"></i><span></span>';
+      document.body.appendChild(fb);
+      triggers.push(fb);
+    }
+    triggers.forEach(function (b) {
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('aria-controls', 'khNbPanel');
+    });
 
     panel = document.createElement('aside');
     panel.className = 'kh-nb-panel';
@@ -222,17 +288,26 @@
 
     labels();
 
-    /* কার্সর নিলে খোলে (ডেস্কটপ); ক্লিক করলে পিন হয়ে থাকে; টাচে শুধু ক্লিক */
-    tabBtn.addEventListener('mouseenter', function () { if (!isTouch && !state.open) openPanel(false); else clearTimeout(state.timer); });
-    tabBtn.addEventListener('mouseleave', scheduleClose);
+    /* ভাসমান বাটনে (শুধু মেনু না থাকলে): কার্সর নিলে খোলে; মেনুর লিংকে শুধু ক্লিকে */
+    if (!inMenu) {
+      triggers[0].addEventListener('mouseenter', function () { if (!isTouch && !state.open) openPanel(false); else clearTimeout(state.timer); });
+      triggers[0].addEventListener('mouseleave', scheduleClose);
+    }
     panel.addEventListener('mouseenter', function () { clearTimeout(state.timer); });
     panel.addEventListener('mouseleave', scheduleClose);
 
-    tabBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (state.open && state.pinned) closePanel();
-      else openPanel(true);
+    triggers.forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (inMenu) closeMobileMenu();
+        if (state.open && state.pinned) closePanel();
+        else openPanel(true);
+      });
     });
+
+    /* ঠিকানায় #notice-board থাকলে সরাসরি খোলা (যেমন অন্য পেজ বা মেসেজ থেকে লিংক) */
+    if (location.hash === '#notice-board') openPanel(true);
 
     panel.addEventListener('click', function (e) {
       var t = e.target;
@@ -247,7 +322,8 @@
       if (!state.open || !state.pinned) return;
       /* composedPath: ক্লিকের পরে ভিতরের অংশ বদলে গেলেও ঠিক থাকে */
       var path = e.composedPath ? e.composedPath() : [];
-      if (path.indexOf(panel) !== -1 || path.indexOf(tabBtn) !== -1) return;
+      if (path.indexOf(panel) !== -1) return;
+      if (triggers.some(function (b) { return path.indexOf(b) !== -1; })) return;
       closePanel();
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && state.open) closePanel(); });

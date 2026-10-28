@@ -221,9 +221,9 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=72"></script>
+<script src="kh-ui.js?v=73"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
 <script>
 (function(){
@@ -257,6 +257,7 @@
     var g = el('cgrid');
     if(!STRUCT.length){ g.innerHTML = '<p class="cdesc">এখনো কোনো কমিটি যোগ করা হয়নি।</p>'; return; }
     g.innerHTML = STRUCT.map(function(c, i){
+      if(c.code === 'general') return generalCard(c, i);
       var closed = c.is_approved || !c.applications_open;
       var badge  = c.is_approved ? 'অনুমোদিত — আবেদন বন্ধ'
                  : (!c.applications_open ? 'আবেদন সাময়িক বন্ধ' : 'আবেদন চলছে');
@@ -289,6 +290,25 @@
     }).join('');
   }
 
+  /* "সাধারণ সদস্য" অংশ: পদ নেই — সরাসরি আবেদন। সদস্যদের তালিকা পাবলিক নয় (শুধু অ্যাডমিন দেখেন)। */
+  function generalCard(c, i){
+    var closed = !c.applications_open;
+    var href = 'committee-form.html?c=' + encodeURIComponent(c.id);
+    return '<div class="ccard">' +
+      '<div class="ctop cc' + (i % 4) + '"><i class="ti ti-users-group"></i><b>' + esc(c.name_bn) + '</b>' +
+      '<span class="cstat">' + (closed ? 'আবেদন সাময়িক বন্ধ' : 'আবেদন চলছে') + '</span></div>' +
+      '<div class="cbody">' +
+      (c.description_bn ? '<div class="cdesc">' + esc(c.description_bn) + '</div>' : '') +
+      '<div class="prow"><div class="pinfo">' +
+        '<div class="pname">সাধারণ সদস্যপদ</div>' +
+        '<div class="pduty">নমিনির তথ্য, ছবি ও এনআইডি বাধ্যতামূলক। অ্যাডমিনের অনুমোদনের পর সদস্যপদ কার্যকর হবে।</div>' +
+      '</div>' +
+      (closed
+        ? '<button class="pbtn" disabled><i class="ti ti-lock"></i> বন্ধ</button>'
+        : '<a class="pbtn" href="' + href + '"><i class="ti ti-writing-sign"></i> আবেদন</a>') +
+      '</div></div></div>';
+  }
+
   /* ───────── নিজের আবেদন ───────── */
   var ST = {
     pending:  ['si-pending','ti-hourglass','যাচাইয়ের অপেক্ষায়','অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ততক্ষণ তথ্য সংশোধন করা যাবে।'],
@@ -306,13 +326,14 @@
     el('myAppsPanel').classList.remove('hidden');
     el('myApps').innerHTML = MYAPPS.map(function(a){
       var s = ST[a.status] || ST.pending;
+      var note = (a.status === 'approved' && !a.position_id) ? 'আপনি সাধারণ সদস্য হিসেবে অন্তর্ভুক্ত হয়েছেন।' : s[3];
       var href = 'committee-form.html?c=' + encodeURIComponent(a.committee_id) +
                  (a.position_id ? '&p=' + encodeURIComponent(a.position_id) : '');
       return '<div class="stat-card">' +
         '<div class="stat-ico ' + s[0] + '"><i class="ti ' + s[1] + '"></i></div>' +
-        '<div style="flex:1;min-width:0"><div class="stat-b">' + esc(a.committee_name||'') + ' · ' +
-        esc(a.position_title||'—') + '</div>' +
-        '<div class="stat-s"><b>' + s[2] + '</b> — ' + esc(s[3]) +
+        '<div style="flex:1;min-width:0"><div class="stat-b">' + esc(a.committee_name||'') +
+        (a.position_title ? ' · ' + esc(a.position_title) : '') + '</div>' +
+        '<div class="stat-s"><b>' + s[2] + '</b> — ' + esc(note) +
         (a.admin_note ? '<br><b>অ্যাডমিনের মন্তব্য:</b> ' + esc(a.admin_note) : '') + '</div></div>' +
         (a.status === 'approved' ? '' :
           '<a class="pbtn" href="' + href + '" style="align-self:center"><i class="ti ti-edit"></i> খুলুন</a>') +
@@ -335,7 +356,7 @@
   })();
 })();
 </script>
-<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=3" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

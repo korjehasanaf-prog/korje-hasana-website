@@ -476,7 +476,11 @@ async function doLogin() {
       busy('loginBtn', false); shake(); return;
     }
     if (res.error) {
-      msg('loginMsg', 'ভুল তথ্য। আবার চেষ্টা করুন।');
+      /* আগে নিবন্ধনের সময় যারা কোডের বদলে লিংকে ক্লিক করেছিলেন, তাদের পাসওয়ার্ড সংরক্ষিত হয়নি —
+         একই ই-মেইলে আবার "সাইন আপ" করলে কোড দিয়ে একাউন্ট সম্পূর্ণ হয় */
+      msg('loginMsg', /confirm/i.test(res.error.message || '')
+        ? 'ই-মেইল যাচাই হয়নি। "সাইন আপ" অংশে একই ই-মেইল দিয়ে আবার নিবন্ধন করুন — ই-মেইলে আসা ৬ সংখ্যার কোড দিলেই একাউন্ট চালু হবে।'
+        : 'ভুল তথ্য। আবার চেষ্টা করুন। নিবন্ধনের সময় কোড না দিয়ে ই-মেইলের লিংকে ক্লিক করে থাকলে "সাইন আপ" অংশে একই ই-মেইলে আবার নিবন্ধন করুন — কোড দিলেই একাউন্ট সম্পূর্ণ হবে।');
       busy('loginBtn', false); shake(); return;
     }
 
@@ -542,6 +546,8 @@ async function doSignup() {
   if (!name)                { msg('regMsg', 'আপনার পূর্ণ নাম লিখুন।'); shake(); return; }
   if (mobile.length !== 11) { msg('regMsg', 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (যেমন 01711515952)।'); shake(); return; }
   if (!isEmail(email))      { msg('regMsg', 'যাচাইয়ের জন্য একটি সঠিক ই-মেইল ঠিকানা দিন।'); shake(); return; }
+  var typo = emailTypo(email);
+  if (typo) { msg('regMsg', 'ই-মেইলের বানান দেখুন — আপনি কি ' + typo + ' লিখতে চেয়েছেন?'); shake(); return; }
   if (pass.length < 8)      { msg('regMsg', 'পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।'); shake(); return; }
   if (pwMeter() <= 2)       { msg('regMsg', 'পাসওয়ার্ডটি দুর্বল। বড় হাতের অক্ষর, সংখ্যা ও চিহ্ন যোগ করুন।'); shake(); return; }
 
@@ -562,46 +568,68 @@ async function doSignup() {
   });
 }
 
-/* ── real email OTP via Supabase (free) ── */
-async function emailStep(name, mobile, email, pass) {
-  msg('regMsg', 'ই-মেইলে পাঠানো কোডটি যাচাই করুন।', 'info');
-  busy('regBtn', true, 'ই-মেইল কোড পাঠানো হচ্ছে…');
+/* সাধারণ বানান-ভুল (যেমন gamil.com) — কোড ভুল ঠিকানায় চলে যাওয়া ঠেকাতে */
+function emailTypo(e) {
+  var at = e.lastIndexOf('@');
+  var d = e.slice(at + 1);
+  var fix = { 'gamil.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gmal.com': 'gmail.com',
+              'gmil.com': 'gmail.com', 'gmaill.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com',
+              'gmail.con': 'gmail.com', 'gmail.om': 'gmail.com', 'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com',
+              'yahoo.co': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'hotmail.co': 'hotmail.com', 'outlok.com': 'outlook.com' };
+  return fix[d] ? e.slice(0, at) + '@' + fix[d] : '';
+}
 
-  var sent = await _db.auth.signInWithOtp({
-    email: email,
-    options: { shouldCreateUser: true }
-  });
+/* ── ই-মেইলে ৬ সংখ্যার কোড — ফাউন্ডেশনের নিজের ব্যবস্থা (signup-otp এজ ফাংশন) ──
+   আগে Supabase-এর নিজের ই-মেইল যেত: নতুন ব্যবহারকারী কোডের বদলে "কনফার্ম" লিংক পেতেন (প্রায়ই স্প্যামে),
+   আর লিংকে ক্লিক করলে বেছে নেওয়া পাসওয়ার্ড সংরক্ষিত হত না — তাই পরে লগইন হত না।
+   এখন কোড মিললে সার্ভারেই একাউন্ট তৈরি হয় (যাচাইকৃত ই-মেইল ও পাসওয়ার্ডসহ), তারপর সাধারণ লগইন। */
+function signupFn(body) {
+  var fail = { ok: false, message: 'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' };
+  return _db.functions.invoke('signup-otp', { body: body })
+    .then(function (r) { return (r && r.data) || fail; })
+    .catch(function () { return fail; });
+}
+
+async function emailStep(name, mobile, email, pass) {
+  msg('regMsg', 'ই-মেইলে কোড পাঠানো হচ্ছে…', 'info');
+  busy('regBtn', true, 'ই-মেইল কোড পাঠানো হচ্ছে…');
+  var sent = await signupFn({ action: 'send', email: email, name: name });
   busy('regBtn', false);
-  if (sent.error) {
-    msg('regMsg', 'ই-মেইল কোড পাঠানো যায়নি: ' + sent.error.message);
+  /* "wait" মানে এক মিনিটের মধ্যে আগেই কোড গেছে — সেটিই ব্যবহার করা যাবে */
+  if (!sent.ok && sent.error !== 'wait') {
+    msg('regMsg', sent.message || 'ই-মেইল কোড পাঠানো যায়নি।');
     shake(); return;
   }
+  msg('regMsg', 'ই-মেইলে পাঠানো ৬ সংখ্যার কোডটি লিখুন। ইনবক্সে না পেলে স্প্যাম/প্রমোশন ফোল্ডারও দেখুন।', 'info');
 
   KHUI.otp({
     length: 6, demo: false,
     title: 'ই-মেইল যাচাই',
+    subtitle: email.replace(/[<>&"]/g, '') + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন (ইনবক্সে না পেলে স্প্যাম ফোল্ডার দেখুন)',
     sent: 1,
-    onResend: function (done) {
-      _db.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } })
-        .then(function (r) { done(!(r && r.error), r && r.error ? r.error.message : ''); })
-        .catch(function () { done(false, 'সংযোগ ত্রুটি'); });
-    },
-    subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
     onVerify: async function (code, done) {
-      var v = await _db.auth.verifyOtp({ email: email, token: code, type: 'email' });
-      done(!v.error && v.data && v.data.session);
+      var v = await signupFn({ action: 'verify', email: email, code: code, password: pass, name: name, mobile: mobile });
+      if (!v.ok) { done(false, v.message); return; }
+      var s = await _db.auth.signInWithPassword({ email: email, password: pass });
+      done(!s.error && s.data && s.data.session,
+           'একাউন্ট তৈরি হয়েছে, কিন্তু লগইন হয়নি — লগইন অংশ থেকে চেষ্টা করুন।');
+    },
+    /* "পুনরায় পাঠান" — একই নিজস্ব ব্যবস্থায় নতুন কোড (KHUI নিজেই ৬০ সেকেন্ড গোনে ও ফল দেখায়) */
+    onResend: function (done) {
+      signupFn({ action: 'send', email: email, name: name }).then(function (r) {
+        done(!!r.ok, r.ok ? '' : String(r.message || '').replace(/[।.\s]+$/, ''));
+      });
     },
     onCancel: function () { msg('regMsg', 'ই-মেইল যাচাই না করলে অ্যাকাউন্ট সম্পূর্ণ হবে না।'); },
     onSuccess: function () { finishSignup(name, mobile, email, pass); }
   });
 }
 
-/* ── STEP 3 · both verified → set password + create profile ── */
+/* ── STEP 3 · verified & signed in → create profile ── */
 async function finishSignup(name, mobile, email, pass) {
   busy('regBtn', true, 'অ্যাকাউন্ট তৈরি হচ্ছে…');
   try {
-    /* the email OTP already signed us in; attach the chosen password */
-    var upd = await _db.auth.updateUser({ password: pass });
+    /* কোড যাচাইয়ের সময় সার্ভারেই পাসওয়ার্ড বসেছে ও উপরে লগইন হয়েছে */
     var sess = await _db.auth.getSession();
     var uid = sess && sess.data && sess.data.session ? sess.data.session.user.id : null;
     if (!uid) {
@@ -756,11 +784,11 @@ function showSignOut() {
 </script>
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=72"></script>
+<script src="kh-ui.js?v=73"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
-<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=3" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

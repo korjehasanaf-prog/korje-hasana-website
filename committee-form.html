@@ -116,6 +116,7 @@
     html[data-theme="light"] .fg select:focus{background:#fff;border-color:#a021c9;
       box-shadow:0 0 0 3px rgba(160,33,201,.14)}
 
+    .fg input[readonly]{opacity:.8;cursor:not-allowed}
     .upbtn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-family:inherit;
       font-size:12.5px;font-weight:700;color:#fff;border:none;border-radius:10px;padding:10px 15px;
       background:linear-gradient(112deg,#7048e8,#a021c9);box-shadow:0 5px 14px rgba(112,72,232,.35)}
@@ -193,6 +194,45 @@
     .docprev img.avatar{width:110px;height:110px;border-radius:50%;object-fit:cover}
     .docprev .pdfbox{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
       color:#fff;background:linear-gradient(112deg,#4c2f78,#241539);border-radius:10px;padding:10px 14px}
+    /* ── নমিনি, অগ্রগতি ও দাখিলকৃত সম্মতিপত্র ── */
+    .req{color:#ff9db6}
+    html[data-theme="light"] .req{color:#c2185b}
+    .progbox{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:13px 15px;margin-bottom:16px}
+    html[data-theme="light"] .progbox{background:#faf7fd;border-color:#ece2f4}
+    .progtop{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;margin-bottom:9px;flex-wrap:wrap}
+    .progtop .pct{margin-left:auto;font-size:15px;color:#7ee2a8}
+    html[data-theme="light"] .progtop .pct{color:#0d6e56}
+    .pbar{height:9px;border-radius:20px;background:rgba(255,255,255,.14);overflow:hidden}
+    html[data-theme="light"] .pbar{background:#ece2f4}
+    .pbar > i{display:block;height:100%;width:0;border-radius:20px;background:linear-gradient(90deg,#d6336c,#f08c28,#1d9e75);transition:width .35s}
+    .progmiss{font-size:11.5px;color:#cbbfdd;line-height:1.7;margin-top:8px}
+    html[data-theme="light"] .progmiss{color:var(--muted)}
+    .nomsec{margin-top:18px;padding:16px 15px 4px;border:1px dashed rgba(255,255,255,.22);border-radius:14px}
+    html[data-theme="light"] .nomsec{border-color:#d9c8ec}
+    .nomsec > h3{font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .nomsec > h3 i{color:#e083b4}
+    html[data-theme="light"] .nomsec > h3 i{color:#b02a80}
+    .gmline{font-size:12px;color:#cbbfdd;line-height:1.7;margin-bottom:12px}
+    html[data-theme="light"] .gmline{color:var(--muted)}
+    .myapp{border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:14px 15px;margin-bottom:12px;background:rgba(255,255,255,.04)}
+    html[data-theme="light"] .myapp{background:#fff;border-color:#ece2f4}
+    .myapp-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px;font-weight:700;margin-bottom:9px}
+    .myapp-t .badge{font-size:10.5px;border-radius:20px;padding:3px 10px;background:rgba(255,255,255,.14)}
+    .sumrow{font-size:12px;color:#cbbfdd;line-height:1.8;margin-top:6px}
+    html[data-theme="light"] .sumrow{color:var(--muted)}
+    .myapp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+    .myapp-grid figure{font-size:11px;color:#cbbfdd;text-align:center}
+    html[data-theme="light"] .myapp-grid figure{color:var(--muted)}
+    .myapp-grid img{width:100%;height:96px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:#fff;cursor:zoom-in;display:block}
+    .myapp-grid img.sq{border-radius:50%;width:96px;margin:0 auto}
+    .myapp-grid .nodoc{height:96px;border-radius:10px;border:1px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:#a698bd;text-align:center;padding:4px;text-decoration:none}
+    .myapp-grid figcaption{margin-top:5px}
+    .impbox{margin:4px 0 16px;padding:13px 15px;border-radius:14px;background:rgba(112,72,232,.16);border:1px solid rgba(112,72,232,.45)}
+    html[data-theme="light"] .impbox{background:#f3eefc;border-color:#d9c8ec}
+    .impbox-t{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.75;font-weight:600;margin-bottom:8px}
+    .impbox-t i{color:#c9b5f5;font-size:18px;flex-shrink:0;margin-top:2px}
+    html[data-theme="light"] .impbox-t i{color:#5b34c4}
+    .impbox .msg:empty{display:none}
   </style>
 </head>
 <body>
@@ -215,7 +255,14 @@
       <i class="ti ti-layout-dashboard"></i> ড্যাশবোর্ড
     </a>
   </div>
-  <p class="lede" id="lede">কমিটির পদের জন্য সম্মতিপত্রটি পূরণ করে দাখিল করুন। অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন।</p>
+  <p class="lede" id="lede">কমিটির পদের জন্য সম্মতিপত্রটি পূরণ করে দাখিল করুন। কার্যনির্বাহী কমিটি ও সাধারণ সদস্যের ক্ষেত্রে একজন নমিনির তথ্য, ছবি ও এনআইডি বাধ্যতামূলক; অন্যান্য কমিটির সদস্যদের নমিনি লাগবে না। অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন।</p>
+
+  <!-- ══ আমার দাখিলকৃত সম্মতিপত্র ও প্রোফাইল ══ -->
+  <div class="panel hidden" id="myAppsPanel">
+    <h2><i class="ti ti-user-check"></i> আমার দাখিলকৃত সম্মতিপত্র</h2>
+    <div class="upnote" style="margin:-6px 0 12px">আপনার দেওয়া ছবি, এনআইডি ও নমিনির তথ্য এখানে দেখা যাবে। প্রোফাইল কত শতাংশ পূর্ণ, তাও এখানে দেখানো হচ্ছে।</div>
+    <div id="myAppsList"></div>
+  </div>
 
   <!-- ══ সম্মতিপত্র ফর্ম ══ -->
   <div class="panel" id="formPanel">
@@ -252,6 +299,13 @@
         <button class="upbtn alt" type="button" id="btnRefill"><i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন</button>
       </div>
 
+      <div class="progbox" id="progBox">
+        <div class="progtop"><i class="ti ti-chart-donut-3"></i> সম্মতিপত্র কত শতাংশ পূর্ণ
+          <span class="pct" id="progPct">০%</span></div>
+        <div class="pbar"><i id="progBar"></i></div>
+        <div class="progmiss" id="progMiss"></div>
+      </div>
+
       <div class="grid2">
         <div class="fg">
           <label for="fCom">কমিটি <span class="req">*</span></label>
@@ -280,7 +334,18 @@
       </div>
       <div class="grid2">
         <div class="fg"><label for="fMob">মোবাইল নম্বর <span class="req">*</span></label><input id="fMob" inputmode="numeric" placeholder="01XXXXXXXXX"></div>
-        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা</label><input id="fEml" type="email" placeholder="থাকলে দিন (ঐচ্ছিক)"></div>
+        <div class="fg"><label for="fEml">ই-মেইল ঠিকানা <span class="req">*</span></label><input id="fEml" type="email" placeholder="যেমন: name@example.com"><div class="upnote" id="emlNote">এই ঠিকানাই ভবিষ্যতে লগইনের জন্য ব্যবহার হবে — ভেরিফিকেশনের কোড এখানে যাবে।</div></div>
+      </div>
+
+      <!-- ইমেইল/মোবাইল মিললে পূর্বের তথ্য আনার প্রস্তাব -->
+      <div class="impbox hidden" id="impBox">
+        <div class="impbox-t"><i class="ti ti-database-import"></i> <span id="impTxt"></span></div>
+        <div class="uprow" id="impBtns">
+          <button class="upbtn" type="button" id="impYes"><i class="ti ti-download"></i> হ্যাঁ, তথ্য আনুন</button>
+          <a class="upbtn hidden" id="impLogin" href="user-login.html"><i class="ti ti-login"></i> লগইন করে তথ্য আনুন</a>
+          <button class="upbtn alt" type="button" id="impNo"><i class="ti ti-x"></i> না, নিজে পূরণ করব</button>
+        </div>
+        <div class="msg" id="impMsg"></div>
       </div>
       <div class="fg"><label for="fAddr">বর্তমান ঠিকানা <span class="req">*</span></label><textarea id="fAddr"></textarea></div>
       <div class="fg"><label for="fPAddr">স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
@@ -292,7 +357,7 @@
       <h2 style="margin-top:20px"><i class="ti ti-paperclip"></i> সংযুক্তি</h2>
 
       <div class="docside">
-        <div class="docside-t"><i class="ti ti-user-circle"></i> প্রার্থীর ছবি <span class="upst" id="stPhoto">এখনও দেওয়া হয়নি</span></div>
+        <div class="docside-t"><i class="ti ti-user-circle"></i> নিজের ছবি <span class="req">*</span> <span class="upst" id="stPhoto">এখনও দেওয়া হয়নি</span></div>
         <div class="uprow">
           <button class="upbtn" type="button" id="btnPhotoCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
           <button class="upbtn alt" type="button" onclick="document.getElementById('flPhoto').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
@@ -303,7 +368,7 @@
       </div>
 
       <div class="docside">
-        <div class="docside-t"><i class="ti ti-id"></i> এনআইডি — সামনের পাতা <span class="upst" id="stNidF">এখনও দেওয়া হয়নি</span></div>
+        <div class="docside-t"><i class="ti ti-id"></i> নিজের এনআইডি — সামনের পাতা <span class="req">*</span> <span class="upst" id="stNidF">এখনও দেওয়া হয়নি</span></div>
         <div class="uprow">
           <button class="upbtn" type="button" id="btnNidFCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
           <button class="upbtn alt" type="button" onclick="document.getElementById('flNidF').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
@@ -313,7 +378,7 @@
       </div>
 
       <div class="docside">
-        <div class="docside-t"><i class="ti ti-id-off"></i> এনআইডি — পিছনের পাতা <span class="upst" id="stNidB">এখনও দেওয়া হয়নি</span></div>
+        <div class="docside-t"><i class="ti ti-id-off"></i> নিজের এনআইডি — পিছনের পাতা <span class="req">*</span> <span class="upst" id="stNidB">এখনও দেওয়া হয়নি</span></div>
         <div class="uprow">
           <button class="upbtn" type="button" id="btnNidBCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
           <button class="upbtn alt" type="button" onclick="document.getElementById('flNidB').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
@@ -321,6 +386,57 @@
         <input type="file" id="flNidB" accept="image/*,application/pdf" hidden>
         <div class="docprev" id="nidBPrev"></div>
         <div class="upnote">এনআইডির ছবি গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারবেন।</div>
+      </div>
+
+      <div class="upnote hidden" id="nomOff" style="margin-top:16px">এই কমিটির সদস্যদের জন্য নমিনির তথ্য বাধ্যতামূলক নয় — এই অংশটি পূরণ করতে হবে না।</div>
+      <div class="nomsec" id="nomsec">
+        <h3><i class="ti ti-user-heart"></i> নমিনির তথ্য ও নথি <span class="req">*</span></h3>
+        <div class="gmline">প্রতিটি সদস্যকে একজন নমিনি দিতে হবে। নমিনির নাম, সম্পর্ক, বয়স, এনআইডি নম্বর, ছবি এবং এনআইডির দুই পাতা বাধ্যতামূলক।</div>
+        <div class="grid2">
+          <div class="fg"><label for="fNomName">নমিনির নাম <span class="req">*</span></label><input id="fNomName"></div>
+          <div class="fg"><label for="fNomRel">নমিনির সম্পর্ক <span class="req">*</span></label>
+            <select id="fNomRel">
+              <option value="">— বেছে নিন —</option>
+              <option value="স্বামী">স্বামী</option><option value="স্ত্রী">স্ত্রী</option><option value="পিতা">পিতা</option><option value="মাতা">মাতা</option>
+              <option value="ছেলে">ছেলে</option><option value="মেয়ে">মেয়ে</option><option value="ভাই">ভাই</option><option value="বোন">বোন</option>
+              <option value="অন্যান্য">অন্যান্য</option>
+            </select></div>
+        </div>
+        <div class="grid2">
+          <div class="fg"><label for="fNomAge">নমিনির বয়স <span class="req">*</span></label><input id="fNomAge" type="number" inputmode="numeric" min="1" max="120"></div>
+          <div class="fg"><label for="fNomNid">নমিনির এনআইডি নম্বর <span class="req">*</span></label><input id="fNomNid" inputmode="numeric"></div>
+        </div>
+
+        <div class="docside">
+          <div class="docside-t"><i class="ti ti-user-circle"></i> নমিনির ছবি <span class="req">*</span> <span class="upst" id="stNomPhoto">এখনও দেওয়া হয়নি</span></div>
+          <div class="uprow">
+            <button class="upbtn" type="button" id="btnNomPhotoCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+            <button class="upbtn alt" type="button" onclick="document.getElementById('flNomPhoto').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          </div>
+          <input type="file" id="flNomPhoto" accept="image/*" hidden>
+          <div class="docprev" id="nomPhotoPrev"></div>
+        </div>
+
+        <div class="docside">
+          <div class="docside-t"><i class="ti ti-id"></i> নমিনির এনআইডি — সামনের পাতা <span class="req">*</span> <span class="upst" id="stNomNidF">এখনও দেওয়া হয়নি</span></div>
+          <div class="uprow">
+            <button class="upbtn" type="button" id="btnNomNidFCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+            <button class="upbtn alt" type="button" onclick="document.getElementById('flNomNidF').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          </div>
+          <input type="file" id="flNomNidF" accept="image/*,application/pdf" hidden>
+          <div class="docprev" id="nomNidFPrev"></div>
+        </div>
+
+        <div class="docside">
+          <div class="docside-t"><i class="ti ti-id-off"></i> নমিনির এনআইডি — পিছনের পাতা <span class="req">*</span> <span class="upst" id="stNomNidB">এখনও দেওয়া হয়নি</span></div>
+          <div class="uprow">
+            <button class="upbtn" type="button" id="btnNomNidBCam"><i class="ti ti-camera"></i> ছবি তুলুন</button>
+            <button class="upbtn alt" type="button" onclick="document.getElementById('flNomNidB').click()"><i class="ti ti-photo"></i> গ্যালারি</button>
+          </div>
+          <input type="file" id="flNomNidB" accept="image/*,application/pdf" hidden>
+          <div class="docprev" id="nomNidBPrev"></div>
+          <div class="upnote">নমিনির এনআইডিও গোপনীয় — কেবল আপনি ও অ্যাডমিন দেখতে পারবেন।</div>
+        </div>
       </div>
 
       <div class="docside">
@@ -365,7 +481,7 @@
 
       <label class="chk" style="margin-top:16px">
         <input type="checkbox" id="fDecl">
-        <span>উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং
+        <span id="declTxt">উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে এবং সংস্থার সাধারণ সদস্য হিসেবে অন্তর্ভুক্ত হতে আমি সম্মতি প্রদান করছি এবং
         প্রদত্ত সকল তথ্য সত্য।</span>
       </label>
 
@@ -378,9 +494,9 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=72"></script>
+<script src="kh-ui.js?v=73"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=1" defer></script>
+<script src="kh-notice.js?v=2" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
 <script>
 (function(){
@@ -402,8 +518,11 @@
   var PICK = { committee: Q.get('c') || '', position: Q.get('p') || '' };
   var INV_TOKEN = Q.get('inv') || '';   /* অ্যাডমিনের পাঠানো আমন্ত্রণের টোকেন */
   var INVITE = null;
-  var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'' };
-  var BUCKET = { photo:'avatars', nid_front:'nid-docs', nid_back:'nid-docs', scan:'committee-docs' };
+  var INV_APP = null;   /* আমন্ত্রণ লিংকে যুক্ত আগের/পুনরায় খোলা আবেদন (লগইন ছাড়া) */
+  var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'', nom_photo:'', nom_nid_front:'', nom_nid_back:'' };
+  var BUCKET = { photo:'avatars', nid_front:'nid-docs', nid_back:'nid-docs', scan:'committee-docs',
+                 nom_photo:'nid-docs', nom_nid_front:'nid-docs', nom_nid_back:'nid-docs' };
+  var GENERAL = '__general__';   /* শুধু সাধারণ সদস্য — কোনো কার্যনির্বাহী পদ নেই (position_id = null) */
 
   /* ───────── সেশন ───────── */
   async function refreshSession(){
@@ -432,13 +551,14 @@
       }
       INVITE = d;
       PICK.committee = d.committee_id || PICK.committee;
-      PICK.position  = d.position_id  || PICK.position;
+      PICK.position  = d.position_id  || GENERAL;
       var box = el('invBox');
       if(box){
         box.classList.remove('hidden');
-        el('invTxt').innerHTML =
-          'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '—') +
-          '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।' +
+        el('invTxt').innerHTML = (d.position_id
+          ? 'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '') +
+            '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।'
+          : 'আপনাকে কর্জে হাসানা ফাউন্ডেশনের <b>সাধারণ সদস্য</b> হিসেবে যুক্ত হওয়ার আমন্ত্রণ জানানো হয়েছে।') +
           (d.note ? '<br><span class="upnote">মন্তব্য: ' + esc(d.note) + '</span>' : '');
       }
       /* আমন্ত্রণে দেওয়া ই-মেইল ও নাম আগেই বসিয়ে রাখা */
@@ -478,35 +598,165 @@
     s.onchange = function(){
       PICK.committee = s.value; PICK.position = '';
       fillPositionSelect(); paintHeading();
-      if(ME) prefill(false);
+      if(ME) prefill(false).then(paintProgress);
     };
     fillPositionSelect();
     if(PICK.position) el('fPos').value = PICK.position;
     paintHeading();
   }
 
+  /* "সাধারণ সদস্য" অংশ (code = general): কোনো পদ নেই।
+     অন্য কমিটিতে পদ বেছে নিতে হয়; পুরোনো পদহীন আবেদন থাকলে শুধু সেটি খোলার জন্য বিকল্পটি থাকে। */
+  function isGeneralCom(c){ return !!c && c.code === 'general'; }
   function fillPositionSelect(){
     var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0];
+    if(isGeneralCom(c)){
+      el('fPos').innerHTML = '<option value="' + GENERAL + '">সাধারণ সদস্য</option>';
+      return;
+    }
     var ps = (c && c.positions) || [];
-    el('fPos').innerHTML = ps.map(function(p){
+    var html = ps.map(function(p){
       var full = (p.filled||0) >= (p.seats||1);
       var mine = MYAPPS.filter(function(a){ return a.position_id === p.id; }).length > 0;
       return '<option value="' + esc(p.id) + '"' + (full && !mine ? ' disabled' : '') + '>' +
              esc(p.title_bn) + (full ? ' — পূর্ণ' : '') + '</option>';
     }).join('');
+    var prev = c ? appFor(c.id) : null;
+    if(prev && prev.id && !prev.position_id) html += '<option value="' + GENERAL + '">সাধারণ সদস্য</option>';
+    el('fPos').innerHTML = html || '<option value="" disabled selected>এই কমিটিতে এখনো কোনো পদ যোগ করা হয়নি</option>';
+  }
+
+  /* ঘোষণা: কার্যনির্বাহী কমিটির সদস্যরা স্বয়ংক্রিয়ভাবে সাধারণ সদস্য; অন্য কমিটির পদধারীরা নন */
+  function declText(){
+    var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
+    if(c.code === 'general')
+      return ['সংস্থার সাধারণ সদস্য হিসেবে অন্তর্ভুক্ত হতে আমি সম্মতি প্রদান করছি এবং প্রদত্ত সকল তথ্য সত্য।',
+              'I consent to be enrolled as a general member of the organisation, and all information given is true.'];
+    if(c.code === 'executive')
+      return ['উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে এবং সংস্থার সাধারণ সদস্য হিসেবে অন্তর্ভুক্ত হতে আমি সম্মতি প্রদান করছি এবং প্রদত্ত সকল তথ্য সত্য।',
+              'I consent to serve in the committee and position stated above, to be enrolled as a general member, and all information given is true.'];
+    return ['উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং প্রদত্ত সকল তথ্য সত্য।',
+            'I consent to serve in the committee and position stated above, and all information given is true.'];
   }
 
   function paintHeading(){
     var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
     var p = ((c.positions)||[]).filter(function(x){ return x.id === el('fPos').value; })[0] || {};
     el('fmFor').textContent = c.name_bn ? ('— ' + c.name_bn + (p.title_bn ? ' · ' + p.title_bn : '')) : '';
+    el('declTxt').textContent = declText()[0];
     var closed = c.is_approved || !c.applications_open;
     if(closed){
       msg('fmMsg','err','<b>' + esc(c.name_bn || 'এই কমিটি') + '</b>-তে নতুন আবেদন গ্রহণ এখন বন্ধ।');
       el('btnSubmit').disabled = true;
     }
+    paintNominee();
   }
   el('fPos').onchange = paintHeading;
+
+  /* ───────── নমিনি শর্তসাপেক্ষ ─────────
+     কার্যনির্বাহী কমিটি (requires_nominee) ও সাধারণ সদস্য (পদ নেই) — নমিনি বাধ্যতামূলক।
+     অন্যান্য কমিটির পদধারীদের নমিনি লাগে না। সার্ভারের নিয়মের সাথে মিল রেখে। */
+  function needsNominee(){
+    var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
+    var pos = el('fPos').value;
+    return !!c.requires_nominee || !pos || pos === GENERAL;
+  }
+  function paintNominee(){
+    var need = needsNominee();
+    el('nomsec').classList.toggle('hidden', !need);
+    el('nomOff').classList.toggle('hidden', need);
+    paintProgress();
+  }
+
+  /* ───────── পুনরায় খোলা / আগের আবেদন (লগইন ও আমন্ত্রণ দুই পথেই) ───────── */
+  function appFor(cid){
+    if(!ME && INVITE) return INV_APP;
+    return MYAPPS.filter(function(a){ return a.committee_id === cid; })[0] || null;
+  }
+  function isReopened(a){ return !!(a && (a.reopened_at || a.reopened)); }
+  /* লগইন থাকলে সেশনের ইমেইল-ভেরিফিকেশন; আমন্ত্রণে আগের আবেদনের সার্ভার-হিসাব */
+  function emailVerified(){
+    if(ME) return !!ME.email_confirmed_at;
+    var a = INV_APP;
+    return !!(a && a.completion && (a.completion.missing || []).indexOf('email_verified') < 0);
+  }
+  function paintEmailLock(){
+    var lock = !!ME || !!(INV_APP && INV_APP.has_account);
+    el('fEml').readOnly = lock;
+    el('emlNote').textContent = lock
+      ? 'এটি আপনার লগইন ইমেইল — এখানে বদলানো যাবে না।'
+      : IMP_ACCOUNT
+        ? 'এই তথ্য একটি বিদ্যমান একাউন্টের সাথে যুক্ত — ভেরিফিকেশন লাগবে না।'
+        : 'এই ঠিকানাই ভবিষ্যতে লগইনের জন্য ব্যবহার হবে — ভেরিফিকেশনের কোড এখানে যাবে।';
+  }
+  function setDocSlot(key, stId, prevId, path){
+    if(!path) return;
+    DOCS[key] = path;
+    showDoc(stId, prevId, key, path);
+  }
+  function paintAppState(a){
+    el('btnSubmit').disabled = false;
+    el('btnSubmit').innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
+    if(!a) return;
+    var cname = '<b>' + esc(a.committee_name || 'এই কমিটি') + '</b>';
+    if(a.status === 'approved' && !isReopened(a)){
+      el('btnSubmit').disabled = true;
+      el('btnSubmit').innerHTML = '<i class="ti ti-lock"></i> এই কমিটিতে অনুমোদিত — পরিবর্তন নয়';
+      msg('fmMsg','ok', cname + '-তে আপনার আবেদন অনুমোদিত হয়েছে।');
+    } else if(isReopened(a)){
+      el('btnSubmit').innerHTML = '<i class="ti ti-send"></i> হালনাগাদ করে দাখিল করুন';
+      msg('fmMsg','info', cname + '-তে আপনার অনুমোদিত আবেদনটি পুনরায় খোলা হয়েছে। আগের তথ্য ও নথি দেখানো হয়েছে — যা বাকি বা নতুন, শুধু সেটুকু যোগ বা বদল করে আবার দাখিল করুন।');
+    } else {
+      msg('fmMsg','info', cname + '-তে আপনার দাখিলকৃত সম্মতিপত্রটি খোলা হয়েছে — প্রয়োজনে সংশোধন করে আবার দাখিল করুন।');
+    }
+  }
+  async function loadInviteApp(){
+    INV_APP = null;
+    if(!INV_TOKEN || ME) return;
+    try{
+      var r = await sb().rpc('get_invite_application', { p_token: INV_TOKEN });
+      var d = r && r.data;
+      INV_APP = (d && d.ok && d.application) || null;
+    }catch(e){ INV_APP = null; }
+  }
+  /* আমন্ত্রণে আগের আবেদন থাকলে ঘরগুলো বসানো — লগইন লাগে না */
+  function applyInviteApp(){
+    var a = INV_APP;
+    if(!a){
+      msg('fmMsg','info','তথ্যগুলো পূরণ করে সম্মতিপত্রটি দাখিল করুন।');
+      paintEmailLock();
+      return;
+    }
+    var map = { fNameBn:'name_bn', fNameEn:'name_en', fFather:'father_name', fMother:'mother_name',
+      fNid:'nid_no', fOcc:'occupation', fMob:'mobile', fDist:'district', fAddr:'present_address',
+      fPAddr:'permanent_address', fProp:'proposed_by', fSec:'seconded_by', fEml:'email',
+      fNomName:'nominee_name', fNomRel:'nominee_relation', fNomAge:'nominee_age', fNomNid:'nominee_nid' };
+    Object.keys(map).forEach(function(id){
+      var val = a[map[id]];
+      if(val !== null && val !== undefined && String(val) !== '') el(id).value = val;
+    });
+    if(a.dob) el('fDob').value = String(a.dob).slice(0,10);
+    el('fDecl').checked = !!a.declaration_accepted;
+    setDocSlot('photo',         'stPhoto',    'photoPrev',    a.photo_url);
+    setDocSlot('nid_front',     'stNidF',     'nidFPrev',     a.nid_front_url);
+    setDocSlot('nid_back',      'stNidB',     'nidBPrev',     a.nid_back_url);
+    setDocSlot('scan',          'stScan',     'scanPrev',     a.consent_scan_url);
+    setDocSlot('nom_photo',     'stNomPhoto', 'nomPhotoPrev', a.nominee_photo_url);
+    setDocSlot('nom_nid_front', 'stNomNidF',  'nomNidFPrev',  a.nominee_nid_front_url);
+    setDocSlot('nom_nid_back',  'stNomNidB',  'nomNidBPrev',  a.nominee_nid_back_url);
+    paintEmailLock();
+    paintAppState(a);
+  }
+  /* দাখিলের পর অবস্থা নতুন করে আনা */
+  async function refreshAfterSubmit(){
+    if(ME){
+      await loadMyApps(); renderMyApps();
+      await prefill(false);
+    } else {
+      await loadInviteApp(); applyInviteApp();
+    }
+    paintProgress();
+  }
 
   /* ───────── ফর্ম ও অটো-ফিল ───────── */
   function showForm(){
@@ -526,12 +776,13 @@
     if(PICK.position) el('fPos').value = PICK.position;
     lockPick();
     paintHeading();
-    prefill(false);
+    paintEmailLock();
+    prefill(false).then(function(){ paintProgress(); impCheck(); });
   }
 
   async function prefill(force){
     if(!ME){
-      if(INVITE) msg('fmMsg','info','তথ্যগুলো পূরণ করে সম্মতিপত্রটি দাখিল করুন।');
+      if(INVITE) applyInviteApp();
       return;
     }
     clearMsg('fmMsg');
@@ -593,25 +844,23 @@
       ['fNameBn:name_bn','fNameEn:name_en','fFather:father_name','fMother:mother_name',
        'fNid:nid_no','fOcc:occupation','fMob:mobile','fDist:district',
        'fAddr:present_address','fPAddr:permanent_address','fProp:proposed_by',
-       'fSec:seconded_by'].forEach(function(pair){
+       'fSec:seconded_by','fNomName:nominee_name','fNomRel:nominee_relation',
+       'fNomAge:nominee_age','fNomNid:nominee_nid'].forEach(function(pair){
         var a = pair.split(':');
         if(app[a[1]]) el(a[0]).value = app[a[1]];
       });
       if(app.dob) el('fDob').value = String(app.dob).slice(0,10);
-      if(app.position_id){ el('fPos').value = app.position_id; paintHeading(); }
+      el('fPos').value = app.position_id || GENERAL; paintHeading();
       el('fDecl').checked = !!app.declaration_accepted;
       setDoc('photo',     'stPhoto','photoPrev', app.photo_url);
       setDoc('nid_front', 'stNidF', 'nidFPrev',  app.nid_front_url);
       setDoc('nid_back',  'stNidB', 'nidBPrev',  app.nid_back_url);
       setDoc('scan',      'stScan', 'scanPrev',  app.consent_scan_url);
-      if(app.status === 'approved'){
-        el('btnSubmit').disabled = true;
-        el('btnSubmit').innerHTML = '<i class="ti ti-lock"></i> এই কমিটিতে অনুমোদিত — পরিবর্তন নয়';
-        msg('fmMsg','ok','<b>' + esc(app.committee_name || 'এই কমিটি') + '</b>-তে আপনার আবেদন অনুমোদিত হয়েছে।');
-      } else {
-        msg('fmMsg','info','<b>' + esc(app.committee_name || 'এই কমিটি') +
-            '</b>-তে আপনার দাখিলকৃত সম্মতিপত্রটি খোলা হয়েছে — প্রয়োজনে সংশোধন করে আবার দাখিল করুন।');
-      }
+      setDoc('nom_photo',     'stNomPhoto', 'nomPhotoPrev', app.nominee_photo_url);
+      setDoc('nom_nid_front', 'stNomNidF',  'nomNidFPrev',  app.nominee_nid_front_url);
+      setDoc('nom_nid_back',  'stNomNidB',  'nomNidBPrev',  app.nominee_nid_back_url);
+      paintEmailLock();
+      paintAppState(app);
       return;
     }
 
@@ -627,6 +876,7 @@
   if(_refill) _refill.onclick = async function(){
     var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> আনা হচ্ছে…';
     await prefill(true);
+    paintProgress();
     b.disabled = false; b.innerHTML = '<i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন';
   };
 
@@ -643,8 +893,10 @@
 
   async function showDoc(stId, prevId, key, path){
     el(stId).innerHTML = '<b>সংরক্ষিত</b>';
+    paintProgress();
     var box = el(prevId);
     if(!box) return;
+    if(!ME){ box.innerHTML = '<div class="upnote">ফাইলটি সংরক্ষিত হয়েছে — লগইন করলে দেখা যাবে।</div>'; return; }
     box.innerHTML = '<div class="upnote">ছবি আনা হচ্ছে…</div>';
     var url = await signed(BUCKET[key], path);
     if(!url){ box.innerHTML = '<div class="upnote">ফাইলটি দেখানো যায়নি।</div>'; return; }
@@ -655,7 +907,7 @@
     }
     var img = document.createElement('img');
     img.src = url; img.alt = '';
-    if(key === 'photo') img.className = 'avatar';
+    if(/photo$/.test(key)) img.className = 'avatar';
     img.onclick = function(){
       if(window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(url); else window.open(url, '_blank');
     };
@@ -702,17 +954,17 @@
   function wireUpload(inputId, stId, prevId, folder, key, camBtnId, facing){
     async function handle(file){
       if(!file) return;
-      if(!ME){ msg('fmMsg','err','আগে ই-মেইল দিয়ে পরিচয় নিশ্চিত করুন।'); return; }
+      if(!ME && !INV_TOKEN){ msg('fmMsg','err','আগে লগইন করুন।'); return; }
       el(stId).innerHTML = 'আপলোড হচ্ছে…';
       try{
-        var f = key === 'photo' ? await shrink(file, 900)
+        var f = /photo$/.test(key) ? await shrink(file, 900)
           : ((window.KHUI && KHUI.nidPrepare) ? await KHUI.nidPrepare(file) : await shrink(file, 1800));
         var path = await upload(BUCKET[key], folder, key, f);
         DOCS[key] = path;
         if(!ME) BUCKET[key] = 'committee-docs';      /* প্রিভিউ ঠিক বাকেট থেকে আসবে */
         await showDoc(stId, prevId, key, path);
         try{
-          if(ME && key !== 'scan'){
+          if(ME && key !== 'scan' && key.indexOf('nom_') !== 0){
             await sb().rpc('set_my_doc_urls', {
               p_photo:     key === 'photo' ? path : null,
               p_nid_front: key === 'nid_front' ? path : null,
@@ -731,7 +983,7 @@
       if(window.KHUI && KHUI.camera){
         KHUI.camera({
           facing: facing || 'environment',
-          title: key === 'photo' ? 'নিজের ছবি তুলুন' : 'কাগজটি ফ্রেমে রাখুন',
+          title: /photo$/.test(key) ? 'ছবি তুলুন' : 'কাগজটি ফ্রেমে রাখুন',
           onShot: function(blob){ handle(new File([blob], key + '.jpg', { type:'image/jpeg' })); }
         });
       } else { el(inputId).click(); }
@@ -742,6 +994,9 @@
   wireUpload('flNidF','stNidF','nidFPrev','', 'nid_front','btnNidFCam','environment');
   wireUpload('flNidB','stNidB','nidBPrev','', 'nid_back','btnNidBCam','environment');
   wireUpload('flScan','stScan','scanPrev','consent/','scan','btnScanCam','environment');
+  wireUpload('flNomPhoto','stNomPhoto','nomPhotoPrev','', 'nom_photo','btnNomPhotoCam','user');
+  wireUpload('flNomNidF','stNomNidF','nomNidFPrev','', 'nom_nid_front','btnNomNidFCam','environment');
+  wireUpload('flNomNidB','stNomNidB','nomNidBPrev','', 'nom_nid_back','btnNomNidBCam','environment');
 
   /* ───────── A4 কাগজে ছাপানো (ফর্ম নং KHF-CC-01) ───────── */
   function v(id){ return (el(id).value || '').trim(); }
@@ -752,7 +1007,7 @@
   function posName(){
     var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
     var p = ((c.positions)||[]).filter(function(x){ return x.id === el('fPos').value; })[0] || {};
-    return p.title_bn || '';
+    return p.title_bn || (el('fPos').value === GENERAL ? 'সাধারণ সদস্য' : '');
   }
 
   el('btnPrint').onclick = function(){
@@ -767,6 +1022,10 @@
       [['পেশা','Occupation', v('fOcc')], ['মোবাইল নম্বর','Mobile Number', v('fMob')]],
       [['ই-মেইল ঠিকানা','E-mail Address', v('fEml')], ['জেলা','District', v('fDist')]]
     ];
+    if(needsNominee()) pairs.push(
+      [['নমিনির নাম','Nominee Name', v('fNomName')], ['নমিনির সম্পর্ক','Relation', v('fNomRel')]],
+      [['নমিনির বয়স','Nominee Age', v('fNomAge')], ['নমিনির এনআইডি','Nominee NID No.', v('fNomNid')]]
+    );
     var body = pairs.map(function(r){
       return '<tr>' + cell(r[0][0], r[0][1], r[0][2]) + cell(r[1][0], r[1][1], r[1][2]) + '</tr>';
     }).join('');
@@ -832,8 +1091,7 @@
     '<td class="k"><b>সমর্থনকারীর নাম ও স্বাক্ষর</b><br><span class="en">Seconded by</span></td></tr>' +
     '<tr><td class="blank">' + esc(v('fProp')) + '</td><td class="blank">' + esc(v('fSec')) + '</td></tr></table>' +
 
-    '<div class="cons">উপরে উল্লিখিত কমিটির উল্লিখিত পদে দায়িত্ব পালনে আমি সম্মতি প্রদান করছি এবং প্রদত্ত সকল তথ্য সত্য।' +
-    '<span>I consent to serve in the committee and position stated above, and all information given is true.</span></div>' +
+    '<div class="cons">' + esc(declText()[0]) + '<span>' + esc(declText()[1]) + '</span></div>' +
 
     '<table class="sig"><tr>' +
     '<td class="k" style="width:37%;text-align:center"><b>প্রার্থীর স্বাক্ষর</b><br><span class="en">Signature of Nominee</span></td>' +
@@ -842,7 +1100,7 @@
     '<tr><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr></table>' +
 
     '<div class="att"><b>সংযুক্তি:</b> &nbsp; ☐ এনআইডির সামনের পাতা &nbsp;&nbsp; ☐ এনআইডির পিছনের পাতা' +
-    ' &nbsp;&nbsp; ☐ পাসপোর্ট সাইজ ছবি ২ কপি</div>' +
+    ' &nbsp;&nbsp; ☐ পাসপোর্ট সাইজ ছবি ২ কপি<br>☐ নমিনির এনআইডি (সামনে ও পিছনে) &nbsp;&nbsp; ☐ নমিনির পাসপোর্ট সাইজ ছবি</div>' +
 
     '<div class="ft">কর্জে হাসানা ফাউন্ডেশন · ফর্ম নং KHF-CC-01 · অনলাইনেও পূরণ করা যায়: committee.html</div>' +
     '<div class="noprint"><button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);' +
@@ -896,21 +1154,150 @@
     });
   };
 
+  /* ───────── পূর্বের তথ্য ইমপোর্ট (ইমেইল/মোবাইল মিললে) ─────────
+     কোনো কোড বা ইমেইল পাঠানো হয় না। record-import ফাংশন মেলায় ও শুধু মাস্ক করা তথ্য দেয়।
+       • নিজের লগইন-করা রেকর্ড হলে সরাসরি আনা যায় — লগইনই মালিকানার প্রমাণ;
+       • অন্য ক্ষেত্রে ওই ইমেইল দিয়ে লগইন করার নির্দেশনা দেওয়া হয়।
+     যা আগে থেকে ফর্মে লেখা আছে, তা বদলানো হয় না। */
+  var IMP = { em:'', mb:'', mode:'', lastKey:'', busy:false };
+  var IMP_ACCOUNT = false;   /* এই ইমেইল/মোবাইল আগে থেকেই একাউন্টে যুক্ত — তাহলে ভেরিফিকেশন লাগবে না */
+  function impShow(on){ el('impBox').classList.toggle('hidden', !on); }
+  function impNote(kind, text){ msg('impMsg', kind, text); }
+  function impFn(body){
+    var b = Object.assign({ token: INV_TOKEN || '', committee_id: el('fCom').value || '' }, body || {});
+    return sb().functions.invoke('record-import', { body: b })
+      .then(function(r){ return (r && r.data) || { ok:false, message:'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' }; })
+      .catch(function(){ return { ok:false, message:'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' }; });
+  }
+  function impCheck(){
+    if(!(ME || INVITE)) return;
+    var em = v('fEml').toLowerCase(), mb = v('fMob').replace(/\D/g, '');
+    var emOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em), mbOk = mb.length >= 10;
+    if(!emOk && !mbOk) return;
+    var key = (emOk ? em : '') + '|' + (mbOk ? mb.slice(-10) : '');
+    if(IMP.busy || key === IMP.lastKey) return;
+    IMP.lastKey = key;
+    impLookup(emOk ? em : '', mbOk ? mb : '');
+  }
+  /* লগইন শেষে এই ফর্মেই ফিরে আসবে (আমন্ত্রণ টোকেনসহ) */
+  function impLoginUrl(){
+    return 'user-login.html?next=' + encodeURIComponent('committee-form.html' + location.search);
+  }
+  async function impLookup(em, mb){
+    IMP.em = em; IMP.mb = mb; IMP.mode = ''; IMP.busy = true;
+    impShow(false);
+    var d = await impFn({ action:'lookup', email: em, mobile: mb });
+    IMP.busy = false;
+    var inAcct = !!(d.ok && d.found) && (d.mode === 'login' || d.mode === 'self');
+    if(inAcct !== IMP_ACCOUNT){ IMP_ACCOUNT = inAcct; paintEmailLock(); }
+    if(!d.ok || !d.found) return;                            /* কিছু না মিললে নীরব */
+    if(d.same_committee && appFor(el('fCom').value)) return; /* এই কমিটির আবেদন আগে থেকেই বসানো */
+    IMP.mode = d.mode;
+    var cname = '<b>' + esc(d.committee_name || 'নিবন্ধিত সদস্য') + '</b>';
+    var who = d.masked_email ? ' (<b>' + esc(d.masked_email) + '</b>)' : '';
+    var acct = d.mode === 'login' || d.mode === 'signup';
+    var canFetch = d.mode === 'self';
+    var canLogin = acct && !ME;
+    var txt;
+    if(canFetch){
+      txt = 'আপনার নিজের আগের তথ্য পাওয়া গেছে (' + cname + ')। এই ফর্মে আনতে চান?';
+    } else if(acct){
+      txt = (d.mode === 'login'
+              ? 'এই ইমেইল/মোবাইলটি একটি বিদ্যমান একাউন্টের সাথে যুক্ত' + who
+              : 'এই ইমেইল/মোবাইলে ইতিপূর্বে তথ্য আছে' + who) + ' — ' + cname + '।';
+      txt += ME
+        ? ' আপনি এখন অন্য একাউন্টে লগইন আছেন। ওই ইমেইল দিয়ে আলাদাভাবে লগইন করলে তথ্য ফর্মে বসবে।'
+        : ' ওই ইমেইল দিয়ে লগইন করে ফর্মটি পূরণ করলে তথ্য নিজ থেকেই ফর্মে বসবে।';
+    } else {
+      txt = 'ইতিপূর্বে এই ইমেইল/মোবাইলে তথ্য আছে (' + cname + ')। তথ্য আনতে অ্যাডমিনের সাথে যোগাযোগ করুন।';
+    }
+    el('impTxt').innerHTML = txt;
+    el('impMsg').className = 'msg';
+    el('impMsg').innerHTML = '';
+    el('impYes').classList.toggle('hidden', !canFetch);
+    el('impLogin').classList.toggle('hidden', !canLogin);
+    if(canLogin) el('impLogin').setAttribute('href', impLoginUrl());
+    el('impNo').innerHTML = (canFetch || canLogin)
+      ? '<i class="ti ti-x"></i> না, নিজে পূরণ করব'
+      : '<i class="ti ti-check"></i> ঠিক আছে';
+    el('impBtns').classList.remove('hidden');
+    impShow(true);
+  }
+  el('impNo').onclick = function(){ impShow(false); IMP.mode = ''; };
+  el('impYes').onclick = function(){ if(IMP.mode === 'self') impFetch(); };
+  async function impFetch(){
+    var yes = el('impYes'); yes.disabled = true;
+    impNote('info', 'তথ্য আনা হচ্ছে…');
+    var d = await impFn({ action:'fetch', email: IMP.em, mobile: IMP.mb });
+    yes.disabled = false;
+    if(!d.ok){ impNote('err', esc(d.message || 'তথ্য আনা যায়নি।')); return; }
+    impApplyData(d);
+  }
+  function impApplyData(d){
+    var x = d.data || {}, nomOk = needsNominee(), filled = [], docsGot = [];
+    var map = [
+      ['fNameBn','name_bn','নাম (বাংলায়)'], ['fNameEn','name_en','ইংরেজিতে নাম'], ['fFather','father_name','পিতার নাম'],
+      ['fMother','mother_name','মাতার নাম'], ['fNid','nid_no','এনআইডি নম্বর'], ['fOcc','occupation','পেশা'],
+      ['fDist','district','জেলা'], ['fAddr','present_address','বর্তমান ঠিকানা'], ['fPAddr','permanent_address','স্থায়ী ঠিকানা'],
+      ['fNomName','nominee_name','নমিনির নাম'], ['fNomRel','nominee_relation','নমিনির সম্পর্ক'],
+      ['fNomAge','nominee_age','নমিনির বয়স'], ['fNomNid','nominee_nid','নমিনির এনআইডি নম্বর']
+    ];
+    map.forEach(function(m){
+      if(!nomOk && m[0].indexOf('fNom') === 0) return;
+      var val = x[m[1]];
+      if(val === null || val === undefined || String(val) === '') return;
+      if(el(m[0]).value.trim()) return;             /* যা ফর্মে লেখা আছে, তা থাকবে */
+      el(m[0]).value = val; filled.push(m[2]);
+    });
+    if(x.dob && !el('fDob').value){ el('fDob').value = String(x.dob).slice(0, 10); filled.push('জন্ম তারিখ'); }
+    var slots = { photo:['stPhoto','photoPrev','ছবি'], nid_front:['stNidF','nidFPrev','এনআইডি — সামনে'],
+                  nid_back:['stNidB','nidBPrev','এনআইডি — পিছনে'],
+                  nom_photo:['stNomPhoto','nomPhotoPrev','নমিনির ছবি'], nom_nid_front:['stNomNidF','nomNidFPrev','নমিনির এনআইডি — সামনে'],
+                  nom_nid_back:['stNomNidB','nomNidBPrev','নমিনির এনআইডি — পিছনে'] };
+    Object.keys(slots).forEach(function(k){
+      if(k.indexOf('nom_') === 0 && !nomOk) return;
+      var path = (d.docs || {})[k];
+      if(!path || DOCS[k]) return;
+      if(!ME) BUCKET[k] = 'committee-docs';         /* আমন্ত্রণ-পথের নথি committee-docs-এ */
+      setDocSlot(k, slots[k][0], slots[k][1], path);
+      docsGot.push(slots[k][2]);
+    });
+    IMP.mode = '';
+    impShow(false);
+    paintProgress();
+    var all = filled.concat(docsGot);
+    msg('fmMsg', 'ok', all.length
+      ? 'পূর্বের তথ্য থেকে <b>' + esc(all.join(', ')) + '</b> বসানো হয়েছে — মিলিয়ে নিয়ে দাখিল করুন।'
+      : 'পূর্বের তথ্যে ফর্মের বাকি ঘরগুলো আগে থেকেই পূরণ করা আছে।');
+  }
+  el('fEml').addEventListener('blur', impCheck);
+  el('fMob').addEventListener('blur', impCheck);
+
   /* ───────── দাখিল ───────── */
   el('btnSubmit').onclick = async function(){
     if(!ME && !INV_TOKEN){ msg('fmMsg','err','আবেদন করতে আগে লগইন করুন।'); return; }
-    var need = [['fNameBn','নাম (বাংলায়)'],['fFather','পিতা / স্বামীর নাম'],
+    if(!el('fPos').value){ msg('fmMsg','err','পদবি বেছে নিন।'); return; }
+    var nomNeed = needsNominee();   /* এই কমিটিতে/এই পদে নমিনি লাগবে কি না */
+    var need = [['fNameBn','নাম (বাংলায়)'],['fEml','ই-মেইল ঠিকানা'],['fFather','পিতা / স্বামীর নাম'],
                 ['fNid','জাতীয় পরিচয়পত্র নম্বর'],['fMob','মোবাইল নম্বর'],['fAddr','বর্তমান ঠিকানা']];
-    var miss = need.filter(function(n){ return !(el(n[0]).value||'').trim(); });
-    if(miss.length){ msg('fmMsg','err','পূরণ করুন: ' + miss.map(function(n){return n[1];}).join(', ')); return; }
+    if(nomNeed) need = need.concat([['fNomName','নমিনির নাম'],['fNomRel','নমিনির সম্পর্ক'],
+                                    ['fNomAge','নমিনির বয়স'],['fNomNid','নমিনির এনআইডি নম্বর']]);
+    var miss = need.filter(function(n){ return !(el(n[0]).value||'').trim(); }).map(function(n){ return n[1]; });
+    var docNeed = [[DOCS.photo,'নিজের ছবি'],[DOCS.nid_front,'এনআইডির সামনের পাতা'],[DOCS.nid_back,'এনআইডির পিছনের পাতা']];
+    if(nomNeed) docNeed = docNeed.concat([[DOCS.nom_photo,'নমিনির ছবি'],[DOCS.nom_nid_front,'নমিনির এনআইডির সামনের পাতা'],
+                                          [DOCS.nom_nid_back,'নমিনির এনআইডির পিছনের পাতা']]);
+    docNeed.forEach(function(d){ if(!d[0]) miss.push(d[1]); });
+    if(miss.length){ msg('fmMsg','err','পূরণ ও সংযুক্ত করুন: ' + miss.join(', ')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if(nomNeed && !(parseInt(v('fNomAge'), 10) > 0)){ msg('fmMsg','err','নমিনির বয়স সঠিকভাবে লিখুন।'); return; }
     if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
     if(!el('fPos').value){ msg('fmMsg','err','পদবি বেছে নিন।'); return; }
 
+    var wasReopened = isReopened(appFor(el('fCom').value));
     var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> দাখিল হচ্ছে…';
     try{
       var payload = {
         committee_id: el('fCom').value,
-        position_id:  el('fPos').value,
+        position_id:  el('fPos').value === GENERAL ? null : el('fPos').value,
         name_bn: el('fNameBn').value.trim(),
         name_en: el('fNameEn').value.trim(),
         father_name: el('fFather').value.trim(),
@@ -920,36 +1307,157 @@
         dob: el('fDob').value || null,
         occupation: el('fOcc').value.trim(),
         mobile: el('fMob').value.trim(),
-        email: (ME && ME.email) || el('fEml').value.trim(),
+        email: el('fEml').value.trim() || (ME && ME.email) || '',
         present_address: el('fAddr').value.trim(),
         permanent_address: el('fPAddr').value.trim(),
         proposed_by: el('fProp').value.trim(),
         seconded_by: el('fSec').value.trim(),
         declaration_accepted: true,
         photo_url: DOCS.photo, nid_front_url: DOCS.nid_front,
-        nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan
+        nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan,
+        nominee_name: nomNeed ? v('fNomName') : null,
+        nominee_relation: nomNeed ? v('fNomRel') : null,
+        nominee_age: nomNeed ? (parseInt(v('fNomAge'), 10) || null) : null,
+        nominee_nid: nomNeed ? v('fNomNid') : null,
+        nominee_photo_url: nomNeed ? DOCS.nom_photo : null,
+        nominee_nid_front_url: nomNeed ? DOCS.nom_nid_front : null,
+        nominee_nid_back_url: nomNeed ? DOCS.nom_nid_back : null
       };
       var r = ME
         ? await sb().rpc('submit_committee_application', { p: payload })
         : await sb().rpc('submit_application_by_invite', { p_token: INV_TOKEN, p: payload });
       if(r.error) throw r.error;
       if(ME && INV_TOKEN){ try { await sb().rpc('mark_invite_submitted', { p_token: INV_TOKEN }); } catch(e2){} }
-      msg('fmMsg','ok','<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
+      await refreshAfterSubmit();
+      msg('fmMsg','ok', wasReopened ? '<b>হালনাগাদ সংরক্ষিত হয়েছে।</b> আপনার অনুমোদিত আবেদনের তথ্য ও নথি আপডেট হয়েছে।'
+          : '<b>সম্মতিপত্র দাখিল হয়েছে।</b> অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
           (ME
             ? '<a href="my-dashboard.html" style="color:inherit;text-decoration:underline">ড্যাশবোর্ডে যান</a>'
             : '<a href="index.html" style="color:inherit;text-decoration:underline">হোম পেজে যান</a>'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      await loadMyApps();
     }catch(e){
       var t = (e && e.message) || '';
       msg('fmMsg','err',
         /applications closed/.test(t) ? 'এই কমিটির আবেদন গ্রহণ বন্ধ হয়ে গেছে।'
       : /already approved/.test(t)    ? 'আপনার আবেদন ইতিমধ্যে অনুমোদিত — আর পরিবর্তন করা যাবে না।'
       : /duplicate|unique/i.test(t)   ? 'এই কমিটিতে আপনার একটি আবেদন আগে থেকেই আছে।'
+      : /missing fields/.test(t) ? 'এই তথ্য/নথিগুলো বাকি আছে: ' + esc(t.replace(/^.*missing fields:\s*/, '').split(/[\s,]+/).filter(Boolean)
+            .map(function(k){ return MISS_LBL[k.replace(/_url$/, '')] || k; }).join(', '))
+      : /declaration required/.test(t) ? 'ঘোষণায় সম্মতি দিন।'
       : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
     }
     b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
   };
+
+  /* ───────── অগ্রগতি — সার্ভারের app_completion-এর সাথে মিল (নমিনির ঘর শর্তসাপেক্ষ) ───────── */
+  function bn2(n){ return String(n).replace(/\d/g, function(d){ return '০১২৩৪৫৬৭৮৯'[+d]; }); }
+  var ITEMS = [
+    ['name_bn',           'নাম (বাংলায়)',               function(){ return v('fNameBn'); }],
+    ['father_name',       'পিতা / স্বামীর নাম',          function(){ return v('fFather'); }],
+    ['nid_no',            'এনআইডি নম্বর',                function(){ return v('fNid'); }],
+    ['dob',               'জন্ম তারিখ',                   function(){ return v('fDob'); }],
+    ['occupation',        'পেশা',                         function(){ return v('fOcc'); }],
+    ['mobile',            'মোবাইল নম্বর',                 function(){ return v('fMob'); }],
+    ['email',             'ই-মেইল ঠিকানা',                function(){ return v('fEml'); }],
+    ['email_verified',    'ইমেইল ভেরিফিকেশন',              function(){ return emailVerified() ? '1' : ''; }],
+    ['district',          'জেলা',                         function(){ return v('fDist'); }],
+    ['present_address',   'বর্তমান ঠিকানা',               function(){ return v('fAddr'); }],
+    ['permanent_address', 'স্থায়ী ঠিকানা',               function(){ return v('fPAddr'); }],
+    ['photo',             'নিজের ছবি',                    function(){ return DOCS.photo; }],
+    ['nid_front',         'এনআইডি — সামনের পাতা',         function(){ return DOCS.nid_front; }],
+    ['nid_back',          'এনআইডি — পিছনের পাতা',         function(){ return DOCS.nid_back; }],
+    ['nominee_name',      'নমিনির নাম',                   function(){ return v('fNomName'); }, needsNominee],
+    ['nominee_relation',  'নমিনির সম্পর্ক',               function(){ return v('fNomRel'); }, needsNominee],
+    ['nominee_age',       'নমিনির বয়স',                  function(){ return v('fNomAge'); }, needsNominee],
+    ['nominee_nid',       'নমিনির এনআইডি নম্বর',          function(){ return v('fNomNid'); }, needsNominee],
+    ['nominee_photo',     'নমিনির ছবি',                   function(){ return DOCS.nom_photo; }, needsNominee],
+    ['nominee_nid_front', 'নমিনির এনআইডি — সামনের পাতা',  function(){ return DOCS.nom_nid_front; }, needsNominee],
+    ['nominee_nid_back',  'নমিনির এনআইডি — পিছনের পাতা',  function(){ return DOCS.nom_nid_back; }, needsNominee],
+    ['declaration',       'ঘোষণায় সম্মতি',               function(){ return el('fDecl').checked ? '1' : ''; }]
+  ];
+  var MISS_LBL = { name_bn:'নাম (বাংলায়)', father_name:'পিতা/স্বামীর নাম', nid_no:'এনআইডি নম্বর', dob:'জন্ম তারিখ',
+    occupation:'পেশা', mobile:'মোবাইল', district:'জেলা', present_address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
+    photo:'নিজের ছবি', nid_front:'এনআইডি — সামনের পাতা', nid_back:'এনআইডি — পিছনের পাতা', nominee_name:'নমিনির নাম',
+    nominee_relation:'নমিনির সম্পর্ক', nominee_age:'নমিনির বয়স', nominee_nid:'নমিনির এনআইডি', nominee_photo:'নমিনির ছবি',
+    nominee_nid_front:'নমিনির এনআইডি — সামনের পাতা', nominee_nid_back:'নমিনির এনআইডি — পিছনের পাতা', declaration:'ঘোষণায় সম্মতি', email:'ই-মেইল ঠিকানা', email_verified:'ইমেইল ভেরিফিকেশন' };
+  function calcProgress(){
+    var miss = [], done = 0, total = 0;
+    ITEMS.forEach(function(it){
+      if(it[3] && !it[3]()) return;          /* এই কমিটিতে প্রয়োজন নেই */
+      total++;
+      if(it[2]()) done++; else miss.push(it[1]);
+    });
+    return { percent: Math.round(100 * done / total), missing: miss };
+  }
+  function paintProgress(){
+    var pr = calcProgress();
+    el('progPct').textContent = bn2(pr.percent) + '%';
+    el('progBar').style.width = pr.percent + '%';
+    el('progMiss').innerHTML = pr.missing.length
+      ? '<b>বাকি আছে:</b> ' + esc(pr.missing.join(', '))
+      : '<b style="color:#7ee2a8">সব তথ্য ও নথি পূর্ণ — এখন দাখিল করতে পারবেন।</b>';
+  }
+
+  /* ───────── দাখিলকৃত সম্মতিপত্র ও প্রোফাইল (নিজের ডেটা) ───────── */
+  var STATUS_BN = { pending:'যাচাই বাকি', approved:'অনুমোদিত', rejected:'প্রত্যাখ্যাত', returned:'সংশোধনের জন্য ফেরত' };
+  var DOC_SLOTS = [
+    /* [কী, কলাম, বাকেট, বৃত্তাকার ছবি?] */
+    ['photo',         'photo_url',             'avatars',  true ],
+    ['nid_front',     'nid_front_url',         'nid-docs', false],
+    ['nid_back',      'nid_back_url',          'nid-docs', false],
+    ['nom_photo',     'nominee_photo_url',     'nid-docs', true ],
+    ['nom_nid_front', 'nominee_nid_front_url', 'nid-docs', false],
+    ['nom_nid_back',  'nominee_nid_back_url',  'nid-docs', false]
+  ];
+  var DOC_LBL = { photo:'নিজের ছবি', nid_front:'এনআইডি — সামনে', nid_back:'এনআইডি — পিছনে',
+                  nom_photo:'নমিনির ছবি', nom_nid_front:'নমিনির এনআইডি — সামনে', nom_nid_back:'নমিনির এনআইডি — পিছনে' };
+
+  function renderMyApps(){
+    var panel = el('myAppsPanel');
+    if(!panel) return;
+    if(!ME || !MYAPPS.length){ panel.classList.add('hidden'); return; }
+    panel.classList.remove('hidden');
+    el('myAppsList').innerHTML = MYAPPS.map(function(a, i){
+      var c = a.completion || { percent: 0, missing: [] };
+      var pct = c.percent || 0;
+      var miss = (c.missing || []).map(function(k){ return MISS_LBL[k] || k; });
+      return '<div class="myapp">' +
+        '<div class="myapp-t">' + esc(a.committee_name || 'কমিটি') + (a.position_title ? ' · ' + esc(a.position_title) : '') +
+          ' <span class="badge">' + esc(STATUS_BN[a.status] || a.status || '') + '</span></div>' +
+        '<div class="pbar"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="progmiss">প্রোফাইল <b>' + bn2(pct) + '%</b> পূর্ণ' +
+          (miss.length ? ' · <b>বাকি:</b> ' + esc(miss.join(', '))
+                       : ' · <span style="color:#7ee2a8">সব তথ্য ও নথি পূর্ণ</span>') + '</div>' +
+        '<div class="sumrow">নাম: ' + esc(a.name_bn || '—') + ' · পিতা/স্বামী: ' + esc(a.father_name || '—') +
+          ' · এনআইডি: ' + esc(a.nid_no || '—') + ' · মোবাইল: ' + esc(a.mobile || '—') + '</div>' +
+        '<div class="sumrow">নমিনি: ' + esc(a.nominee_name || '—') + ' (' + esc(a.nominee_relation || '—') +
+          ', বয়স ' + esc(a.nominee_age || '—') + ') · এনআইডি: ' + esc(a.nominee_nid || '—') + '</div>' +
+        '<div class="myapp-grid" id="mygrid' + i + '">' +
+          DOC_SLOTS.map(function(s){
+            return '<figure><div class="nodoc">লোড হচ্ছে…</div><figcaption>' + DOC_LBL[s[0]] + '</figcaption></figure>';
+          }).join('') +
+        '</div></div>';
+    }).join('');
+    MYAPPS.forEach(function(a, i){ fillMyGrid(a, i); });
+  }
+
+  async function fillMyGrid(a, i){
+    var grid = el('mygrid' + i);
+    if(!grid) return;
+    var figs = await Promise.all(DOC_SLOTS.map(async function(s){
+      var label = DOC_LBL[s[0]], path = a[s[1]];
+      if(!path) return '<figure><div class="nodoc">দেওয়া হয়নি</div><figcaption>' + label + '</figcaption></figure>';
+      var url = await signed(s[2], path);
+      if(!url) return '<figure><div class="nodoc">দেখানো যায়নি</div><figcaption>' + label + '</figcaption></figure>';
+      if(/\.pdf($|\?)/i.test(path))
+        return '<figure><a class="nodoc" href="' + esc(url) + '" target="_blank" rel="noopener">PDF খুলুন</a><figcaption>' + label + '</figcaption></figure>';
+      return '<figure><img class="' + (s[3] ? 'sq' : '') + '" src="' + esc(url) + '" alt="' + esc(label) + '"><figcaption>' + label + '</figcaption></figure>';
+    }));
+    grid.innerHTML = figs.join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('img'), function(im){
+      im.onclick = function(){ if(window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(im.src); else window.open(im.src, '_blank'); };
+    });
+  }
 
   async function loadMyApps(){
     if(!ME){ MYAPPS = []; return; }
@@ -964,14 +1472,21 @@
     await refreshSession();
     if(ME) await loadMyApps();
     await loadInvite();
+    if(!ME && INVITE) await loadInviteApp();
     await loadStructure();
     lockPick();
     if(ME || INVITE) showForm();
     else { el('authStep').classList.remove('hidden'); el('formStep').classList.add('hidden'); }
+    renderMyApps();
+    Array.prototype.forEach.call(document.querySelectorAll('#formStep input, #formStep select, #formStep textarea'), function(x){
+      x.addEventListener('input', paintProgress);
+      x.addEventListener('change', paintProgress);
+    });
+    paintProgress();
   })();
 })();
 </script>
-<script src="kh-i18n-data.js?v=1" defer></script>
+<script src="kh-i18n-data.js?v=3" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>
