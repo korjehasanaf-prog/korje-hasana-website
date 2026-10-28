@@ -1,13 +1,14 @@
 /* Korje Hasana — নোটিশ বোর্ড (ওয়েব)
  * হেডারে "নোটিশ বোর্ড" — বড় পর্দায় টপবারে (লগইন বোতামের পাশে), ছোট পর্দায় হ্যামবার্গার মেনুতে;
  * টপবার নেই এমন পেজে হেডারের অন্য লিংকগুলোর পাশে। ক্লিক করলে ডান দিকে একটি প্যানেল খোলে।
- * হেডারে চেনা মেনু না পাওয়া গেলেই শুধু আগের মতো নিচে-বাম কোণে ভাসমান বাটন বসে।
+ * ⚠️ উপরের মেনু নেই এমন পেজে (আমার ড্যাশবোর্ড, লগইন, দান, প্রোফাইল …) কিছুই বসে না — কোনো ভাসমান
+ *    বাটনও নয় (ব্যবহারকারীর সিদ্ধান্ত, ২৮ অক্টোবর ২০২৬: লগইনের পর মোবাইলে পর্দার উপর ভেসে থাকত)।
  * ঠিকানায় #notice-board থাকলে পেজ খোলার সাথে সাথে প্যানেল খোলে। প্যানেলে আছে:
  *   • প্রতিবেদন  — মাসিক / বার্ষিক / নিরীক্ষা প্রতিবেদন (সুপার-এডমিন আপলোড করে)
  *   • খবর ও ঘোষণা — General Settings থেকে পাঠানো ঘোষণার যেগুলো "নোটিশ বোর্ডেও দেখান" করা
  *   • সিস্টেম প্রতিবেদন — সিস্টেম থেকে তৈরি খাতভিত্তিক তহবিলের হিসাব (public_stats)
  * সুপার-এডমিন ম্যানেজার: KHNotice.mountAdmin(container, _db)
- * ব্যবহার: kh-ui.js ও kh-app-downloads.js-এর পরে <script src="kh-notice.js?v=1" defer></script>
+ * ব্যবহার: kh-ui.js ও kh-app-downloads.js-এর পরে <script src="kh-notice.js?v=3" defer></script>
  * ড্যাশবোর্ডে বডি ট্যাগে data-kh-notice="off" থাকলে পাবলিক বাটন বসে না (শুধু ম্যানেজার).
  */
 (function () {
@@ -29,7 +30,11 @@
     });
   }
   function lang() {
-    try { return window.KHI18N && KHI18N.getLang() === 'bn' ? 'bn' : 'en'; } catch (e) { return 'en'; }
+    try {
+      if (window.KHI18N) return KHI18N.getLang() === 'bn' ? 'bn' : 'en';
+      /* kh-i18n.js পরে লোড হয় — ততক্ষণ সংরক্ষিত পছন্দই দেখা হয় (নাহলে বাংলা পাতায় "Notice Board" বসত) */
+      return localStorage.getItem('kh_lang') === 'bn' ? 'bn' : 'en';
+    } catch (e) { return 'en'; }
   }
   function T(bn, en) { return lang() === 'en' ? en : bn; }
   function dateTxt(iso) {
@@ -49,18 +54,9 @@
 
   /* ---------- পাবলিক বোর্ড ---------- */
   var state = { open: false, pinned: false, tab: 'reports', cat: 'all', board: null, boardAt: 0, timer: null };
-  var triggers = [], panel;   /* triggers: নোটিশ বোর্ড খোলার সব লিংক/বোতাম */
-  var isTouch = !(window.matchMedia && window.matchMedia('(hover: hover)').matches);
+  var triggers = [], panel;   /* triggers: নোটিশ বোর্ড খোলার সব লিংক (শুধু হেডারের মেনুতে) */
 
   var CSS = [
-    '.kh-nb-tab{position:fixed;left:14px;bottom:18px;z-index:9100;display:inline-flex;align-items:center;gap:8px;',
-    'padding:10px 16px;border:1px solid rgba(255,255,255,.55);border-radius:999px;cursor:pointer;',
-    'background:linear-gradient(135deg,#a855f7 0%,#6d28d9 100%);color:#fff;font-family:inherit,system-ui,sans-serif;font-weight:700;font-size:13.5px;line-height:1.1;',
-    'box-shadow:0 8px 22px rgba(109,40,217,.45)}',
-    '.kh-nb-tab:hover{filter:brightness(1.08)}',
-    '.kh-nb-tab:focus-visible{outline:2px solid #fff;outline-offset:3px}',
-    '.kh-nb-tab i{font-size:17px;color:#fff}',
-    '@media (max-width:768px){.kh-nb-tab{bottom:96px}}',
     '.kh-nb-navlink{cursor:pointer;white-space:nowrap}',
     /* হ্যামবার্গার মেনুর আইটেম শুধু ছোট পর্দায়; বড় পর্দায় টপবারের বোতামটি দেখা যায় */
     '.kh-nb-menu{display:none !important}',
@@ -211,11 +207,6 @@
     panel.setAttribute('aria-hidden', 'true');
     setExpanded(false);
   }
-  function scheduleClose() {
-    if (state.pinned) return;
-    clearTimeout(state.timer);
-    state.timer = setTimeout(function () { if (!state.pinned) closePanel(); }, 300);
-  }
 
   function makeLink(cls, withIcon) {
     var a = document.createElement('a');
@@ -236,7 +227,7 @@
    *    (≤৭৬৮px, যেখানে টপবারের বোতাম লুকায়) হ্যামবার্গার মেনুতে — লগইন/অ্যাডমিন বোতামের মতোই।
    *    (মূল মেনুর সারিতে বসালে ১০২৪px-এ মেনু পর্দা ছাড়িয়ে যাচ্ছিল।)
    *  • শুধু .nav-right (সঞ্চয় পোর্টাল): অন্য লিংকগুলোর পাশে।
-   *  কিছুই না পেলে false — তখন আগের মতো ভাসমান বোতাম। */
+   *  কিছুই না পেলে false — তখন পেজে নোটিশ বোর্ড বসেই না (ভাসমান বোতামও নয়)। */
   function mountInHeader() {
     var top = document.querySelector('.topbar .topbar-right');
     var menu = document.getElementById('navCenter') || document.querySelector('.navbar .nav-links, nav .nav-links');
@@ -262,18 +253,11 @@
 
   function mountPublic() {
     if (document.body && document.body.getAttribute('data-kh-notice') === 'off') return;
-    if (document.querySelector('.kh-nb-tab, .kh-nb-navlink')) return;
-    injectCss();
+    if (document.querySelector('.kh-nb-navlink')) return;
 
-    var inMenu = mountInHeader();
-    if (!inMenu) {
-      var fb = document.createElement('button');
-      fb.type = 'button';
-      fb.className = 'kh-nb-tab';
-      fb.innerHTML = '<i class="ti ti-speakerphone" aria-hidden="true"></i><span></span>';
-      document.body.appendChild(fb);
-      triggers.push(fb);
-    }
+    /* উপরের মেনু না থাকলে (আমার ড্যাশবোর্ড, লগইন, দান …) কিছুই বসে না — ভাসমান বাটনও নয় */
+    if (!mountInHeader()) return;
+    injectCss();
     triggers.forEach(function (b) {
       b.setAttribute('aria-expanded', 'false');
       b.setAttribute('aria-controls', 'khNbPanel');
@@ -288,19 +272,11 @@
 
     labels();
 
-    /* ভাসমান বাটনে (শুধু মেনু না থাকলে): কার্সর নিলে খোলে; মেনুর লিংকে শুধু ক্লিকে */
-    if (!inMenu) {
-      triggers[0].addEventListener('mouseenter', function () { if (!isTouch && !state.open) openPanel(false); else clearTimeout(state.timer); });
-      triggers[0].addEventListener('mouseleave', scheduleClose);
-    }
-    panel.addEventListener('mouseenter', function () { clearTimeout(state.timer); });
-    panel.addEventListener('mouseleave', scheduleClose);
-
     triggers.forEach(function (b) {
       b.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        if (inMenu) closeMobileMenu();
+        closeMobileMenu();
         if (state.open && state.pinned) closePanel();
         else openPanel(true);
       });
