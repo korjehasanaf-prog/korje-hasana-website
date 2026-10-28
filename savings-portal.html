@@ -440,7 +440,7 @@
       padding: 5px 12px; border-radius: 999px; white-space: nowrap;
     }
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=71">
+  <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-kh-nav="on" data-kh-requires="savings">
@@ -1338,6 +1338,12 @@ async function doRegister() {
     KHUI.otp({
       length: 6, demo: false,
       title: 'ই-মেইল যাচাই',
+      sent: 1,
+      onResend: function (done) {
+        _db.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } })
+          .then(function (r) { done(!(r && r.error), r && r.error ? r.error.message : ''); })
+          .catch(function () { done(false, 'সংযোগ ত্রুটি'); });
+      },
       subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
       onVerify: async function (code, done) {
         const v = await _db.auth.verifyOtp({ email, token: code, type: 'email' });
@@ -2991,7 +2997,7 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=71"></script>
+<script src="kh-ui.js?v=72"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>

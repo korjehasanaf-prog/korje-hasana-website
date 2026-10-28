@@ -377,6 +377,7 @@
 .kh-otp-back.kh-show { opacity: 1; }
 
 .kh-otp-card {
+  box-sizing: border-box;
   width: 100%;
   max-width: 380px;
   background: #170e26;
@@ -459,9 +460,10 @@
 }
 .kh-otp-x:hover { color: #fff; }
 
-@media (max-width: 400px) {
-  .kh-otp-in { width: 46px; height: 56px; font-size: 23.5px; }
-  .kh-otp-row { gap: 8px; }
+@media (max-width: 440px) {
+  .kh-otp-card { padding-left: 16px; padding-right: 16px; }
+  .kh-otp-in { width: 38px; height: 50px; font-size: 21px; padding: 0; }
+  .kh-otp-row { gap: 6px; }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1924,7 +1926,7 @@ table { max-width: 100%; }
 
   /* ওভারলে/মোডাল ছোট পর্দায় ফিট */
   .kh-zoom-box, .kh-cam, .kh-vch { max-width: 100% !important; }
-  .kh-otp-card { width: calc(100vw - 32px) !important; max-width: 380px; }
+  .kh-otp-card { width: calc(100vw - 40px) !important; max-width: 380px; }
 
   /* চ্যাট ও গ্লাস নেভ যেন একে অন্যকে ঢেকে না দেয় */
   .kh-chat-panel { width: calc(100vw - 24px) !important; right: 12px !important; left: auto !important; }

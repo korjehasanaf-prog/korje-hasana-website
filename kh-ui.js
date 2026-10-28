@@ -211,6 +211,8 @@
    *   onVerify: function(code, done){ done(true) },   // optional async check
    *   onSuccess:function(){ ... },
    *   onCancel: function(){ ... }
+   *   sent:     1,                  // প্রথমবার কতটি কোড পাঠানো হয়েছে (ডিফল্ট 1)
+   *   onResend: function(done){ done(ok, errMsg) }  // আসল পুনরায় পাঠানোর কাজ
    * })
    */
   KHUI.otp = function (cfg) {
@@ -218,6 +220,9 @@
     var LEN  = cfg.length || 4;
     var DEMO = cfg.demo !== false;
     var code = cfg.code || String(Math.floor(Math.random() * 9000) + 1000);
+    var sends = Number(cfg.sent) || 1;   // এখন পর্যন্ত কতবার কোড পাঠানো হয়েছে (প্রথমবারসহ)
+    var SPAM_AFTER = 3;                  // এতবার পাঠানোর পরও না মিললে স্প্যাম-নির্দেশনা
+    var WAIT = 60;                       // পুনরায় পাঠানোর আগে অপেক্ষা (সেকেন্ড)
 
     var masked = '';
     if (cfg.phone) {
@@ -242,6 +247,14 @@
         (DEMO ? '<div class="kh-otp-demo">ডেমো মোড — আপনার কোড: <b>' + KHUI.bn(code) + '</b></div>' : '') +
         '<div class="kh-otp-row"></div>' +
         '<p class="kh-otp-foot">কোড পাননি? <a class="kh-off">পুনরায় পাঠান</a> <span class="kh-otp-timer"></span></p>' +
+        '<div class="kh-otp-help" style="display:none;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.45);font-size:13px;line-height:1.85;color:#fef3c7;text-align:left">' +
+          '<b style="color:#fde68a">কোড ইনবক্সে পাচ্ছেন না?</b><br>' +
+          '১. Spam বা Junk ফোল্ডার দেখুন (Gmail-এ বাঁ পাশের মেনুতে "Spam")।<br>' +
+          '২. Promotions বা Updates ট্যাবও দেখুন।<br>' +
+          '৩. মেইল স্প্যামে পেলে "Not spam" বা "Not junk" চাপুন।<br>' +
+          '৪. ই-মেইল ঠিকানায় ভুল থাকলে এই পর্দা বন্ধ করে সঠিক ঠিকানা দিয়ে আবার চেষ্টা করুন।<br>' +
+          '৫. কিছুক্ষণ পরেও কোড না এলে সেন্টার ম্যানেজারকে জানান।' +
+        '</div>' +
       '</div>';
 
     document.body.appendChild(back);
@@ -254,6 +267,7 @@
     var glyph = back.querySelector('.kh-otp-icon i');
     var resend= back.querySelector('.kh-otp-foot a');
     var timer = back.querySelector('.kh-otp-timer');
+    var help  = back.querySelector('.kh-otp-help');
 
     var boxes = [];
     for (var i = 0; i < LEN; i++) {
@@ -345,36 +359,61 @@
     back.querySelector('.kh-otp-x').onclick = function () { close(false); };
     back.addEventListener('mousedown', function (e) { if (e.target === back) close(false); });
 
-    // 60-second resend countdown
-    var left = 60;
-    timer.textContent = '(' + KHUI.bn('0:' + (left < 10 ? '0' : '') + left) + ')';
-    var iv = setInterval(function () {
-      left--;
-      if (left <= 0) {
-        clearInterval(iv);
-        timer.textContent = '';
-        resend.classList.remove('kh-off');
-      } else {
-        timer.textContent = '(' + KHUI.bn('0:' + (left < 10 ? '0' : '') + left) + ')';
-      }
-    }, 1000);
-
-    resend.onclick = function () {
-      if (resend.classList.contains('kh-off')) return;
-      code = String(Math.floor(Math.random() * 9000) + 1000);
-      var d = back.querySelector('.kh-otp-demo');
-      if (d) d.innerHTML = 'ডেমো মোড — আপনার কোড: <b>' + KHUI.bn(code) + '</b>';
+    // ৬০ সেকেন্ড অপেক্ষা — প্রতিবার কোড পাঠানোর সঙ্গে সঙ্গেই শুরু হয়
+    var left = 0, iv = null;
+    function tick() {
+      var m = Math.floor(left / 60), s = left % 60;
+      timer.textContent = left > 0 ? '(' + KHUI.bn(m + ':' + (s < 10 ? '0' : '') + s) + ')' : '';
+      resend.classList.toggle('kh-off', left > 0);
+    }
+    function startWait() {
+      clearInterval(iv);
+      left = WAIT;
+      tick();
+      iv = setInterval(function () {
+        left--;
+        tick();
+        if (left <= 0) clearInterval(iv);
+      }, 1000);
+    }
+    function subText() {
+      return cfg.subtitle ? cfg.subtitle
+        : (masked ? KHUI.bn(masked) + ' নম্বরে ' + KHUI.bn(LEN) + ' সংখ্যার কোড পাঠানো হয়েছে'
+                  : KHUI.bn(LEN) + ' সংখ্যার যাচাই কোডটি লিখুন');
+    }
+    function flash(text) {
+      sub.textContent = text;
+      setTimeout(function () { sub.textContent = subText(); }, 4000);
+    }
+    function showHelp() {
+      if (!DEMO && sends >= SPAM_AFTER) help.style.display = 'block';
+    }
+    function clearBoxes() {
       boxes.forEach(function (b) { b.value = ''; b.disabled = false; b.classList.remove('kh-filled'); });
       boxes[0].focus();
       reset();
-      left = 60;
-      resend.classList.add('kh-off');
-      clearInterval(iv);
-      iv = setInterval(function () {
-        left--;
-        if (left <= 0) { clearInterval(iv); timer.textContent = ''; resend.classList.remove('kh-off'); }
-        else { timer.textContent = '(' + KHUI.bn('0:' + (left < 10 ? '0' : '') + left) + ')'; }
-      }, 1000);
+    }
+
+    startWait();
+    showHelp();
+
+    resend.onclick = function () {
+      if (left > 0) return;
+      sends++;
+      startWait();          // কাউন্টডাউন এখনই শুরু
+      showHelp();
+      clearBoxes();
+      if (cfg.onResend) {
+        cfg.onResend(function (ok, errMsg) {
+          flash(ok ? 'নতুন কোড পাঠানো হয়েছে। ই-মেইল দেখুন।'
+                   : 'কোড পাঠানো যায়নি' + (errMsg ? ': ' + errMsg : '') + '। কিছুক্ষণ পরে আবার চেষ্টা করুন।');
+        });
+        return;
+      }
+      // ডেমো মোড: নতুন ডেমো কোড তৈরি
+      code = String(Math.floor(Math.random() * 9000) + 1000);
+      var d = back.querySelector('.kh-otp-demo');
+      if (d) d.innerHTML = 'ডেমো মোড — আপনার কোড: <b>' + KHUI.bn(code) + '</b>';
     };
 
     requestAnimationFrame(function () {

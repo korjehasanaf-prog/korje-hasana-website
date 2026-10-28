@@ -580,6 +580,12 @@ async function emailStep(name, mobile, email, pass) {
   KHUI.otp({
     length: 6, demo: false,
     title: 'ই-মেইল যাচাই',
+    sent: 1,
+    onResend: function (done) {
+      _db.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true } })
+        .then(function (r) { done(!(r && r.error), r && r.error ? r.error.message : ''); })
+        .catch(function () { done(false, 'সংযোগ ত্রুটি'); });
+    },
     subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন',
     onVerify: async function (code, done) {
       var v = await _db.auth.verifyOtp({ email: email, token: code, type: 'email' });
@@ -663,6 +669,12 @@ async function doReset() {
   KHUI.otp({
     length: 6, demo: false,
     title: 'পাসওয়ার্ড রিসেট',
+    sent: 1,
+    onResend: function (done) {
+      _db.auth.resetPasswordForEmail(email, { redirectTo: location.origin + '/reset-password.html' })
+        .then(function (r) { done(!(r && r.error), r && r.error ? r.error.message : ''); })
+        .catch(function () { done(false, 'সংযোগ ত্রুটি'); });
+    },
     subtitle: email + ' — এ পাঠানো ৬ সংখ্যার কোডটি লিখুন। কোড না এলে ই-মেইলের লিংকে ক্লিক করুন।',
     onVerify: async function (code, done) {
       try {
@@ -742,9 +754,9 @@ function showSignOut() {
   };
 }
 </script>
-<link rel="stylesheet" href="kh-ui.css?v=71">
+<link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=71"></script>
+<script src="kh-ui.js?v=72"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=1" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>

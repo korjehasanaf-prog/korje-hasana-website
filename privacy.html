@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="কর্জে হাসানা ফাউন্ডেশন কী তথ্য নেয়, কেন নেয়, কতদিন রাখে, কার সাথে শেয়ার হয় এবং তথ্য মুছে ফেলার অনুরোধ কীভাবে করবেন।">
+<meta name="theme-color" content="#0d0716">
+<link rel="icon" href="assets/brand/favicon-32.png">
+  <title>গোপনীয়তা নীতি · Privacy Policy | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:   #241539;
+      --dkgreen: #160d26;
+      --mdgreen: #7048e8;
+      --ltgreen: #cbb6f5;
+      --gold:    #f08c28;
+      --dkgold:  #d6336c;
+      --white:   #ffffff;
+      --offwhite:#faf8fc;
+      --border:  #ece7f0;
+      --text:    #1a1a1a;
+      --muted:   #6B7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', 'Hind Siliguri', sans-serif; color: var(--text); background: #fff; overflow-x: hidden; }
+
+    /* ═══════════════════════════════════════
+       TOP BAR
+    ═══════════════════════════════════════ */
+    .topbar {
+      background: var(--dkgreen);
+      padding: 6px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-left { display: flex; gap: 20px; }
+    .topbar-item { display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,.6); font-size: 13.5px; }
+    .topbar-item i { font-size: 15.5px; color: var(--ltgreen); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-soc {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; text-decoration: none;
+    }
+    .topbar-soc:hover { background: rgba(255,255,255,.15); }
+    .topbar-soc i { font-size: 15.5px; color: rgba(255,255,255,.6); }
+
+    /* ═══ TOPBAR ADMIN BUTTON ═══ */
+    .topbar-admin-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; font-weight: 700; padding: 3px 12px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1px solid rgba(240,140,40,.35); border-radius: 20px;
+      cursor: pointer; text-decoration: none; transition: all .2s;
+      font-family: inherit;
+    }
+    .topbar-admin-btn:hover { background: var(--gold); color: #160d26; }
+    .topbar-admin-btn i { font-size: 13.5px; }
+    .lang-toggle { display: flex; background: rgba(255,255,255,.1); border-radius: 20px; border: 1px solid rgba(255,255,255,.2); overflow: hidden; }
+    .lang-btn { font-size: 12.5px; padding: 3px 10px; cursor: pointer; color: rgba(255,255,255,.5); border: none; background: none; transition: all .2s; }
+    .lang-btn.active { background: var(--gold); color: var(--green); font-weight: 600; }
+
+
+    /* ═══════════════════════════════════════
+       MEGA MENU
+    ═══════════════════════════════════════ */
+    .nav-item { position: relative; height: 68px; display: flex; align-items: center; }
+    .nav-chevron { font-size: 12.5px; margin-left: 3px; transition: transform .2s; vertical-align: middle; }
+    .nav-item.open > .nav-link .nav-chevron { transform: rotate(180deg); }
+
+    .mega-menu {
+      display: none;
+      position: absolute;
+      top: 68px;
+      left: 50%; transform: translateX(-50%);
+      background: #fff;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.18);
+      min-width: 540px;
+      border-top: 3px solid var(--gold);
+      z-index: 3000;
+      overflow: hidden;
+      animation: megaFadeIn .15s ease;
+    }
+    @keyframes megaFadeIn {
+      from { opacity:0; transform: translateX(-50%) translateY(-6px); }
+      to   { opacity:1; transform: translateX(-50%) translateY(0); }
+    }
+    .nav-item.open > .mega-menu { display: flex; }
+
+    .mega-inner { display: flex; min-height: 180px; width: 100%; }
+
+    /* Left column */
+    .mega-l { width: 210px; background: #f7faf8; border-right: 1px solid #e5ede8; padding: 10px 0; flex-shrink: 0; }
+    .mega-l1 {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 14.5px; font-weight: 500; color: #333;
+      border-left: 3px solid transparent;
+      transition: background .15s, color .15s, border-color .15s;
+      user-select: none;
+    }
+    .mega-l1 i.l1-ico { font-size: 18px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-l1 .l1-txt { flex: 1; line-height: 1.3; }
+    .mega-l1 .l1-sub { font-size: 12px; color: var(--muted); font-weight: 400; display: block; }
+    .mega-l1 i.l1-arr { font-size: 12.5px; color: #bbb; }
+    .mega-l1:hover, .mega-l1.active {
+      background: #e6f2ec; color: var(--green);
+      border-left-color: var(--green);
+    }
+    .mega-l1:hover i.l1-ico, .mega-l1.active i.l1-ico { color: var(--green); }
+
+    /* Right column */
+    .mega-r { flex: 1; padding: 10px 8px; }
+    .mega-panel { display: none; }
+    .mega-panel.active { display: block; }
+
+    .mega-rl {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 10px; border-radius: 8px;
+      text-decoration: none; color: var(--text);
+      transition: background .15s;
+      margin-bottom: 2px;
+    }
+    .mega-rl:hover { background: #edf7f1; }
+    .mega-rl i { font-size: 21px; color: var(--mdgreen); flex-shrink: 0; }
+    .mega-rl-body { display: flex; flex-direction: column; flex: 1; }
+    .mega-rl-title { font-size: 14.5px; font-weight: 600; color: var(--text); }
+    .mega-rl-desc  { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+    .mega-badge {
+      background: var(--green); color: #fff;
+      font-size: 12px; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .mega-rl:hover .mega-badge { background: var(--mdgreen); }
+
+    .mega-r-header {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--muted);
+      padding: 4px 10px 6px; margin-bottom: 2px;
+    }
+
+    /* Separator between mega items */
+    .mega-sep { height: 1px; background: #eee; margin: 6px 16px; }
+
+    /* Mobile: mega-menu becomes flat accordion */
+    @media (max-width: 1023px) {
+      .mega-menu { display: none !important; }
+      .nav-item { height: auto; display: block; }
+      .nav-item > .nav-link { height: auto; }
+    }
+
+    /* ═══════════════════════════════════════
+       NAVIGATION
+    ═══════════════════════════════════════ */
+    .navbar {
+      background:
+        linear-gradient(112deg,
+          rgba(214, 51, 108, .88) 0%,
+          rgba(233, 84, 32, .82) 34%,
+          rgba(240, 140, 40, .78) 58%,
+          rgba(112, 72, 232, .82) 100%);
+      backdrop-filter: blur(18px) saturate(170%);
+      -webkit-backdrop-filter: blur(18px) saturate(170%);
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 18px;
+      margin: 10px 14px 0;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 68px;
+      position: sticky;
+      top: 10px;
+      z-index: 1000;
+      box-shadow: 0 10px 34px rgba(120, 40, 120, .35), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 46px; height: 46px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 700; color: var(--green);
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(240,140,40,.4);
+    }
+    .logo-texts { display: flex; flex-direction: column; }
+    .logo-bn { color: #fff; font-size: 16px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; line-height: 1.2; }
+    .logo-en { color: rgba(255,255,255,.75); font-size: 12px; line-height: 1.3; }
+    .logo-sl { color: #ffe9a8; font-size: 11px; font-style: italic; opacity: .95; }
+
+    .nav-center { display: flex; position: relative; height: 68px; align-items: center; }
+    .nav-link {
+      color: rgba(255,255,255,.8); font-size: 14.5px; font-weight: 500;
+      padding: 0 16px; height: 68px; display: flex; align-items: center;
+      cursor: pointer; position: relative; transition: color .2s;
+      text-decoration: none; white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active { color: #fff; }
+    .nav-indicator {
+      position: absolute; bottom: 12px; height: 44px;
+      background: rgba(255,255,255,.24);
+      border: 1px solid rgba(255,255,255,.32);
+      border-radius: 999px;
+      transition: left .38s cubic-bezier(.34,1.3,.5,1), width .38s cubic-bezier(.34,1.3,.5,1);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .nav-link { z-index: 1; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ═══ NAV SAVINGS BUTTON ═══ */
+    .nav-savings-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      border: 1.5px solid rgba(240,140,40,.5);
+      font-size: 13.5px; font-weight: 700;
+      padding: 8px 18px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+      animation: navSavGlow 2.5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    .nav-savings-btn:hover {
+      background: var(--gold); color: var(--green);
+      border-color: var(--gold); animation: none;
+      transform: translateY(-1px);
+    }
+    @keyframes navSavGlow {
+      0%,100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
+      50%      { box-shadow: 0 0 12px 3px rgba(240,140,40,.25); }
+    }
+    .donate-btn {
+      background: var(--gold); color: var(--green);
+      border: none; font-size: 14.5px; font-weight: 700;
+      padding: 10px 22px; border-radius: 24px; cursor: pointer;
+      transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,140,40,.35);
+    }
+    .donate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 24px rgba(240,140,40,.55); }
+
+    /* ═══════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, var(--green) 0%, var(--dkgreen) 100%);
+      padding: 50px 40px 40px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;
+      min-height: 460px; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 300px; height: 300px; border-radius: 50%;
+      background: rgba(240,140,40,.06); pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -60px; left: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255,255,255,.03); pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(240,140,40,.15); color: var(--gold);
+      font-size: 12.5px; padding: 5px 14px; border-radius: 20px;
+      border: 1px solid rgba(240,140,40,.35); margin-bottom: 14px;
+    }
+    .hero-h1 { color: #fff; font-size: 30px; font-weight: 700; line-height: 1.35; margin-bottom: 12px; }
+    .hero-h1 span { color: var(--gold); }
+    .hero-p { color: var(--ltgreen); font-size: 15.5px; line-height: 1.8; margin-bottom: 24px; max-width: 420px; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--gold); color: var(--green); border: none;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+      box-shadow: 0 0 20px rgba(240,140,40,.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(240,140,40,.6); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 1.5px solid rgba(255,255,255,.4);
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.7); }
+    .btn-gold-outline {
+      background: transparent; color: var(--gold);
+      border: 1.5px solid rgba(240,140,40,.5);
+      font-size: 14.5px; font-weight: 500; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
+    }
+    .btn-gold-outline:hover { background: rgba(240,140,40,.1); }
+
+    /* KH PHOTO CAROUSEL */
+    .khc-section { position: relative; width: 100%; padding: 8px 0; }
+    .khc-wrap {
+      position: relative; width: 100%; height: 490px;
+      perspective: 1400px; overflow: visible;
+    }
+    .khc-card {
+      position: absolute; top: 50%; left: 50%;
+      width: 280px; height: 420px;
+      border-radius: 20px; overflow: hidden; cursor: pointer;
+      will-change: transform, opacity;
+      transition: transform 0.65s cubic-bezier(.25,.46,.45,.94), opacity 0.65s ease;
+    }
+    .khc-card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .khc-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 32px 14px 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      color: #fff; font-size: 14.5px; font-weight: 700;
+      font-family: 'Hind Siliguri', sans-serif;
+      text-align: center; letter-spacing: .3px;
+    }
+    .khc-card.is-active { box-shadow: 0 10px 48px rgba(0,0,0,.45), 0 0 0 2.5px #f08c28; }
+
+    /* ── ছবি বড় করে দেখা ──
+       মাঝের কার্ডে চাপ দিলে পুরো পর্দাজুড়ে ছবিটি খোলে। ছবির উপরে কোনো
+       ব্যাজ/লেখা বসানো হয় না — ছবিটিই পরিষ্কার দেখা যাক (সিদ্ধান্ত: ১১ সেপ্টে ২০২৬)। */
+    /* z-index ১০০০০ — হোয়াটসঅ্যাপ বাটন (৯৯৯৯), গ্লাস নেভ (৯০০০) ও চ্যাট প্যানেল
+       (৯৪০০) সবার উপরে থাকতে হবে, নাহলে ওগুলো ছবির উপর ভেসে থাকে */
+    .khc-lb {
+      position: fixed; inset: 0; z-index: 10000; display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 20px 16px; background: rgba(12,7,20,.95);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    }
+    .khc-lb.show { display: flex; }
+    .khc-lb img {
+      max-width: 100%; max-height: 74vh; width: auto; height: auto;
+      border-radius: 16px; object-fit: contain;
+      box-shadow: 0 22px 64px rgba(0,0,0,.65);
+    }
+    .khc-lb-cap {
+      margin-top: 15px; color: #fff; text-align: center;
+      font-size: 17.5px; font-weight: 700; line-height: 1.4;
+    }
+    .khc-lb-cap span { display: block; font-size: 13px; font-weight: 400; opacity: .72; margin-top: 2px; }
+    .khc-lb-count { margin-top: 7px; color: #e0c9ff; font-size: 12.5px; letter-spacing: .4px; }
+    .khc-lb-btn {
+      position: absolute; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; cursor: pointer; color: #fff; font-size: 23px;
+      padding: 0; line-height: 1;
+      background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.34);
+    }
+    .khc-lb-x    { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 21px; }
+    .khc-lb-prev { top: 50%; left: 12px;  width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-next { top: 50%; right: 12px; width: 46px; height: 46px; transform: translateY(-50%); }
+    .khc-lb-btn:hover { background: rgba(255,255,255,.3); }
+    @media (max-width: 480px) {
+      .khc-lb img { max-height: 68vh; }
+      .khc-lb-prev { left: 6px } .khc-lb-next { right: 6px }
+    }
+    .khc-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; z-index: 20; font-size: 19px;
+    }
+    .khc-nav:hover { background: rgba(255,255,255,.3); }
+    .khc-prev { left: -4px; } .khc-next { right: -4px; }
+
+    /* ═══════════════════════════════════════
+       QURAN & HADITH SLIDER — "পান্ডুলিপি" থীম
+
+       ⚠️ আগে পটভূমি ছিল var(--dkgreen) = #160d26 — অর্থাৎ হিরো ও
+       টপবারের প্রায় একই গাঢ় প্লাম। তাই ব্লকটি আলাদা করে চোখে
+       পড়ত না, কুরআন-হাদিসের অংশ বলেও বোঝা যেত না (ব্যবহারকারীর
+       পর্যবেক্ষণ, ১২ সেপ্টেম্বর ২০২৬)। এখন **হালকা পার্চমেন্ট**
+       পাতা — গাঢ় হিরোর ঠিক পরেই উল্টো উজ্জ্বলতা, তাই আলাদা করে
+       চেনা যায়; সাথে ইসলামি গিরিহ নকশা, সোনালি রেখা ও সবুজ কালি।
+
+       ⚠️ ভাউচার ও প্রোফাইল কার্ডের মতোই **দুই থীমেই এক** — এটি
+       "কাগজ", তাই থীমের সাথে বদলায় না। সেজন্য `kh-ui.css`-এর
+       সেকশন ৯-এর দুটি ঢালাও লাইট-থীম নিয়ম থেকে `.quran-strip`
+       বাদ দেওয়া হয়েছে (নাহলে পটভূমি ও লেখার রঙ চাপা পড়ত)।
+    ═══════════════════════════════════════ */
+    /* ⚠️ উচ্চতা আগের মাপেই ফেরানো (ব্যবহারকারীর পর্যবেক্ষণ:
+       "চওড়া বেশী হয়ে গেছে, আগের সাইজ ঠিক ছিল")। মূল ছিল
+       `22px 60px`; শিরোনামটি নতুন যোগ হয়েছে বলে সামান্য বেশি,
+       কিন্তু ভেতরের সব ফাঁক ও মাপ ছোট করে আনা হয়েছে। */
+    .quran-strip {
+      position: relative; overflow: hidden;
+      padding: 24px 60px 18px;
+      background:
+        /* নিচের সোনালি রেখা */
+        linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent)
+          bottom / 100% 3px no-repeat,
+        /* পার্চমেন্ট */
+        radial-gradient(125% 95% at 50% 0%, #fffdf6 0%, #fbf3e2 55%, #f2e4c9 100%);
+    }
+    /* উপরের সোনালি রেখা */
+    .quran-strip::after {
+      content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, #c8912f 18%, #f0c26b 50%, #c8912f 82%, transparent);
+    }
+    /* ⚠️ নকশাটি এখন **লগইন পেজের সেই ক্যালিগ্রাফি ছবিটিই**
+       (`images/auth-bg.jpg`) — ব্যবহারকারীর সিদ্ধান্ত, ১৩ সেপ্টেম্বর
+       ২০২৬। আগে হাতে আঁকা গিরিহ তারা ছিল; এখন সাইটজুড়ে একই
+       ইসলামি ভাষা থাকে। ছবিটি লগইন পেজে আগেই লোড হয় বলে
+       বেশিরভাগ দর্শকের কাছে ক্যাশ থেকেই আসে।
+       ⚠️ ঘনত্ব ইচ্ছে করেই কম (.18) — ছবির দুই কিনারায় গাঢ় নেভি
+       আছে, বেশি দিলে ইংরেজি অনুবাদের কনট্রাস্ট AA-র নিচে নামত
+       (মেপে দেখা হয়েছে)। */
+    .quran-strip::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: .18;
+      background: url('images/auth-bg.jpg') center / cover no-repeat;
+    }
+    .quran-strip > * { position: relative; z-index: 1; }
+
+    /* ব্লকটি কী, সেটি এক নজরে বোঝানোর জন্য (ব্যবহারকারীর দাবি) */
+    /* ⚠️ শিরোনাম ও অলংকার **এক সারিতে** — আলাদা দুই সারিতে থাকলে
+       ব্যান্ডটি ৭৩px লম্বা হয়ে যেত, আর সেটিই "চওড়া বেশী" লাগার
+       কারণ ছিল (মেপে ধরা পড়ে)। এখন পুরো মাথা ~৩৬px। */
+    .quran-head {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 10px;
+    }
+    .quran-kick {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11.5px; font-weight: 800; letter-spacing: .4px;
+      padding: 5px 14px; border-radius: 22px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      box-shadow: 0 5px 13px rgba(13, 92, 67, .2);
+    }
+    .quran-kick i { font-size: 14px; color: #ffd98a; }
+    /* সোনালি ফুল-নকশার বিভাজক */
+    /* চিপের দুই পাশে সোনালি রেখা — নিছক সাজসজ্জা (`aria-hidden`),
+       কোনো তথ্য বহন করে না। ⚠️ `#cfa04a` ছিল — ক্যালিগ্রাফি ছবির
+       উপর মাত্র ১.৩:১, প্রায় মিলিয়ে যেত; এখন গাঢ় সোনালি ২.১:১।
+       (আগের হীরের আইকনটি বাদ: পার্চমেন্টে মাত্র ২.৩৬:১ দিত।) */
+    .quran-orn {
+      display: block; width: 70px; height: 1px; flex: none;
+      background: linear-gradient(90deg, transparent, #a97615);
+    }
+    .quran-orn.r { background: linear-gradient(90deg, #a97615, transparent); }
+
+    .quran-track { display: flex; transition: transform .6s cubic-bezier(.4,0,.2,1); }
+    .quran-slide { min-width: 100%; text-align: center; padding: 0 56px; }
+    /* আইকনটি এখন গোল সবুজ মেডেলিয়ন — পার্চমেন্টে কমলা আইকন
+       মাত্র ২.৩:১ দিত, তাই নিজের রঙিন পটভূমি বহন করে */
+    .quran-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 50%; margin-bottom: 9px;
+      font-size: 16px; color: #fff;
+      background: linear-gradient(135deg, #0d5c43, #12805e);
+      box-shadow: 0 5px 14px rgba(13, 92, 67, .24), 0 0 0 5px rgba(18, 128, 94, .09);
+    }
+    .quran-text-ar {
+      color: #123a2c; font-size: 16px; font-weight: 600; line-height: 1.7;   /* ১০.২:১ */
+      margin: 0 auto 6px; font-family: 'Hind Siliguri', sans-serif;
+      max-width: 780px;
+    }
+    /* ⚠️ আগে #4a5f52 ছিল — ক্যালিগ্রাফি ছবির গাঢ় নেভি অংশের উপর
+       পড়লে ৩.৯:১-এ নেমে যেত। এখন গাঢ়, সবচেয়ে খারাপ জায়গাতেও ৫.৪:১ */
+    .quran-text-en {
+      color: #37493f; font-size: 13px; line-height: 1.6; margin: 0 auto 9px;
+      font-style: italic; max-width: 720px;
+    }
+    .quran-ref {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      padding: 4px 13px; border-radius: 20px; color: #fff;        /* ৪.৯:১ */
+      background: linear-gradient(112deg, #0d5c43, #12805e);
+      border: none;
+    }
+    .quran-nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fffdf6; border: 1px solid #e2cfa6; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s, transform .2s;
+      box-shadow: 0 3px 10px rgba(120, 90, 30, .14);
+    }
+    .quran-nav-btn:hover { background: #fff; border-color: #c8912f; transform: translateY(-50%) scale(1.06); }
+    .quran-nav-btn i { font-size: 17px; color: #0d5c43; }
+    .quran-nav-l { left: 18px; }
+    .quran-nav-r { right: 18px; }
+    .quran-dots { display: flex; justify-content: center; gap: 7px; margin-top: 12px; }
+    .qdot {
+      height: 6px; width: 6px; border-radius: 3px; cursor: pointer;
+      transition: all .3s; background: #dcc9a4;
+    }
+    .qdot.active { background: linear-gradient(90deg, #c8912f, #e6ac43); width: 22px; }
+
+    @media (max-width: 640px) {
+      .quran-strip { padding: 20px 18px 14px; }
+      .quran-text-ar { font-size: 15px; line-height: 1.7; }
+      .quran-text-en { font-size: 12.5px; }
+      .quran-nav-btn { width: 28px; height: 28px; }
+      .quran-nav-btn i { font-size: 15px; }
+      .quran-nav-l { left: 4px; } .quran-nav-r { right: 4px; }
+      .quran-orn { display: none; }   /* সরু পর্দায় শুধু চিপটিই থাকে */
+    }
+
+    /* ═══════════════════════════════════════
+       IMPACT DASHBOARD
+    ═══════════════════════════════════════ */
+    .impact-section { background: #0F172A; padding: 40px; }
+    .section-title-dark {
+      text-align: center; color: rgba(255,255,255,.5);
+      font-size: 12.5px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+    .impact-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    .impact-card {
+      border-radius: 16px; padding: 20px 16px; position: relative;
+      overflow: hidden; cursor: pointer; transition: all .3s;
+    }
+    .impact-card:hover { transform: translateY(-4px); }
+    .ic-1 { background: linear-gradient(135deg,#1565C0,#1976D2); box-shadow: 0 4px 24px rgba(21,101,192,.4); }
+    .ic-2 { background: linear-gradient(135deg,#1B5E20,#2E7D32); box-shadow: 0 4px 24px rgba(27,94,32,.4); }
+    .ic-3 { background: linear-gradient(135deg,#E65100,#F57C00); box-shadow: 0 4px 24px rgba(230,81,0,.4); }
+    .ic-4 { background: linear-gradient(135deg,#4A148C,#7B1FA2); box-shadow: 0 4px 24px rgba(74,20,140,.4); }
+    .ic-1:hover { box-shadow: 0 8px 36px rgba(21,101,192,.65); }
+    .ic-2:hover { box-shadow: 0 8px 36px rgba(27,94,32,.65); }
+    .ic-3:hover { box-shadow: 0 8px 36px rgba(230,81,0,.65); }
+    .ic-4:hover { box-shadow: 0 8px 36px rgba(74,20,140,.65); }
+    .impact-card::before {
+      content: ''; position: absolute; top: -30%; right: -20%;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(255,255,255,.08); pointer-events: none;
+    }
+    .ic-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+    .ic-num { font-size: 34px; font-weight: 700; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .ic-lbl { font-size: 13.5px; color: rgba(255,255,255,.75); margin-bottom: 10px; line-height: 1.4; }
+    .ic-bar { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; overflow: hidden; }
+    .ic-bar-inner { height: 100%; background: rgba(255,255,255,.75); border-radius: 2px; width: 0; transition: width 1.5s ease; }
+    .ic-trend { font-size: 12px; color: rgba(255,255,255,.55); margin-top: 6px; }
+    .ic-trend span { color: #4FC3F7; font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       SECTION COMMONS
+    ═══════════════════════════════════════ */
+    .section { padding: 60px 40px; }
+    .section-alt { background: var(--offwhite); }
+    .sec-hd { text-align: center; margin-bottom: 40px; }
+    .sec-tag {
+      display: inline-block; background: #EAF3DE; color: #3B6D11;
+      font-size: 12.5px; font-weight: 600; padding: 4px 14px; border-radius: 20px;
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sec-h2 { font-size: 28px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+    .sec-p { font-size: 15.5px; color: var(--muted); max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    /* ═══════════════════════════════════════
+       SERVICES
+    ═══════════════════════════════════════ */
+    .services-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .srv-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px 20px; transition: all .25s; cursor: pointer;
+    }
+    .srv-card:hover { border-color: var(--green); transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.12); }
+    .srv-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 23.5px; margin-bottom: 14px;
+    }
+    .srv-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+    .srv-desc { font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+    .srv-amt { font-size: 13.5px; color: var(--gold); font-weight: 600; margin-top: 10px; display: flex; align-items: center; gap: 5px; }
+    .srv-amt i { font-size: 15.5px; }
+
+    /* ═══════════════════════════════════════
+       HOW IT WORKS
+    ═══════════════════════════════════════ */
+    .how-section { background: var(--green); padding: 60px 40px; }
+    .how-section .sec-h2 { color: #fff; }
+    .how-section .sec-p { color: var(--ltgreen); }
+    .how-section .sec-tag { background: rgba(240,140,40,.15); color: var(--gold); border: 1px solid rgba(240,140,40,.3); }
+    .steps { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; position: relative; margin-top: 40px; }
+    .steps::before {
+      content: ''; position: absolute; top: 28px; left: 12%; right: 12%; height: 1px;
+      background: rgba(255,255,255,.2); pointer-events: none;
+    }
+    .step { text-align: center; padding: 0 12px; }
+    .step-num {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--gold); color: var(--green);
+      font-size: 21px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; position: relative; z-index: 1;
+      box-shadow: 0 0 24px rgba(240,140,40,.5);
+    }
+    .step-title { font-size: 15.5px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .step-desc { font-size: 13.5px; color: var(--ltgreen); line-height: 1.6; }
+
+    /* ═══════════════════════════════════════
+       CUSTOMER CARE STRIP
+    ═══════════════════════════════════════ */
+    .cc-strip {
+      background: #fff6ef; border-top: 3px solid var(--gold);
+      border-bottom: 1px solid #F0D080;
+      padding: 20px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cc-left { display: flex; align-items: center; gap: 16px; }
+    .cc-icon-wrap { position: relative; }
+    .cc-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 0 20px rgba(37,211,102,.4);
+    }
+    .cc-icon i { font-size: 28px; color: #fff; }
+    .cc-ring {
+      position: absolute; top: -4px; right: -4px;
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid #25D366;
+      animation: ringPulse 1.6s infinite;
+    }
+    @keyframes ringPulse { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2.5);opacity:0} }
+    .cc-title { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 3px; }
+    .cc-sub { font-size: 13.5px; color: var(--muted); }
+    .cc-actions { display: flex; gap: 10px; }
+    .wa-btn {
+      background: #25D366; color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all .2s; box-shadow: 0 4px 16px rgba(37,211,102,.4);
+      text-decoration: none;
+    }
+    .wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.6); }
+    /* ⚠️ আগে এটি ছিল `background:transparent` + `color:var(--green)`।
+       কিন্তু kh-ui.css-এর "রঙিন ফিলের উপর বসা বাটন" তালিকায় `.call-btn`ও
+       আছে, যা `color:#fff !important` দেয় — ফলে ক্রিম পটভূমিতে সাদা লেখা,
+       দুই থীমেই অদৃশ্য। এখন বাটনটি নিজের গ্র্যাডিয়েন্ট বহন করে
+       (প্রকল্পের ২ নম্বর নিয়ম: সাদা লেখা = রঙিন পটভূমি)। */
+    .call-btn {
+      background: linear-gradient(112deg,#c2255c 0%,#8b1fb0 55%,#7048e8 100%);
+      color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 10px 20px; border-radius: 24px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all .2s; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(139,31,176,.38);
+    }
+    .call-btn i { color: #fff; }
+    .call-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(139,31,176,.55); }
+
+    /* ── মোবাইলে স্ট্রিপটি দাঁড়িয়ে যায় ──
+       ডেস্কটপে এটি `space-between` করা এক সারি; ছোট পর্দায় বাঁয়ের
+       লম্বা দুই লাইনের লেখা আর ডানের দুটি বাটন একে অপরকে চেপে ধরত। */
+    @media (max-width: 860px) {
+      .cc-strip { flex-direction: column; align-items: center; gap: 18px; padding: 24px 20px; text-align: center; }
+      .cc-left { flex-direction: column; gap: 12px; }
+      .cc-title { font-size: 15px; line-height: 1.45; }
+      .cc-sub { font-size: 12.5px; line-height: 1.65; }
+      .cc-actions { width: 100%; max-width: 430px; }
+      .wa-btn, .call-btn { flex: 1; justify-content: center; min-height: 46px; }
+    }
+    @media (max-width: 430px) {
+      .cc-actions { flex-direction: column; }
+    }
+
+    /* ═══════════════════════════════════════
+       SUCCESS STORIES
+    ═══════════════════════════════════════ */
+    .stories-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .story-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .story-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .story-img {
+      height: 100px; display: flex; align-items: center; justify-content: center;
+      font-size: 43px;
+    }
+    .story-body { padding: 16px; }
+    .story-tag { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .story-quote { font-size: 14.5px; color: var(--text); line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .story-quote::before { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-quote::after { content: '"'; font-size: 19px; color: var(--gold); }
+    .story-meta { font-size: 12.5px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       NEWS
+    ═══════════════════════════════════════ */
+    .news-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .news-card {
+      background: #fff; border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; transition: all .25s; cursor: pointer;
+    }
+    .news-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: 0 8px 24px rgba(36,21,57,.1); }
+    .news-img { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 34px; }
+    .news-body { padding: 14px; }
+    .news-cat { font-size: 12.5px; font-weight: 600; color: var(--green); margin-bottom: 5px; }
+    .news-title { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
+    .news-date { font-size: 12.5px; color: var(--muted); }
+
+    /* ═══════════════════════════════════════
+       CTA BAND
+    ═══════════════════════════════════════ */
+    .cta-band {
+      background: linear-gradient(135deg, var(--gold) 0%, #e95420 100%);
+      padding: 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .cta-band h3 { font-size: 21px; font-weight: 700; color: var(--green); margin-bottom: 5px; }
+    .cta-band p { font-size: 14.5px; color: rgba(0,0,0,.55); }
+    .cta-btns { display: flex; gap: 12px; }
+    .cta-btn1 {
+      background: var(--green); color: #fff; border: none;
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .cta-btn1:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.3); }
+    .cta-btn2 {
+      background: transparent; color: var(--green);
+      border: 2px solid var(--green);
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: all .2s;
+    }
+    .cta-btn2:hover { background: rgba(0,0,0,.06); }
+
+    /* ═══════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════ */
+    .footer { background: var(--dkgreen); padding: 50px 40px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 32px; margin-bottom: 36px; }
+    .ft-logo-bn { color: #fff; font-size: 17px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; }
+    .ft-logo-en { color: var(--ltgreen); font-size: 12.5px; margin-bottom: 3px; }
+    .ft-logo-sl { color: var(--gold); font-size: 12px; font-style: italic; margin-bottom: 14px; }
+    .ft-about { color: rgba(255,255,255,.45); font-size: 13.5px; line-height: 1.8; margin-bottom: 16px; }
+    .ft-nl { display: flex; gap: 8px; }
+    .ft-nl input {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 24px; padding: 8px 14px; font-size: 13.5px; color: #fff; flex: 1;
+    }
+    .ft-nl input::placeholder { color: rgba(255,255,255,.35); }
+    .ft-nl button {
+      background: var(--gold); color: var(--green); border: none;
+      border-radius: 24px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+    }
+    .ft-col h4 { color: var(--ltgreen); font-size: 13.5px; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.1); text-transform: uppercase; letter-spacing: .5px; }
+    .ft-links { display: flex; flex-direction: column; gap: 8px; }
+    .ft-link {
+      color: rgba(255,255,255,.45); font-size: 13.5px; text-decoration: none;
+      display: flex; align-items: center; gap: 5px; transition: all .2s;
+    }
+    .ft-link::before { content: '›'; opacity: .4; font-size: 15.5px; transition: opacity .2s; }
+    .ft-link:hover { color: var(--gold); padding-left: 4px; }
+    .ft-link:hover::before { opacity: 1; color: var(--gold); }
+    .ft-contact { display: flex; flex-direction: column; gap: 8px; }
+    .ft-contact-item { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,.45); font-size: 13.5px; }
+    .ft-contact-item i { font-size: 15.5px; color: var(--ltgreen); }
+    .footer-mid {
+      border-top: 1px solid rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding: 16px 0; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-socs { display: flex; gap: 10px; }
+    .foot-soc {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s; text-decoration: none;
+    }
+    .foot-soc i { font-size: 19px; color: rgba(255,255,255,.5); transition: color .25s; }
+    .foot-soc:hover { transform: translateY(-3px); }
+    .foot-soc.fb:hover { background: #1877F2; border-color: #1877F2; }
+    .foot-soc.fb:hover i { color: #fff; }
+    .foot-soc.yt:hover { background: #FF0000; border-color: #FF0000; }
+    .foot-soc.yt:hover i { color: #fff; }
+    .foot-soc.wa:hover { background: #25D366; border-color: #25D366; }
+    .foot-soc.wa:hover i { color: #fff; }
+    .foot-soc.li:hover { background: #0A66C2; border-color: #0A66C2; }
+    .foot-soc.li:hover i { color: #fff; }
+    .ft-badges { display: flex; gap: 8px; }
+    .ft-badge {
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.4); font-size: 12px; padding: 4px 10px; border-radius: 12px;
+    }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .ft-copy { color: rgba(255,255,255,.3); font-size: 12.5px; }
+
+    /* ═══════════════════════════════════════
+       FLOATING BUTTONS
+    ═══════════════════════════════════════ */
+    .wa-float {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .wa-float-btn {
+      width: 58px; height: 58px; border-radius: 50%;
+      background: #25D366; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(37,211,102,.5);
+      cursor: pointer; transition: all .2s; text-decoration: none;
+      animation: waPulse 2.5s infinite;
+      position: relative;
+    }
+    @keyframes waPulse {
+      0%,100%  { box-shadow: 0 4px 20px rgba(37,211,102,.5); }
+      50%      { box-shadow: 0 4px 30px rgba(37,211,102,.8), 0 0 0 10px rgba(37,211,102,.15); }
+    }
+    .wa-float-btn i { font-size: 30px; color: #fff; }
+    .wa-float-tooltip {
+      background: #fff; color: var(--green); font-size: 13.5px; font-weight: 700;
+      padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      display: none; white-space: nowrap;
+    }
+    .wa-float:hover .wa-float-tooltip { display: block; }
+
+    .btt-btn {
+      position: fixed; bottom: 98px; right: 28px; z-index: 9999;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--green); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .25s;
+      opacity: 0; pointer-events: none;
+      box-shadow: 0 4px 16px rgba(36,21,57,.35);
+    }
+    .btt-btn.visible { opacity: 1; pointer-events: all; }
+    .btt-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(36,21,57,.5); }
+    .btt-btn i { font-size: 21px; color: var(--gold); }
+
+    /* ═══════════════════════════════════════
+       DIVIDER
+    ═══════════════════════════════════════ */
+    .divider { height: 1px; background: var(--border); margin: 0 40px; }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 30px 20px; }
+      /* Carousel: show as single card on tablet/mobile */
+      .khc-section { display: block; margin-top: 12px; }
+      /* মোবাইলে শুধু মাঝের কার্ডটি থাকে — তাই সেটিকে যতটা সম্ভব বড় দেখানো হয় */
+      .khc-wrap { height: 456px; }
+      .khc-card { width: 276px; height: 414px; }
+      .khc-card:not(.is-active) { opacity: 0 !important; pointer-events: none !important; }
+      .services-grid, .stories-grid, .news-grid { grid-template-columns: 1fr 1fr; }
+      .impact-grid { grid-template-columns: repeat(2,1fr); }
+      .steps { grid-template-columns: repeat(2,1fr); gap: 20px; }
+      .steps::before { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      /* Hamburger + dropdown nav */
+      .nav-center { display: none; height: auto !important; }
+      .nav-hamburger { display: flex; }
+      .nav-links { display: none !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--dkgreen); padding: 8px 0; z-index: 999; box-shadow: 0 8px 24px rgba(0,0,0,.3); border-top: 2px solid var(--gold); width: 100%; }
+      /* height:auto — নাহলে মেনু ৬৮px-এ আটকে গিয়ে আইটেমগুলো
+         হিরো সেকশনের লেখার ওপরে ব্যাকগ্রাউন্ড ছাড়া ভেসে উঠত */
+      .nav-links.open { display: flex !important; height: auto !important; align-items: stretch !important; }
+      .nav-link { padding: 13px 20px !important; border-bottom: 1px solid rgba(255,255,255,.07); width: 100%; height: auto; }
+      .nav-indicator { display: none; }
+      .cta-band { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  
+
+/* ═══ HAMBURGER ═══ */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:8px; margin-left:auto; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:var(--gold); border-radius:2px; transition:all .3s; }
+.nav-hamburger.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.nav-hamburger.active span:nth-child(2) { opacity:0; }
+.nav-hamburger.active span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+/* ═══ মোবাইলের লগইন / সাইন আপ বাটন ═══
+   ডেস্কটপে টপবারে ও নেভ-CTA-তে লগইন আছে, কিন্তু মোবাইলে দুটোই লুকানো
+   (.topbar ও .nav-cta → display:none) — তাই লগইন শুধু হ্যামবার্গারে থাকত।
+   এই বাটনটি হিরোতেই সেই পথ খুলে দেয়। ৭৬৮px-এর উপরে সম্পূর্ণ লুকানো। */
+.kh-mauth { display:none; }
+@media (max-width:768px) {
+  .kh-mauth {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; margin:0 0 14px; padding:14px 20px; min-height:48px;
+    border:none; border-radius:13px; cursor:pointer;
+    font-family:inherit; font-size:15.5px; font-weight:800;
+    /* সাদা লেখা — তাই পটভূমি অবশ্যই গাঢ় গ্র্যাডিয়েন্ট (কনট্রাস্ট ৫.৩–৭.২:১) */
+    color:#fff !important; text-decoration:none;
+    background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#c0307a);
+    box-shadow:0 6px 22px rgba(160,33,201,.35);
+  }
+  .kh-mauth i { font-size:19px; color:#fff !important; }
+  .kh-mauth:active { transform:translateY(1px); }
+}
+
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media (max-width:768px) {
+  .topbar { display:none !important; }
+  .navbar { padding:0 16px !important; }
+  .nav-center { height:auto !important; }
+  .nav-links { display:none !important; flex-direction:column; position:absolute; top:100%; left:0; right:0; background:var(--dkgreen); padding:8px 0; z-index:999; box-shadow:0 8px 24px rgba(0,0,0,.3); border-top:2px solid var(--gold); width:100%; }
+  .nav-links.open { display:flex !important; height:auto !important; align-items:stretch !important; }
+  .nav-link { padding:13px 20px !important; border-bottom:1px solid rgba(255,255,255,.07); width:100%; }
+  .nav-hover-bar { display:none !important; }
+  .nav-cta { display:none !important; }
+  .nav-hamburger { display:flex !important; }
+  /* footer-mid: stack on mobile */
+  .footer-mid { flex-direction:column !important; align-items:center !important; gap:12px !important; text-align:center !important; }
+  .ft-badges { flex-wrap:wrap !important; justify-content:center !important; }
+  .page-hero { padding:32px 16px 72px !important; }
+  .page-hero h1 { font-size:26px !important; }
+  .page-hero p { font-size:14.5px !important; }
+  /* whatsapp float */
+  .wa-float { width:48px !important; height:48px !important; bottom:16px !important; right:16px !important; font-size:23.5px !important; }
+  /* hero */
+  .hero-section { padding:40px 16px 80px !important; }
+  .hero-title { font-size:28px !important; }
+  .hero-sub { font-size:15.5px !important; }
+  .hero-btns { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
+  .hero-btn, .btn-apply, .btn-learn { text-align:center !important; padding:14px 20px !important; }
+  /* stats */
+  .stats-row, .stats-grid { grid-template-columns:1fr 1fr !important; gap:12px !important; padding:0 16px !important; }
+  /* features */
+  .features-grid, .feat-grid, .services-grid { grid-template-columns:1fr !important; gap:16px !important; }
+  /* process */
+  .process-steps, .steps-row { flex-direction:column !important; gap:20px !important; }
+  .step-connector { display:none !important; }
+  /* testimonials */
+  .testimonials-grid { grid-template-columns:1fr !important; }
+  /* footer */
+  .footer-grid, .ft-grid, .footer-cols { grid-template-columns:1fr !important; gap:24px !important; }
+  .footer-top { padding:40px 16px !important; }
+  .footer-bottom { flex-direction:column !important; gap:10px !important; text-align:center !important; }
+  /* section padding */
+  section, .section { padding:40px 16px !important; }
+  .container, .section-inner { padding:0 16px !important; }
+  .quran-strip { padding:18px 20px !important; }
+  .impact-section { padding:32px 16px !important; }
+  .mv-section { padding:40px 16px !important; }
+  .cta-band { padding:28px 16px !important; }
+  .divider { margin:0 16px !important; }
+  .footer { padding:40px 16px 20px !important; }
+  .cta-btns { justify-content:center !important; flex-wrap:wrap !important; }
+}
+    /* Very small screens */
+    @media (max-width:480px) {
+      .nav-right { display:none; }
+      .logo-sl { display:none; }
+      .logo-en { display:none; }
+      .logo-bn { font-size:14.5px; }
+      .logo-icon { width:36px; height:36px; font-size:14.5px; }
+      /* ছোট ফোনে কার্ড ও ঘর একসাথে ছোট হয় — নাহলে কার্ডটি ঘরের চেয়ে লম্বা হয়ে
+         যায় আর .hero-র overflow:hidden নিচের নামটুকু কেটে দেয় */
+      .khc-wrap { height:392px; }
+      .khc-card { width:236px; height:354px; }
+      .hero { padding:24px 16px; }
+    }
+
+    /* ═══════════════════════════════════════
+       MISSION & VISION SECTION
+    ═══════════════════════════════════════ */
+    .mv-section {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #071e0f 0%, #160d26 45%, #0a2e1a 100%);
+      padding: 72px 40px;
+    }
+    .mv-orb { position:absolute; border-radius:50%; filter:blur(70px); opacity:.18; pointer-events:none; }
+    .mv-orb1 { width:420px;height:420px; background:#7048e8; top:-100px; left:-80px; }
+    .mv-orb2 { width:320px;height:320px; background:#f08c28; bottom:-80px; right:-60px; }
+    .mv-orb3 { width:200px;height:200px; background:#cbb6f5; top:40%; left:45%; }
+    .mv-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+    .mv-hd { text-align:center; margin-bottom:52px; }
+    .mv-tag {
+      display:inline-block; background:rgba(240,140,40,.15);
+      border:1px solid rgba(240,140,40,.35); color:#f08c28;
+      font-size:12.5px; font-weight:700; letter-spacing:1.5px;
+      text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:14px;
+    }
+    .mv-title { color:#fff; font-size:34px; font-weight:900; font-family:'Hind Siliguri',sans-serif; line-height:1.2; margin-bottom:10px; }
+    .mv-sub { color:rgba(255,255,255,.5); font-size:15.5px; }
+    .mv-cards { display:grid; grid-template-columns:1fr 1fr; gap:28px; margin-bottom:36px; }
+    .mv-card {
+      position:relative; overflow:hidden; border-radius:20px; padding:36px 32px;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .mv-card-glow { position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; filter:blur(55px); opacity:.45; }
+    .mv-card.mission { background:linear-gradient(135deg,rgba(36,21,57,.6),rgba(22,13,38,.85)); }
+    .mv-card.mission .mv-card-glow { background:#f08c28; }
+    .mv-card.vision  { background:linear-gradient(135deg,rgba(112,72,232,.5),rgba(9,45,25,.85)); }
+    .mv-card.vision  .mv-card-glow { background:#cbb6f5; }
+    .mv-card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:18px; position:relative; z-index:1; }
+    .mission .mv-card-icon { background:linear-gradient(135deg,#f08c28,#ffc46b); color:#241539; }
+    .vision  .mv-card-icon { background:linear-gradient(135deg,#7048e8,#cbb6f5); color:#fff; }
+    .mv-card-tag { font-size:12px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; position:relative; z-index:1; }
+    .mission .mv-card-tag { color:#f08c28; }
+    .vision  .mv-card-tag  { color:#cbb6f5; }
+    .mv-card-h { font-size:21px; font-weight:800; color:#fff; font-family:'Hind Siliguri',sans-serif; margin-bottom:12px; position:relative; z-index:1; }
+    .mv-card-p { font-size:15.5px; color:rgba(255,255,255,.75); line-height:1.78; font-family:'Hind Siliguri',sans-serif; position:relative; z-index:1; }
+    .mv-card-en { font-size:13.5px; color:rgba(255,255,255,.4); line-height:1.6; margin-top:10px; position:relative; z-index:1; font-style:italic; }
+    .mv-values { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:40px; }
+    .mv-val { display:flex; align-items:center; gap:8px; padding:10px 18px; border-radius:30px; font-size:14.5px; font-weight:700; font-family:'Hind Siliguri',sans-serif; border:1px solid rgba(255,255,255,.1); }
+    .mv-val i { font-size:17px; }
+    .mv-val-1 { background:rgba(240,140,40,.12);  color:#ffc46b; }
+    .mv-val-2 { background:rgba(112,72,232,.2);   color:#cbb6f5; }
+    .mv-val-3 { background:rgba(96,165,250,.12); color:#93C5FD; }
+    .mv-val-4 { background:rgba(232,121,249,.1); color:#E879F9; }
+    .mv-val-5 { background:rgba(52,211,153,.12); color:#6EE7B7; }
+    .mv-targets { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .mv-tgt { text-align:center; padding:20px 14px; background:rgba(255,255,255,.04); border-radius:14px; border:1px solid rgba(255,255,255,.07); }
+    .mv-tgt-num { font-size:30px; font-weight:900; color:#f08c28; }
+    .mv-tgt-lbl { font-size:13.5px; color:rgba(255,255,255,.55); margin-top:4px; font-family:'Hind Siliguri',sans-serif; }
+    @media (max-width:768px) {
+      .mv-section { padding:48px 20px; }
+      .mv-cards { grid-template-columns:1fr; }
+      .mv-targets { grid-template-columns:repeat(2,1fr); }
+      .mv-title { font-size:26px; }
+    }
+
+
+    /* ═══ SAVINGS GLOW BUTTON ═══ */
+    .btn-savings-glow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; font-size: 15.5px; font-weight: 700;
+      background: linear-gradient(135deg, #f08c28 0%, #ff9500 100%);
+      color: #160d26; border: none; border-radius: 50px; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      animation: savGlow 2.4s ease-in-out infinite;
+      transition: transform .2s;
+      white-space: nowrap;
+    }
+    .btn-savings-glow:hover { transform: translateY(-2px) scale(1.03); animation-duration:.7s; }
+    @keyframes savGlow {
+      0%   { box-shadow: 0 0 0 0 rgba(240,140,40,.75); }
+      65%  { box-shadow: 0 0 0 16px rgba(240,140,40,0); }
+      100% { box-shadow: 0 0 0 0 rgba(240,140,40,0); }
+    }
+</style>
+  <link rel="stylesheet" href="kh-ui.css?v=73">
+<link rel="stylesheet" href="kh-app-downloads.css?v=70">
+<style>
+/* ═══ ⏱ ফ্লিপ ঘড়ি (.khfc) — "digital watch.mp4" থেকে হুবহু, ছোট আকারে ═══
+   নিজের গাঢ় পটভূমি বহন করে → দুই থীমে হুবহু এক।
+   ⚠️ সেকশন ৯-এর ঢালাও লাইট-থীম নিয়ম (০,২,২) div/span-এর রঙ বদলে দেয়,
+   তাই প্রতিটি রঙের নির্বাচক `html .khfc.khfc …` = (০,৩,১)+ ও !important। */
+.khfc{
+  --w:30px; --h:42px;
+  --amber:#ffa52f; --amber-glow:rgba(255,165,47,.5);
+  --font-digit:'Oswald','Bebas Neue','Arial Narrow',Impact,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  display:inline-flex; flex-direction:column; align-items:center; gap:9px;
+  margin-top:22px; padding:14px 18px 12px;
+  background:#121212 !important; border-radius:18px;
+  border:1px solid rgba(255,255,255,.05);
+  box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03);
+}
+html .khfc.khfc .khfc-live{
+  display:flex; align-items:center; gap:6px;
+  font:500 10px/1 var(--mono); letter-spacing:.22em; color:#9a9a9a !important;
+}
+.khfc-head{display:flex;align-items:center;gap:10px}
+/* AM/PM বাটন — নিজের গাঢ় পটভূমি বহন করে, দুই থীমে এক */
+@media (max-width:768px){ html .khfc.khfc{display:none !important} }
+html .khfc.khfc .khfc-ap{
+  font:500 9.5px/1 var(--mono); letter-spacing:.14em;
+  padding:4px 8px; border-radius:6px; cursor:pointer; min-height:0;
+  background:#1f1f24 !important; color:#c9c9c9 !important;
+  border:1px solid rgba(255,255,255,.1); transition:background .2s,color .2s,border-color .2s;
+}
+html .khfc.khfc .khfc-ap:hover{border-color:rgba(255,165,47,.45)}
+html .khfc.khfc .khfc-ap[aria-pressed="true"]{
+  background:#2a2018 !important; color:var(--amber) !important;
+  border-color:rgba(255,165,47,.4); text-shadow:0 0 8px var(--amber-glow);
+}
+.khfc-ap:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.khfc-live i{width:6px;height:6px;border-radius:50%;background:#ef4444;box-shadow:0 0 8px #ef4444;animation:khfcPulse 1.6s ease-in-out infinite}
+@keyframes khfcPulse{50%{opacity:.35;box-shadow:0 0 2px #ef4444}}
+.khfc-house{
+  position:relative; display:flex; align-items:center; gap:7px;
+  padding:9px 12px; border-radius:11px;
+  background:linear-gradient(180deg,#1c1c20,#161619) !important;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 10px 24px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.khfc-screw{position:absolute;width:3px;height:3px;border-radius:50%;background:#34343a}
+.khfc-screw.s1{top:5px;left:5px}.khfc-screw.s2{top:5px;right:5px}
+.khfc-screw.s3{bottom:5px;left:5px}.khfc-screw.s4{bottom:5px;right:5px}
+.khfc-grp{display:flex;gap:3px}
+.khfc-col{display:flex;flex-direction:column;gap:7px;padding:0 1px}
+.khfc-col i{width:3px;height:3px;border-radius:50%;background:#45454c}
+
+/* ── একটি অঙ্ক: উপরের অর্ধেক · নিচের অর্ধেক · উল্টে পড়া পাতা ── */
+.khfc-flip{
+  position:relative; width:var(--w); height:var(--h);
+  perspective:260px;
+  font-family:var(--font-digit); font-weight:700;
+  font-size:calc(var(--h) * .72);
+}
+.khfc-half{position:absolute;left:0;right:0;height:50%;overflow:hidden}
+.khfc-top,.khfc-front{top:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#2b2c31,#25262a) !important}
+.khfc-bot,.khfc-back{bottom:0;border-radius:0 0 5px 5px;background:linear-gradient(180deg,#1f2024,#1b1c1f) !important}
+html .khfc.khfc .khfc-half span{
+  position:absolute; left:0; width:100%; height:var(--h);
+  line-height:var(--h); text-align:center;
+  color:var(--amber) !important; text-shadow:0 0 18px var(--amber-glow);
+}
+.khfc-top span,.khfc-front span{top:0}
+.khfc-bot span{bottom:0}
+/* মাঝের ভাঁজ-রেখা */
+.khfc-flip::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;margin-top:-.5px;background:rgba(0,0,0,.65);z-index:3}
+.khfc-leaf{
+  position:absolute; top:0; left:0; right:0; height:50%;
+  transform-origin:50% 100%; transform-style:preserve-3d; z-index:2;
+}
+.khfc-leaf .khfc-half{height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.khfc-leaf .khfc-back{top:0;bottom:auto;transform:rotateX(180deg)}
+.khfc-leaf .khfc-back span{top:calc(var(--h) * -.5)}
+.khfc-leaf.turning{
+  transition:transform .42s cubic-bezier(.6,.04,.4,1);
+  transform:rotateX(-180deg);
+}
+html .khfc.khfc .khfc-lbl{
+  font:500 8.5px/1 var(--mono); letter-spacing:.24em; color:#8c8c8c !important;
+}
+html .khfc.khfc .khfc-date{
+  font:400 11px/1.2 var(--mono); letter-spacing:.02em; color:#a3a3a3 !important; min-height:1.2em;
+}
+/* 🟠 ডার্ক থীমে ঘড়ির ফ্রেম কমলা (ব্যবহারকারীর সিদ্ধান্ত, ২৬ সেপ্টে ২০২৬) —
+   গাঢ় হিরোতে কালো ফ্রেম মিলিয়ে যেত। লাইট থীমে আগের গাঢ় ফ্রেমই থাকে।
+   ফ্রেমের লেখা গাঢ় কালি (কমলার দুই প্রান্তে ≥৫.৩:১); অঙ্কের ঘর আগের মতোই গাঢ়। */
+html:not([data-theme="light"]) .khfc.khfc{
+  background:linear-gradient(145deg,#f39a3a 0%,#f08c28 45%,#e95420 100%) !important;
+  border-color:rgba(255,255,255,.28);
+  box-shadow:0 18px 40px rgba(233,84,32,.35), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html:not([data-theme="light"]) .khfc.khfc .khfc-live,
+html:not([data-theme="light"]) .khfc.khfc .khfc-lbl,
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ color:#2a1206 !important; }
+html:not([data-theme="light"]) .khfc.khfc .khfc-date{ font-weight:500; }
+html:not([data-theme="light"]) .khfc .khfc-live i{ background:#b3001b; box-shadow:0 0 6px rgba(179,0,27,.7); }
+html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); box-shadow:0 10px 22px rgba(80,20,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
+@media (max-width:480px){
+  .khfc{--w:27px;--h:38px;padding:12px 14px 11px;margin-top:18px}
+  .khfc-house{gap:6px;padding:8px 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  .khfc-leaf.turning{transition:none}
+  .khfc-live i{animation:none}
+}
+</style>
+<style id="kh-header-v3">
+/* ═══ হেডার v3 — গোল লোগো বড় ও স্পষ্ট, চারপাশে ঘূর্ণায়মান রিং, ফোন নম্বর ডানে, নাম একবার ═══ */
+@media (min-width: 821px) {
+  .topbar { justify-content: flex-end !important; gap: 22px; }
+  .navbar { height: 84px; }
+}
+.navbar .logo-wrap { gap: 14px; }
+.logo-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; flex-shrink: 0; border-radius: 50%; isolation: isolate; }
+.logo-badge::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; z-index: -1;
+  background: conic-gradient(#f08c28, #d6336c, #7048e8, #22c55e, #f6c343, #f08c28);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+  animation: khLogoSpin 6s linear infinite; }
+.logo-badge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; z-index: -2; animation: khLogoPulse 2.6s ease-out infinite; }
+.logo-round { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: contain; background: none; box-shadow: none; }
+@keyframes khLogoSpin { to { transform: rotate(360deg); } }
+@keyframes khLogoPulse { 0% { box-shadow: 0 0 0 0 rgba(240,140,40,.55); } 70%, 100% { box-shadow: 0 0 0 14px rgba(240,140,40,0); } }
+@media (min-width: 821px) and (max-width: 1180px) {
+  .logo-sl { display: none; }
+  .navbar .logo-wrap { flex-shrink: 0; }
+  .logo-badge { width: 52px; height: 52px; }
+  .navbar .logo-bn { font-size: 14.5px; }
+  .navbar .nav-link { padding: 0 6px; font-size: 13px; }
+  .nav-savings-btn { padding: 7px 9px; font-size: 12px; white-space: nowrap; }
+  .donate-btn { padding: 8px 10px; font-size: 12.5px; white-space: nowrap; }
+}
+/* ট্যাবলেটে (৭৬৯–৯০০px) মেনু আগে কোথাও ছিল না — হ্যামবার্গার বন্ধ, লিংকও লুকানো (CSS-এর ক্রম) */
+@media (min-width: 769px) and (max-width: 900px) { .nav-hamburger { display: flex !important; } }
+/* ৭৬৯–৯০০px: হ্যামবার্গারসহ নামের পাশে App/সঞ্চয়/Donate — তাই নাম ও বাটনের মাঝে ফাঁক রাখতে একটু ছোট */
+@media (min-width: 769px) and (max-width: 900px) {
+  .navbar .logo-bn { font-size: 14px; }
+  .navbar .nav-right { gap: 6px; margin-left: 16px; }
+  .nav-savings-btn { padding: 6px 9px; font-size: 11.5px; }
+}
+/* ৮২১–১০২৩px-এ ঠিকানা লাইন তিন লাইনে ভাঙত; ঠিকানা ফুটারেও আছে */
+@media (min-width: 821px) and (max-width: 1023px) { .topbar-left .topbar-item:nth-child(3) { display: none; } }
+@media (max-width: 768px) { .logo-badge { width: 50px; height: 50px; } .logo-badge::before { inset: -4px; } }
+@media (max-width: 480px) { .logo-badge { width: 44px; height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .logo-badge::before, .logo-badge::after { animation: none; } }
+</style>
+<style>
+  .legal { max-width: 880px; margin: 0 auto; padding: 34px 20px 70px; font-family: 'Hind Siliguri', 'Inter', sans-serif; font-size: 15.5px; line-height: 1.85; color: #2f2540; }
+  .legal h1 { font-size: 30px; font-weight: 700; margin: 8px 0 6px; color: #241539; }
+  .legal h2 { font-size: 19px; font-weight: 600; margin: 30px 0 8px; color: #b02a80; }
+  .legal h3 { font-size: 16.5px; font-weight: 600; margin: 22px 0 6px; color: #5b2a9e; }
+  .legal p, .legal li { color: #2f2540; }
+  .legal ul { padding-left: 22px; margin: 6px 0 10px; }
+  .legal li { margin: 4px 0; }
+  .legal .meta { color: #6b6280; font-size: 14px; }
+  .legal a { color: #7048e8; }
+  .legal .lang-sep { border: 0; border-top: 1px solid rgba(0,0,0,.12); margin: 44px 0 10px; }
+  @media (max-width: 600px) { .legal { padding: 24px 16px 56px; font-size: 15px; } .legal h1 { font-size: 25px; } }
+</style>
+</head>
+<body data-kh-nav="on">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-item"><i class="ti ti-phone"></i>+880 1711-515952 / +880 1733-256731</div>
+    <div class="topbar-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+    <div class="topbar-item"><i class="ti ti-map-pin"></i>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
+  </div>
+  <div class="topbar-right">
+    <a href="user-login.html" class="topbar-admin-btn"><i class="ti ti-user-circle"></i> লগইন</a>
+  </div>
+</div>
+
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="logo-wrap">
+    <span class="logo-badge"><img class="logo-round" src="assets/brand/korje-round-logo-256.png" alt="কর্জে হাসানা ফাউন্ডেশন লোগো" width="256" height="256"></span>
+    <div class="logo-texts">
+      <div class="logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+    </div>
+  </a>
+  <div class="nav-center nav-links" id="navCenter">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="about.html">About Us</a>
+    <a class="nav-link" href="loan-application.html">Apply for Loan</a>
+    <a class="nav-link" href="donation.html">Donate</a>
+    <a class="nav-link" href="statements.html">Transparency</a>
+    <a class="nav-link" href="contact.html">Contact</a>
+  </div>
+  <div class="nav-cta"><a href="donation.html" class="btn-donate">❤ Donate Now</a></div>
+  <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<main class="legal" id="top">
+
+  <p class="meta">কর্জে হাসানা ফাউন্ডেশন · শেষ হালনাগাদ: ২৩ অক্টোবর ২০২৬ · <a href="#en">English version</a> · <a href="terms.html">সেবার শর্তাবলী</a></p>
+  <h1>গোপনীয়তা নীতি</h1>
+
+  <h2>১. আমরা কে</h2>
+  <p>কর্জে হাসানা ফাউন্ডেশন একটি সুদমুক্ত (০%) ক্ষুদ্রঋণ, সঞ্চয় ও দান কার্যক্রম। ঠিকানা: খলিলপুর, ফরিদপুর সদর, ফরিদপুর। যোগাযোগ: info@korjehasana.org · +880 1711-515952 / +880 1733-256731।</p>
+
+  <h2>২. আমরা কোন তথ্য সংগ্রহ করি</h2>
+  <ul>
+    <li><strong>অ্যাকাউন্ট তথ্য:</strong> নাম, ইমেইল ঠিকানা ও মোবাইল নম্বর। পাসওয়ার্ড এনক্রিপ্ট করে সংরক্ষণ করা হয়; আমরা এটি দেখতে পাই না।</li>
+    <li><strong>Google বা Facebook দিয়ে সাইন-ইন:</strong> আপনি এই সুবিধা ব্যবহার করলে আমরা আপনার নাম, ইমেইল ঠিকানা ও প্রোফাইল ছবি পাই। Google বা Facebook-এর পাসওয়ার্ড আমরা কখনো পাই না।</li>
+    <li><strong>সদস্য ও ঋণের তথ্য:</strong> ঠিকানা, পরিবার ও পেশার তথ্য, আয়-ব্যয়ের বিবরণ, জাতীয় পরিচয়পত্রের তথ্য ও ছবি, এবং আবেদনের সাথে জমা দেওয়া অন্য নথি।</li>
+    <li><strong>সঞ্চয়, দান ও লেনদেন:</strong> অঙ্ক, তারিখ, লেনদেনের মাধ্যম ও রশিদ। কার্ডের পূর্ণ নম্বর আমাদের সার্ভারে সংরক্ষণ করা হয় না; পেমেন্ট গেটওয়ে তা প্রক্রিয়া করে।</li>
+    <li><strong>চ্যাট ও প্রযুক্তিগত তথ্য:</strong> হাসানা সহায়িকা চ্যাটে আপনার লেখা বার্তা, এবং নিরাপত্তা ও সেবার মান রক্ষার জন্য সার্ভার লগে সীমিত তথ্য (যেমন আইপি ঠিকানা, ব্রাউজারের ধরন)।</li>
+  </ul>
+
+  <h2>৩. কেন তথ্য নিই</h2>
+  <p>সদস্যপদ যাচাই, ঋণ ও সঞ্চয় হিসাব পরিচালনা, দান ও রশিদ প্রদান, আর্থিক প্রতিবেদন ও বিধিগত দায়িত্ব পালন, প্রতারণা প্রতিরোধ, এবং সেবা-সংক্রান্ত যোগাযোগের জন্য। Google বা Facebook থেকে পাওয়া তথ্য শুধু সাইন-ইন ও অ্যাকাউন্ট শনাক্ত করতে ব্যবহার করা হয়। বিজ্ঞাপনে বা বিক্রির জন্য ব্যবহার করা হয় না।</p>
+
+  <h2>৪. কার সাথে শেয়ার হয়</h2>
+  <p>আমরা তথ্য বিক্রি করি না। সেবা চালাতে প্রয়োজন অনুযায়ী এই সেবা প্রদানকারীদের কাছে তথ্য যায়: Supabase (ডেটাবেজ ও সাইন-ইন), Vercel (ওয়েবসাইট হোস্টিং), Google Drive (নথি সংরক্ষণ), Gmail SMTP (ইমেইল পাঠানো), SSLCommerz (অনলাইন পেমেন্ট), এবং চ্যাট ও কণ্ঠ সেবার জন্য Google Gemini, Microsoft Azure ও Anthropic। ফাউন্ডেশনের অনুমোদিত কর্মী ও কমিটির সদস্যরা শুধু নিজ দায়িত্বের জন্য প্রয়োজনীয় অংশ দেখতে পারেন। প্রশাসনিক স্ক্রিনে হিসাব নম্বর আংশিক গোপন করে দেখানো হয়। আইনগত বাধ্যবাধকতা ছাড়া অন্য কাউকে তথ্য দেওয়া হয় না।</p>
+
+  <h2>৫. কতদিন রাখা হয়</h2>
+  <p>সদস্যপদ, ঋণ ও সঞ্চয়ের হিসাব চালু থাকা পর্যন্ত, এবং এরপর আর্থিক ও বিধিগত রেকর্ড যতদিন আইন বা নিরীক্ষা দাবি করে। অসম্পূর্ণ সাইন-আপ ও অস্থায়ী লগ নির্দিষ্ট সময় পরে মুছে ফেলা হয়।</p>
+
+  <h2>৬. আপনার অধিকার ও তথ্য মুছে ফেলার অনুরোধ</h2>
+  <p>আপনি আপনার তথ্য দেখতে, সংশোধন করতে বা মুছে ফেলার অনুরোধ করতে পারেন। <strong>info@korjehasana.org</strong>-এ ইমেইল করুন, বিষয়ে লিখুন "তথ্য মুছে ফেলার অনুরোধ", এবং আপনার নাম ও মোবাইল নম্বর দিন যাতে আমরা আপনাকে শনাক্ত করতে পারি। আমরা সাধারণত ৩০ দিনের মধ্যে উত্তর দিই। আইনে রাখতে হয় এমন আর্থিক রেকর্ড মুছতে না পারলে কারণ জানানো হবে।</p>
+  <p>Google বা Facebook দিয়ে সাইন-ইন করে থাকলে সেই অ্যাকাউন্টের সেটিংস থেকেও এই অ্যাপের অনুমতি বাতিল করতে পারেন।</p>
+
+  <h2>৭. Google ও Facebook ব্যবহারকারীর তথ্য</h2>
+  <p>আমাদের ব্যবহার Google API Services User Data Policy মেনে চলে, যার মধ্যে Limited Use শর্তও রয়েছে। Facebook থেকে পাওয়া তথ্য Facebook Platform Terms ও Developer Policies অনুযায়ী ব্যবহৃত হয়।</p>
+
+  <h2>৮. নিরাপত্তা</h2>
+  <p>তথ্য পাঠানো ও সংরক্ষণে এনক্রিপশন (HTTPS) ব্যবহার করা হয় এবং ডেটাবেজে অনুমতিভিত্তিক প্রবেশাধিকার রাখা হয়। তবু ইন্টারনেটে কোনো ব্যবস্থাই শতভাগ নিরাপদ নয়। আপনার OTP ও পাসওয়ার্ড কারও সাথে শেয়ার করবেন না।</p>
+
+  <h2>৯. শিশুদের তথ্য</h2>
+  <p>এই সেবা প্রাপ্তবয়স্কদের জন্য। ১৮ বছরের কম বয়সীদের কাছ থেকে জেনেশুনে ব্যক্তিগত তথ্য নেওয়া হয় না।</p>
+
+  <h2>১০. নীতির পরিবর্তন</h2>
+  <p>এই নীতি বদলালে এই পাতায় নতুন তারিখ দেওয়া হবে। গুরুত্বপূর্ণ পরিবর্তন হলে ওয়েবসাইট বা অ্যাপে জানানো হবে।</p>
+
+  <hr class="lang-sep" id="en">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated: 23 October 2026 · Korje Hasana Foundation, Khalilpur, Faridpur Sadar, Faridpur, Bangladesh · info@korjehasana.org</p>
+
+  <h3>What we collect</h3>
+  <ul>
+    <li><strong>Account data:</strong> name, email address and mobile number. Passwords are stored encrypted and are not visible to us.</li>
+    <li><strong>Google or Facebook sign-in (if you use it):</strong> name, email address and profile picture. We never receive your Google or Facebook password.</li>
+    <li><strong>Membership and loan data:</strong> address, family and occupation details, income and expense information, national ID details and images, and documents submitted with applications.</li>
+    <li><strong>Savings, donations and transactions:</strong> amounts, dates, payment method and receipts. Full card numbers are not stored on our servers; the payment gateway processes them.</li>
+    <li><strong>Chat and technical data:</strong> messages you type to our assistant, and limited server log data such as IP address and browser type, for security and service quality.</li>
+  </ul>
+
+  <h3>Why we collect it</h3>
+  <p>To verify membership, run loan and savings accounts, issue donation receipts, meet financial reporting and legal obligations, prevent fraud, and contact you about our services. Data received from Google or Facebook is used only for sign-in and account identification. We do not use it for advertising and do not sell it.</p>
+
+  <h3>Who we share it with</h3>
+  <p>We do not sell personal data. We share data only with service providers needed to run the service: Supabase (database and sign-in), Vercel (website hosting), Google Drive (document storage), Gmail SMTP (email delivery), SSLCommerz (online payments), and Google Gemini, Microsoft Azure and Anthropic (chat and voice features). Authorised foundation staff and committee members see only what their role requires. Account numbers are partially masked on admin screens. We disclose data otherwise only where the law requires it.</p>
+
+  <h3>How long we keep it</h3>
+  <p>For as long as your membership or loan or savings account is active, and afterwards for the financial and legal records that law or audit requires. Incomplete sign-ups and temporary logs are deleted after a shorter period.</p>
+
+  <h3>Your rights</h3>
+  <p>You may ask to view, correct or delete your data. Email info@korjehasana.org with the subject "Data deletion request" and include your name and mobile number. We normally respond within 30 days. You can also revoke this app's access from your Google or Facebook account settings. If we must keep certain financial records, we will explain why.</p>
+
+  <h3>Google and Facebook user data</h3>
+  <p>Our use of information received from Google APIs adheres to the Google API Services User Data Policy, including the Limited Use requirements. Our use of Facebook data follows the Facebook Platform Terms and Developer Policies.</p>
+
+  <h3>Security, children and changes</h3>
+  <p>Data is encrypted in transit and access to our database is restricted, but no system is perfectly secure. Our services are for adults; we do not knowingly collect data from anyone under 18. We will update this page and the date above when this policy changes.</p>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="ft-logo-bn">কর্জে হাসানা ফাউন্ডেশন</div>
+      <div class="ft-logo-en">Korje Hasana Foundation</div>
+      <div class="ft-logo-sl">প্রিয়জনের প্রয়োজনে · For those who need it most</div>
+      <div class="ft-about">Mosque-based 0% interest microfinance. Helping families across Faridpur District break free from the cycle of debt — since 2026. All disbursements are in-kind; no cash is given.</div>
+      <div class="kh-app-btns" data-kh-app="footer" aria-label="অ্যাপ ডাউনলোড"></div>
+      <div id="khVisitors"></div>
+    </div>
+    <div class="ft-col">
+      <h4>Quick links</h4>
+      <div class="ft-links">
+        <a href="#about" class="ft-link">About us</a>
+        <a href="loan-application.html" class="ft-link">Apply for loan</a>
+        <a href="donation.html" class="ft-link">Donate</a>
+        <a href="#" class="ft-link">Success stories</a>
+        <a href="#" class="ft-link">Annual report</a>
+        <a href="#" class="ft-link">FAQ</a>
+      </div>
+    </div>
+    <div class="ft-col">
+      <h4>Programs</h4>
+      <div class="ft-links">
+        <a href="#programs" class="ft-link">Agriculture loan</a>
+        <a href="#programs" class="ft-link">Small business</a>
+        <a href="#programs" class="ft-link">Education loan</a>
+        <a href="#programs" class="ft-link">Medical loan</a>
+        <a href="#programs" class="ft-link">Family need</a>
+        <a href="#programs" class="ft-link">Emergency loan</a>
+      </div>
+    </div>
+    <div class="ft-col ft-tc">
+     <div class="ft-sub">
+      <h4>Transparency</h4>
+      <div class="ft-links">
+        <a href="#dashboard" class="ft-link">Live dashboard</a>
+        <a href="statements.html" class="ft-link">Monthly statement</a>
+        <a href="#" class="ft-link">Annual reports</a>
+        <a href="#" class="ft-link">Committee members</a>
+        <a href="#" class="ft-link">Volunteers</a>
+        <a href="privacy.html" class="ft-link">Privacy policy</a>
+        <a href="terms.html" class="ft-link">Terms of service</a>
+      </div>
+     </div>
+     <div class="ft-sub">
+      <h4 style="margin-top:20px">Contact</h4>
+      <div class="ft-contact">
+        <div class="ft-contact-item"><i class="ti ti-map-pin"></i>খলিলপুর, ফরিদপুর সদর, ফরিদপুর</div>
+        <div class="ft-contact-item"><i class="ti ti-mail"></i>info@korjehasana.org</div>
+        <div class="ft-contact-item"><i class="ti ti-brand-whatsapp"></i>+880 1711-515952 / +880 1733-256731</div>
+      </div>
+     </div>
+    </div>
+  </div>
+  <div class="footer-mid">
+    <div class="footer-socs">
+      <a href="#" class="foot-soc fb"><i class="ti ti-brand-facebook"></i></a>
+      <a href="#" class="foot-soc yt"><i class="ti ti-brand-youtube"></i></a>
+      <a href="https://wa.me/880XXXXXXXXXX" class="foot-soc wa" target="_blank"><i class="ti ti-brand-whatsapp"></i></a>
+      <a href="#" class="foot-soc li"><i class="ti ti-brand-linkedin"></i></a>
+    </div>
+    <div style="color:rgba(255,255,255,.35);font-size:12.5px">Registered · সমাজসেবা অধিদফতর · NGOAB (pending)</div>
+    <div class="ft-badges">
+      <span class="ft-badge">🔒 SSL Secured</span>
+      <span class="ft-badge">Non-profit</span>
+      <span class="ft-badge">Shariah-certified</span>
+    </div>
+  </div>
+<div class="footer-bottom">
+    <div class="ft-copy">© 2026 Korje Hasana Foundation · korjehasana.org · All rights reserved</div>
+    <div class="ft-copy" style="display:flex;align-items:center;gap:5px">Made with <i class="ti ti-heart" style="font-size:14.5px;color:#f08c28"></i> for humanity</div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  var links = document.querySelector('.nav-links');
+  var btn = document.querySelector('.nav-hamburger');
+  if (!links || !btn) return;
+  links.classList.toggle('open');
+  btn.classList.toggle('active');
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="_supabase.js"></script>
+<script src="kh-ui.js?v=72"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=1" defer></script>
+</body>
+</html>
