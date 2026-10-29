@@ -1878,7 +1878,7 @@ body[data-vol-page="profile"] #profile{display:block !important}
 <script>function toggleMenu(){var l=document.querySelector(".nav-links"),b=document.querySelector(".nav-hamburger");if(!l||!b)return;l.classList.toggle("open");b.classList.toggle("active");}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=73"></script>
+<script src="kh-ui.js?v=74"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -2115,7 +2115,7 @@ body[data-vol-page="profile"] #profile{display:block !important}
   async function handlePhoto(file) {
     var m = function (t, ok) { var el = $('volPhotoMsg'); if (el) msg(el, t, ok); };
     if (!STATE.user || !STATE.vol) return;
-    if (!/^image\//i.test(file.type)) return m('শুধু ছবি ফাইল (JPG বা PNG) আপলোড করুন।', false);
+    if (!((window.KHUI && KHUI.isImageFile) ? KHUI.isImageFile(file) : /^image\//i.test(file.type))) return m('শুধু ছবি ফাইল (JPG, PNG বা HEIC) আপলোড করুন।', false);
     var btn = $('volPhotoBtn'); if (btn) btn.disabled = true;
     try {
       m('ছবি প্রস্তুত করা হচ্ছে…', true);

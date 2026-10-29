@@ -1467,7 +1467,31 @@
      ছবি ছোট করা — যেকোনো আকারের ছবি নির্ধারিত সীমার নিচে নামায়
      KHUI.compressImage(file, {maxDim, maxBytes}) → Blob (image/jpeg)
      ══════════════════════════════════════════════════════ */
-  function _loadImg(file) {
+  /* iPhone-এর HEIC/HEIF: Safari নিজেই পড়ে, কিন্তু Chrome/Edge/Android পড়ে না। তখন (কেবল তখনই)
+     heic2any লোড করে JPEG-এ রূপান্তর হয়। ⚠️ Windows-এ .heic ফাইলের type প্রায়ই ফাঁকা আসে — তাই নামও দেখা হয়। */
+  function _isHeic(file) {
+    return /^image\/hei[cf]/i.test((file && file.type) || '') || /\.hei[cf]$/i.test((file && file.name) || '');
+  }
+  /* ছবি কি না — type দেখে, আর type ফাঁকা থাকলে নামের এক্সটেনশন দেখে */
+  KHUI.isImageFile = function (file) {
+    if (!file) return false;
+    if (/^image\//i.test(file.type || '')) return true;
+    return !file.type && /\.(jpe?g|png|webp|gif|bmp|avif|hei[cf])$/i.test(file.name || '');
+  };
+  var _heicPromise = null;
+  function loadHeic2any() {
+    if (window.heic2any) return Promise.resolve(window.heic2any);
+    if (_heicPromise) return _heicPromise;
+    _heicPromise = new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js';
+      s.onload = function () { window.heic2any ? res(window.heic2any) : rej(new Error('HEIC টুল পাওয়া গেল না')); };
+      s.onerror = function () { _heicPromise = null; rej(new Error('HEIC টুল লোড হয়নি — ইন্টারনেট দেখে আবার চেষ্টা করুন')); };
+      document.head.appendChild(s);
+    });
+    return _heicPromise;
+  }
+  function _loadImgRaw(file) {
     return new Promise(function (res, rej) {
       var url = URL.createObjectURL(file);
       var im = new Image();
@@ -1476,14 +1500,38 @@
       im.src = url;
     });
   }
+  function _loadImg(file) {
+    return _loadImgRaw(file).catch(function (e) {
+      if (!_isHeic(file)) throw e;
+      return loadHeic2any().then(function (fn) {
+        return fn({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+      }).then(function (out) {
+        return _loadImgRaw(Array.isArray(out) ? out[0] : out);
+      }, function () {
+        throw new Error('iPhone-এর HEIC ছবিটি পড়া যায়নি — JPG করে দিন, বা ক্যামেরা দিয়ে সরাসরি তুলুন');
+      });
+    });
+  }
+  KHUI.loadImage = _loadImg;
   function _canvasBlob(cv, q) {
     return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, 'image/jpeg', q); });
+  }
+  /* খুব বড় ছবিতে কম-মেমরির ফোন নীরবে ফাঁকা (সাদা) ক্যানভাস দিতে পারে — সেটি নথি হিসেবে জমা হওয়া ঠেকাতে */
+  function _looksBlank(cv) {
+    try {
+      var t = document.createElement('canvas'); t.width = 48; t.height = 48;
+      var tx = t.getContext('2d'); tx.drawImage(cv, 0, 0, 48, 48);
+      var d = tx.getImageData(0, 0, 48, 48).data, s = 0, s2 = 0, n = 0;
+      for (var i = 0; i < d.length; i += 4) { var y = d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11; s += y; s2 += y * y; n++; }
+      var m = s / n;
+      return (s2 / n - m * m) < 0.25 && m > 250;
+    } catch (e) { return false; }
   }
   KHUI.compressImage = function (file, opt) {
     opt = opt || {};
     var maxBytes = opt.maxBytes || 2 * 1024 * 1024;
     var maxDim = opt.maxDim || 1200;
-    if (!/^image\//i.test(file.type)) return Promise.resolve(file);   /* PDF ইত্যাদি অপরিবর্তিত */
+    if (!KHUI.isImageFile(file)) return Promise.resolve(file);   /* PDF ইত্যাদি অপরিবর্তিত */
     return _loadImg(file).then(function (im) {
       var Q = [0.9, 0.82, 0.72, 0.6, 0.5, 0.42];
       function step(i, dim) {
@@ -1495,7 +1543,12 @@
         cv.width = w; cv.height = h;
         var cx = cv.getContext('2d');
         cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);   /* স্বচ্ছ PNG → সাদা (JPEG-এ কালো না হয়) */
+        /* বড় অনুপাতে ছোট করলে (যেমন ৮০০০px → ১৬০০px) ডিফল্ট মসৃণতায় এনআইডির সরু লেখা ঝিরঝিরে হয় */
+        cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high';
         cx.drawImage(im, 0, 0, w, h);
+        if (i === 0 && _looksBlank(cv)) {
+          return Promise.reject(new Error('ছবিটি ফাঁকা (সাদা) এসেছে — ছবিটি এই ফোনের জন্য খুব বড় হতে পারে; ক্যামেরা দিয়ে সরাসরি তুলুন বা অন্য ছবি দিন'));
+        }
         return _canvasBlob(cv, Q[i]).then(function (b) {
           if (b && b.size <= maxBytes) return b;
           return step(i + 1, Math.round(dim * 0.8));
@@ -2830,8 +2883,8 @@
       var f = e.target.files && e.target.files[0];
       if (!f) return;
       say('ছবি পরিষ্কার করা হচ্ছে…');
-      var img = new Image();
-      img.onload = function () {
+      /* _loadImg — যেকোনো রেজুলেশন, আর iPhone-এর HEIC-ও (Chrome/Android-এ রূপান্তর করে) */
+      _loadImg(f).then(function (img) {
         try {
           upAnalysis = sigAnalyze(img);
           thrEl.value = upAnalysis.otsu;
@@ -2842,13 +2895,9 @@
         } catch (err) {
           setResult(null); say('ছবিটি পড়া গেল না — অন্য একটি চেষ্টা করুন', true);
         }
-        URL.revokeObjectURL(img.src);
-      };
-      img.onerror = function () {
-        say('ছবিটি পড়া গেল না — অন্য একটি চেষ্টা করুন', true);
-        URL.revokeObjectURL(img.src);          /* নাহলে ব্লবটি পেজের শেষ পর্যন্ত থেকে যেত */
-      };
-      img.src = URL.createObjectURL(f);
+      }, function (err) {
+        say((err && /HEIC/.test(err.message || '')) ? err.message : 'ছবিটি পড়া গেল না — অন্য একটি চেষ্টা করুন', true);
+      });
     };
     thrEl.oninput = function () {
       if (!upAnalysis) return;
@@ -2975,21 +3024,27 @@
   };
 
   /* ── এনআইডি ছবি/PDF আপলোডের আগে প্রস্তুত ──
-     ছবি → JPEG (সর্বোচ্চ ১৬০০px, ≤ ১.৫ MB). ক্যানভাসে নতুন করে আঁকা হয় বলে EXIF/GPS তথ্য মুছে যায়।
-     PDF → অপরিবর্তিত, ≤ ৫ MB। অন্য ধরনের ফাইল নেওয়া হয় না। */
+     ছবি → JPEG (সর্বোচ্চ ১৬০০px, ≤ ১.৫ MB) — যেকোনো রেজুলেশন (২০০ MP-ও) ও ধরন: JPG, PNG, WEBP, BMP, GIF,
+     আর iPhone-এর HEIC। ক্যানভাসে নতুন করে আঁকা হয় বলে EXIF/GPS তথ্য মুছে যায়, ঘোরানো ছবি সোজা হয়।
+     ছোট ছবি বড় করা হয় না (তাতে তথ্য বাড়ে না)। PDF → অপরিবর্তিত, ≤ ৫ MB। অন্য ধরনের ফাইল নেওয়া হয় না।
+     ⚠️ আগে ২৫ MB-এর বেশি ছবি ফিরিয়ে দেওয়া হত — ১০৮–২০০ MP ক্যামেরার ছবি আটকে যেত (২৯ অক্টোবর ২০২৬)। */
   KHUI.nidPrepare = async function (file) {
     if (!file) throw drvErr('কোনো ফাইল পাওয়া যায়নি');
     var name = file.name || '';
     if (file.type === 'application/pdf' || /\.pdf$/i.test(name)) {
-      if (file.size > 5 * 1024 * 1024) throw drvErr('PDF ৫ MB-এর বেশি — ছোট করে দিন');
+      if (file.size > 5 * 1024 * 1024) throw drvErr('PDF ৫ MB-এর বেশি — ছোট করে দিন, অথবা ছবি হিসেবে দিন');
       return new File([file], 'nid.pdf', { type: 'application/pdf' });
     }
-    var isImg = /^image\//i.test(file.type || '') || /\.(jpe?g|png|webp)$/i.test(name);
-    if (!isImg) throw drvErr('শুধু ছবি (JPG/PNG/WEBP) বা PDF দেওয়া যাবে');
-    if (file.size > 25 * 1024 * 1024) throw drvErr('ছবিটি ২৫ MB-এর বেশি — ছোট করে দিন');
+    var isImg = KHUI.isImageFile(file) || /\.(jpe?g|png|webp|gif|bmp|avif|hei[cf])$/i.test(name);
+    if (!isImg) throw drvErr('শুধু ছবি (JPG/PNG/WEBP/HEIC) বা PDF দেওয়া যাবে');
+    if (file.size > 100 * 1024 * 1024) throw drvErr('ফাইলটি ১০০ MB-এর বেশি — এটি সম্ভবত ছবি নয়');
     var blob;
-    try { blob = await KHUI.compressImage(file, { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 }); }
-    catch (e) { throw drvErr('এই ছবিটি পড়া যায়নি — JPG বা PNG ছবি দিন (iPhone হলে ক্যামেরা সেটিংসে "Most Compatible" বেছে নিন)'); }
+    try { blob = await KHUI.compressImage(new File([file], name || 'nid.jpg', { type: file.type || (_isHeic(file) ? 'image/heic' : 'image/jpeg') }),
+                                          { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 }); }
+    catch (e) {
+      var m = (e && e.message) || '';
+      throw drvErr(/HEIC|ফোনে|ইন্টারনেট/.test(m) ? m : 'এই ছবিটি পড়া যায়নি — অন্য একটি ছবি দিন বা ক্যামেরা দিয়ে সরাসরি তুলুন');
+    }
     return new File([blob], 'nid.jpg', { type: 'image/jpeg' });
   };
 

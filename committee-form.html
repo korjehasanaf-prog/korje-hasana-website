@@ -494,7 +494,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=73"></script>
+<script src="kh-ui.js?v=74"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -885,18 +885,34 @@
     if(!path) return null;
     if(/^https?:/i.test(path)) return path;
     if(window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) return await KHUI.drive.url(path);
+    if(/^invite\//.test(path)) bucket = 'committee-docs';   /* আমন্ত্রণ লিংকে তোলা নথি সবসময় এই বাকেটে */
     try{
       var r = await sb().storage.from(bucket).createSignedUrl(path, 3600);
       return (r && r.data && r.data.signedUrl) || null;
     }catch(e){ return null; }
   }
 
-  async function showDoc(stId, prevId, key, path){
+  async function showDoc(stId, prevId, key, path, local){
     el(stId).innerHTML = '<b>সংরক্ষিত</b>';
     paintProgress();
     var box = el(prevId);
     if(!box) return;
-    if(!ME){ box.innerHTML = '<div class="upnote">ফাইলটি সংরক্ষিত হয়েছে — লগইন করলে দেখা যাবে।</div>'; return; }
+    if(!ME){
+      /* আমন্ত্রণ লিংক: সার্ভারের কপি কেবল অ্যাডমিন খুলতে পারেন — তাই সদ্য তোলা ছবিটিই এই ডিভাইস থেকে দেখানো হয় */
+      if(local && /^image\//i.test(local.type || '')){
+        var lu = URL.createObjectURL(local);
+        var li = document.createElement('img');
+        li.src = lu; li.alt = '';
+        if(/photo$/.test(key)) li.className = 'avatar';
+        li.onclick = function(){
+          if(window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(lu); else window.open(lu, '_blank');
+        };
+        box.innerHTML = ''; box.appendChild(li);
+        return;
+      }
+      box.innerHTML = '<div class="upnote">ফাইলটি সংরক্ষিত হয়েছে।</div>';
+      return;
+    }
     box.innerHTML = '<div class="upnote">ছবি আনা হচ্ছে…</div>';
     var url = await signed(BUCKET[key], path);
     if(!url){ box.innerHTML = '<div class="upnote">ফাইলটি দেখানো যায়নি।</div>'; return; }
@@ -915,24 +931,52 @@
   }
 
   /* ───────── আপলোড ───────── */
+  /* যেকোনো রেজুলেশন/ধরনের ছবি (iPhone-এর HEIC-সহ) → JPEG, maxDim পর্যন্ত ছোট।
+     ⚠️ আগে ব্যর্থ হলে মূল ফাইলটিই নীরবে আপলোড হত — HEIC/বিশাল ফাইল তখন প্রোফাইলে ভাঙা ছবি হয়ে বসত। */
   async function shrink(file, maxDim){
-    if(!/^image\//i.test(file.type)) return file;
+    var isImg = (window.KHUI && KHUI.isImageFile) ? KHUI.isImageFile(file) : /^image\//i.test(file.type);
+    if(!isImg) return file;
     if(window.KHUI && KHUI.compressImage){
-      try { return await KHUI.compressImage(file, { maxDim: maxDim, maxBytes: 2*1024*1024 }); } catch(e){}
+      try { return await KHUI.compressImage(file, { maxDim: maxDim, maxBytes: 2*1024*1024 }); }
+      catch(e){
+        var m = (e && e.message) || '';
+        throw new Error(/HEIC|ফোনে|ইন্টারনেট/.test(m) ? m : 'এই ছবিটি পড়া যায়নি — অন্য একটি ছবি দিন বা ক্যামেরা দিয়ে সরাসরি তুলুন');
+      }
     }
     return file;
+  }
+
+  /* আমন্ত্রণ লিংকের আপলোড-ত্রুটি → বোধগম্য বাংলা (anon-এর জন্য RLS আটকায় কেবল টোকেন অবৈধ হলে) */
+  function inviteUploadErr(e){
+    var m = String((e && (e.message || e.error)) || e || '');
+    if(/row-level security|unauthori[sz]ed|403/i.test(m))
+      return 'এই আমন্ত্রণ লিংকটি আর বৈধ নেই (মেয়াদ শেষ, বাতিল বা আগেই দাখিল হয়েছে)। অ্যাডমিনের কাছে নতুন লিংক চান।';
+    if(/mime|content.?type|not supported/i.test(m))
+      return 'এই ধরনের ফাইল নেওয়া যায় না — JPG/PNG ছবি বা PDF দিন।';
+    if(/size|too large|exceed/i.test(m))
+      return 'ফাইলটি অনেক বড় — ১০ MB-এর কম রাখুন।';
+    if(/fetch|network|failed to fetch/i.test(m))
+      return 'ইন্টারনেট সংযোগে সমস্যা — আবার চেষ্টা করুন।';
+    return m || 'অজানা ত্রুটি';
   }
 
   async function upload(bucket, folder, name, file){
     var m = (file.name||'').match(/\.([a-z0-9]+)$/i);
     var ext = m ? m[1].toLowerCase() : (file.type === 'application/pdf' ? 'pdf' : 'jpg');
 
-    /* লগইন না থাকলে (আমন্ত্রণ লিংক) সব নথি committee-docs/invite/<token>/ ঘরে যায় */
+    /* লগইন না থাকলে (আমন্ত্রণ লিংক) সব নথি committee-docs/invite/<token>/ ঘরে যায়।
+       ⚠️ upsert অবশ্যই false — upsert হলে স্টোরেজ "INSERT … ON CONFLICT … RETURNING *" চালায়, যাতে
+       anon-এর SELECT/UPDATE অধিকারও লাগে; anon-এর আছে কেবল INSERT (invite_token_valid দিয়ে), তাই
+       প্রতিটি আপলোড "new row violates row-level security policy"-তে আটকে যেত (২৯ অক্টোবর ২০২৬)।
+       পথে Date.now() থাকে বলে নাম কখনো মেলে না — ওভাররাইটের দরকারই নেই। */
     if(!ME){
       if(!INV_TOKEN) throw new Error('আগে লগইন করুন');
       var ip = 'invite/' + INV_TOKEN + '/' + name + '-' + Date.now() + '.' + ext;
-      var ir = await sb().storage.from('committee-docs').upload(ip, file, { upsert:true, cacheControl:'3600' });
-      if(ir.error) throw ir.error;
+      var ir = await sb().storage.from('committee-docs').upload(ip, file, {
+        upsert: false, cacheControl: '3600',
+        contentType: file.type || (ext === 'pdf' ? 'application/pdf' : 'image/jpeg')
+      });
+      if(ir.error) throw new Error(inviteUploadErr(ir.error));
       return ip;
     }
 
@@ -962,7 +1006,7 @@
         var path = await upload(BUCKET[key], folder, key, f);
         DOCS[key] = path;
         if(!ME) BUCKET[key] = 'committee-docs';      /* প্রিভিউ ঠিক বাকেট থেকে আসবে */
-        await showDoc(stId, prevId, key, path);
+        await showDoc(stId, prevId, key, path, f);
         try{
           if(ME && key !== 'scan' && key.indexOf('nom_') !== 0){
             await sb().rpc('set_my_doc_urls', {

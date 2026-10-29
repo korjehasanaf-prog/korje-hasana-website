@@ -332,7 +332,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=73"></script>
+<script src="kh-ui.js?v=74"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -399,6 +399,14 @@
     return new Promise(function(res){ cv.toBlob(function(b){ res(b); }, 'image/jpeg', q); });
   }
   async function compressImage(file, onStep){
+    /* শেয়ার্ড কিটের সংস্করণই আগে — তাতে iPhone-এর HEIC, স্বচ্ছ PNG (কালো নয়, সাদা পটভূমি) ও
+       বড় ছবিতে মসৃণ ছোট করা আছে; এই পাতার নিজের সংস্করণে এগুলো ছিল না (২৯ অক্টোবর ২০২৬) */
+    if(window.KHUI && KHUI.compressImage && KHUI.isImageFile){
+      if(!KHUI.isImageFile(file)) throw new Error('এটি ছবি ফাইল নয়');
+      var kb = await KHUI.compressImage(file, { maxDim: 1200, maxBytes: MAX_BYTES });
+      if(onStep) onStep(kb);
+      return kb;
+    }
     if(!/^image\//i.test(file.type)) throw new Error('এটি ছবি ফাইল নয়');
     var im = await loadImage(file);
     var maxDim = 1200;
@@ -626,7 +634,10 @@
         paintProgress();
         if(window.KHUI && KHUI.clearProfileCache) KHUI.clearProfileCache();
         msg('ok','প্রোফাইল ছবি সংরক্ষণ হয়েছে (' + mb(orig) + ' MB → ' + mb(blob.size) + ' MB)।');
-      }catch(e){ msg('err','ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।'); }
+      }catch(e){
+        var em = (e && e.message) || '';
+        msg('err', /HEIC|ফোনে|ইন্টারনেট|ছবি ফাইল নয়/.test(em) ? em : 'ছবি আপলোড ব্যর্থ। আবার চেষ্টা করুন।');
+      }
     }
 
     /* NID আপলোড (প্রাইভেট বাকেট — path সংরক্ষণ) + OCR */

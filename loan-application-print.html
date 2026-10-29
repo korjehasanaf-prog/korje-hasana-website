@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ঋণের আবেদনপত্র | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    /* ══ ঋণের আবেদনপত্র — হার্ডকপির মতো A4 পাতা (২৯ অক্টোবর ২০২৬) ══
+       পাতাটি সবসময় সাদা কাগজ ও গাঢ় কালি — ভাউচারের মতোই দুই থীমে এক, কারণ এটি ছাপা হয়। */
+    .lap-wrap { max-width: 860px; margin: 0 auto; padding: 92px 16px 140px; font-family: 'Hind Siliguri', 'Inter', sans-serif; }
+    .lap-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .lap-btn { display: inline-flex; align-items: center; gap: 6px; border-radius: 10px; padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; border: 1px solid #c9bfd9; background: #fff; color: #2b2140; }
+    .lap-btn.pri { border: 0; background: linear-gradient(112deg, #c2255c, #8b1fb0 55%, #7048e8); color: #fff; }
+    .lap-btn:disabled { opacity: .55; cursor: default; }
+    .lap-msg { font-size: 13px; color: var(--muted, #6b6280); }
+
+    .lap-sheet { background: #fff; color: #1d1530; width: 100%; max-width: 210mm; min-height: 297mm; margin: 0 auto; padding: 13mm 13mm 11mm; box-sizing: border-box;
+                 box-shadow: 0 18px 50px rgba(20, 10, 40, .25); border-radius: 4px; font-size: 13px; line-height: 1.5; }
+    .lap-sheet * { box-sizing: border-box; }
+    .lap-load { text-align: center; padding: 80px 0; color: #5a5068; }
+    .lap-err { text-align: center; padding: 80px 12px; color: #8a1c13; }
+
+    .lap-head { display: grid; grid-template-columns: 1fr 31mm; gap: 10px; align-items: start; border-bottom: 2px solid #241539; padding-bottom: 8px; }
+    .lap-bis { font-size: 11px; color: #4a4458; }
+    .lap-org { font-size: 21px; font-weight: 700; color: #241539; line-height: 1.25; }
+    .lap-org-en { font-size: 11.5px; letter-spacing: .08em; color: #4a4458; text-transform: uppercase; }
+    .lap-title { display: inline-block; margin-top: 6px; font-size: 16px; font-weight: 700; color: #fff; background: #241539; padding: 3px 14px; border-radius: 3px; }
+    .lap-formno { font-size: 11px; color: #4a4458; margin-top: 4px; }
+    .lap-photo { width: 31mm; height: 38mm; border: 1.2px solid #241539; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 10.5px; color: #4a4458; overflow: hidden; background: #fafafa; }
+    .lap-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .lap-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid #b9b0c8; margin: 8px 0 4px; }
+    .lap-meta > div { padding: 5px 8px; border-right: 1px solid #b9b0c8; }
+    .lap-meta > div:last-child { border-right: 0; }
+    .lap-k { font-size: 10.5px; color: #4a4458; }
+    .lap-v { font-weight: 600; color: #1d1530; word-break: break-word; }
+
+    .lap-sec { margin-top: 10px; break-inside: avoid; page-break-inside: avoid; }
+    .lap-sec-h { font-size: 13.5px; font-weight: 700; color: #241539; border-bottom: 1px solid #241539; padding-bottom: 2px; margin-bottom: 5px; }
+    .lap-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #d8d1e3; border-left: 1px solid #d8d1e3; }
+    .lap-grid > div { display: grid; grid-template-columns: 34% 1fr; border-right: 1px solid #d8d1e3; border-bottom: 1px solid #d8d1e3; min-height: 24px; }
+    .lap-grid > div.wide { grid-column: 1 / -1; grid-template-columns: 17% 1fr; }
+    .lap-grid .lap-k { padding: 4px 7px; background: #f6f3fa; border-right: 1px solid #d8d1e3; font-size: 11.5px; color: #3b3450; }
+    .lap-grid .lap-v { padding: 4px 7px; font-weight: 500; }
+    .lap-empty { color: #8a8299; font-weight: 400; }
+
+    table.lap-t { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .lap-t th, .lap-t td { border: 1px solid #d8d1e3; padding: 4px 6px; text-align: left; vertical-align: top; }
+    .lap-t th { background: #f6f3fa; color: #3b3450; font-weight: 600; font-size: 11.5px; }
+
+    .lap-docs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .lap-doc { border: 1px solid #d8d1e3; padding: 5px; text-align: center; }
+    .lap-doc .lap-k { margin-bottom: 4px; }
+    .lap-doc img { max-width: 100%; max-height: 62mm; object-fit: contain; display: block; margin: 0 auto; }
+    .lap-doc .ph { height: 40mm; display: flex; align-items: center; justify-content: center; color: #8a8299; font-size: 11.5px; background: #fafafa; }
+    .lap-src { font-size: 10.5px; color: #4a4458; margin-top: 3px; }
+    .lap-att { margin-top: 6px; font-size: 12px; }
+    .lap-att a { color: #5b2a9e; }
+
+    .lap-decl { border: 1px solid #d8d1e3; background: #fbfaf8; padding: 7px 9px; font-size: 12.5px; }
+    .lap-decl-en { font-size: 10.5px; color: #4a4458; margin-top: 3px; font-family: 'Inter', sans-serif; }
+    .lap-signs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+    .lap-sign { text-align: center; font-size: 11.5px; color: #3b3450; }
+    .lap-sign .ln { height: 15mm; border-bottom: 1px solid #241539; display: flex; align-items: flex-end; justify-content: center; }
+    .lap-sign .ln img { max-height: 14mm; max-width: 100%; }
+    .lap-office { border: 1.2px dashed #4a4458; padding: 7px 9px; }
+    .lap-foot { margin-top: 12px; border-top: 1px solid #d8d1e3; padding-top: 5px; font-size: 10.5px; color: #4a4458; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+    @media (max-width: 640px) {
+      .lap-wrap { padding: 84px 8px 120px; }
+      .lap-sheet { padding: 16px 12px; min-height: 0; font-size: 12.5px; }
+      .lap-head { grid-template-columns: 1fr 26mm; }
+      .lap-photo { width: 26mm; height: 32mm; }
+      .lap-grid { grid-template-columns: 1fr; }
+      .lap-grid > div, .lap-grid > div.wide { grid-template-columns: 38% 1fr; }
+      .lap-meta { grid-template-columns: 1fr; }
+      .lap-meta > div { border-right: 0; border-bottom: 1px solid #b9b0c8; }
+      .lap-meta > div:last-child { border-bottom: 0; }
+      .lap-docs { grid-template-columns: 1fr; }
+      .lap-signs { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ছাপা: কেবল কাগজটি — নেভবার, চ্যাট, ভাসমান বাটন সব বাদ */
+    @page { size: A4 portrait; margin: 9mm; }
+    @media print {
+      html, body { background: #fff !important; }
+      body > *:not(.lap-wrap) { display: none !important; }
+      .lap-wrap { padding: 0 !important; max-width: none; }
+      .lap-bar { display: none !important; }
+      .lap-sheet { box-shadow: none; border-radius: 0; max-width: none; min-height: 0; padding: 0; }
+      .lap-att a { color: #1d1530; text-decoration: none; }
+      .lap-office { break-before: page; page-break-before: always; }
+      .lap-sec.lap-att-page { break-inside: auto; page-break-inside: auto; }
+      .lap-doc, .lap-docs { break-inside: avoid; page-break-inside: avoid; }
+      .lap-sheet { font-size: 12px; line-height: 1.42; }
+      .lap-grid .lap-k, .lap-grid .lap-v { padding-top: 3px; padding-bottom: 3px; }
+      .lap-grid > div { min-height: 21px; }
+      .lap-sec { margin-top: 8px; }
+      .lap-sign .ln { height: 13mm; }
+      .lap-office { break-inside: avoid; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+  <link rel="stylesheet" href="kh-ui.css?v=73">
+</head>
+<body data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-sig="off" data-kh-visits="off" data-kh-breaks="off" data-kh-sub="off" data-kh-requires="generic">
+
+<main class="lap-wrap">
+  <div class="lap-bar">
+    <a class="lap-btn" id="lapBack" href="my-dashboard.html"><i class="ti ti-arrow-left"></i> ফিরে যান</a>
+    <button type="button" class="lap-btn pri" id="lapPrint" onclick="window.print()" disabled><i class="ti ti-printer"></i> প্রিন্ট / PDF</button>
+    <span class="lap-msg" id="lapMsg" role="status" aria-live="polite"></span>
+  </div>
+  <article class="lap-sheet" id="lapSheet"><div class="lap-load">আবেদনপত্র লোড হচ্ছে…</div></article>
+</main>
+
+<script src="kh-ui.js?v=74"></script>
+<script>
+(function () {
+  'use strict';
+  var Q = new URLSearchParams(location.search);
+  var APP_ID = Q.get('id') || '';
+  var sheet = document.getElementById('lapSheet');
+  var msgEl = document.getElementById('lapMsg');
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function bn(x) { return (window.KHUI && KHUI.bn) ? KHUI.bn(x) : String(x); }
+  function db() { return (window.KHUI && KHUI.db) ? KHUI.db() : window._db; }
+  function first() { for (var i = 0; i < arguments.length; i++) { var v = arguments[i]; if (v !== null && v !== undefined && String(v).trim() !== '') return v; } return ''; }
+  function val(v) { return v === '' || v === null || v === undefined ? '<span class="lap-empty">—</span>' : esc(bn(v)); }
+  function raw(v) { return v === '' || v === null || v === undefined ? '<span class="lap-empty">—</span>' : esc(v); }   /* ই-মেইলের অঙ্ক বাংলা করা যাবে না */
+  function money(v) {
+    if (v === '' || v === null || v === undefined || isNaN(Number(v))) return '';
+    return '৳' + Number(v).toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  }
+  var TZ = 'Asia/Dhaka';
+  function fmtDT(s) {
+    if (!s) return '';
+    var d = new Date(s); if (isNaN(d)) return String(s);
+    return d.toLocaleString('bn-BD', { timeZone: TZ, year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+  }
+  function fmtD(s) {
+    if (!s) return '';
+    var d = /^\d{4}-\d{2}-\d{2}$/.test(String(s)) ? new Date(s + 'T00:00:00+06:00') : new Date(s);
+    if (isNaN(d)) return String(s);
+    return d.toLocaleDateString('bn-BD', { timeZone: TZ, year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  var TYPE_BN = { Agriculture: 'কৃষি ঋণ', Business: 'ব্যবসায়িক ঋণ', Education: 'শিক্ষা ঋণ', Medical: 'চিকিৎসা ঋণ', 'Family need': 'পারিবারিক প্রয়োজন', Emergency: 'জরুরি ঋণ' };
+  var KIND_BN = { monthly: 'মাসিক', biweekly: 'পাক্ষিক', weekly: 'সাপ্তাহিক' };
+  var STATUS_BN = { pending: 'জমা (অপেক্ষমাণ)', review: 'পর্যালোচনাধীন', committee_recommended: 'যাচাই কমিটির সুপারিশ', recommended: 'অ্যাডমিন সুপারিশ',
+                    approved: 'অনুমোদিত', disbursed: 'বিতরিত', rejected: 'বাতিল' };
+  var CONSENT_BN = { confirmed: 'নিশ্চিত', pending: 'বাকি' };
+  var DECL_BN = 'আমি ঘোষণা করছি যে প্রদত্ত সকল তথ্য সঠিক ও সম্পূর্ণ। আমি বুঝি যে ঋণ পণ্য হিসেবে অথবা সরাসরি পরিশোধের মাধ্যমে বিতরণ করা হবে — নগদ অর্থ হিসেবে নয়। আমি সম্মত আছি যে নির্ধারিত সময়সূচি অনুযায়ী মূল অর্থ ফেরত দেব, এবং আমি বুঝি যে এতে কোনো সুদ বা গোপন চার্জ নেই।';
+  var DECL_EN = 'I declare that all information provided is correct and complete. I understand that the loan will be disbursed as goods or direct payment — not as cash. I agree to repay the principal amount as per the agreed schedule, and I understand there is no interest or hidden charge.';
+
+  /* নথির ঠিকানা → দেখানোর URL: গুগল ড্রাইভ (অনুমতি সার্ভারে যাচাই), প্রাইভেট বাকেট (সাময়িক লিংক) বা সরাসরি URL */
+  async function docUrl(ref, bucket) {
+    if (!ref) return null;
+    if (/^https?:/i.test(ref)) return ref;
+    try {
+      if (window.KHUI && KHUI.drive && KHUI.drive.isRef(ref)) return await KHUI.drive.url(ref);
+      var b = /^invite\//.test(ref) ? 'committee-docs' : (bucket || 'nid-docs');
+      if (b === 'avatars') { var p = db().storage.from('avatars').getPublicUrl(ref); return p && p.data && p.data.publicUrl; }
+      var r = await db().storage.from(b).createSignedUrl(ref, 600);
+      return (r && r.data && r.data.signedUrl) || null;
+    } catch (e) { return null; }
+  }
+  function cell(k, v, wide) { return '<div' + (wide ? ' class="wide"' : '') + '><div class="lap-k">' + esc(k) + '</div><div class="lap-v">' + v + '</div></div>'; }
+
+  function render(d) {
+    var a = d.app || {}, p = d.applicant || {}, f = a.form_data || {}, names = d.names || {}, admin = d.viewer === 'admin';
+    var nameOf = function (u) { return u && names[u] ? names[u] : ''; };
+    document.title = 'ঋণের আবেদনপত্র ' + (a.app_no || '') + ' | কর্জে হাসানা ফাউন্ডেশন';
+    var back = document.getElementById('lapBack');
+    if (admin) { back.href = 'dashboard.html'; back.innerHTML = '<i class="ti ti-arrow-left"></i> ড্যাশবোর্ডে ফিরুন'; }
+
+    var useAppNid = !!(a.nid_front_url || a.nid_back_url);
+    var nidF = a.nid_front_url || (useAppNid ? '' : p.nid_url);
+    var nidB = a.nid_back_url || (useAppNid ? '' : p.nid_back_url);
+    var photo = a.photo_url || p.photo_url || '';
+
+    var addrDist = [f.upazila, f.district || p.district].filter(Boolean).join(', ');
+    var spouse = f.spouse ? f.spouse + (f.spouse_mobile ? ' (' + f.spouse_mobile + ')' : '') : '';
+    var repay = [f.repay_method, a.repayment_mobile].filter(Boolean).join(' · ');
+    var vendor = [a.vendor_name, a.vendor_mobile].filter(Boolean).join(' · ');
+
+    var g = d.guarantors || [];
+    var gRows = g.length ? g.map(function (x, i) {
+      return '<tr><td>' + bn(x.slot || (i + 1)) + '</td><td>' + val(x.name) + '</td><td>' + val(x.relation) + '</td><td>' + val(x.mobile) + '</td><td>' + val(x.nid) + '</td>' +
+        '<td>' + val(x.consent_status ? (CONSENT_BN[x.consent_status] || x.consent_status) + (x.consent_signed_on ? ' (' + fmtD(x.consent_signed_on) + ')' : '') : '') + '</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="lap-empty">কোনো গ্যারান্টর নেই</td></tr>';
+
+    var att = (a.doc_refs || []);
+    var attHtml = att.length ? '<div class="lap-att"><b>অন্যান্য সংযুক্তি:</b> ' + att.map(function (x, i) {
+      return '<span data-att="' + i + '">' + bn(i + 1) + '. ' + esc(x.name || ('সংযুক্তি ' + (i + 1))) + (x.type === 'pdf' ? ' (PDF)' : '') + '</span>';
+    }).join(' · ') + '</div><div class="lap-docs" id="lapAttImgs" style="margin-top:6px"></div>' : '';
+
+    var office = [
+      ['ঋণ যাচাই কমিটির সুপারিশ (সরেজমিন পরিদর্শন)', a.committee_recommended_at, nameOf(a.committee_recommended_by), ''],
+      ['অ্যাডমিন / কার্যনির্বাহী কমিটির সুপারিশ', a.recommended_at, nameOf(a.recommended_by), a.recommended_committee || ''],
+      ['সুপার অ্যাডমিনের অনুমোদন', a.approved_at, nameOf(a.approved_by), a.approved_amount ? 'অনুমোদিত ' + money(a.approved_amount) : ''],
+      ['বিতরণ', a.disbursed_at, nameOf(a.disbursed_by), d.loan_no ? 'ঋণ নং ' + d.loan_no : '']
+    ];
+    if (a.status === 'rejected' || a.rejected_at) office.push(['বাতিল', a.rejected_at, '', a.rejection_reason || '']);
+    var officeRows = office.map(function (o) {
+      return '<tr><td>' + esc(o[0]) + '</td><td>' + (o[1] ? esc(fmtDT(o[1])) : '<span class="lap-empty">এখনো হয়নি</span>') + '</td>' +
+        (admin ? '<td>' + val(o[2]) + '</td>' : '') + '<td>' + val(o[3]) + '</td></tr>';
+    }).join('');
+
+    sheet.innerHTML =
+      '<header class="lap-head"><div>' +
+        '<div class="lap-bis">বিসমিল্লাহির রাহমানির রাহীম</div>' +
+        '<div class="lap-org">কর্জে হাসানা ফাউন্ডেশন</div>' +
+        '<div class="lap-org-en">Korje Hasana Foundation</div>' +
+        '<div class="lap-title">ঋণের আবেদনপত্র</div>' +
+        '<div class="lap-formno">ফর্ম নং KHF-LA-01 · অনলাইনে দাখিলকৃত · কর্জে হাসানা (সুদমুক্ত) ঋণ</div>' +
+      '</div><div class="lap-photo" id="lapPhoto">' + (photo ? 'ছবি লোড হচ্ছে…' : 'আবেদকের ছবি<br>দেওয়া হয়নি') + '</div></header>' +
+
+      '<div class="lap-meta">' +
+        '<div><div class="lap-k">আবেদন নং</div><div class="lap-v">' + val(a.app_no) + '</div></div>' +
+        '<div><div class="lap-k">দাখিলের তারিখ ও সময়</div><div class="lap-v">' + val(fmtDT(a.created_at)) + '</div></div>' +
+        '<div><div class="lap-k">বর্তমান অবস্থা</div><div class="lap-v">' + val(STATUS_BN[a.status] || a.status) + '</div></div>' +
+      '</div>' +
+
+      '<section class="lap-sec"><div class="lap-sec-h">১. আবেদনকারীর পরিচিতি</div><div class="lap-grid">' +
+        cell('নাম (বাংলা)', val(first(f.name_bn, p.full_name_bn, a.applicant_name))) +
+        cell('নাম (ইংরেজি)', val(first(f.name_en, p.full_name))) +
+        cell('পিতার নাম', val(first(f.father, p.father_name))) +
+        cell('মাতার নাম', val(first(f.mother, p.mother_name))) +
+        cell('জন্ম তারিখ', val(fmtD(first(f.dob, p.dob)))) +
+        cell('লিঙ্গ', val(first(f.gender, p.gender))) +
+        cell('জাতীয় পরিচয়পত্র নং', val(first(a.applicant_nid, f.nid, p.nid))) +
+        cell('বৈবাহিক অবস্থা', val(f.marital)) +
+        cell('স্বামী / স্ত্রী', val(spouse)) +
+        cell('মোবাইল', val(first(a.applicant_mobile, f.mobile, p.mobile))) +
+        cell('বিকল্প মোবাইল', val(f.mobile2)) +
+        cell('ই-মেইল', raw(p.email)) +
+        cell('পেশা', val(first(f.occupation, a.existing_loans, p.occupation))) +
+        cell('মাসিক আয়', val(first(money(a.monthly_income), f.income))) +
+        cell('সদস্য কোড', val(p.user_code)) +
+        cell('জেলা / উপজেলা', val(addrDist)) +
+        cell('বর্তমান ঠিকানা', val(first(f.address, p.address)), true) +
+        cell('স্থায়ী ঠিকানা', val(p.permanent_address), true) +
+      '</div></section>' +
+
+      '<section class="lap-sec"><div class="lap-sec-h">২. ঋণের বিবরণ</div><div class="lap-grid">' +
+        cell('ঋণের ধরন', val(TYPE_BN[a.loan_type || a.purpose] || a.loan_type || a.purpose)) +
+        cell('আবেদিত পরিমাণ', val(money(a.amount_requested))) +
+        cell('মেয়াদ', val(a.tenure_months ? a.tenure_months + ' মাস' : '')) +
+        cell('কিস্তির ধরন', val(KIND_BN[a.installment_kind] || a.installment_kind)) +
+        cell('প্রথম কিস্তির তারিখ', val(fmtD(a.first_installment_date))) +
+        cell('কিস্তি পরিশোধ', val(repay)) +
+        cell('বিক্রেতা / সরবরাহকারী', val(vendor)) +
+        cell('অনুমোদিত পরিমাণ', val(money(a.approved_amount))) +
+        cell('ঋণের উদ্দেশ্য', val(a.purpose_detail), true) +
+        (a.item_description ? cell('পণ্য / সেবার বিবরণ', val(a.item_description), true) : '') +
+      '</div></section>' +
+
+      '<section class="lap-sec"><div class="lap-sec-h">৩. গ্যারান্টর (জামিনদার)</div>' +
+        '<table class="lap-t"><thead><tr><th style="width:7%">ক্রম</th><th>নাম</th><th>সম্পর্ক</th><th>মোবাইল</th><th>এনআইডি</th><th>সম্মতি</th></tr></thead><tbody>' + gRows + '</tbody></table>' +
+      '</section>' +
+
+      '<section class="lap-sec"><div class="lap-sec-h">৪. ঘোষণা ও স্বাক্ষর</div>' +
+        '<div class="lap-decl">' + esc(DECL_BN) + '<div class="lap-decl-en">' + esc(DECL_EN) + '</div></div>' +
+        '<div class="lap-signs">' +
+          '<div class="lap-sign"><div class="ln" id="lapSig"></div>আবেদকের স্বাক্ষর<br>' + esc(fmtD(a.created_at)) + '</div>' +
+          '<div class="lap-sign"><div class="ln"></div>গ্যারান্টর-১-এর স্বাক্ষর</div>' +
+          '<div class="lap-sign"><div class="ln"></div>' + (g.length > 1 ? 'গ্যারান্টর-২-এর স্বাক্ষর' : 'সাক্ষীর স্বাক্ষর') + '</div>' +
+        '</div>' +
+        '<div class="lap-src" style="margin-top:4px">আবেদনকারী অনলাইনে ঘোষণায় সম্মতি দিয়ে আবেদনটি দাখিল করেছেন (' + esc(fmtDT(a.created_at)) + ')।</div>' +
+      '</section>' +
+
+      '<section class="lap-sec lap-office"><div class="lap-sec-h">৫. কার্যালয়ের ব্যবহারের জন্য</div>' +
+        '<table class="lap-t"><thead><tr><th>ধাপ</th><th>তারিখ</th>' + (admin ? '<th>দায়িত্বপ্রাপ্ত</th>' : '') + '<th>মন্তব্য</th></tr></thead><tbody>' + officeRows + '</tbody></table>' +
+        '<div class="lap-signs">' +
+          '<div class="lap-sign"><div class="ln"></div>ঋণ যাচাই কমিটি</div>' +
+          '<div class="lap-sign"><div class="ln"></div>সুপারিশকারী</div>' +
+          '<div class="lap-sign"><div class="ln"></div>অনুমোদনকারী</div>' +
+        '</div>' +
+      '</section>' +
+
+      '<section class="lap-sec lap-att-page"><div class="lap-sec-h">৬. সংযুক্ত নথি — জাতীয় পরিচয়পত্র ও অন্যান্য</div>' +
+        '<div class="lap-docs">' +
+          '<div class="lap-doc"><div class="lap-k">এনআইডি — সামনের পাতা</div><div id="lapNidF" class="ph">' + (nidF ? 'লোড হচ্ছে…' : 'দেওয়া হয়নি') + '</div></div>' +
+          '<div class="lap-doc"><div class="lap-k">এনআইডি — পিছনের পাতা</div><div id="lapNidB" class="ph">' + (nidB ? 'লোড হচ্ছে…' : 'দেওয়া হয়নি') + '</div></div>' +
+        '</div>' +
+        ((nidF || nidB) ? '<div class="lap-src" id="lapNidSrc">' + (useAppNid ? 'এই আবেদনের সাথে জমা দেওয়া কপি।' : 'আবেদনের সাথে এনআইডির ছবি দেওয়া হয়নি — সদস্যের প্রোফাইলে সংরক্ষিত কপি দেখানো হলো।') + '</div>' : '') +
+        attHtml +
+      '</section>' +
+
+      '<footer class="lap-foot"><span>কর্জে হাসানা ফাউন্ডেশনের অনলাইন সিস্টেম থেকে তৈরি · আবেদন নং ' + esc(bn(a.app_no || '')) + '</span>' +
+        '<span>তৈরির সময়: ' + esc(fmtDT(d.generated_at || new Date().toISOString())) + '</span></footer>';
+
+    /* ছবিগুলো আলাদা করে আনা — সব এলে (বা ব্যর্থ হলে) প্রিন্ট বাটন খোলে */
+    function put(id, url, alt) {
+      var el = document.getElementById(id); if (!el) return;
+      if (!url) { el.textContent = 'দেখানো যায়নি'; return; }
+      return new Promise(function (res) {
+        var im = new Image(); im.alt = alt;
+        im.onload = function () { el.innerHTML = ''; el.classList.remove('ph'); el.appendChild(im); res(); };
+        im.onerror = function () { el.textContent = 'দেখানো যায়নি'; res(); };
+        im.src = url;
+      });
+    }
+    var jobs = [];
+    if (photo) jobs.push(docUrl(photo, a.photo_url ? 'nid-docs' : 'avatars').then(function (u) { return put('lapPhoto', u, 'আবেদকের ছবি'); }));
+    if (nidF) jobs.push(docUrl(nidF, 'nid-docs').then(function (u) { return put('lapNidF', u, 'এনআইডি সামনে'); }));
+    if (nidB) jobs.push(docUrl(nidB, 'nid-docs').then(function (u) { return put('lapNidB', u, 'এনআইডি পিছনে'); }));
+    if (p.signature_url) jobs.push(docUrl(p.signature_url, 'signatures').then(function (u) { return put('lapSig', u, 'স্বাক্ষর'); }));
+    att.forEach(function (x, i) {
+      jobs.push(docUrl(x.ref, 'nid-docs').then(function (u) {
+        var span = sheet.querySelector('[data-att="' + i + '"]');
+        if (!u) return;
+        if (x.type === 'pdf') {
+          if (span) span.innerHTML = '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + span.innerHTML + '</a>';
+          return;
+        }
+        var host = document.getElementById('lapAttImgs');
+        if (!host) return;
+        var box = document.createElement('div'); box.className = 'lap-doc';
+        box.innerHTML = '<div class="lap-k">সংযুক্তি ' + bn(i + 1) + '</div>';
+        var im = new Image(); im.alt = 'সংযুক্তি'; im.src = u; box.appendChild(im); host.appendChild(box);
+        return new Promise(function (res) { im.onload = res; im.onerror = res; });
+      }));
+    });
+    msgEl.textContent = jobs.length ? 'ছবি ও নথি লোড হচ্ছে…' : '';
+    Promise.all(jobs.map(function (j) { return Promise.resolve(j).catch(function () {}); })).then(function () {
+      document.getElementById('lapPrint').disabled = false;
+      msgEl.textContent = '';
+      if (Q.get('print') === '1') setTimeout(function () { window.print(); }, 300);
+    });
+  }
+
+  async function load() {
+    if (!/^[0-9a-f-]{36}$/i.test(APP_ID)) { sheet.innerHTML = '<div class="lap-err">আবেদনের লিংকটি সঠিক নয়।</div>'; return; }
+    var c = db();
+    if (!c) { sheet.innerHTML = '<div class="lap-err">সংযোগ পাওয়া যায়নি — পাতাটি আবার লোড করুন।</div>'; return; }
+    var ses = null;
+    try { ses = (await c.auth.getSession()).data.session; } catch (e) {}
+    if (!ses) { sheet.innerHTML = '<div class="lap-err">আবেদনপত্র দেখতে আগে লগইন করুন।</div>'; return; }
+    try {
+      var r = await c.rpc('loan_application_sheet', { p_id: APP_ID });
+      if (r.error) throw r.error;
+      render(r.data || {});
+    } catch (e) {
+      sheet.innerHTML = '<div class="lap-err">' + esc((e && e.message) || 'আবেদনপত্র আনা যায়নি') + '</div>';
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>

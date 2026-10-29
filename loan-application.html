@@ -253,6 +253,14 @@
       .main { padding: 0 12px 40px; }
       .navbar { padding: 0 16px; }
     }
+    /* জমার পর এনআইডি/ছবি সংরক্ষণের অবস্থা — নিজের হালকা পটভূমি বহন করে, তাই দুই থীমে এক */
+    .doc-save { max-width: 460px; margin: -8px auto 20px; font-size: 13.5px; line-height: 1.6; border-radius: 12px; padding: 10px 14px; text-align: left; }
+    .doc-save:empty { display: none; }
+    .doc-save.busy, .doc-save.info { background: #f3eefb; color: #3b2a5a; }
+    .doc-save.ok   { background: #e7f6ec; color: #14532d; }
+    .doc-save.err  { background: #fdecea; color: #8a1c13; }
+    #printLink[hidden] { display: none !important; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
   <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
@@ -352,7 +360,7 @@
               <label for="nidFrontFile" class="nid-card-box" id="nidFront" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
                 <span>ছবি আপলোড করুন</span>
-                <small style="font-size:12px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+                <small style="font-size:12px;color:var(--muted)">যেকোনো ছবি (iPhone HEIC-সহ) · নিজে থেকেই ছোট হবে</small>
               </label>
               <input type="file" id="nidFrontFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('front', this)">
             </div>
@@ -361,7 +369,7 @@
               <label for="nidBackFile" class="nid-card-box" id="nidBack" style="cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
                 <i class="ti ti-id-badge-2"></i>
                 <span>ছবি আপলোড করুন</span>
-                <small style="font-size:12px;color:var(--muted)">JPG, PNG · সর্বোচ্চ ৫MB</small>
+                <small style="font-size:12px;color:var(--muted)">যেকোনো ছবি (iPhone HEIC-সহ) · নিজে থেকেই ছোট হবে</small>
               </label>
               <input type="file" id="nidBackFile" accept="image/*" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;z-index:2" onchange="handleNidUpload('back', this)">
             </div>
@@ -597,7 +605,7 @@
             <label class="form-label">Additional documents <span class="form-hint">(optional — income proof, utility bill, etc.)</span></label>
             <div class="photo-area" id="docsArea" onclick="document.getElementById('docsFile').click()">
               <i class="ti ti-file-text"></i>
-              <p>Upload supporting documents<br><small>PDF, JPG, PNG · Max 10MB each · Up to 5 files</small></p>
+              <p>Upload supporting documents<br><small>যেকোনো মাপের ছবি বা PDF (সর্বোচ্চ ৮ MB) · সর্বোচ্চ ৫টি</small></p>
               <div class="photo-thumbs" id="docThumbs"></div>
             </div>
             <input type="file" id="docsFile" accept=".pdf,image/*" multiple hidden onchange="handleDocsUpload(this)">
@@ -793,9 +801,10 @@
           <p>Your Application Reference Number</p>
           <strong id="refNumber">KH-2026-0000</strong>
         </div>
+        <div id="docSaveStatus" class="doc-save" role="status" aria-live="polite"></div>
         <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
           <a href="index.html" class="btn-next" style="text-decoration:none"><i class="ti ti-home"></i> Return to home</a>
-          <button class="btn-back" onclick="window.print()"><i class="ti ti-printer"></i> Print / Save</button>
+          <a id="printLink" class="btn-back" href="#" target="_blank" rel="noopener" hidden style="text-decoration:none"><i class="ti ti-printer"></i> আবেদনপত্র দেখুন / প্রিন্ট</a>
         </div>
         <div style="margin-top:24px;padding:16px;background:#f7f2fb;border-radius:12px;font-size:13.5px;color:var(--muted)">
           <strong style="color:var(--green)">What happens next?</strong><br>
@@ -941,6 +950,8 @@ function capturePhoto() {
   // Store image data for OCR (same as upload method)
   nidImageData[camSide] = dataUrl;
   nidCaptured[camSide] = true;
+  /* জমার পর গুগল ড্রাইভে যাবে — ক্যামেরার ছবিটিও একই প্রস্তুতির পথে (≤১৬০০px JPEG) */
+  loanPrepNid(camSide, loanDataUrlToFile(dataUrl, 'nid-' + camSide + '.jpg'), false);
 
   // Update camera-method preview boxes
   const camBox = document.getElementById(camSide === 'front' ? 'camFront' : 'camBack');
@@ -966,16 +977,29 @@ function capturePhoto() {
 }
 
 /* ── NID UPLOAD ── */
-function handleNidUpload(side, input) {
+async function handleNidUpload(side, input) {
   if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
+  let file = input.files[0];
+  input.value = '';
   const box = document.getElementById(side === 'front' ? 'nidFront' : 'nidBack');
+  /* যেকোনো রেজুলেশন/ধরন (iPhone HEIC-সহ) → ≤১৬০০px JPEG; প্রিভিউ, স্ক্যান ও সংরক্ষণ — তিনটিই এই কপি থেকে */
+  if (window.KHUI && KHUI.nidPrepare) {
+    box.style.position = 'relative';
+    box.innerHTML = '<i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><span>ছবি প্রস্তুত হচ্ছে…</span>';
+    try { file = await loanPrepNid(side, file, true); }
+    catch (e) {
+      box.innerHTML = '<i class="ti ti-alert-triangle" style="color:#b3261e"></i><span style="color:#b3261e;font-size:12.5px;text-align:center;padding:0 8px">' +
+        loanEsc((e && e.message) || 'ছবিটি পড়া যায়নি') + '</span>';
+      nidCaptured[side] = false; nidImageData[side] = null; updateOcrBtn();
+      return;
+    }
+  } else { loanDocs[side] = file; loanSaved[side] = null; }
   const reader = new FileReader();
   reader.onload = function(e) {
     nidImageData[side] = e.target.result;            // store for OCR
     box.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;position:absolute;inset:0">'
       + '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(22,163,74,.9);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:4px;border-radius:0 0 8px 8px">'
-      + '<i class="ti ti-circle-check"></i> ' + (side === 'front' ? 'সামনে আপলোড ✓' : 'পিছনে আপলোড ✓') + '</div>';
+      + '<i class="ti ti-circle-check"></i> ' + (side === 'front' ? 'সামনে প্রস্তুত ✓' : 'পিছনে প্রস্তুত ✓') + '</div>';
     box.style.position = 'relative';
     box.classList.add('captured');
     updateOcrBtn();
@@ -1530,18 +1554,147 @@ function fillManual() {
 }
 
 /* ── PHOTO UPLOADS ── */
-function handlePhotoUpload(type, input) {
-  if (!input.files[0]) return;
+async function handlePhotoUpload(type, input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
   const area = document.getElementById('livePhotoArea');
-  area.innerHTML = `<i class="ti ti-circle-check" style="font-size:30px;color:var(--success)"></i><p style="color:var(--success);font-weight:600">Photo uploaded ✓</p>`;
-  area.classList.add('uploaded');
+  area.innerHTML = '<i class="ti ti-loader" style="animation:spin .8s linear infinite"></i><p>ছবি প্রস্তুত হচ্ছে…</p>';
+  const job = (async () => {
+    const out = (window.KHUI && KHUI.compressImage) ? await KHUI.compressImage(file, { maxDim: 900, maxBytes: 2 * 1024 * 1024 }) : file;
+    return new File([out], 'photo.jpg', { type: out.type || 'image/jpeg' });
+  })();
+  loanPrep.photo = job;
+  try {
+    const f = await job;
+    loanDocs.photo = f; loanSaved.photo = null;
+    const url = URL.createObjectURL(f);
+    area.innerHTML = '<img src="' + url + '" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:3px solid var(--success)">' +
+      '<p style="color:var(--success);font-weight:600">ছবি প্রস্তুত ✓ — আবেদন জমার সময় সংরক্ষণ হবে</p>';
+    area.classList.add('uploaded');
+  } catch (e) {
+    loanDocs.photo = null;
+    area.innerHTML = '<i class="ti ti-alert-triangle" style="color:#b3261e"></i><p style="color:#b3261e">' + loanEsc((e && e.message) || 'ছবিটি পড়া যায়নি') + ' — আবার চেষ্টা করুন</p>';
+    area.classList.remove('uploaded');
+  } finally { if (loanPrep.photo === job) loanPrep.photo = null; }
 }
-function handleDocsUpload(input) {
-  const files = Array.from(input.files);
+async function handleDocsUpload(input) {
+  const files = Array.from(input.files || []).slice(0, 5);
+  input.value = '';
   const area = document.getElementById('docsArea');
   const thumbs = document.getElementById('docThumbs');
-  thumbs.innerHTML = files.map(f => `<div class="photo-thumb" title="${f.name}">${f.name.endsWith('.pdf') ? '📄' : '🖼️'}</div>`).join('');
-  area.classList.add('uploaded');
+  thumbs.innerHTML = '<div class="photo-thumb">…</div>';
+  const job = (async () => {
+    const out = [], bad = [];
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const isPdf = /^application\/pdf$/i.test(f.type) || /\.pdf$/i.test(f.name || '');
+      try {
+        if (isPdf) {
+          if (f.size > 8 * 1024 * 1024) throw new Error('PDF ৮ MB-এর বেশি');
+          out.push({ file: new File([f], 'doc-' + (i + 1) + '.pdf', { type: 'application/pdf' }), name: f.name, pdf: true });
+        } else if (window.KHUI && KHUI.isImageFile && KHUI.isImageFile(f)) {
+          const b = await KHUI.compressImage(f, { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 });
+          out.push({ file: new File([b], 'doc-' + (i + 1) + '.jpg', { type: 'image/jpeg' }), name: f.name, pdf: false });
+        } else throw new Error('শুধু ছবি বা PDF');
+      } catch (e) { bad.push((f.name || 'ফাইল') + ' — ' + ((e && e.message) || 'পড়া যায়নি')); }
+    }
+    return { out, bad };
+  })();
+  loanPrep.docs = job;
+  try {
+    const r = await job;
+    loanDocs.docs = r.out; loanSaved.docs = null;
+    thumbs.innerHTML = r.out.map(d => '<div class="photo-thumb" title="' + loanEsc(d.name) + '">' + (d.pdf ? '📄' : '🖼️') + '</div>').join('') +
+      (r.bad.length ? '<div style="flex-basis:100%;font-size:12.5px;color:#b3261e;text-align:left">বাদ পড়েছে: ' + loanEsc(r.bad.join('; ')) + '</div>' : '');
+    area.classList.toggle('uploaded', r.out.length > 0);
+  } finally { if (loanPrep.docs === job) loanPrep.docs = null; }
+}
+
+/* ══════════════════════════════════════════════════════
+   ঋণ আবেদনের এনআইডি, ছবি ও সংযুক্তি → গুগল ড্রাইভ (২৯ অক্টোবর ২০২৬)
+   ফর্ম ভরার সময় শুধু প্রস্তুত (ছোট JPEG) করে রাখা হয় — আবেদনকারী তখনো লগইন না-ও থাকতে পারেন।
+   আবেদন জমা হলে আগে আবেদনটি তৈরি হয়, তারপর ফাইল ড্রাইভে ওঠে (ড্রাইভ কনফিগার না থাকলে প্রাইভেট
+   nid-docs বাকেটে) ও attach_loan_application_docs রেফারেন্স জুড়ে দেয়। জমা ব্যর্থ হলে ড্রাইভে কিছু ওঠে না।
+   ══════════════════════════════════════════════════════ */
+const loanDocs  = { front: null, back: null, photo: null, docs: [] };     // প্রস্তুত ফাইল
+const loanPrep  = { front: null, back: null, photo: null, docs: null };   // চলমান প্রস্তুতি (promise)
+const loanSaved = { front: null, back: null, photo: null, docs: null };   // সংরক্ষিত রেফারেন্স (আবার চেষ্টায় দ্বিগুণ আপলোড নয়)
+let loanLastApp = null;
+function loanEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function loanDataUrlToFile(u, name) {
+  const parts = String(u).split(','), mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+  const bin = atob(parts[1] || ''), arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new File([arr], name, { type: mime });
+}
+function loanPrepNid(side, file, rethrow) {
+  const job = (window.KHUI && KHUI.nidPrepare) ? KHUI.nidPrepare(file) : Promise.resolve(file);
+  loanPrep[side] = job;
+  return job.then(f => { if (loanPrep[side] === job) { loanDocs[side] = f; loanSaved[side] = null; loanPrep[side] = null; } return f; },
+                  e => { if (loanPrep[side] === job) { loanDocs[side] = null; loanPrep[side] = null; } if (rethrow) throw e; });
+}
+async function saveLoanDocs(appId, appNo) {
+  const st = document.getElementById('docSaveStatus');
+  const say = (html, cls) => { if (st) { st.className = 'doc-save ' + (cls || ''); st.innerHTML = html; } };
+  try { await Promise.all(Object.values(loanPrep).filter(Boolean).map(p => p.catch(() => null))); } catch (e) {}
+  const has = loanDocs.front || loanDocs.back || loanDocs.photo || (loanDocs.docs && loanDocs.docs.length);
+  if (!has) { say('<i class="ti ti-info-circle"></i> এই আবেদনে এনআইডি বা ছবি দেওয়া হয়নি — প্রোফাইলে থাকলে আবেদনপত্রে সেটিই দেখাবে।', 'info'); return true; }
+  say('<i class="ti ti-loader" style="animation:spin .8s linear infinite"></i> এনআইডি ও ছবি নিরাপদে সংরক্ষণ হচ্ছে…', 'busy');
+  const sb = (window.KHUI && KHUI.db) ? KHUI.db() : null;
+  try {
+    if (!sb) throw new Error('সংযোগ নেই');
+    const ses = (await sb.auth.getSession()).data.session;
+    if (!ses) throw new Error('আগে লগইন করুন');
+    const uid = ses.user.id;
+    const up = async (blob, kind, label) => {
+      const ext = blob.type === 'application/pdf' ? 'pdf' : 'jpg';
+      const ref = (window.KHUI && KHUI.drive) ? await KHUI.drive.upload(blob, { kind: kind, name: label + '.' + ext }) : null;
+      if (ref) return ref;
+      /* ড্রাইভ কনফিগার নেই → প্রাইভেট nid-docs বাকেট (কেবল নিজে ও অ্যাডমিন পড়তে পারেন) */
+      const path = uid + '/loan-' + String(appNo || appId).replace(/[^A-Za-z0-9-]/g, '') + '-' + label + '-' + Date.now() + '.' + ext;
+      const r = await sb.storage.from('nid-docs').upload(path, blob, { upsert: false, contentType: blob.type || 'image/jpeg' });
+      if (r.error) throw new Error(r.error.message || 'আপলোড হয়নি');
+      return path;
+    };
+    if (loanDocs.front && !loanSaved.front) loanSaved.front = await up(loanDocs.front, 'nid', 'loan-nid-front');
+    if (loanDocs.back  && !loanSaved.back)  loanSaved.back  = await up(loanDocs.back,  'nid', 'loan-nid-back');
+    if (loanDocs.photo && !loanSaved.photo) loanSaved.photo = await up(loanDocs.photo, 'avatar', 'loan-photo');
+    if (loanDocs.docs && loanDocs.docs.length && !loanSaved.docs) {
+      const list = [];
+      for (let i = 0; i < loanDocs.docs.length; i++) {
+        const d = loanDocs.docs[i];
+        list.push({ ref: await up(d.file, 'other', 'loan-doc-' + (i + 1)), name: d.name, type: d.pdf ? 'pdf' : 'image' });
+      }
+      loanSaved.docs = list;
+    }
+    const res = await sb.rpc('attach_loan_application_docs', {
+      p_id: appId, p_nid_front: loanSaved.front, p_nid_back: loanSaved.back,
+      p_photo: loanSaved.photo, p_docs: loanSaved.docs });
+    if (res.error) throw new Error(res.error.message);
+    const n = [loanSaved.front && 'এনআইডি (সামনে)', loanSaved.back && 'এনআইডি (পিছনে)', loanSaved.photo && 'ছবি',
+               loanSaved.docs && loanSaved.docs.length && (((window.KHUI && KHUI.bn) ? KHUI.bn(loanSaved.docs.length) : loanSaved.docs.length) + 'টি সংযুক্তি')].filter(Boolean).join(', ');
+    say('<i class="ti ti-circle-check"></i> সংরক্ষিত হয়েছে: ' + loanEsc(n), 'ok');
+    return true;
+  } catch (e) {
+    say('<i class="ti ti-alert-triangle"></i> আবেদন জমা হয়েছে, কিন্তু ছবি/এনআইডি সংরক্ষণ হয়নি: ' + loanEsc((e && e.message) || 'অজানা ত্রুটি') +
+        ' <button type="button" class="btn-back" style="margin-left:6px;padding:6px 12px" onclick="saveLoanDocs(loanLastApp.id, loanLastApp.no)"><i class="ti ti-refresh"></i> আবার চেষ্টা করুন</button>', 'err');
+    return false;
+  }
+}
+/* দ্বিতীয় ধাপে যা লেখা হয়েছে — হার্ডকপিতে হুবহু দেখানোর জন্য */
+function loanFormSnapshot() {
+  const v = id => { const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; };
+  const sel = id => { const el = document.getElementById(id); return el && el.selectedIndex > 0 ? String(el.options[el.selectedIndex].text || '').trim() : ''; };
+  return {
+    name_bn: v('p_nameBn'), name_en: v('p_nameEn'), father: v('p_father'), mother: v('p_mother'),
+    nid: v('p_nid') || v('ex_nid'), dob: v('p_dob'), gender: sel('p_gender') || v('p_gender'),
+    marital: sel('p_marital') || v('p_marital'), spouse: v('p_spouse'), spouse_mobile: v('p_spouse_mobile'),
+    mobile: v('p_mobile'), mobile2: v('p_mobile2'), address: v('p_address') || v('ex_address'),
+    district: sel('p_district') || v('p_district'), upazila: sel('p_upazila') || v('p_upazila'),
+    occupation: v('p_occupation'), income: v('p_income'), repay_method: sel('l_repay') || v('l_repay'),
+    nid_method: nidMethod
+  };
 }
 
 /* ── LOAN TYPE ── */
@@ -1975,10 +2128,16 @@ async function submitApp() {
     var r = await sb.rpc('submit_loan_application', { p: payload });
     if (r.error) { alert('আবেদন জমা হয়নি: ' + r.error.message); return; }
     document.getElementById('refNumber').textContent = r.data.app_no;
+    loanLastApp = { id: r.data.id, no: r.data.app_no };
+    var pl = document.getElementById('printLink');
+    if (pl) { pl.href = 'loan-application-print.html?id=' + encodeURIComponent(r.data.id); pl.hidden = false; }
     updateStepper(4, 'done');
     currentStep = 5;
     showStep(5);
     document.getElementById('progressBar').style.width = '100%';
+    /* হার্ডকপির জন্য ফর্মের তথ্য ও নথি — আবেদন আটকায় না, ব্যর্থ হলে নিজের বার্তা দেখায় */
+    try { await sb.rpc('save_loan_application_form', { p_id: r.data.id, p_form: loanFormSnapshot() }); } catch (e2) {}
+    await saveLoanDocs(r.data.id, r.data.app_no);
   } catch (e) {
     alert('সংযোগ ত্রুটি — ইন্টারনেট দেখুন।');
   }
@@ -2004,7 +2163,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=73"></script>
+<script src="kh-ui.js?v=74"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>

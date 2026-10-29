@@ -3768,7 +3768,8 @@ function renderLoanApps(rows) {
     const info = `<div class="apv-info">আবেদন নং: ${esc(r.app_no)} · জমা: ${fmtDate(r.created_at)} · শেষ পরিবর্তন: ${ageBn(r.updated_at)}<br>মোবাইল: ${esc(r.applicant_mobile || '—')} · ধরন: ${esc(r.loan_type || r.purpose || '—')} · ধাপ ${tier || '—'} · মেয়াদ: ${r.tenure_months ? esc(r.tenure_months) + ' মাস' : '—'}</div>`;
     const head = `<div class="apv-top"><div><div class="apv-name">${esc(r.applicant_name)}</div>${info}</div>
       <div style="text-align:right"><div class="apv-amount-big">৳${fmt(r.amount_requested)}</div>${r.approved_amount ? `<div style="font-size:12.5px">অনুমোদিত: ৳${fmt(r.approved_amount)}</div>` : ''}<span class="badge ${statusBadge(r.status)}">${esc(statusBn(r.status))}</span></div></div>`;
-    const detailBtn = `<div class="apv-btns" style="margin-bottom:8px"><button class="btn btn-gold" onclick="openLoanDetail('${r.id}')"><i class="ti ti-file-text"></i> সম্পূর্ণ আবেদন দেখুন</button></div>`;
+    const detailBtn = `<div class="apv-btns" style="margin-bottom:8px"><button class="btn btn-gold" onclick="openLoanDetail('${r.id}')"><i class="ti ti-file-text"></i> সম্পূর্ণ আবেদন দেখুন</button>
+      <a class="btn" href="loan-application-print.html?id=${encodeURIComponent(r.id)}" target="_blank" rel="noopener" style="text-decoration:none;background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"><i class="ti ti-printer"></i> হার্ডকপি (আবেদনপত্র)</a></div>`;
     const note = `<div class="apv-note"><textarea id="ln-note-${r.id}" placeholder="নোট / কারণ..."></textarea></div>`;
     let actions = '';
     if (r.status === 'pending' || r.status === 'review') {
@@ -4144,7 +4145,7 @@ async function openLoanDetail(id) {
   ov.innerHTML = `<div class="ld-box">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
       <div><div class="ld-h">${T(r.applicant_name)}</div><div class="ld-k">আবেদন নং ${T(r.app_no)}</div></div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge ${statusBadge(r.status)}">${esc(statusBn(r.status))}</span><button class="btn btn-gold" onclick="closeLoanDetail()"><i class="ti ti-x"></i> বন্ধ</button></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="badge ${statusBadge(r.status)}">${esc(statusBn(r.status))}</span><a class="btn" href="loan-application-print.html?id=${encodeURIComponent(r.id)}" target="_blank" rel="noopener" style="text-decoration:none;background:rgba(112,72,232,.2);color:#c9b5f5;border:1px solid rgba(112,72,232,.45)"><i class="ti ti-printer"></i> হার্ডকপি</a><button class="btn btn-gold" onclick="closeLoanDetail()"><i class="ti ti-x"></i> বন্ধ</button></div>
     </div>
     <div class="ld-sec">ঋণের তথ্য</div>
     <div class="ld-grid">${grid1}</div>
@@ -4153,7 +4154,7 @@ async function openLoanDetail(id) {
     <div class="ld-sec">গ্যারান্টর ও সম্মতি</div>
     <div id="ld-guar-${r.id}"><div class="ld-note">গ্যারান্টর তথ্য লোড হচ্ছে…</div></div>
     <div class="ld-sec">ডকুমেন্ট ও ফাইল</div>
-    <div class="ld-note">এই আবেদনের ছবি বা ডকুমেন্ট ফাইল ডাটাবেজে সংরক্ষিত হয়নি। ফর্মের আপলোড ঘরে শুধু থাম্বনেইল দেখায়। প্রয়োজনে আবেদনকারীর কাছ থেকে সরাসরি নিন।</div>
+    ${loanDocsHtml(r)}
     <div class="ld-sec">অবস্থার ইতিহাস ও কোন ধাপে আটকে আছে</div>
     ${timeline}
     ${r.review_notes ? `<div class="ld-sec">সর্বশেষ নোট</div><div class="ld-note">${esc(r.review_notes)}</div>` : ''}
@@ -4162,10 +4163,29 @@ async function openLoanDetail(id) {
   loadGuarantorPanel(r.id);
 }
 
+/* ── ঋণ আবেদনের নথি (২৯ অক্টোবর ২০২৬ থেকে গুগল ড্রাইভে জমা হয়) — openStoredDoc ড্রাইভ ও বাকেট দুটোই খোলে ── */
+function loanDocsHtml(r) {
+  const btn = (label, ref, icon) => ref
+    ? `<button class="btn btn-sm" onclick="openStoredDoc('${esc(ref)}','nid-docs')" style="background:rgba(13,110,86,.18);color:#6ee7b7;border:1px solid rgba(13,110,86,.4)"><i class="ti ${icon}"></i> ${esc(label)}</button>`
+    : `<span style="font-size:12px;color:var(--muted)">${esc(label)}: নেই</span>`;
+  const docs = Array.isArray(r.doc_refs) ? r.doc_refs : [];
+  const any = r.nid_front_url || r.nid_back_url || r.photo_url || docs.length;
+  return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      ${btn('এনআইডি সামনে', r.nid_front_url, 'ti-id')}
+      ${btn('এনআইডি পিছনে', r.nid_back_url, 'ti-id')}
+      ${btn('আবেদকের ছবি', r.photo_url, 'ti-user-circle')}
+      ${docs.map((d, i) => btn((d.name || ('সংযুক্তি ' + (i + 1))) + (d.type === 'pdf' ? ' (PDF)' : ''), d.ref, d.type === 'pdf' ? 'ti-file-type-pdf' : 'ti-photo')).join('')}
+    </div>
+    <div class="ld-note">${any
+      ? 'নথিগুলো আবেদনের সাথে গুগল ড্রাইভে সংরক্ষিত — এনআইডি খোলা নিরাপত্তা-রেকর্ডে লেখা থাকে। সব একসাথে কাগজের মতো দেখতে "হার্ডকপি" খুলুন।'
+      : 'এই আবেদনের সাথে কোনো ছবি বা নথি জমা হয়নি (পুরনো আবেদন, অ্যাপ বা স্বেচ্ছাসেবকের মাধ্যমে)। হার্ডকপিতে সদস্যের প্রোফাইলের এনআইডি থাকলে সেটি দেখাবে।'}</div>`;
+}
+
 /* ── গ্যারান্টর ও সম্মতি (লোন আবেদন) ── */
 function _guarNowLocal() { return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
 function _guarToday() { return new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10); }
-function _rpcErr(e) { return (e && (e.userMsg || e.message)) || 'সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'; }
+/* ⚠️ drvErr-এর userMsg একটি পতাকা (true), বার্তা নয় — আগে এখানে "true" লেখা দেখাত */
+function _rpcErr(e) { return (e && (typeof e.userMsg === 'string' ? e.userMsg : e.message)) || 'সংযোগ ত্রুটি — ইন্টারনেট দেখুন।'; }
 
 async function loadGuarantorPanel(appId) {
   const host = document.getElementById('ld-guar-' + appId);
@@ -4236,18 +4256,21 @@ async function guarSaveConsent(gid, appId) {
   const file = (((document.getElementById('gs-f-' + gid) || {}).files) || [])[0];
   if (!day) return alert('স্বাক্ষরের তারিখ দিন।');
   if (!file) return alert('স্বাক্ষরিত সম্মতিপত্রের ছবি বা PDF বেছে নিন।');
-  if (!/^image\/|^application\/pdf$/i.test(file.type)) return alert('শুধু ছবি (JPG/PNG) বা PDF ফাইল দিন।');
-  if (file.size > 5 * 1024 * 1024) return alert('ফাইলটি ৫ MB-র বেশি হতে পারবে না।');
+  const isPdf = /^application\/pdf$/i.test(file.type) || /\.pdf$/i.test(file.name || '');
+  const isImg = (window.KHUI && KHUI.isImageFile) ? KHUI.isImageFile(file) : /^image\//i.test(file.type);
+  if (!isImg && !isPdf) return alert('শুধু ছবি (JPG/PNG/HEIC) বা PDF ফাইল দিন।');
+  /* ৫ MB-এর সীমা কেবল PDF-এ — ছবি যত বড়ই হোক নিচে ১৬০০px/১.৫ MB-এ নামানো হয় */
+  if (isPdf && file.size > 5 * 1024 * 1024) return alert('PDF ফাইলটি ৫ MB-র বেশি হতে পারবে না — ছবি হিসেবে দিন।');
   if (!confirm('সম্মতিপত্র সংযুক্ত করে এই গ্যারান্টরের সম্মতি নিশ্চিত করবেন?')) return;
   let blob = file;
   try {
-    if (/^image\//i.test(file.type) && window.KHUI && KHUI.compressImage) {
+    if (isImg && window.KHUI && KHUI.compressImage) {
       blob = (await KHUI.compressImage(file, { maxDim: 1600, maxBytes: 1.5 * 1024 * 1024 })) || file;
     }
-  } catch (e) { blob = file; }
+  } catch (e) { return alert((e && e.message) || 'ছবিটি পড়া যায়নি — অন্য একটি ছবি দিন।'); }
   let ref = null;
   try {
-    ref = await KHUI.drive.upload(blob, { kind: 'consent', name: 'consent-' + gid + (blob.type === 'application/pdf' ? '.pdf' : '.jpg') });
+    ref = await KHUI.drive.upload(blob, { kind: 'consent', name: 'consent-' + gid + (isPdf ? '.pdf' : '.jpg') });
   } catch (e) { return alert(_rpcErr(e)); }
   if (!ref) return alert('ফাইল সংরক্ষণের ব্যবস্থা এখন কনফিগার করা নেই — সম্মতিপত্র সংরক্ষণ করা যাচ্ছে না।');
   try {
@@ -4273,9 +4296,15 @@ function closeMemberDigital() {
   const ov = document.getElementById('memberDigitalOv');
   if (ov) ov.style.display = 'none';
 }
+/* আমন্ত্রণ লিংকে (লগইন ছাড়া) তোলা সব নথি — ছবি, এনআইডি, স্ক্যান — থাকে committee-docs/invite/<token>/ ঘরে,
+   কলাম যে বাকেটের কথাই বলুক (ছবি "avatars", এনআইডি "nid-docs")। ভুল বাকেটে খুঁজলে "Object not found"। */
+function docBucket(path, bucket) {
+  return /^invite\//.test(path || '') ? 'committee-docs' : bucket;
+}
 async function digiDocUrl(path, bucket) {
   if (!path) return null;
   if (/^https?:/i.test(path)) return path;
+  bucket = docBucket(path, bucket);
   try {
     if (window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) return await KHUI.drive.url(path);
     const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
@@ -5095,7 +5124,7 @@ async function capDocBlob(path, bucket) {
   if (/^https?:/i.test(path)) url = path;
   else if (window.KHUI && KHUI.drive && KHUI.drive.isRef(path)) url = await KHUI.drive.url(path);
   else {
-    const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
+    const r = await _db.storage.from(docBucket(path, bucket)).createSignedUrl(path, 300);
     url = r.data && r.data.signedUrl;
   }
   if (!url) return null;
@@ -5191,7 +5220,7 @@ async function openStoredDoc(path, bucket) {
     return;
   }
   try {
-    const r = await _db.storage.from(bucket).createSignedUrl(path, 300);
+    const r = await _db.storage.from(docBucket(path, bucket)).createSignedUrl(path, 300);
     if (r.data && r.data.signedUrl) window.open(r.data.signedUrl, '_blank');
     else throw (r.error || new Error('লিংক তৈরি হয়নি'));
   } catch (e) { alert('ফাইলটি খোলা যায়নি: ' + (e.message || '')); }
@@ -6317,7 +6346,7 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=73"></script>
+<script src="kh-ui.js?v=74"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
