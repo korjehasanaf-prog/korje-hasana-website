@@ -391,6 +391,10 @@
     .nom-card .kh-field { margin-bottom: 22px; }
     /* কার্ডের হালকা পটভূমিতে ডিফল্ট লেবেল (#7b7288) ৪.৩:১ — তাই একটু গাঢ় */
     .nom-card .kh-field label { color: #6d6379; }
+    /* সম্মতিপত্র থেকে বসানো নমিনিতে মোবাইল থাকে না — ঘরটি কমলা দাগে চিহ্নিত
+       (#a04a00 কার্ডের #faf7fd পটভূমিতে ৫.৭:১); লিখলেই দাগ চলে যায় */
+    .nom-card .kh-field input.kh-need { border-bottom: 2px solid #c2560c; }
+    .nom-card .kh-field input.kh-need + label { color: #a04a00; font-weight: 600; }
     .nom-photo { display: flex; align-items: center; gap: 12px; margin: -8px 0 18px; }
     .nom-photo img {
       width: 54px; height: 54px; border-radius: 10px; object-fit: cover;
@@ -1123,9 +1127,9 @@
           <h3 style="font-size:15px"><i class="ti ti-users" style="color:var(--mdgreen)"></i> এই হিসাবের নমিনি</h3>
         </div>
         <p class="kh-hint" style="margin:-8px 0 14px">
-          প্রতিটি হিসাবের নমিনি আলাদা। আগের হিসাবের নমিনি বসিয়ে দেওয়া হয়েছে — প্রয়োজনে বদলে নিন।
-          একাধিক হলে অংশের যোগফল ঠিক ১০০ হতে হবে।
+          প্রতিটি হিসাবের নমিনি আলাদা। একাধিক হলে অংশের যোগফল ঠিক ১০০ হতে হবে।
         </p>
+        <p class="kh-hint" data-nom="inherit" data-for="naNomList" style="display:none;color:#14713f;margin:-6px 0 14px"></p>
         <div id="naNomList"></div>
         <div class="nom-actions">
           <button type="button" class="nom-btn" data-nom="add" data-for="naNomList"
@@ -2190,8 +2194,9 @@ function onNomineePhoto(id, input) {
   if (!card || !input.files || !input.files[0]) return;
   var w = nomWrapOf(card);
   var file = input.files[0];
-  if (!/^image\//.test(file.type)) {
-    nomMsg(w, 'ছবির ফাইল দিন (JPG বা PNG)', 'error');
+  var isImg = (window.KHUI && KHUI.isImageFile) ? KHUI.isImageFile(file) : /^image\//.test(file.type);
+  if (!isImg) {
+    nomMsg(w, 'ছবির ফাইল দিন (JPG, PNG বা HEIC)', 'error');
     return;
   }
   _nomFile[id] = file;
@@ -2284,8 +2289,9 @@ async function fetchMyNominees() {
 function paintNomineeForm(w, list) {
   var wrap = document.getElementById(w);
   if (!wrap) return;
+  /* কেবল এই container-এর বাছাই করা ছবি মোছা — দুটি ফর্ম একসাথে ভরলে অন্যটির ছবি যেন না হারায় */
+  nomCards(w).forEach(function (c) { delete _nomFile[c.id]; });
   wrap.innerHTML = '';
-  Object.keys(_nomFile).forEach(function (k) { delete _nomFile[k]; });
   if (!list || !list.length) {
     addNominee(null, { wrap: w, silent: true, noFocus: true });
     return;
@@ -2293,7 +2299,74 @@ function paintNomineeForm(w, list) {
   list.forEach(function (n) { addNominee(n, { wrap: w, silent: true, noFocus: true }); });
 }
 
-/* হিসাব খোলার ফর্ম — আগের হিসাবের নমিনি বসানো (পরিবর্তনযোগ্য) */
+/* হিসাব খোলার ফর্মে নমিনি অটো-ফিল (২৯ অক্টোবর ২০২৬) — get_my_nominee_prefill:
+   ① আগের সঞ্চয় হিসাবের নমিনি (সম্পূর্ণ তথ্য), না থাকলে ② কমিটি/সাধারণ সদস্যের সম্মতিপত্রে দেওয়া নমিনি
+   (নাম, সম্পর্ক, এনআইডি, ছবি; মোবাইল সম্মতিপত্রে থাকে না — সদস্য দেন)। সব ঘর পরিবর্তনযোগ্য। */
+async function fetchPrefillNominees() {
+  try {
+    var r = await _db.rpc('get_my_nominee_prefill', { p_account_kind: 'savings' });
+    if (!r.error && r.data) return r.data;
+  } catch (e) {}
+  try {
+    var r2 = await _db.rpc('get_my_nominees', { p_account_kind: 'savings' });
+    if (!r2.error && r2.data) return r2.data;
+  } catch (e) {}
+  return { list: [], inherited: false };
+}
+/* কোথা থেকে বসল তা জানানো */
+function nomInheritNote(w, res) {
+  var note = nomSide(w, 'inherit');
+  if (!note) return;
+  var list = (res && res.list) || [];
+  if (!list.length) { note.style.display = 'none'; return; }
+  var txt;
+  if (res.origin === 'committee') {
+    var age = list[0] && list[0].age;
+    txt = 'আপনার কমিটির সম্মতিপত্রে' + (res.committee_name ? ' (' + res.committee_name + ')' : '') +
+      ' দেওয়া নমিনির তথ্য বসিয়ে দেওয়া হয়েছে — নমিনির মোবাইল নম্বর দিন' +
+      (age ? '; সম্মতিপত্রে বয়স ' + bnNum(age) + ' বছর লেখা আছে, জন্ম তারিখ জানা থাকলে দিন' : '') +
+      '। প্রয়োজনে যেকোনো ঘর বদলে নিন।';
+  } else {
+    txt = 'আপনার আগের হিসাবের নমিনির তথ্য বসিয়ে দেওয়া হয়েছে — প্রয়োজনে বদলে নিন।';
+  }
+  note.innerHTML = '<i class="ti ti-wand" aria-hidden="true"></i> ' + nomEsc(txt);
+  note.style.display = '';
+}
+/* সম্মতিপত্রের নমিনির ছবি (গুগল ড্রাইভে) — নতুন বাছাই করা ছবির মতোই ধরা হয়,
+   হিসাব খোলার সময় নিয়মিত পথে (avatars) আপলোড হয়। খোলা না গেলে চুপচাপ বাদ — সদস্য নিজে দেবেন। */
+async function nomAttachPhotoRefs(w, list) {
+  if (!list.some(function (n) { return n && n.photo_ref; })) return;
+  /* হিসাব-খোলার পর্দা loadPortal থেকে kh-ui.js লোড হওয়ার আগেই ভরতে পারে — সর্বোচ্চ ৮ সেকেন্ড অপেক্ষা */
+  for (var t = 0; t < 80 && !(window.KHUI && KHUI.drive); t++) await new Promise(function (r) { setTimeout(r, 100); });
+  if (!window.KHUI || !KHUI.drive) return;
+  var cards = nomCards(w);
+  for (var i = 0; i < list.length && i < cards.length; i++) {
+    var ref = list[i] && list[i].photo_ref;
+    if (!ref || !KHUI.drive.isRef(ref)) continue;
+    try {
+      var u = await KHUI.drive.url(ref);
+      if (!u) continue;
+      var b = await (await fetch(u)).blob();
+      if (b.type && !/^image\//.test(b.type)) continue;
+      if (!cards[i].isConnected || _nomFile[cards[i].id]) continue;   /* ফর্ম আবার আঁকা হয়েছে, বা সদস্য নিজেই ছবি দিয়েছেন */
+      _nomFile[cards[i].id] = new File([b], 'nominee.jpg', { type: b.type || 'image/jpeg' });
+      showNomineePhoto(cards[i], u);
+    } catch (e) {}
+  }
+}
+function nomFocusMissing(w) {
+  var c = nomCards(w)[0];
+  var m = c && c.querySelector('[data-nk="mobile"]');
+  if (!m || m.value) return;
+  m.classList.add('kh-need');
+  m.addEventListener('input', function off() {
+    if (!m.value) return;
+    m.classList.remove('kh-need');
+    m.removeEventListener('input', off);
+  });
+}
+
+/* হিসাব খোলার ফর্ম — আগের হিসাবের বা সম্মতিপত্রের নমিনি বসানো (পরিবর্তনযোগ্য) */
 async function prefillNominees(force) {
   var wrap = document.getElementById('nomList');
   if (!wrap) return;
@@ -2301,15 +2374,15 @@ async function prefillNominees(force) {
     if (!nomCards('nomList').length) addNominee(null, { wrap: 'nomList', silent: true, noFocus: true });
     return;
   }
-  var res  = await fetchMyNominees();
+  var res  = await fetchPrefillNominees();
   var list = (res && res.list) || [];
   if (!list.length) {
     if (!nomCards('nomList').length || force) paintNomineeForm('nomList', []);
     return;
   }
   paintNomineeForm('nomList', list);
-  var note = nomSide('nomList', 'inherit');
-  if (note) note.style.display = '';
+  nomInheritNote('nomList', res);
+  if (res.origin === 'committee') { nomFocusMissing('nomList'); nomAttachPhotoRefs('nomList', list); }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -2773,15 +2846,18 @@ function naSyncMethod() {
 }
 
 /* আগের হিসাবের নমিনি বসিয়ে দেওয়া — পরিবর্তনযোগ্য */
+var _naNomBusy = false;
 async function prefillNewAccountNominees() {
   var wrap = document.getElementById('naNomList');
-  if (!wrap || nomCards('naNomList').length) return;
-  var list = [];
-  try {
-    var r = await _db.rpc('get_my_nominees', { p_account_kind: 'savings' });
-    if (!r.error && r.data && r.data.list) list = r.data.list;
-  } catch (e) {}
+  if (!wrap || _naNomBusy || nomCards('naNomList').length) return;
+  _naNomBusy = true;      /* loadPortal ও showPanel দুজনেই ডাকে — একবারই ভরা হয় */
+  var res;
+  try { res = await fetchPrefillNominees(); } finally { _naNomBusy = false; }
+  if (nomCards('naNomList').length) return;
+  var list = (res && res.list) || [];
   paintNomineeForm('naNomList', list);
+  nomInheritNote('naNomList', res);
+  if (res.origin === 'committee') { nomFocusMissing('naNomList'); nomAttachPhotoRefs('naNomList', list); }
 }
 
 var NA_PAY = null, NA_PENDING_ID = null;
@@ -3015,7 +3091,7 @@ async function submitWithdrawPanel() {
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=3" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
-<script src="kh-i18n-data.js?v=3" defer></script>
+<script src="kh-i18n-data.js?v=4" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

@@ -267,7 +267,7 @@
         var href = 'committee-form.html?c=' + encodeURIComponent(c.id) + '&p=' + encodeURIComponent(p.id);
         return '<div class="prow"><div class="pinfo">' +
           '<div class="pname">' + esc(p.title_bn) + (p.seats>1 ? ' <span class="pen">(' + bn(p.seats) + ' জন)</span>' : '') + '</div>' +
-          (p.title_en ? '<div class="pen">' + esc(p.title_en) + '</div>' : '') +
+          (p.title_en ? '<div class="pen" data-no-i18n>' + esc(p.title_en) + '</div>' : '') +
           (p.duties_bn ? '<div class="pduty">' + esc(p.duties_bn) + '</div>' : '') +
           (held.length ? '<div class="pheld"><i class="ti ti-user-check"></i> ' + esc(held.join(', ')) + '</div>' : '') +
           '</div>' +
@@ -356,7 +356,7 @@
   })();
 })();
 </script>
-<script src="kh-i18n-data.js?v=3" defer></script>
+<script src="kh-i18n-data.js?v=4" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
 <script src="kh-i18n.js?v=1" defer></script>
 </body>

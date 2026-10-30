@@ -197,6 +197,79 @@
     });
   }
 
+  /* ── ঋণ আবেদনের এনআইডি ও ছবি (২৯ অক্টোবর ২০২৬) ──
+     ফাইল ওঠে স্বেচ্ছাসেবকের সেশনে গুগল ড্রাইভে (না থাকলে প্রাইভেট nid-docs বাকেটে নিজের uid-ফোল্ডারে);
+     vol_attach_loan_application_docs আবেদনে জুড়ে দেয় ও ড্রাইভ-ফাইলের মালিকানা গ্রাহকের কাছে দেয়। */
+  function vaDocStyle() {
+    if ($('vaDocCss')) return;
+    var st = document.createElement('style'); st.id = 'vaDocCss';
+    st.textContent = '.va-docs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}' +
+      '.va-doc{display:grid;gap:6px;cursor:pointer;font-size:12.5px;text-align:center}' +
+      '.va-doc-box{height:96px;border:1.5px dashed rgba(127,127,127,.55);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;position:relative}' +
+      '.va-doc-box i{font-size:26px;opacity:.8}.va-doc-box img{width:100%;height:100%;object-fit:cover}' +
+      '.va-doc-box.ok{border-style:solid;border-color:#16a34a}.va-doc-box.err{border-color:#dc2626}' +
+      '.va-doc-box .va-err{color:#dc2626;font-size:11.5px;padding:0 6px}' +
+      '@media(max-width:480px){.va-docs{grid-template-columns:1fr 1fr}}';
+    document.head.appendChild(st);
+  }
+  function vaPrepDoc(side, file) {
+    var box = $('vaDoc_' + side);
+    if (box) { box.className = 'va-doc-box'; box.innerHTML = '<i class="ti ti-loader"></i><small>প্রস্তুত হচ্ছে…</small>'; }
+    var K = window.KHUI || {};
+    var job = side === 'photo'
+      ? (K.compressImage ? K.compressImage(file, { maxDim: 900, maxBytes: 2 * 1024 * 1024 }).then(function (b) { return new File([b], 'photo.jpg', { type: 'image/jpeg' }); }) : Promise.resolve(file))
+      : (K.nidPrepare ? K.nidPrepare(file) : Promise.resolve(file));
+    S.ldocPrep[side] = job;
+    job.then(function (f) {
+      if (S.ldocPrep[side] !== job) return;
+      S.ldocPrep[side] = null; S.ldocs[side] = f; S.ldocSaved[side] = null;
+      if (!box) return;
+      box.className = 'va-doc-box ok';
+      if (/^image\//.test(f.type)) box.innerHTML = '<img alt="" src="' + URL.createObjectURL(f) + '">';
+      else box.innerHTML = '<i class="ti ti-file-type-pdf"></i><small>PDF ✓</small>';
+    }, function (e) {
+      if (S.ldocPrep[side] !== job) return;
+      S.ldocPrep[side] = null; S.ldocs[side] = null;
+      if (box) { box.className = 'va-doc-box err'; box.innerHTML = '<i class="ti ti-alert-triangle"></i><span class="va-err">' + esc((e && e.message) || 'ছবিটি পড়া যায়নি') + '</span>'; }
+    });
+  }
+  async function vaSaveDocs() {
+    var app = S.ldocApp, msgEl = $('vaMsg');
+    if (!app) return;
+    var show = function (html, ok) {
+      if (!msgEl) return;
+      var d = document.createElement('div'); d.className = 'vol-msg ' + (ok ? 'ok' : 'err'); d.id = 'vaDocMsg'; d.innerHTML = html;
+      var old = $('vaDocMsg'); if (old) old.remove(); msgEl.appendChild(d);
+    };
+    show('<i class="ti ti-loader"></i> এনআইডি ও ছবি সংরক্ষণ হচ্ছে…', true);
+    try {
+      var ses = (await window._db.auth.getSession()).data.session;
+      if (!ses) throw new Error('আগে লগইন করুন');
+      var up = async function (blob, kind, label) {
+        var ext = blob.type === 'application/pdf' ? 'pdf' : 'jpg';
+        var ref = (window.KHUI && KHUI.drive) ? await KHUI.drive.upload(blob, { kind: kind, name: label + '.' + ext }) : null;
+        if (ref) return ref;
+        var path = ses.user.id + '/loan-' + String(app.no || app.id).replace(/[^A-Za-z0-9-]/g, '') + '-' + label + '-' + Date.now() + '.' + ext;
+        var r = await window._db.storage.from('nid-docs').upload(path, blob, { upsert: false, contentType: blob.type || 'image/jpeg' });
+        if (r.error) throw new Error(r.error.message || 'আপলোড হয়নি');
+        return path;
+      };
+      if (S.ldocs.front && !S.ldocSaved.front) S.ldocSaved.front = await up(S.ldocs.front, 'nid', 'loan-nid-front');
+      if (S.ldocs.back && !S.ldocSaved.back) S.ldocSaved.back = await up(S.ldocs.back, 'nid', 'loan-nid-back');
+      if (S.ldocs.photo && !S.ldocSaved.photo) S.ldocSaved.photo = await up(S.ldocs.photo, 'avatar', 'loan-photo');
+      var r2 = await rpcRaw('vol_attach_loan_application_docs', { p_id: app.id, p_nid_front: S.ldocSaved.front || null, p_nid_back: S.ldocSaved.back || null, p_photo: S.ldocSaved.photo || null });
+      if (r2.error) throw new Error(r2.error);
+      /* আবেদনপত্রের লিংক এখানে নয় — নথির মালিকানা গ্রাহকের কাছে চলে গেছে; দেখবেন গ্রাহক ও অ্যাডমিন */
+      show('<i class="ti ti-circle-check"></i> গ্রাহকের এনআইডি' + (S.ldocSaved.photo ? ' ও ছবি' : '') + ' সংরক্ষিত হয়েছে। গ্রাহক নিজের অ্যাকাউন্ট থেকে ও অ্যাডমিন ড্যাশবোর্ড থেকে আবেদনপত্র দেখতে পারবেন।', true);
+      S.ldocs = { front: null, back: null, photo: null }; S.ldocSaved = {}; S.ldocApp = null;
+      ['front', 'back', 'photo'].forEach(function (k) { var bx = $('vaDoc_' + k); if (bx) { bx.className = 'va-doc-box'; bx.innerHTML = '<i class="ti ti-' + (k === 'photo' ? 'user-circle' : 'id') + '"></i><small>ছবি দিন</small>'; } });
+    } catch (e) {
+      show('আবেদন জমা হয়েছে, কিন্তু এনআইডি/ছবি সংরক্ষণ হয়নি: ' + esc((e && e.message) || 'অজানা ত্রুটি') +
+        ' <button type="button" class="vol-btn ghost sm" id="vaDocRetry"><i class="ti ti-refresh"></i> আবার চেষ্টা করুন</button>', false);
+      var rb = $('vaDocRetry'); if (rb) rb.addEventListener('click', function () { vaSaveDocs(); });
+    }
+  }
+
   /* ৫. ঋণ আবেদন — গ্রাহকের ওটিপি যাচাই সহ */
   function tabLoan(b) {
     b.innerHTML = '<div class="vol-card"><h3><i class="ti ti-file-invoice"></i> ঋণের আবেদন (গ্রাহকের পক্ষে)</h3>' +
@@ -215,12 +288,24 @@
         return '<div class="vol-two"><label>নাম<input name="g' + i + '_name"></label><label>সম্পর্ক<input name="g' + i + '_rel"></label></div>' +
           '<div class="vol-two"><label>মোবাইল<input name="g' + i + '_mobile" inputmode="numeric"></label><label>এনআইডি<input name="g' + i + '_nid" inputmode="numeric"></label></div>';
       }).join('') + '</fieldset>' +
+      '<fieldset class="vol-fs"><legend><b>গ্রাহকের এনআইডি ও ছবি</b></legend>' +
+      '<p style="margin:0 0 8px;font-size:13px">এনআইডির দুই পাতা আবশ্যক, ছবি ঐচ্ছিক। ক্যামেরায় তুলুন বা গ্যালারি থেকে দিন — যেকোনো মাপের ছবি নিজে থেকেই ছোট হবে। আবেদন জমার পর গুগল ড্রাইভে সংরক্ষিত হয়।</p>' +
+      '<div class="va-docs">' + [['front', 'এনআইডি — সামনে *'], ['back', 'এনআইডি — পিছনে *'], ['photo', 'গ্রাহকের ছবি']].map(function (d) {
+        return '<label class="va-doc" data-side="' + d[0] + '"><input type="file" accept="image/*,.heic,.heif" hidden data-ldoc="' + d[0] + '">' +
+          '<span class="va-doc-box" id="vaDoc_' + d[0] + '"><i class="ti ti-' + (d[0] === 'photo' ? 'user-circle' : 'id') + '"></i><small>ছবি দিন</small></span>' +
+          '<span class="va-doc-lbl">' + esc(d[1]) + '</span></label>';
+      }).join('') + '</div></fieldset>' +
       '<div class="vol-card" style="padding:12px"><b>গ্রাহকের ওটিপি যাচাই</b>' +
       '<div class="vol-two" style="margin-top:8px"><label>কোড পাঠানোর মাধ্যম<select id="vaOtpCh"><option value="sms">SMS (মোবাইল)</option><option value="email">ই-মেইল</option></select></label>' +
       '<div style="align-self:end"><button class="vol-btn ghost sm" type="button" id="vaOtpSend"><i class="ti ti-message"></i> ওটিপি পাঠান</button></div></div>' +
       '<div id="vaOtpRow"></div><div id="vaOtpMsg"></div></div>' +
       '<div><button class="vol-btn sm" type="submit" id="vaLoanSub"><i class="ti ti-send"></i> ঋণের আবেদন জমা দিন</button></div><div id="vaMsg"></div></form></div>';
     if (!S.custs.length) return;
+    vaDocStyle();
+    S.ldocs = { front: null, back: null, photo: null }; S.ldocPrep = {}; S.ldocSaved = {}; S.ldocApp = null;
+    Array.prototype.forEach.call(b.querySelectorAll('input[data-ldoc]'), function (inp) {
+      inp.addEventListener('change', function () { var f = inp.files && inp.files[0]; inp.value = ''; if (f) vaPrepDoc(inp.getAttribute('data-ldoc'), f); });
+    });
     var sel = $('vaLoanCust'), form = $('vaLoanForm');
     var resetOtp = function () { S.otpPending = null; S.otpOk = null; var r = $('vaOtpRow'); if (r) r.innerHTML = ''; };
     sel.addEventListener('change', resetOtp);
@@ -250,6 +335,8 @@
       var f = e.target, cust = pickedCust('vaLoanCust');
       if (!cust) return note($('vaMsg'), 'গ্রাহক নির্বাচন করুন।', false);
       if (!S.otpOk || S.otpOk.cust !== cust) return note($('vaMsg'), 'আগে গ্রাহকের ওটিপি পাঠিয়ে যাচাই করুন।', false);
+      if (S.ldocPrep.front || S.ldocPrep.back || S.ldocPrep.photo) return note($('vaMsg'), 'ছবি প্রস্তুত হচ্ছে — কয়েক সেকেন্ড পর আবার চাপুন।', false);
+      if (!S.ldocs.front || !S.ldocs.back) return note($('vaMsg'), 'গ্রাহকের এনআইডির দুই পাতার ছবি দিন।', false);
       var p = {
         loan_type: fv(f, 'loan_type'), amount: num(fv(f, 'amount')), duration: num(fv(f, 'duration')),
         installment_kind: fv(f, 'installment_kind'), first_installment_date: fv(f, 'first_installment_date'),
@@ -267,6 +354,8 @@
       if (r.error) return note($('vaMsg'), r.error, false);
       note($('vaMsg'), 'ঋণের আবেদন জমা হয়েছে (' + (r.data.app_no || '') + ')। অ্যাডমিন পর্যালোচনা করবেন।', true);
       S.otpOk = null; S.otpPending = null;
+      S.ldocApp = { id: r.data.id, no: r.data.app_no };
+      await vaSaveDocs();
       f.reset(); renderBatch();
     });
   }
