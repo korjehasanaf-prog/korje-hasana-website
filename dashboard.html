@@ -1462,7 +1462,8 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
         <div class="section-card" style="margin-bottom:16px">
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
             <div class="fg"><label>কমিটি *</label><select id="ivCom" style="width:100%"></select></div>
-            <div class="fg"><label>পদবি</label><select id="ivPos" style="width:100%"></select></div>
+            <div class="fg"><label>পদবি</label><select id="ivPos" style="width:100%"></select>
+              <div id="ivPosEn" data-no-i18n style="font-size:12px;color:var(--muted);margin-top:4px"></div></div>
             <div class="fg"><label>প্রস্তাবিত ব্যক্তির নাম</label><input id="ivName" style="width:100%"></div>
             <div class="fg"><label>হোয়াটসঅ্যাপ / মোবাইল নম্বর *</label><input id="ivMob" inputmode="numeric" placeholder="01XXXXXXXXX" style="width:100%"></div>
             <div class="fg"><label>ই-মেইল ঠিকানা (জানা থাকলে)</label><input id="ivEmail" type="email" placeholder="ঐচ্ছিক" style="width:100%"></div>
@@ -5243,6 +5244,7 @@ async function loadCommitteeApps(status, btn) {
 
   _cappList = list;
   if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো আবেদন নেই।</div>'; return; }
+  await cstructReady();
 
   c.innerHTML = list.map(a => {
     const st = CSTAT[a.status] || CSTAT.pending;
@@ -5257,6 +5259,7 @@ async function loadCommitteeApps(status, btn) {
         <div style="flex:1;min-width:220px">
           <div style="font-size:16px;font-weight:700">${esc(a.name_bn || a.name_en || '—')}</div>
           <div style="font-size:13px;color:var(--muted)">${esc(a.committee_name || '')}${a.position_title ? ' · ' + esc(a.position_title) : (a.committee_code === 'general' ? '' : ' · —')}</div>
+          ${posEnOf(a.position_id) ? '<div style="font-size:12px;color:var(--muted)" data-no-i18n>' + esc(posEnOf(a.position_id)) + '</div>' : ''}
         </div>
         <span class="badge ${st[1]}">${st[0]}</span>
         ${(a.committee_code ? (a.committee_code === 'general' || a.committee_code === 'executive') : a.general_member)
@@ -5333,7 +5336,7 @@ async function capPrintLists(kind, lhOverride) {
     body = _cstruct.filter(function (c) { return c.code !== 'general'; }).map(function (c) {
       const rows = (c.positions || []).map(function (p, i) {
         const a = list.filter(function (x) { return x.committee_id === c.id && x.position_id === p.id; })[0];
-        return cells([bnYear(i + 1), esc(p.title_bn),
+        return cells([bnYear(i + 1), esc(p.title_bn) + (p.title_en ? '<br><span style="font-size:9px;color:#4a4458">' + esc(p.title_en) + '</span>' : ''),
           a ? esc(a.name_bn || a.name_en || '') : '<i>শূন্য</i>',
           a ? esc(a.father_name || '') : '', a ? esc(a.mobile || '') : '', a ? esc(a.present_address || '') : '']);
       }).join('');
@@ -5353,7 +5356,7 @@ async function capPrintLists(kind, lhOverride) {
         return cells([bnYear(i + 1), esc(a.name_bn || a.name_en || ''), esc(a.father_name || ''), esc(a.occupation || ''),
           esc(a.mobile || ''), esc(a.present_address || ''),
           esc((a.nominee_name || '—') + (a.nominee_relation ? ' (' + a.nominee_relation + ')' : '')),
-          esc(gmSourceLabel(a))]);
+          esc(gmSourceLabel(a)) + (a.source === 'executive' && posEnOf(a.position_id) ? '<br><span style="font-size:9px;color:#4a4458">' + esc(posEnOf(a.position_id)) + '</span>' : '')]);
       }).join('') +
       '</tbody></table><div class="tot">মোট সাধারণ সদস্য: ' + bnYear(gen.length) + ' জন' +
       (nExec ? ' (কার্যনির্বাহী কমিটি থেকে ' + bnYear(nExec) + ' জন)' : '') + '</div>';
@@ -5478,7 +5481,7 @@ function gmRender() {
       <td style="white-space:nowrap">${esc(m.mobile || '')}</td>
       <td style="font-size:12.5px">${esc(m.present_address || '')}</td>
       <td style="font-size:12.5px">${esc(m.nominee_name || '—')}${m.nominee_relation ? ' (' + esc(m.nominee_relation) + ')' : ''}</td>
-      <td><span class="badge" style="background:${m.source === 'executive' ? 'rgba(240,164,40,.25)' : 'rgba(112,72,232,.22)'}">${esc(gmSourceLabel(m))}</span></td>
+      <td><span class="badge" style="background:${m.source === 'executive' ? 'rgba(240,164,40,.25)' : 'rgba(112,72,232,.22)'}">${esc(gmSourceLabel(m))}</span>${m.source === 'executive' && posEnOf(m.position_id) ? '<div style="font-size:11.5px;color:var(--muted);margin-top:3px" data-no-i18n>' + esc(posEnOf(m.position_id)) + '</div>' : ''}</td>
       <td style="font-size:12px;white-space:nowrap">${m.since ? new Date(m.since).toLocaleDateString('bn-BD') : '—'}</td>
     </tr>`).join('')}</tbody></table></div>`;
 }
@@ -5512,6 +5515,17 @@ async function reviewCApp(id, status) {
 //  কমিটি ব্যবস্থাপনা (ডায়নামিক)
 // ════════════════════════════════════════
 let _cstruct = [];
+
+/* পদের ইংরেজি নাম — বাংলা নামের নিচে দেখাতে (কমিটির কাঠামো থেকে) */
+async function cstructReady() {
+  if (_cstruct.length) return;
+  try { const r = await _db.rpc('get_committee_structure'); if (!r.error) _cstruct = r.data || []; } catch (e) {}
+}
+function posEnOf(pid) {
+  if (!pid) return '';
+  for (const c of _cstruct) for (const p of (c.positions || [])) if (p.id === pid) return p.title_en || '';
+  return '';
+}
 
 async function loadCommitteeMgmt() {
   const c = document.getElementById('cmgmt');
@@ -5680,6 +5694,8 @@ async function savePosition(cid, id) {
     sort_order: parseInt(document.getElementById('pe_ord').value, 10) || 99
   };
   if (!p.title_bn) { alert('পদবির বাংলা নাম দিন।'); return; }
+  /* কমিটির পাতায় প্রতিটি পদের বাংলা নামের নিচে ইংরেজি নাম দেখানো হয় — তাই ইংরেজি নামও লাগবে */
+  if (!p.title_en) { alert('পদবির ইংরেজি নাম দিন (Position in English) — কমিটির পাতায় বাংলা নামের নিচে দেখানো হয়।'); document.getElementById('pe_en').focus(); return; }
   try {
     const r = await _db.rpc('admin_save_position', { p });
     if (r.error) throw r.error;
@@ -5760,6 +5776,12 @@ function ivFillPositions() {
     const full = (p.filled || 0) >= (p.seats || 1);
     return `<option value="${esc(p.id)}"${full ? ' disabled' : ''}>${esc(p.title_bn)}${full ? ' — পূর্ণ' : ''}</option>`;
   }).join('') || '<option value="" disabled selected>এই কমিটিতে এখনো কোনো পদ নেই</option>';
+  sel.onchange = ivPaintPosEn;
+  ivPaintPosEn();
+}
+function ivPaintPosEn() {
+  const box = document.getElementById('ivPosEn');
+  if (box) box.textContent = posEnOf(document.getElementById('ivPos').value);
 }
 
 function ivPositionMissing(cid, pid) {
@@ -5782,7 +5804,7 @@ function inviteMessage(o) {
     o.general
       ? 'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে সংস্থার সাধারণ সদস্য হিসেবে যুক্ত হওয়ার আমন্ত্রণ জানানো হলো।'
       : 'কর্জে হাসানা ফাউন্ডেশনের পক্ষ থেকে আপনাকে ' + o.committee +
-        (o.position ? '-এর ' + o.position + ' পদে' : '-তে') + ' দায়িত্ব গ্রহণের জন্য প্রস্তাব করা হলো।',
+        (o.position ? '-এর ' + o.position + (o.position_en ? ' (' + o.position_en + ')' : '') + ' পদে' : '-তে') + ' দায়িত্ব গ্রহণের জন্য প্রস্তাব করা হলো।',
     o.note ? '' : null,
     o.note ? o.note : null,
     '',
@@ -5829,7 +5851,7 @@ async function createInvite(mode) {
     const link = base + 'committee-form.html?inv=' + encodeURIComponent(r.data.token);
 
     if (mode === 'whatsapp') {
-      const msg = inviteMessage({ name, committee: c.name_bn || '', position: p.title_bn || '',
+      const msg = inviteMessage({ name, committee: c.name_bn || '', position: p.title_bn || '', position_en: p.title_en || '',
                                   note, link, general: ivIsGeneral(cid) });
       window.open(waLink(mob, msg), '_blank');
       ivMsg('ok','<b>লিংক তৈরি হয়েছে</b> — হোয়াটসঅ্যাপ খুলে গেছে, শুধু "Send" চাপুন। ' +
@@ -5869,6 +5891,7 @@ async function loadInvites(status, btn) {
     _ivCache = list;
   } catch (e) { c.innerHTML = '<div class="empty-state">লোড করা যায়নি: ' + esc(e.message || '') + '</div>'; return; }
   if (!list.length) { c.innerHTML = '<div class="empty-state">কোনো আমন্ত্রণ নেই।</div>'; return; }
+  await cstructReady();
 
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   c.innerHTML = `<div class="kh-scrollx"><table class="trx-table">
@@ -5879,7 +5902,7 @@ async function loadInvites(status, btn) {
       const canAct = i.status === 'sent' || i.status === 'opened';
       return `<tr>
         <td><b>${esc(i.full_name || '—')}</b><br><span style="font-size:12px;color:var(--muted)">${esc(i.mobile || '')}${i.mobile && i.email ? ' · ' : ''}${esc(i.email || '')}</span></td>
-        <td>${esc(i.committee_name || '')}${i.position_title ? '<br><span style="font-size:12px;color:var(--muted)">' + esc(i.position_title) + '</span>' : ''}</td>
+        <td>${esc(i.committee_name || '')}${i.position_title ? '<br><span style="font-size:12px;color:var(--muted)">' + esc(i.position_title) + '</span>' : ''}${posEnOf(i.position_id) ? '<div style="font-size:12px;color:var(--muted)" data-no-i18n>' + esc(posEnOf(i.position_id)) + '</div>' : ''}</td>
         <td style="font-size:12.5px">${i.sent_at ? new Date(i.sent_at).toLocaleDateString('bn-BD') : '—'}
           ${i.expired && canAct ? '<br><span style="color:#fca5a5;font-size:11.5px">মেয়াদ শেষ</span>' : ''}</td>
         <td><span class="badge ${st[1]}">${st[0]}</span></td>
@@ -6108,7 +6131,7 @@ function waInvite(id) {
   const base = location.origin + location.pathname.replace(/[^/]*$/, '');
   const link = base + 'committee-form.html?inv=' + encodeURIComponent(i.token);
   const msg = inviteMessage({ name: i.full_name || '', committee: i.committee_name || '',
-                              position: i.position_title || '', note: i.note || '', link,
+                              position: i.position_title || '', position_en: posEnOf(i.position_id), note: i.note || '', link,
                               general: ivIsGeneral(i.committee_id) });
   window.open(waLink(i.mobile, msg), '_blank');
 }

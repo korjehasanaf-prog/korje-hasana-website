@@ -135,6 +135,10 @@
     .upst b{color:#7ee2a8}
     html[data-theme="light"] .upst b{color:#0d6e56}
     .upnote{font-size:11.5px;color:#a698bd;line-height:1.7;margin-top:4px}
+    /* পদের ইংরেজি নাম — বাংলার নিচে (ডার্কে #b3a6c9, লাইটে #5f566f — দুটোই ≥৪.৫:১) */
+    .posen{font-size:12px;color:#b3a6c9;line-height:1.5;margin-top:4px;font-weight:500}
+    html[data-theme="light"] .posen{color:#5f566f}
+    .posen:empty{display:none}
     html[data-theme="light"] .upnote{color:#7c7290}
     .docside{padding:13px 0;border-top:1px dashed rgba(255,255,255,.16)}
     .docside:first-of-type{border-top:none;padding-top:0}
@@ -272,7 +276,7 @@
 
   <!-- ══ সম্মতিপত্র ফর্ম ══ -->
   <div class="panel" id="formPanel">
-    <h2><i class="ti ti-writing-sign"></i> সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span></h2>
+    <h2><i class="ti ti-writing-sign"></i> সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span><span class="posen" id="fmForEn" data-no-i18n style="display:block;font-size:12px"></span></h2>
     <div class="msg" id="fmMsg"></div>
 
     <div class="whobox hidden" id="invBox" style="background:rgba(112,72,232,.16);border-color:rgba(112,72,232,.45)">
@@ -320,6 +324,7 @@
         <div class="fg">
           <label for="fPos">পদবি <span class="req">*</span></label>
           <select id="fPos"></select>
+          <div class="posen" id="fPosEn" data-no-i18n></div>
         </div>
       </div>
       <div class="grid2">
@@ -563,7 +568,8 @@
         box.classList.remove('hidden');
         el('invTxt').innerHTML = (d.position_id
           ? 'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '') +
-            '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।'
+            '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।' +
+            '<div class="posen" id="invPosEn" data-no-i18n></div>'
           : 'আপনাকে কর্জে হাসানা ফাউন্ডেশনের <b>সাধারণ সদস্য</b> হিসেবে যুক্ত হওয়ার আমন্ত্রণ জানানো হয়েছে।') +
           (d.note ? '<br><span class="upnote">মন্তব্য: ' + esc(d.note) + '</span>' : '');
       }
@@ -645,10 +651,27 @@
             'I consent to serve in the committee and position stated above, and all information given is true.'];
   }
 
+  /* পদের ইংরেজি নাম (কাঠামো থেকে) — বাংলা নামের নিচে দেখানো হয় */
+  function posEnOf(pid){
+    for(var i = 0; i < STRUCT.length; i++){
+      var ps = STRUCT[i].positions || [];
+      for(var j = 0; j < ps.length; j++) if(ps[j].id === pid) return ps[j].title_en || '';
+    }
+    return '';
+  }
+  function comEnOf(cid){
+    var c = STRUCT.filter(function(x){ return x.id === cid; })[0];
+    return (c && c.name_en) || '';
+  }
+
   function paintHeading(){
     var c = STRUCT.filter(function(x){ return x.id === el('fCom').value; })[0] || {};
     var p = ((c.positions)||[]).filter(function(x){ return x.id === el('fPos').value; })[0] || {};
     el('fmFor').textContent = c.name_bn ? ('— ' + c.name_bn + (p.title_bn ? ' · ' + p.title_bn : '')) : '';
+    el('fmForEn').textContent = (c.name_en && p.title_en) ? (c.name_en + ' · ' + p.title_en) : '';
+    el('fPosEn').textContent = p.title_en || '';
+    if(INVITE && INVITE.position_id && el('invPosEn'))
+      el('invPosEn').textContent = [posEnOf(INVITE.position_id), comEnOf(INVITE.committee_id)].filter(Boolean).join(' · ');
     el('declTxt').textContent = declText()[0];
     var closed = c.is_approved || !c.applications_open;
     if(closed){
@@ -1101,7 +1124,7 @@
     'table{width:100%;border-collapse:collapse}' +
     'td{border:1px solid #bbb;padding:5px 7px;vertical-align:top;height:26px}' +
     'td.k{width:17%;background:#f7f5fb}td.k .en{font-size:7.5px;color:#5b34c4;font-weight:400}' +
-    'td.v{width:33%}' +
+    'td.v{width:33%}td.v .en{display:block;font-size:8.5px;color:#4a4458;margin-top:1px}' +
     'td.addr{height:42px}' +
     '.two td{width:50%;text-align:center}' +
     '.two td.blank{height:56px}' +
@@ -1123,7 +1146,9 @@
     '<div class="ttl">সম্মতিপত্র<small>CONSENT FORM · ফর্ম নং KHF-CC-01</small></div><hr>' +
 
     '<table><tr>' +
-      cell('কমিটির নাম','Committee', comName()) + cell('পদবি','Position', posName()) +
+      cell('কমিটির নাম','Committee', comName()) +
+      '<td class="k"><b>পদবি</b><br><span class="en">Position</span></td><td class="v">' + esc(posName()) +
+        (posEnOf(el('fPos').value) ? '<span class="en">' + esc(posEnOf(el('fPos').value)) + '</span>' : '') + '</td>' +
     '</tr></table>' +
 
     '<div class="sec">প্রার্থীর তথ্য</div>' +
@@ -1474,6 +1499,7 @@
       return '<div class="myapp">' +
         '<div class="myapp-t">' + esc(a.committee_name || 'কমিটি') + (a.position_title ? ' · ' + esc(a.position_title) : '') +
           ' <span class="badge">' + esc(STATUS_BN[a.status] || a.status || '') + '</span></div>' +
+        (posEnOf(a.position_id) ? '<div class="posen" data-no-i18n style="margin:-6px 0 9px">' + esc(posEnOf(a.position_id)) + '</div>' : '') +
         '<div class="pbar"><i style="width:' + pct + '%"></i></div>' +
         '<div class="progmiss">প্রোফাইল <b>' + bn2(pct) + '%</b> পূর্ণ' +
           (miss.length ? ' · <b>বাকি:</b> ' + esc(miss.join(', '))

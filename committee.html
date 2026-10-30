@@ -333,12 +333,22 @@
         '<div class="stat-ico ' + s[0] + '"><i class="ti ' + s[1] + '"></i></div>' +
         '<div style="flex:1;min-width:0"><div class="stat-b">' + esc(a.committee_name||'') +
         (a.position_title ? ' · ' + esc(a.position_title) : '') + '</div>' +
+        (posEn(a.position_id) ? '<div class="pen" data-no-i18n>' + esc(posEn(a.position_id)) + '</div>' : '') +
         '<div class="stat-s"><b>' + s[2] + '</b> — ' + esc(note) +
         (a.admin_note ? '<br><b>অ্যাডমিনের মন্তব্য:</b> ' + esc(a.admin_note) : '') + '</div></div>' +
         (a.status === 'approved' ? '' :
           '<a class="pbtn" href="' + href + '" style="align-self:center"><i class="ti ti-edit"></i> খুলুন</a>') +
         '</div>';
     }).join('');
+  }
+
+  /* পদের ইংরেজি নাম (কাঠামো থেকে) — বাংলা নামের নিচে দেখানো হয় */
+  function posEn(pid){
+    for(var i = 0; i < STRUCT.length; i++){
+      var ps = STRUCT[i].positions || [];
+      for(var j = 0; j < ps.length; j++) if(ps[j].id === pid) return ps[j].title_en || '';
+    }
+    return '';
   }
 
   /* ───────── শুরু ───────── */
@@ -351,8 +361,8 @@
       }catch(e){}
       if(ME){ try { await db.rpc('link_my_committee_applications'); } catch(e){} }
     }
+    await loadStructure();              /* আগে কাঠামো — নিজের আবেদনে পদের ইংরেজি নাম লাগে */
     if(ME) await loadMyApps();
-    await loadStructure();
   })();
 })();
 </script>
