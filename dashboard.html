@@ -328,6 +328,21 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 .filter-pill:hover{border-color:rgba(255,255,255,.2);color:#fff}
 .filter-pill.active{background:rgba(240,140,40,.15);border-color:rgba(240,140,40,.4);color:var(--gold)}
 
+/* ── আমন্ত্রণ: একই নম্বর/ই-মেইলে আগের আমন্ত্রণ বা পদ (৩০ অক্টোবর ২০২৬) ──
+   ঘরটি নিজের গাঢ় অ্যাম্বার পটভূমি বহন করে, তাই দুই থীমে হুবহু এক। */
+#ivMsg.iv-warn{background:#33240a !important;border:1px solid #b7791f !important;color:#fde9b8 !important}
+#ivMsg.iv-warn .ivc-head{font-weight:700;color:#ffd58a;margin-bottom:6px;display:flex;gap:6px;align-items:center}
+#ivMsg.iv-warn .ivc-list{margin:4px 0 8px 20px;line-height:1.75}
+#ivMsg.iv-warn .ivc-list li{color:#fde9b8}
+#ivMsg.iv-warn .ivc-list b{color:#fff3d6}
+#ivMsg.iv-warn .ivc-en{color:#e9cf9a}
+#ivMsg.iv-warn .ivc-who{color:#e9cf9a}
+#ivMsg.iv-warn .ivc-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;background:#5c3d0a;color:#ffe3ad;margin-left:4px}
+#ivMsg.iv-warn .ivc-note{margin:4px 0;padding-left:10px;border-left:3px solid #b7791f;color:#fde9b8;line-height:1.7}
+#ivMsg.iv-warn .ivc-note.ivc-stop{border-left-color:#f87171;color:#ffd4cc}
+#ivMsg.iv-warn .ivc-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#ivMsg.iv-warn .ivc-cancel{background:#4a3a1a;color:#fde9b8;border:1px solid #8a6a2a}
+
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   :root{--sb-w:220px}
@@ -5732,6 +5747,8 @@ let _ivFilter = '';
 function ivMsg(kind, text) {
   const m = document.getElementById('ivMsg');
   if (!m) return;
+  m.classList.toggle('iv-warn', kind === 'warn');
+  if (kind !== 'warn') _ivPending = null;   /* অন্য বার্তা এলে আগের "নিশ্চিত করুন" আর বৈধ নয় */
   const C = { ok:['rgba(34,197,94,.16)','#86efac','#bbf7d0'],
               err:['rgba(239,68,68,.16)','#fca5a5','#fecaca'],
               info:['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'] }[kind] || ['rgba(112,72,232,.18)','#c9b5f5','#ddd0ff'];
@@ -5817,7 +5834,67 @@ function inviteMessage(o) {
   ].filter(function (x) { return x !== null; }).join('\n');
 }
 
-async function createInvite(mode) {
+/* ── একই মোবাইল/ই-মেইলে আগের আমন্ত্রণ বা পদ (৩০ অক্টোবর ২০২৬) ──
+   admin_create_invite_checked প্রথমবার আমন্ত্রণ তৈরি করে না, তালিকা ফেরত দেয়;
+   অ্যাডমিন দেখে "জেনে-শুনে পাঠান" চাপলে p_confirm=true দিয়ে আবার ডাকা হয়।
+   একজনকে একাধিক কমিটির পদে (সাধারণ সদস্যপদ বাদে) রাখতে পারেন কেবল সুপার অ্যাডমিন —
+   সার্ভারই আটকায়; এখানে কেবল আগেভাগে জানানো হয়। */
+const IV_CST = {
+  invite:      { sent: 'আমন্ত্রণ পাঠানো হয়েছে', opened: 'আমন্ত্রণের লিংক খোলা হয়েছে' },
+  application: { pending: 'আবেদন অপেক্ষমাণ', approved: 'অনুমোদিত', returned: 'আবেদন সংশোধনে ফেরত' }
+};
+let _ivPending = null;   /* {mode, sig} — যে আমন্ত্রণের জন্য সতর্কবার্তা দেখানো হয়েছে */
+
+function ivErrText(e) {
+  const m = (e && e.message) || '';
+  if (/multiple positions need super admin/.test(m)) return 'একজনকে একাধিক কমিটির পদে রাখতে পারেন কেবল সুপার অ্যাডমিন।';
+  if (/forbidden/.test(m)) return 'এই কাজের অনুমতি আপনার নেই।';
+  return m || 'আবার চেষ্টা করুন';
+}
+
+function ivConflictLine(c, cid) {
+  const st = (IV_CST[c.kind] || {})[c.status] || c.status || '';
+  const gen = c.committee_code === 'general';
+  const pos = gen ? '' : (c.position_title || '');
+  return '<li><b>' + esc(c.committee_name || '') + '</b>' +
+    (pos ? ' · ' + esc(pos) + (c.position_title_en ? ' <span class="ivc-en" data-no-i18n>(' + esc(c.position_title_en) + ')</span>' : '') : '') +
+    ' — ' + esc(st) +
+    (c.full_name ? ' <span class="ivc-who">· ' + esc(c.full_name) + '</span>' : '') +
+    (c.committee_id === cid ? ' <span class="ivc-tag">এই কমিটি</span>' : '') + '</li>';
+}
+
+function ivConflictHTML(d, cid) {
+  const list = d.conflicts || [];
+  const notes = [];
+  if (list.some(c => c.committee_id === cid && c.kind === 'invite'))
+    notes.push(['', 'এই কমিটিতে তাঁর আগের আমন্ত্রণটি নতুনটি পাঠালে বাতিল হয়ে যাবে — এক কমিটিতে একজন একটিই পদে থাকেন।']);
+  if (list.some(c => c.committee_id === cid && c.kind === 'application'))
+    notes.push(['', 'এই কমিটিতে তাঁর আবেদন আগে থেকেই আছে — এক কমিটিতে একজন একটিই পদে থাকতে পারেন।']);
+  if (d.multi) notes.push(d.can_override
+    ? ['', 'নিশ্চিত করলে তিনি একাধিক কমিটির পদে থাকবেন। সুপার অ্যাডমিন হিসেবে আপনি এটি অনুমোদন করতে পারেন।']
+    : ['ivc-stop', 'একজনকে একাধিক কমিটির পদে রাখতে পারেন কেবল সুপার অ্যাডমিন — তাই আমন্ত্রণটি পাঠানো যাবে না। প্রয়োজন হলে সুপার অ্যাডমিনকে দিয়ে পাঠান।']);
+  if (ivIsGeneral(cid) && list.some(c => c.kind === 'application' && c.status === 'approved' && c.committee_code !== 'general'))
+    notes.push(['', 'তিনি আগেই অন্য কমিটিতে অনুমোদিত — সাধারণ সদস্যপদের লিংকে তাঁকে শুধু নমিনির তথ্য দিতে হবে, বাকি তথ্য অনুমোদিত আবেদন থেকেই নেওয়া হবে।']);
+  const canGo = !d.multi || d.can_override;
+  return '<div class="ivc-head"><i class="ti ti-alert-triangle"></i> এই নম্বর/ই-মেইলে আগে থেকেই ' +
+      bnYear(list.length) + 'টি আমন্ত্রণ বা পদ আছে</div>' +
+    '<ul class="ivc-list">' + list.map(c => ivConflictLine(c, cid)).join('') + '</ul>' +
+    notes.map(n => '<div class="ivc-note ' + n[0] + '">' + esc(n[1]) + '</div>').join('') +
+    '<div class="ivc-acts">' +
+      (canGo ? '<button class="btn btn-primary btn-sm" onclick="ivConfirmPending()"><i class="ti ti-check"></i> জেনে-শুনে পাঠান</button>' : '') +
+      '<button class="btn btn-sm ivc-cancel" onclick="ivCancelPending()">বাতিল</button></div>';
+}
+
+function ivConfirmPending() {
+  if (_ivPending) createInvite(_ivPending.mode, true);
+}
+function ivCancelPending() {
+  _ivPending = null;
+  const m = document.getElementById('ivMsg');
+  if (m) { m.style.display = 'none'; m.classList.remove('iv-warn'); m.innerHTML = ''; }
+}
+
+async function createInvite(mode, confirmed) {
   const mob   = (document.getElementById('ivMob').value || '').trim();
   const email = (document.getElementById('ivEmail').value || '').trim().toLowerCase();
   const cid   = document.getElementById('ivCom').value;
@@ -5835,15 +5912,25 @@ async function createInvite(mode) {
   }
   if (!mob && !email) { ivMsg('err','মোবাইল নম্বর অথবা ই-মেইল — অন্তত একটি দিন।'); return; }
 
+  const payload = { committee_id: cid, position_id: pid || null,
+                    full_name: name, email: email || null, mobile: mob || null, note: note || null };
+  /* সতর্কবার্তা দেখার পর ঘর বদলালে আবার যাচাই — পুরনো নিশ্চিতকরণ নতুন তথ্যে চলে না */
+  const sig = JSON.stringify(payload);
+  const conf = !!confirmed && !!_ivPending && _ivPending.sig === sig && _ivPending.mode === mode;
+  _ivPending = null;
+
   const b = document.getElementById(mode === 'email' ? 'ivSendMail' : 'ivSend');
   const old = b.innerHTML;
   b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> তৈরি হচ্ছে…';
   try {
-    const r = await _db.rpc('admin_create_invite', { p: {
-      committee_id: cid, position_id: pid || null,
-      full_name: name, email: email || null, mobile: mob || null, note: note || null
-    }});
+    const r = await _db.rpc('admin_create_invite_checked', { p: payload, p_confirm: conf });
     if (r.error) throw r.error;
+    if (r.data && r.data.needs_confirm) {
+      ivMsg('warn', ivConflictHTML(r.data, cid));
+      _ivPending = { mode, sig };
+      b.disabled = false; b.innerHTML = old;
+      return;
+    }
 
     const c = _cstruct.filter(x => x.id === cid)[0] || {};
     const p = ((c.positions) || []).filter(x => x.id === pid)[0] || {};
@@ -5870,7 +5957,7 @@ async function createInvite(mode) {
     ['ivName','ivEmail','ivMob','ivNote'].forEach(id => document.getElementById(id).value = '');
     loadInvites(_ivFilter);
   } catch (e) {
-    ivMsg('err','ব্যর্থ: ' + esc((e && e.message) || 'আবার চেষ্টা করুন'));
+    ivMsg('err','ব্যর্থ: ' + esc(ivErrText(e)));
   }
   b.disabled = false; b.innerHTML = old;
 }
@@ -5987,23 +6074,47 @@ async function capMbInvite(mode) {
   if (ivPositionMissing(cid, pid)) return;
   const targets = mode === 'email' ? sel.filter(m => m.email) : sel;
   if (!targets.length) { ivMsg('err', 'নির্বাচিতদের কারও ই-মেইল ঠিকানা নেই।'); return; }
-  const q = mode === 'email'
-    ? bnYear(targets.length) + ' জনকে ই-মেইলে আমন্ত্রণ পাঠানো হবে। নিশ্চিত?'
-    : bnYear(targets.length) + ' জনের জন্য আমন্ত্রণ লিংক তৈরি হবে — কোনো বার্তা নিজে থেকে পাঠানো হবে না। নিশ্চিত?';
-  if (!confirm(q)) return;
+
+  /* আগে দেখে নেওয়া: কার নম্বর/ই-মেইলে আগে থেকেই আমন্ত্রণ বা পদ আছে */
+  ivMsg('info', 'আগের আমন্ত্রণ ও পদ মিলিয়ে দেখা হচ্ছে…');
+  const isSuper = !!(_adminInfo && _adminInfo.role === 'super_admin');
+  const genTarget = ivIsGeneral(cid);
+  const warn = [];
+  for (const m of targets) {
+    try {
+      const r = await _db.rpc('admin_contact_roles', { p_mobile: m.mobile || null, p_email: m.email || null });
+      const list = (!r.error && r.data) || [];
+      if (!list.length) continue;
+      const multi = !genTarget && list.some(c => c.committee_code !== 'general' && c.committee_id !== cid);
+      warn.push('• ' + (m.full_name || '—') + ': ' + list.map(c =>
+        (c.committee_name || '') + (c.position_title && c.committee_code !== 'general' ? ' · ' + c.position_title : '') +
+        ' (' + ((IV_CST[c.kind] || {})[c.status] || c.status) + ')').join('; ') +
+        (multi && !isSuper ? ' — একাধিক পদ: কেবল সুপার অ্যাডমিন পারেন, তাই বাদ যাবে' : ''));
+    } catch (e) {}
+  }
+  ivMsg('info', 'নিশ্চিতকরণের অপেক্ষায়…');
+  const q = (mode === 'email'
+    ? bnYear(targets.length) + ' জনকে ই-মেইলে আমন্ত্রণ পাঠানো হবে।'
+    : bnYear(targets.length) + ' জনের জন্য আমন্ত্রণ লিংক তৈরি হবে — কোনো বার্তা নিজে থেকে পাঠানো হবে না।') +
+    (warn.length ? '\n\n⚠ ' + bnYear(warn.length) + ' জনের আগে থেকেই আমন্ত্রণ বা পদ আছে:\n' +
+      warn.slice(0, 8).join('\n') + (warn.length > 8 ? '\n… আরও ' + bnYear(warn.length - 8) + ' জন' : '') +
+      '\n\nএকই কমিটির আগের আমন্ত্রণ বাতিল হয়ে নতুনটি যাবে।' : '') +
+    '\n\nনিশ্চিত?';
+  if (!confirm(q)) { ivMsg('info', 'আমন্ত্রণ পাঠানো হয়নি।'); return; }
 
   let ok = 0; const failed = [];
   for (let i = 0; i < targets.length; i++) {
     const m = targets[i];
     ivMsg('info', 'আমন্ত্রণ তৈরি হচ্ছে… (' + bnYear(i + 1) + '/' + bnYear(targets.length) + ')');
     try {
-      const r = await _db.rpc('admin_create_invite', { p: {
+      const r = await _db.rpc('admin_create_invite_checked', { p: {
         committee_id: cid, position_id: pid,
-        full_name: m.full_name || '', email: m.email || null, mobile: m.mobile || null, note: null } });
+        full_name: m.full_name || '', email: m.email || null, mobile: m.mobile || null, note: null },
+        p_confirm: true });
       if (r.error) throw r.error;
       if (mode === 'email') await capSendMail(r.data.id);
       ok++;
-    } catch (e) { failed.push((m.full_name || '—') + ': ' + ((e && e.message) || 'ব্যর্থ')); }
+    } catch (e) { failed.push((m.full_name || '—') + ': ' + ivErrText(e)); }
   }
   ivMsg(failed.length ? 'err' : 'ok',
     '<b>' + bnYear(ok) + ' জনের আমন্ত্রণ ' + (mode === 'email' ? 'ই-মেইলে পাঠানো হয়েছে' : 'তৈরি হয়েছে') + '।</b>' +

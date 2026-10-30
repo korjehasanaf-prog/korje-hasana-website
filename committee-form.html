@@ -284,6 +284,12 @@
       <div style="flex:1;min-width:170px" id="invTxt"></div>
     </div>
 
+    <!-- আগেই অন্য কমিটিতে অনুমোদিত হলে সাধারণ সদস্যপদের জন্য শুধু নমিনির তথ্য (৩০ অক্টোবর ২০২৬) -->
+    <div class="whobox hidden" id="nomOnlyBox">
+      <i class="ti ti-user-check"></i>
+      <div style="flex:1;min-width:170px" id="nomOnlyTxt"></div>
+    </div>
+
     <!-- লগইন প্রয়োজন (আমন্ত্রণ লিংক ছাড়া) -->
     <div id="authStep" class="hidden">
       <div class="msg info" style="display:block">
@@ -361,7 +367,8 @@
       <div class="fg"><label for="fAddr">বর্তমান ঠিকানা <span class="req">*</span></label><textarea id="fAddr"></textarea></div>
       <div class="fg"><label for="fPAddr">স্থায়ী ঠিকানা</label><textarea id="fPAddr"></textarea></div>
       <div class="grid2">
-        <div class="fg"><label for="fProp">প্রস্তাবকারীর নাম</label><input id="fProp"></div>
+        <div class="fg"><label for="fProp">প্রস্তাবকারীর নাম</label><input id="fProp">
+          <div class="upnote hidden" id="propNote">আমন্ত্রণ যিনি পাঠিয়েছেন, তাঁর নাম নিজে থেকেই বসানো হয়েছে।</div></div>
         <div class="fg"><label for="fSec">সমর্থনকারীর নাম</label><input id="fSec"></div>
       </div>
 
@@ -530,6 +537,9 @@
   var INV_TOKEN = Q.get('inv') || '';   /* অ্যাডমিনের পাঠানো আমন্ত্রণের টোকেন */
   var INVITE = null;
   var INV_APP = null;   /* আমন্ত্রণ লিংকে যুক্ত আগের/পুনরায় খোলা আবেদন (লগইন ছাড়া) */
+  var PROPOSER = '';    /* আমন্ত্রণকারী অ্যাডমিনের পদ + নাম (invite_proposer) */
+  var EXIST = null;     /* {found, committee_name, position_title} — আগেই অনুমোদিত কি না (invite_existing_member) */
+  var NOMONLY = false;  /* শুধু নমিনির তথ্য নেওয়ার অবস্থা */
   var DOCS = { photo:'', nid_front:'', nid_back:'', scan:'', nom_photo:'', nom_nid_front:'', nom_nid_back:'' };
   var BUCKET = { photo:'avatars', nid_front:'nid-docs', nid_back:'nid-docs', scan:'committee-docs',
                  nom_photo:'nid-docs', nom_nid_front:'nid-docs', nom_nid_back:'nid-docs' };
@@ -579,6 +589,52 @@
       if(d.full_name && el('fNameBn') && !el('fNameBn').value) el('fNameBn').value = d.full_name;
       el('lede').textContent = 'নিচের তথ্যগুলো পূরণ করে সম্মতিপত্রটি দাখিল করুন।';
     }catch(e){}
+  }
+
+  /* আমন্ত্রণের বাড়তি তথ্য — প্রস্তাবক ও আগের অনুমোদন।
+     ⚠️ ব্যক্তিগত কোনো তথ্য ব্রাউজারে আসে না: invite_existing_member কেবল কমিটি ও পদের নাম জানায়;
+     বাকি সব তথ্য ও নথি দাখিলের সময় সার্ভারেই আগের অনুমোদিত আবেদন থেকে কপি হয়। */
+  async function loadInviteExtras(){
+    if(!INVITE || !INV_TOKEN) return;
+    var a = null, b = null;
+    try{ a = await sb().rpc('invite_proposer', { p_token: INV_TOKEN }); }catch(e){}
+    try{ b = await sb().rpc('invite_existing_member', { p_token: INV_TOKEN }); }catch(e){}
+    PROPOSER = (a && a.data && a.data.proposer) || '';
+    EXIST = (b && b.data && b.data.found) ? b.data : null;
+  }
+  function paintProposer(){
+    var on = !!(INVITE && PROPOSER);
+    if(on) el('fProp').value = PROPOSER;
+    el('fProp').readOnly = on;
+    el('fProp').style.opacity = on ? '.85' : '';
+    el('propNote').classList.toggle('hidden', !on);
+  }
+  /* শুধু-নমিনি অবস্থায় যে অংশগুলো লুকানো থাকে — আগের অনুমোদিত আবেদন থেকেই আসে */
+  function personalEls(){
+    var out = [];
+    function up(id, sel){ var x = el(id); return x ? x.closest(sel) : null; }
+    ['fNameBn','fFather','fNid','fDob','fMob','fProp'].forEach(function(id){ out.push(up(id, '.grid2')); });
+    ['fAddr','fPAddr'].forEach(function(id){ out.push(up(id, '.fg')); });
+    ['flPhoto','flNidF','flNidB','flScan','btnSig'].forEach(function(id){ out.push(up(id, '.docside')); });
+    var d = up('flPhoto', '.docside'), h = d && d.previousElementSibling;   /* "সংযুক্তি" শিরোনাম (ইংরেজি পাতাতেও) */
+    if(h && h.tagName === 'H2') out.push(h);
+    return out.filter(Boolean);
+  }
+  function setNomOnly(on){
+    NOMONLY = !!on;
+    personalEls().forEach(function(x){ x.classList.toggle('hidden', NOMONLY); });
+    /* এ দুটি কেবল লুকানো হয় — খোলা হয় নিজের নিয়মে (লগইন থাকলে / মিল পেলে) */
+    if(NOMONLY){ el('whoBox').classList.add('hidden'); impShow(false); }
+    else if(ME) el('whoBox').classList.remove('hidden');
+    var box = el('nomOnlyBox');
+    box.classList.toggle('hidden', !NOMONLY);
+    if(NOMONLY && EXIST){
+      el('nomOnlyTxt').innerHTML = 'আপনি ইতিমধ্যে <b>' + esc(EXIST.committee_name || 'একটি কমিটি') + '</b>' +
+        (EXIST.position_title ? '-এর <b>' + esc(EXIST.position_title) + '</b> পদে' : '-তে') + ' অনুমোদিত। ' +
+        'তাই আপনার নাম, ঠিকানা, ছবি ও এনআইডি সেখান থেকেই নেওয়া হবে — সাধারণ সদস্যপদের জন্য ' +
+        '<b>শুধু নমিনির তথ্য ও নথি</b> দিয়ে দাখিল করুন।';
+    }
+    paintProgress();
   }
 
   /* আমন্ত্রণ থাকলে কমিটি ও পদবি বদলানো যাবে না */
@@ -784,6 +840,7 @@
     } else {
       await loadInviteApp(); applyInviteApp();
     }
+    paintProposer();
     paintProgress();
   }
 
@@ -806,7 +863,11 @@
     lockPick();
     paintHeading();
     paintEmailLock();
-    prefill(false).then(function(){ paintProgress(); impCheck(); });
+    prefill(false).then(function(){
+      paintProposer();
+      setNomOnly(!!(INVITE && EXIST && EXIST.found));
+      paintProgress(); impCheck();
+    });
   }
 
   async function prefill(force){
@@ -905,6 +966,7 @@
   if(_refill) _refill.onclick = async function(){
     var b = this; b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> আনা হচ্ছে…';
     await prefill(true);
+    paintProposer();
     paintProgress();
     b.disabled = false; b.innerHTML = '<i class="ti ti-refresh"></i> প্রোফাইল থেকে আবার আনুন';
   };
@@ -1246,6 +1308,7 @@
   }
   function impCheck(){
     if(!(ME || INVITE)) return;
+    if(NOMONLY) return;                     /* আগের অনুমোদিত আবেদন থেকেই সার্ভার নেয় */
     var em = v('fEml').toLowerCase(), mb = v('fMob').replace(/\D/g, '');
     var emOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em), mbOk = mb.length >= 10;
     if(!emOk && !mbOk) return;
@@ -1348,9 +1411,55 @@
   el('fEml').addEventListener('blur', impCheck);
   el('fMob').addEventListener('blur', impCheck);
 
+  /* ───────── দাখিল: শুধু নমিনির তথ্য (আগেই অনুমোদিত ব্যক্তির সাধারণ সদস্যপদ) ───────── */
+  async function submitNomOnly(b){
+    var need = [['fNomName','নমিনির নাম'],['fNomRel','নমিনির সম্পর্ক'],['fNomAge','নমিনির বয়স'],['fNomNid','নমিনির এনআইডি নম্বর']];
+    var miss = need.filter(function(n){ return !v(n[0]); }).map(function(n){ return n[1]; });
+    [[DOCS.nom_photo,'নমিনির ছবি'],[DOCS.nom_nid_front,'নমিনির এনআইডির সামনের পাতা'],
+     [DOCS.nom_nid_back,'নমিনির এনআইডির পিছনের পাতা']].forEach(function(d){ if(!d[0]) miss.push(d[1]); });
+    if(miss.length){ msg('fmMsg','err','পূরণ ও সংযুক্ত করুন: ' + miss.join(', ')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if(!(parseInt(v('fNomAge'), 10) > 0)){ msg('fmMsg','err','নমিনির বয়স সঠিকভাবে লিখুন।'); return; }
+    if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
+
+    b.disabled = true; b.innerHTML = '<i class="ti ti-loader-2"></i> দাখিল হচ্ছে…';
+    try{
+      var r = await sb().rpc('submit_general_from_existing', { p_token: INV_TOKEN, p: {
+        nominee_name: v('fNomName'), nominee_relation: v('fNomRel'),
+        nominee_age: parseInt(v('fNomAge'), 10) || null, nominee_nid: v('fNomNid'),
+        nominee_photo_url: DOCS.nom_photo, nominee_nid_front_url: DOCS.nom_nid_front,
+        nominee_nid_back_url: DOCS.nom_nid_back, declaration_accepted: true } });
+      if(r.error) throw r.error;
+      await refreshAfterSubmit();
+      msg('fmMsg','ok', '<b>সাধারণ সদস্যপদের আবেদন দাখিল হয়েছে।</b> আপনার অনুমোদিত তথ্য ও নমিনির তথ্য অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
+        (ME ? '<a href="my-dashboard.html" style="color:inherit;text-decoration:underline">ড্যাশবোর্ডে যান</a>'
+            : '<a href="index.html" style="color:inherit;text-decoration:underline">হোম পেজে যান</a>'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }catch(e){
+      var t = (e && e.message) || '';
+      if(/no approved membership found/.test(t)){
+        /* মাঝখানে আগের অনুমোদন বদলে গেলে — পুরো ফর্মে ফেরা */
+        EXIST = null; setNomOnly(false);
+        msg('fmMsg','err','আপনার আগের অনুমোদিত তথ্য পাওয়া যায়নি — নিচের পুরো ফর্মটি পূরণ করে দাখিল করুন।');
+      } else {
+        msg('fmMsg','err',
+          /applications closed/.test(t) ? 'এই কমিটির আবেদন গ্রহণ বন্ধ হয়ে গেছে।'
+        : /already approved/.test(t)    ? 'সাধারণ সদস্য হিসেবে আপনার আবেদন ইতিমধ্যে অনুমোদিত।'
+        : /invite cancelled/.test(t)    ? 'এই আমন্ত্রণটি বাতিল করা হয়েছে।'
+        : /invite expired/.test(t)      ? 'এই আমন্ত্রণ লিংকের মেয়াদ শেষ হয়ে গেছে — ফাউন্ডেশনের সাথে যোগাযোগ করুন।'
+        : /invite not found/.test(t)    ? 'আমন্ত্রণ লিংকটি সঠিক নয়।'
+        : /missing fields/.test(t) ? 'এই তথ্য/নথিগুলো বাকি আছে: ' + esc(t.replace(/^.*missing fields:\s*/, '').split(/[\s,]+/).filter(Boolean)
+              .map(function(k){ return MISS_LBL[k.replace(/_url$/, '')] || k; }).join(', '))
+        : /declaration required/.test(t) ? 'ঘোষণায় সম্মতি দিন।'
+        : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
+      }
+    }
+    b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
+  }
+
   /* ───────── দাখিল ───────── */
   el('btnSubmit').onclick = async function(){
     if(!ME && !INV_TOKEN){ msg('fmMsg','err','আবেদন করতে আগে লগইন করুন।'); return; }
+    if(NOMONLY && INV_TOKEN) return submitNomOnly(this);
     if(!el('fPos').value){ msg('fmMsg','err','পদবি বেছে নিন।'); return; }
     var nomNeed = needsNominee();   /* এই কমিটিতে/এই পদে নমিনি লাগবে কি না */
     var need = [['fNameBn','নাম (বাংলায়)'],['fEml','ই-মেইল ঠিকানা'],['fFather','পিতা / স্বামীর নাম'],
@@ -1459,6 +1568,7 @@
     var miss = [], done = 0, total = 0;
     ITEMS.forEach(function(it){
       if(it[3] && !it[3]()) return;          /* এই কমিটিতে প্রয়োজন নেই */
+      if(NOMONLY && !/^(nominee_|declaration$)/.test(it[0])) return;   /* বাকিটা আগের অনুমোদিত আবেদন থেকে */
       total++;
       if(it[2]()) done++; else miss.push(it[1]);
     });
@@ -1548,6 +1658,7 @@
     await refreshSession();
     if(ME) await loadMyApps();
     await loadInvite();
+    if(INVITE) await loadInviteExtras();
     if(!ME && INVITE) await loadInviteApp();
     await loadStructure();
     lockPick();
