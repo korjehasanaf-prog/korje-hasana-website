@@ -343,6 +343,93 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
 #ivMsg.iv-warn .ivc-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 #ivMsg.iv-warn .ivc-cancel{background:#4a3a1a;color:#fde9b8;border:1px solid #8a6a2a}
 
+/* ── কমিটির তালিকা (৩১ অক্টোবর ২০২৬) ──
+   ⚠️ সব রঙ এই প্যানেলের নিজস্ব ভ্যারিয়েবলে — ডার্ক ও লাইট দুই থীমের জন্য আলাদা মান।
+   স্ট্যাটাস-পিল, বোতাম ও সংখ্যার টাইল নিজের পটভূমি বহন করে, তাই দুই থীমে এক। */
+html[data-theme="light"] .panel-title{color:#241539}
+html[data-theme="light"] .panel-sub{color:#5f566f}
+#panel-committee-roster{--cr-card:#131b2c;--cr-card2:#0e1524;--cr-line:rgba(255,255,255,.09);--cr-dash:rgba(255,255,255,.24);
+  --cr-ink:#f1f5f9;--cr-mute:#a9b4c6;--cr-chip:#1d2741;--cr-chip-ink:#dfe6f3;--cr-in:#0e1524}
+html[data-theme="light"] #panel-committee-roster{--cr-card:#ffffff;--cr-card2:#faf7fd;--cr-line:#e6def0;--cr-dash:#c9bcdc;
+  --cr-ink:#241539;--cr-mute:#5f566f;--cr-chip:#f1ecf9;--cr-chip-ink:#3b2568;--cr-in:#ffffff}
+.cr-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.cr-stat{border-radius:14px;padding:14px 16px;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.16)}
+.cr-stat b{display:block;font-size:25px;font-weight:700;line-height:1.25;color:#fff}
+.cr-stat span{font-size:12.5px;color:#fff;display:flex;gap:6px;align-items:center}
+.cr-s1{background:linear-gradient(135deg,#3b2568,#6d4ad6)}
+.cr-s2{background:linear-gradient(135deg,#0b5e49,#11805f)}
+.cr-s3{background:linear-gradient(135deg,#8a3d05,#b45309)}
+.cr-s4{background:linear-gradient(135deg,#334155,#4b5b72)}
+.cr-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.cr-search{flex:1 1 240px;max-width:380px;position:relative;display:block}
+.cr-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--cr-mute);font-size:16px;pointer-events:none}
+.cr-search input{width:100%;min-height:40px;padding:8px 12px 8px 36px;border-radius:10px;border:1px solid var(--cr-line);
+  background:var(--cr-in);color:var(--cr-ink);font:14px 'Hind Siliguri','Inter',sans-serif;outline:none}
+.cr-search input:focus{border-color:#7048e8;box-shadow:0 0 0 3px rgba(112,72,232,.25)}
+.cr-search input::placeholder{color:var(--cr-mute)}
+.cr-seg{display:inline-flex;border:1px solid var(--cr-line);border-radius:10px;overflow:hidden;background:var(--cr-card)}
+.cr-seg button{background:transparent;border:0;color:var(--cr-chip-ink);padding:8px 14px;font:600 13px 'Hind Siliguri',sans-serif;cursor:pointer;min-height:40px}
+.cr-seg button+button{border-left:1px solid var(--cr-line)}
+.cr-seg button.on{background:#5b3fc4;color:#fff}
+.cr-sp{flex:1}
+.cr-lh{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--cr-mute);cursor:pointer}
+.cr-lh input{accent-color:#7048e8;width:16px;height:16px}
+.cr-btn2{background:var(--cr-chip);color:var(--cr-chip-ink);border:1px solid var(--cr-line);border-radius:10px;padding:8px 14px;
+  font:600 13px 'Hind Siliguri',sans-serif;cursor:pointer;display:inline-flex;gap:6px;align-items:center;min-height:40px}
+.cr-btn2:hover{border-color:#7048e8}
+.cr-sel{appearance:auto;padding-right:10px;max-width:100%}
+.cr-sel option{background:#fff;color:#241539}
+.cr-sigask{border:0;cursor:pointer;font-family:'Hind Siliguri',sans-serif;min-height:24px}
+.cr-sigask:hover{background:#cbd5e1}
+.cr-sigask:focus-visible{outline:2px solid #f08c28;outline-offset:2px}
+.cr-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.cr-chip{border:1px solid var(--cr-line);background:var(--cr-chip);color:var(--cr-chip-ink);border-radius:20px;padding:6px 13px;
+  font:600 12.5px 'Hind Siliguri',sans-serif;cursor:pointer;display:inline-flex;gap:7px;align-items:center;min-height:36px}
+.cr-chip em{font-style:normal;font-size:11.5px;font-weight:700;background:var(--cr-card2);color:var(--cr-chip-ink);border-radius:10px;padding:1px 7px}
+.cr-chip.on{background:#5b3fc4;border-color:#5b3fc4;color:#fff}
+.cr-chip.on em{background:rgba(255,255,255,.2);color:#fff}
+.cr-com{background:var(--cr-card);border:1px solid var(--cr-line);border-radius:16px;margin-bottom:18px;overflow:hidden}
+.cr-com-h{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 18px 16px 22px;border-bottom:1px solid var(--cr-line);position:relative}
+.cr-com-h::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,#d6336c,#7048e8)}
+.cr-com-t{flex:1;min-width:200px}
+.cr-com-t h3{margin:0;font-size:17px;font-weight:700;color:var(--cr-ink);font-family:'Hind Siliguri',sans-serif}
+.cr-com-t .en{font-size:12.5px;color:var(--cr-mute)}
+.cr-meter{min-width:190px}
+.cr-meter .lbl{font-size:12.5px;color:var(--cr-mute);display:flex;justify-content:space-between;gap:12px}
+.cr-meter .lbl b{color:var(--cr-ink)}
+.cr-bar{height:7px;border-radius:10px;background:var(--cr-chip);overflow:hidden;margin-top:5px}
+.cr-bar i{display:block;height:100%;background:linear-gradient(90deg,#11805f,#22c55e)}
+.cr-pos{display:grid;grid-template-columns:minmax(190px,250px) minmax(0,1fr);gap:14px;padding:14px 18px 14px 22px;border-top:1px solid var(--cr-line)}
+.cr-com-h + .cr-pos{border-top:0}
+.cr-pt{font-size:14.5px;font-weight:700;color:var(--cr-ink)}
+.cr-pe{font-size:12px;color:var(--cr-mute)}
+.cr-ps{font-size:12px;color:var(--cr-mute);margin-top:5px}
+.cr-ms{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;min-width:0}
+.cr-m{display:flex;gap:11px;align-items:center;background:var(--cr-card2);border:1px solid var(--cr-line);border-radius:12px;padding:10px 12px;min-width:0}
+.cr-av{position:relative;width:46px;height:46px;border-radius:50%;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,#5b3fc4,#b02a80);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px}
+.cr-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .25s}
+.cr-av img.ld{opacity:1}
+.cr-mi{flex:1;min-width:0}
+.cr-mn{font-size:14px;font-weight:700;color:var(--cr-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cr-mm{display:flex;gap:7px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--cr-mute);margin-top:3px}
+.cr-pbtn{flex-shrink:0;background:#5b3fc4;color:#fff;border:0;border-radius:9px;padding:7px 12px;font:600 12.5px 'Hind Siliguri',sans-serif;
+  cursor:pointer;display:inline-flex;gap:5px;align-items:center;min-height:36px}
+.cr-pbtn:hover{background:#4a2fae}
+.cr-pbtn:focus-visible,.cr-chip:focus-visible,.cr-seg button:focus-visible,.cr-btn2:focus-visible{outline:2px solid #f08c28;outline-offset:2px}
+.cr-vac{display:flex;align-items:center;justify-content:center;gap:7px;border:1.5px dashed var(--cr-dash);border-radius:12px;padding:10px 12px;
+  color:var(--cr-mute);font-size:12.5px;min-height:56px;text-align:center}
+.cr-none{padding:30px 18px;text-align:center;color:var(--cr-mute);font-size:13.5px}
+.cr-foot{font-size:12px;color:var(--cr-mute);line-height:1.7;margin-top:4px}
+@media(max-width:820px){
+  .cr-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cr-pos{grid-template-columns:1fr;gap:10px;padding:14px 14px 14px 18px}
+  .cr-com-h{padding:14px 14px 14px 18px}
+  .cr-ms{grid-template-columns:1fr}
+  .cr-sp{display:none}
+  .cr-search{max-width:none}
+}
+
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   :root{--sb-w:220px}
@@ -443,6 +530,9 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
 
       <div class="sb-section">কমিটি</div>
+      <div class="sb-item" id="mi-committee-roster" onclick="switchPanel('committee-roster')">
+        <i class="ti ti-list-details"></i> কমিটির তালিকা
+      </div>
       <div class="sb-item" id="mi-committee-apps" onclick="switchPanel('committee-apps')">
         <i class="ti ti-writing-sign"></i> সম্মতিপত্র আবেদন
         <span class="sb-badge" id="badge-committee">0</span>
@@ -1398,6 +1488,33 @@ tbody td{padding:11px 14px;font-size:13.5px;color:var(--text);font-family:'Hind 
       </div>
 
       <!-- ══════ কমিটি: সম্মতিপত্র আবেদন ══════ -->
+      <!-- ══════ কমিটির তালিকা (৩১ অক্টোবর ২০২৬) ══════ -->
+      <div class="panel" id="panel-committee-roster">
+        <div class="panel-title">👥 কমিটির তালিকা</div>
+        <div class="panel-sub">প্রতিটি কমিটির পদ, অনুমোদিত সদস্য ও অপেক্ষমাণ আবেদন এক জায়গায় — "প্রোফাইল" চাপলে ছবি ও এনআইডিসহ পূর্ণ তথ্য</div>
+        <div class="cr-stats" id="crStats"></div>
+        <div class="cr-tools">
+          <label class="cr-search"><i class="ti ti-search"></i>
+            <input id="crQ" type="search" placeholder="নাম, মোবাইল বা সদস্য কোড দিয়ে খুঁজুন" aria-label="সদস্য খুঁজুন" oninput="crSetQ(this.value)"></label>
+          <div class="cr-seg" role="group" aria-label="অবস্থা অনুযায়ী দেখুন">
+            <button type="button" class="on" data-st="" onclick="crSetSt('',this)">সব</button>
+            <button type="button" data-st="approved" onclick="crSetSt('approved',this)">অনুমোদিত</button>
+            <button type="button" data-st="pending" onclick="crSetSt('pending',this)">অপেক্ষমাণ</button>
+          </div>
+          <button type="button" class="cr-btn2" onclick="crSigLinks(null)"><i class="ti ti-send"></i> স্বাক্ষর বাকি — লিংক পাঠান</button>
+          <span class="cr-sp"></span>
+          <label class="cr-lh"><input type="checkbox" id="crLh" checked> লেটারহেডসহ</label>
+          <select id="crPk" class="cr-btn2 cr-sel" aria-label="কী ছাপবেন">
+            <option value="committee">সদস্য তালিকা (শূন্য আসনসহ)</option>
+            <option value="minutes">কার্যবিবরণীর জন্য — স্বাক্ষরসহ</option>
+          </select>
+          <button type="button" class="cr-btn2" onclick="crPrint('')"><i class="ti ti-printer"></i> A4-এ ছাপুন</button>
+        </div>
+        <div class="cr-chips" id="crChips" role="group" aria-label="কমিটি বাছাই"></div>
+        <div id="crBody"></div>
+        <div class="cr-foot">ছাপানো তালিকায় কেবল অনুমোদিত সদস্য থাকেন — এনআইডির নম্বর বা ছবি ছাপা হয় না। "কার্যবিবরণীর জন্য" ধরনে প্রত্যেকের ডিজিটাল স্বাক্ষর বসে; না থাকলে ঘরটি হাতে স্বাক্ষরের জন্য ফাঁকা থাকে। প্রোফাইল ও নথি কেবল অ্যাডমিন দেখতে পারেন।</div>
+      </div>
+
       <div class="panel" id="panel-committee-apps">
         <div class="panel-title">✍️ কমিটির সম্মতিপত্র আবেদন</div>
         <div class="panel-sub">প্রার্থীদের দাখিলকৃত সম্মতিপত্র যাচাই, অনুমোদন ও সংযুক্তি পরীক্ষা</div>
@@ -1667,6 +1784,7 @@ const PANEL_TITLES = {
   'log':'অনুমোদন লগ', 'admin-mgmt':'এডমিন ব্যবস্থাপনা',
   'prod-savings':'আমানত (সঞ্চয়) ড্যাশবোর্ড', 'prod-loans':'ঋণ ড্যাশবোর্ড', 'prod-donations':'দান ড্যাশবোর্ড',
   'settings':'জেনারেল সেটিংস', 'reminders':'বকেয়া রিমাইন্ডার',
+  'committee-roster':'কমিটির তালিকা',
   'committee-apps':'কমিটির সম্মতিপত্র আবেদন', 'committee-mgmt':'কমিটি ব্যবস্থাপনা',
   'users':'ব্যবহারকারী ও প্রোফাইল', 'committee-invite':'কমিটির আমন্ত্রণ',
   'general-members':'সাধারণ সদস্য',
@@ -1744,6 +1862,7 @@ function switchPanel(name) {
   if (name === 'statements') stmInit();
   if (name === 'chat-kb') loadKB();
   if (name === 'reminders') loadReminders();
+  if (name === 'committee-roster') loadCommitteeRoster();
   if (name === 'committee-apps') loadCommitteeApps('pending');
   if (name === 'committee-mgmt') loadCommitteeMgmt();
   if (name === 'users') loadUsersList('');
@@ -4315,7 +4434,8 @@ function closeMemberDigital() {
 /* আমন্ত্রণ লিংকে (লগইন ছাড়া) তোলা সব নথি — ছবি, এনআইডি, স্ক্যান — থাকে committee-docs/invite/<token>/ ঘরে,
    কলাম যে বাকেটের কথাই বলুক (ছবি "avatars", এনআইডি "nid-docs")। ভুল বাকেটে খুঁজলে "Object not found"। */
 function docBucket(path, bucket) {
-  return /^invite\//.test(path || '') ? 'committee-docs' : bucket;
+  /* আমন্ত্রণ (invite/) ও "শুধু স্বাক্ষর" লিংকের (sig/) নথি committee-docs-এ */
+  return /^(invite|sig)\//.test(path || '') ? 'committee-docs' : bucket;
 }
 async function digiDocUrl(path, bucket) {
   if (!path) return null;
@@ -5105,7 +5225,7 @@ const capMiss = { name_bn:'নাম', father_name:'পিতা/স্বাম
   photo:'ছবি', nid_front:'এনআইডি সামনে', nid_back:'এনআইডি পিছনে', nominee_name:'নমিনির নাম',
   nominee_relation:'নমিনির সম্পর্ক', nominee_age:'নমিনির বয়স', nominee_nid:'নমিনির এনআইডি', nominee_photo:'নমিনির ছবি',
   nominee_nid_front:'নমিনি এনআইডি সামনে', nominee_nid_back:'নমিনি এনআইডি পিছনে', declaration:'ঘোষণায় সম্মতি',
-  email:'ই-মেইল', email_verified:'ইমেইল ভেরিফিকেশন' };
+  email:'ই-মেইল', email_verified:'ইমেইল ভেরিফিকেশন', signature:'ই-সিগনেচার' };
 
 function capSafe(s) { return String(s == null ? '' : s).replace(/[\\\/:*?"<>|\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim(); }
 
@@ -5281,6 +5401,7 @@ async function loadCommitteeApps(status, btn) {
           ? '<span class="badge" style="background:rgba(112,72,232,.22)">সাধারণ সদস্য</span>' : ''}
         ${capCompBadge(a.completion)}
         ${capStatusBadges(a)}
+        <button class="cr-pbtn" onclick="crProfile('${esc(a.id)}')"><i class="ti ti-id-badge-2"></i> প্রোফাইল</button>
       </div>
       ${capCompBar(a.completion)}
       ${capAccountRow(a)}
@@ -5327,9 +5448,13 @@ async function loadCommitteeApps(status, btn) {
 }
 
 /* ── ছাপানো তালিকা: লেটারহেড সহ (অথবা প্যাডে ছাপতে লেটারহেড ছাড়া) ── */
-async function capPrintLists(kind, lhOverride) {
+async function capPrintLists(kind, lhOverride, onlyCid) {
   const lhEl = document.getElementById('capLh');
   const lh = typeof lhOverride === 'boolean' ? lhOverride : (lhEl ? lhEl.checked : true);
+  /* জানালা আগেই খোলা হয় — স্বাক্ষরের লিংক আনতে সময় লাগলেও ব্রাউজার পপ-আপ আটকাবে না */
+  const w = window.open('', '_blank');
+  if (!w) { alert('পপ-আপ বন্ধ আছে — ছাপানোর পৃষ্ঠা খোলার অনুমতি দিন।'); return; }
+  try { w.document.write('<p style="font-family:sans-serif;padding:24px">তালিকা তৈরি হচ্ছে…</p>'); } catch (e) {}
   let list = [];
   try {
     /* সাধারণ সদস্য = অনুমোদিত সাধারণ সদস্য + কার্যনির্বাহী কমিটির অনুমোদিত সদস্য (সার্ভারে একজন একবারই) */
@@ -5338,28 +5463,94 @@ async function capPrintLists(kind, lhOverride) {
       : await _db.rpc('admin_committee_applications', { p_status: 'approved' });
     if (r.error) throw r.error;
     list = r.data || [];
-  } catch (e) { alert('তালিকা আনা যায়নি: ' + gmErrText(e)); return; }
+  } catch (e) { try { w.close(); } catch (e2) {} alert('তালিকা আনা যায়নি: ' + gmErrText(e)); return; }
   if (!_cstruct.length) {
     try { const r = await _db.rpc('get_committee_structure'); if (!r.error) _cstruct = r.data || []; } catch (e) {}
   }
   const today = new Date().toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
   const cells = function (arr) { return '<tr>' + arr.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; };
-  let title = '', body = '';
+  let title = '', body = '', subExtra = '', subMain = 'অনুমোদিত সদস্যদের তথ্য', tail = '', note = '';
 
   if (kind === 'committee') {
-    title = 'কার্যনির্বাহী কমিটির তালিকা';
-    body = _cstruct.filter(function (c) { return c.code !== 'general'; }).map(function (c) {
-      const rows = (c.positions || []).map(function (p, i) {
-        const a = list.filter(function (x) { return x.committee_id === c.id && x.position_id === p.id; })[0];
-        return cells([bnYear(i + 1), esc(p.title_bn) + (p.title_en ? '<br><span style="font-size:9px;color:#4a4458">' + esc(p.title_en) + '</span>' : ''),
-          a ? esc(a.name_bn || a.name_en || '') : '<i>শূন্য</i>',
-          a ? esc(a.father_name || '') : '', a ? esc(a.mobile || '') : '', a ? esc(a.present_address || '') : '']);
+    /* সব কমিটি (সাধারণ সদস্য বাদে), অথবা কেবল একটি (কমিটির তালিকা প্যানেল থেকে) */
+    /* ⚠️ একটি পদে একাধিক আসন থাকতে পারে (যেমন "উপদেষ্টা" ১০ জন) — তাই পদের সব অনুমোদিত
+       জনকেই ছাপা হয়, অনুমোদনের ক্রমে। আগে …[0] দিয়ে কেবল একজন (সর্বশেষ) ছাপা হত। */
+    const when = function (a) { return String(a.reviewed_at || a.updated_at || a.submitted_at || ''); };
+    const posCell = function (p) {
+      return '<b>' + esc(p.title_bn) + '</b>' + (p.title_en ? '<br><span class="pen">' + esc(p.title_en) + '</span>' : '');
+    };
+    const coms = _cstruct.filter(function (c) { return c.code !== 'general' && (!onlyCid || c.id === onlyCid); })
+      .slice().sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+    title = onlyCid && coms[0] ? esc(coms[0].name_bn) + ' — সদস্য তালিকা' : 'কমিটির তালিকা';
+    let allOk = 0, allSeats = 0;
+    body = coms.map(function (c) {
+      let n = 0, okC = 0, seatsC = 0;
+      const rows = (c.positions || []).map(function (p) {
+        const seats = Math.max(1, parseInt(p.seats, 10) || 1);
+        const hs = list.filter(function (x) { return x.committee_id === c.id && x.position_id === p.id; })
+          .sort(function (a, b) { return when(a) < when(b) ? -1 : when(a) > when(b) ? 1 : 0; });
+        okC += hs.length; seatsC += seats;
+        let out = hs.map(function (a) {
+          return '<tr><td class="n">' + bnYear(++n) + '</td><td>' + posCell(p) + '</td><td><b>' + esc(a.name_bn || a.name_en || '') + '</b></td>' +
+            '<td>' + esc(a.father_name || '') + '</td><td>' + esc(a.mobile || '') + '</td><td>' + esc(a.present_address || '') + '</td></tr>';
+        }).join('');
+        const left = seats - hs.length;
+        if (left > 0) out += '<tr class="vac"><td class="n">' + bnYear(++n) + '</td><td>' + posCell(p) + '</td>' +
+          '<td colspan="4">শূন্য' + (seats > 1 ? ' — ' + (hs.length ? 'আরও ' : '') + bnYear(left) + 'টি আসন' : '') + '</td></tr>';
+        return out;
       }).join('');
-      return '<div class="sec">' + esc(c.name_bn) + '</div>' +
-        '<table><thead><tr><th style="width:8%">ক্রমিক</th><th style="width:19%">পদবি</th><th style="width:20%">নাম</th>' +
-        '<th style="width:19%">পিতা / স্বামীর নাম</th><th style="width:13%">মোবাইল</th><th>বর্তমান ঠিকানা</th></tr></thead>' +
+      allOk += okC; allSeats += seatsC;
+      return '<div class="sec csec"><div><b>' + esc(c.name_bn) + '</b>' + (c.name_en ? '<span class="secen">' + esc(c.name_en) + '</span>' : '') +
+        '</div><div class="secn">অনুমোদিত ' + bnYear(okC) + ' / ' + bnYear(seatsC) + ' আসন</div></div>' +
+        '<table class="ct"><thead><tr><th style="width:7%">ক্রমিক</th><th style="width:22%">পদবি</th><th style="width:19%">নাম</th>' +
+        '<th style="width:18%">পিতা / স্বামীর নাম</th><th style="width:13%">মোবাইল</th><th>বর্তমান ঠিকানা</th></tr></thead>' +
         '<tbody>' + rows + '</tbody></table>';
     }).join('');
+    subExtra = ' · ' + bnYear(allOk) + ' জন (মোট আসন ' + bnYear(allSeats) + ')';
+  } else if (kind === 'minutes') {
+    /* ── সভার কার্যবিবরণীর সংযুক্তি: সদস্য তালিকা ও স্বাক্ষর (৩১ অক্টোবর ২০২৬) ──
+       কেবল অনুমোদিত সদস্য (শূন্য আসন বাদ); স্বাক্ষর = আবেদনের, না থাকলে প্রোফাইলের।
+       ডিজিটাল স্বাক্ষর না থাকলে ঘরটি ফাঁকা — হাতে স্বাক্ষরের জন্য। */
+    const when = function (a) { return String(a.reviewed_at || a.updated_at || a.submitted_at || ''); };
+    const posCell = function (p) {
+      return '<b>' + esc(p.title_bn) + '</b>' + (p.title_en ? '<br><span class="pen">' + esc(p.title_en) + '</span>' : '');
+    };
+    const coms = _cstruct.filter(function (c) { return c.code !== 'general' && (!onlyCid || c.id === onlyCid); })
+      .slice().sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+    title = onlyCid && coms[0] ? esc(coms[0].name_bn) + ' — সদস্য তালিকা ও স্বাক্ষর' : 'কমিটির সদস্য তালিকা ও স্বাক্ষর';
+    subMain = 'সভার কার্যবিবরণীর সংযুক্তি';
+    const sigOf = function (a) { return a.signature_url || a.profile_signature || ''; };
+    const urls = {};
+    await Promise.all(list.filter(sigOf).map(function (a) {
+      return crDocUrl(sigOf(a), 'signatures').then(function (u) { urls[a.id] = u; });
+    }));
+    let total = 0, signed = 0;
+    body = '<div class="meet">সভা: <span class="fill" contenteditable="true">প্রথম সভা</span>' +
+      '&nbsp;&nbsp; তারিখ: <span class="fill" contenteditable="true"></span>' +
+      '&nbsp;&nbsp; স্থান: <span class="fill wide" contenteditable="true"></span></div>' +
+      coms.map(function (c) {
+        let n = 0;
+        const rows = (c.positions || []).map(function (p) {
+          return list.filter(function (x) { return x.committee_id === c.id && x.position_id === p.id; })
+            .sort(function (a, b) { return when(a) < when(b) ? -1 : when(a) > when(b) ? 1 : 0; })
+            .map(function (a) {
+              const u = urls[a.id]; total++; if (u) signed++;
+              return '<tr><td class="n">' + bnYear(++n) + '</td><td>' + posCell(p) + '</td><td><b>' + esc(a.name_bn || a.name_en || '') + '</b></td>' +
+                '<td>' + esc(a.mobile || '') + '</td><td class="sg">' + (u ? '<img src="' + esc(u) + '" alt="স্বাক্ষর">' : '') + '</td></tr>';
+            }).join('');
+        }).join('');
+        if (!n) return '';
+        return '<div class="sec csec"><div><b>' + esc(c.name_bn) + '</b>' + (c.name_en ? '<span class="secen">' + esc(c.name_en) + '</span>' : '') +
+          '</div><div class="secn">সদস্য ' + bnYear(n) + ' জন</div></div>' +
+          '<table class="ct mt"><thead><tr><th style="width:7%">ক্রমিক</th><th style="width:25%">পদবি</th><th style="width:27%">নাম</th>' +
+          '<th style="width:14%">মোবাইল</th><th>স্বাক্ষর</th></tr></thead><tbody>' + rows + '</tbody></table>';
+      }).join('');
+    if (!total) body += '<div class="tot" style="text-align:center">কোনো অনুমোদিত সদস্য নেই।</div>';
+    subExtra = ' · সদস্য ' + bnYear(total) + ' জন';
+    tail = '<div class="att"><div><span></span>সভাপতি / আহ্বায়ক</div><div><span></span>সাধারণ সম্পাদক / সদস্য সচিব</div></div>';
+    note = (total - signed)
+      ? bnYear(total - signed) + ' জনের ডিজিটাল স্বাক্ষর নেই — তাঁদের ঘর ফাঁকা থাকবে, হাতে স্বাক্ষর করা যাবে।'
+      : 'সবার ডিজিটাল স্বাক্ষর আছে।';
   } else {
     title = 'সাধারণ সদস্যদের তালিকা';
     const gen = list;   /* সার্ভার থেকেই সদস্য হওয়ার তারিখ অনুযায়ী সাজানো */
@@ -5384,9 +5575,25 @@ async function capPrintLists(kind, lhOverride) {
       '<div class="r">কার্যালয়: খলিলপুর বাজার, ফরিদপুর সদর, ফরিদপুর<br>ফোন: +880 171515952 · ইমেইল: info@korjehasana.org</div></div>'
     : '';
   const css = [
-    '@page{size:A4;margin:12mm 14mm 14mm}',
+    /* A4 পোর্ট্রেট — ছাপার মার্জিন @page-এ; পর্দায় একই মাপের সাদা পাতা (.sheet) */
+    '@page{size:A4 portrait;margin:12mm 12mm 14mm;@bottom-center{content:"পৃষ্ঠা " counter(page) " / " counter(pages);font-size:8.5px;color:#777}}',
+    'html{background:#e9e6ef}',
+    '.sheet{background:#fff;width:210mm;min-height:297mm;margin:0 auto 10mm;padding:12mm 12mm 14mm;box-shadow:0 6px 30px rgba(40,20,70,.18)}',
+    '.bar{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:10px 14px;margin-bottom:8mm;background:#241539;color:#fff;font-size:13px}',
+    '.bar .k{background:#fff;color:#241539;border-radius:6px;padding:2px 8px;font-weight:700}.bar .t{color:#e4dafa}',
+    '.bar button{background:linear-gradient(112deg,#0d6e56,#1d9e75);color:#fff;border:none;border-radius:9px;padding:9px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}',
+    '@media screen and (max-width:820px){.sheet{width:auto;min-height:0;padding:14px}}',
+    '@media print{html{background:#fff}.sheet{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}}',
+    /* কার্যবিবরণীর সংযুক্তি */
+    '.meet{margin:2px 0 6px;font-size:12px;text-align:center}',
+    '.fill{display:inline-block;min-width:34mm;border-bottom:1px dotted #444;padding:0 4px;outline:none;text-align:left}',
+    '.fill.wide{min-width:58mm}.fill:focus{background:#fff8e6}',
+    '.mt td{vertical-align:middle}.mt td.sg{height:16mm;padding:2px 6px;text-align:center}',
+    '.mt td.sg img{max-height:13mm;max-width:100%;display:block;margin:0 auto}',
+    '.att{display:flex;justify-content:space-between;gap:24mm;margin-top:24mm;break-inside:avoid}',
+    '.att div{flex:1;text-align:center;font-size:11.5px}.att span{display:block;border-top:1px solid #333;margin-bottom:5px}',
     '*{box-sizing:border-box}',
-    'body{font-family:"Hind Siliguri",Arial,sans-serif;color:#1a1a1a;font-size:11.5px;margin:0;padding:0}',
+    'body{font-family:"Hind Siliguri",Arial,sans-serif;color:#1a1a1a;font-size:11.5px;margin:0;padding:0;background:transparent}',
     '.lh{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #F0A428;padding-bottom:8px;margin-bottom:12px}',
     '.lh .l{display:flex;align-items:center;gap:10px}.lh img{width:62px;height:62px}',
     '.lh .n{font-size:17px;font-weight:700;color:#3B2560}.lh .en{font-size:10px;font-weight:700;color:#3B2560;font-family:Arial}',
@@ -5394,25 +5601,517 @@ async function capPrintLists(kind, lhOverride) {
     'h1{font-size:15px;text-align:center;color:#3B2560;margin:6px 0 2px}',
     '.sub{text-align:center;font-size:10.5px;color:#666;margin-bottom:10px}',
     '.sec{font-size:12.5px;font-weight:700;color:#3B2560;margin:12px 0 5px}',
+    /* কমিটির তালিকা: কমিটির নামের গাঢ় পট্টি, পদবির ইংরেজি, শূন্য সারি */
+    '.ct{margin-bottom:6px}',
+    '.csec{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:16px 0 0;padding:7px 10px;' +
+      'background:#3B2560;color:#fff;border-radius:6px 6px 0 0;break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+    '.sec b{font-size:13px}.secen{font-size:10px;margin-left:8px;font-family:Arial;font-weight:400}.secn{font-size:10.5px;font-weight:600}',
+    '.ct td.n{text-align:center}.ct .pen{font-size:9px;color:#4a4458;font-family:Arial}',
+    '.ct tbody tr:nth-child(even) td{background:#faf8fc;-webkit-print-color-adjust:exact;print-color-adjust:exact}',
+    '.ct tr.vac td{color:#5f566f;font-style:italic}.ct tr.vac td b{font-style:normal}',
+    'th{-webkit-print-color-adjust:exact;print-color-adjust:exact}',
     'table{width:100%;border-collapse:collapse}',
     'th,td{border:1px solid #9b8fb3;padding:4px 6px;vertical-align:top;text-align:left}',
     'th{background:#ECE8F4;font-weight:700}',
     'tr{page-break-inside:avoid}thead{display:table-header-group}',
     '.tot{margin-top:8px;font-weight:700;text-align:right}',
-    '.noprint{text-align:center;margin-top:12px}',
-    '@media print{.noprint{display:none}}'
+    '@media print{.noprint{display:none!important}}'
   ].join('');
   const html = '<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>' + title + '</title>' +
     '<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
-    '<style>' + css + '</style></head><body>' + head +
-    '<h1>' + title + '</h1><div class="sub">অনুমোদিত সদস্যদের তথ্য · মুদ্রণের তারিখ: ' + today + '</div>' +
-    body +
-    '<div class="noprint"><button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);' +
-    'color:#fff;border:none;border-radius:9px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">প্রিন্ট / PDF সংরক্ষণ</button></div>' +
-    '</body></html>';
+    '<style>' + css + '</style></head><body>' +
+    '<div class="bar noprint"><span class="k">A4 · পোর্ট্রেট</span>' +
+    (note ? '<span class="t">' + esc(note) + '</span>' : '') +
+    (kind === 'minutes' ? '<span class="t">সভা, তারিখ ও স্থানের ঘরে চাপ দিয়ে লিখতে পারবেন।</span>' : '') +
+    '<button onclick="window.print()">প্রিন্ট / PDF সংরক্ষণ</button></div>' +
+    '<div class="sheet">' + head +
+    '<h1>' + title + '</h1><div class="sub">' + subMain + subExtra + ' · মুদ্রণের তারিখ: ' + today + '</div>' +
+    body + tail + '</div></body></html>';
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+/* ════════════════════════════════════════
+   কমিটির তালিকা — কমিটি → পদ → সদস্য (অনুমোদিত ও অপেক্ষমাণ) + প্রোফাইল (৩১ অক্টোবর ২০২৬)
+   ⚠️ ছবি ও এনআইডি কেবল অ্যাডমিন দেখেন: তথ্য আসে admin_committee_applications (ভেতরে is_admin) থেকে,
+   নথি সাময়িক signed URL দিয়ে (স্টোরেজ নীতি: মালিক বা is_admin)। কোনো নতুন RPC নেই।
+   ⚠️ একটি পদে একাধিক আসন থাকতে পারে — কখনো […][0] দিয়ে একজনকে নয়, পদের সবাইকে দেখাতে হবে।
+   ════════════════════════════════════════ */
+let _crApps = [], _crCom = '', _crSt = '', _crQ = '';
+const CR_ST = { approved: ['অনুমোদিত', 'ok'], pending: ['অপেক্ষমাণ', 'pend'], returned: ['সংশোধনে ফেরত', 'ret'], rejected: ['বাতিল', 'shut'] };
+const _crUrl = new Map();
+
+function crWhen(a) { return String(a.reviewed_at || a.updated_at || a.submitted_at || ''); }
+function crByWhen(a, b) { return crWhen(a) < crWhen(b) ? -1 : crWhen(a) > crWhen(b) ? 1 : 0; }
+function crSeats(p) { return Math.max(1, parseInt(p.seats, 10) || 1); }
+function crInitial(a) {
+  const n = String(a.name_bn || a.name_en || '?').trim().replace(/^(মোঃ|মো:|মো\.|মোহাম্মদ|মুহাম্মদ|md\.?|mohammad|muhammad)\s*/i, '');
+  return esc(Array.from(n || '?')[0] || '?');
+}
+/* নথির সাময়িক লিংক — একই নথি বারবার চাওয়া হয় না (signed URL ৫ মিনিট, ক্যাশ ৪ মিনিট) */
+function crDocUrl(path, bucket) {
+  if (!path) return Promise.resolve(null);
+  const k = bucket + '|' + path;
+  if (!_crUrl.has(k)) {
+    _crUrl.set(k, digiDocUrl(path, bucket).then(function (u) { if (!u) _crUrl.delete(k); return u; }));
+    setTimeout(function () { _crUrl.delete(k); }, 240000);
+  }
+  return _crUrl.get(k);
+}
+function crHydrateImgs(root) {
+  root.querySelectorAll('img[data-cr-src]').forEach(function (img) {
+    const src = img.getAttribute('data-cr-src'); img.removeAttribute('data-cr-src');
+    crDocUrl(src, img.getAttribute('data-cr-b') || 'avatars').then(function (u) {
+      if (!u) return;
+      img.onload = function () { img.classList.add('ld'); };
+      img.src = u;
+    });
+  });
+}
+
+async function loadCommitteeRoster() {
+  ensureCrpCss();
+  const box = document.getElementById('crBody');
+  box.innerHTML = '<div class="cr-none">লোড হচ্ছে…</div>';
+  try {
+    const res = await Promise.all([_db.rpc('admin_committee_applications', { p_status: null }), _db.rpc('get_committee_structure')]);
+    if (res[0].error) throw res[0].error;
+    if (!res[1].error && res[1].data) _cstruct = res[1].data;
+    _crApps = (res[0].data || []).filter(function (a) { return a.status !== 'rejected' && a.committee_code !== 'general'; });
+  } catch (e) {
+    box.innerHTML = '<div class="cr-none">লোড করা যায়নি: ' + esc((e && e.message) || 'আবার চেষ্টা করুন') + '</div>';
+    return;
+  }
+  crRender();
+}
+function crSetCom(cid) { _crCom = cid || ''; crRender(); }
+function crSetSt(st, btn) {
+  _crSt = st || '';
+  document.querySelectorAll('#panel-committee-roster .cr-seg button').forEach(function (b) { b.classList.toggle('on', b === btn); });
+  crRender();
+}
+let _crQT = null;
+function crSetQ(v) {
+  clearTimeout(_crQT);
+  _crQT = setTimeout(function () {
+    _crQ = String(v || '').trim().toLowerCase().replace(/[০-৯]/g, function (d) { return '০১২৩৪৫৬৭৮৯'.indexOf(d); });
+    crRender();
+  }, 150);
+}
+function crMatch(a) {
+  if (_crSt === 'approved' && a.status !== 'approved') return false;
+  if (_crSt === 'pending' && a.status === 'approved') return false;
+  if (!_crQ) return true;
+  const hay = [a.name_bn, a.name_en, a.user_code, a.email].map(function (x) { return String(x || '').toLowerCase(); }).join(' ');
+  const qd = _crQ.replace(/\D/g, '');
+  return hay.indexOf(_crQ) >= 0 || (qd.length >= 3 && String(a.mobile || '').replace(/\D/g, '').indexOf(qd) >= 0);
+}
+function crCommittees() {
+  return (_cstruct || []).filter(function (c) { return c.code !== 'general'; })
+    .slice().sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+}
+function crPositions(c) {
+  return (c.positions || []).slice().sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+}
+
+function crMemberTile(a) {
+  const st = CR_ST[a.status] || CR_ST.pending;
+  const ph = a.photo_url || a.profile_photo || '';
+  const nm = a.name_bn || a.name_en || '—';
+  return '<div class="cr-m">' +
+    '<div class="cr-av" aria-hidden="true"><span>' + crInitial(a) + '</span>' +
+      (ph ? '<img alt="" data-cr-src="' + esc(ph) + '" data-cr-b="avatars">' : '') + '</div>' +
+    '<div class="cr-mi"><div class="cr-mn" title="' + esc(nm) + '">' + esc(nm) + '</div>' +
+      '<div class="cr-mm"><span class="cr-tag ' + st[1] + '">' + st[0] + '</span>' +
+      ((a.signature_url || a.profile_signature) ? '' :
+        '<button type="button" class="cr-tag shut cr-sigask" onclick="crSigLinks([\'' + esc(a.id) + '\'])" ' +
+        'title="ডিজিটাল স্বাক্ষর দেওয়া হয়নি — শুধু স্বাক্ষরের লিংক পাঠান"><i class="ti ti-send" aria-hidden="true"></i> স্বাক্ষর নেই · লিংক</button>') +
+      (a.mobile ? '<span>' + esc(a.mobile) + '</span>' : '') + '</div></div>' +
+    '<button type="button" class="cr-pbtn" onclick="crProfile(\'' + esc(a.id) + '\')" aria-label="' + esc(nm) + ' — প্রোফাইল দেখুন">' +
+      '<i class="ti ti-id-badge-2"></i> প্রোফাইল</button></div>';
+}
+
+function crPosRow(p, list, filtering) {
+  const seats = p.id ? crSeats(p) : 0;
+  const ok = list.filter(function (a) { return a.status === 'approved'; }).sort(crByWhen);
+  const others = list.filter(function (a) { return a.status !== 'approved'; })
+    .sort(function (a, b) { return String(a.submitted_at || '') < String(b.submitted_at || '') ? -1 : 1; });
+  const shown = ok.concat(others).filter(crMatch);
+  if (filtering && !shown.length) return '';
+  const left = Math.max(0, seats - ok.length);
+  let tiles = shown.map(crMemberTile).join('');
+  if (!filtering && left > 0) {
+    tiles += '<div class="cr-vac"><i class="ti ti-user-plus"></i> ' +
+      (left === seats ? (seats > 1 ? bnYear(seats) + 'টি আসনই খালি' : 'আসনটি খালি') : 'আরও ' + bnYear(left) + 'টি আসন খালি') + '</div>';
+  }
+  return '<div class="cr-pos"><div><div class="cr-pt">' + esc(p.title_bn) + '</div>' +
+    (p.title_en ? '<div class="cr-pe" data-no-i18n>' + esc(p.title_en) + '</div>' : '') +
+    (seats ? '<div class="cr-ps">অনুমোদিত ' + bnYear(ok.length) + ' / ' + bnYear(seats) + ' আসন' +
+      (others.length ? ' · অপেক্ষমাণ ' + bnYear(others.length) : '') + '</div>' : '') +
+    '</div><div class="cr-ms">' + tiles + '</div></div>';
+}
+
+function crRender() {
+  const coms = crCommittees();
+  const seatsOf = function (c) { return crPositions(c).reduce(function (n, p) { return n + crSeats(p); }, 0); };
+  const okOf = function (cid) { return _crApps.filter(function (a) { return a.committee_id === cid && a.status === 'approved'; }).length; };
+  if (_crCom && !coms.some(function (c) { return c.id === _crCom; })) _crCom = '';
+
+  document.getElementById('crChips').innerHTML =
+    '<button type="button" class="cr-chip' + (_crCom ? '' : ' on') + '" onclick="crSetCom(\'\')">সব কমিটি</button>' +
+    coms.map(function (c) {
+      return '<button type="button" class="cr-chip' + (_crCom === c.id ? ' on' : '') + '" onclick="crSetCom(\'' + esc(c.id) + '\')">' +
+        esc(c.name_bn) + ' <em>' + bnYear(okOf(c.id)) + '/' + bnYear(seatsOf(c)) + '</em></button>';
+    }).join('');
+
+  const scope = coms.filter(function (c) { return !_crCom || c.id === _crCom; });
+  let tSeats = 0, tOk = 0, tPend = 0, tVac = 0;
+  scope.forEach(function (c) {
+    crPositions(c).forEach(function (p) {
+      const okN = _crApps.filter(function (a) { return a.position_id === p.id && a.status === 'approved'; }).length;
+      tSeats += crSeats(p); tVac += Math.max(0, crSeats(p) - okN);
+    });
+    tOk += okOf(c.id);
+    tPend += _crApps.filter(function (a) { return a.committee_id === c.id && a.status !== 'approved'; }).length;
+  });
+  document.getElementById('crStats').innerHTML =
+    '<div class="cr-stat cr-s1"><span><i class="ti ti-armchair-2"></i> মোট আসন</span><b>' + bnYear(tSeats) + '</b></div>' +
+    '<div class="cr-stat cr-s2"><span><i class="ti ti-circle-check"></i> অনুমোদিত</span><b>' + bnYear(tOk) + '</b></div>' +
+    '<div class="cr-stat cr-s3"><span><i class="ti ti-hourglass"></i> অপেক্ষমাণ আবেদন</span><b>' + bnYear(tPend) + '</b></div>' +
+    '<div class="cr-stat cr-s4"><span><i class="ti ti-user-plus"></i> খালি আসন</span><b>' + bnYear(tVac) + '</b></div>';
+
+  const filtering = !!(_crQ || _crSt);
+  const html = scope.map(function (c) {
+    const ps = crPositions(c);
+    const capps = _crApps.filter(function (a) { return a.committee_id === c.id; });
+    const rows = ps.map(function (p) {
+      return crPosRow(p, capps.filter(function (a) { return a.position_id === p.id; }), filtering);
+    }).filter(Boolean);
+    const orphan = capps.filter(function (a) { return !ps.some(function (p) { return p.id === a.position_id; }); });
+    if (orphan.length) {
+      const r = crPosRow({ id: '', title_bn: 'পদ নির্ধারিত নয়', title_en: '' }, orphan, true);
+      if (r) rows.push(r);
+    }
+    if (filtering && !rows.length) return '';
+    const seats = seatsOf(c), ok = okOf(c.id), pend = capps.length - ok;
+    const pct = seats ? Math.round(100 * Math.min(ok, seats) / seats) : 0;
+    const tag = c.is_approved ? '<span class="cr-tag ok"><i class="ti ti-rosette-discount-check"></i> চূড়ান্ত অনুমোদিত</span>'
+      : c.applications_open === false ? '<span class="cr-tag shut">আবেদন বন্ধ</span>'
+      : '<span class="cr-tag open">আবেদন চলছে</span>';
+    return '<section class="cr-com"><header class="cr-com-h"><div class="cr-com-t"><h3>' + esc(c.name_bn) + '</h3>' +
+      (c.name_en ? '<div class="en" data-no-i18n>' + esc(c.name_en) + '</div>' : '') + '</div>' + tag +
+      '<div class="cr-meter"><div class="lbl"><span>অনুমোদিত</span><b>' + bnYear(ok) + ' / ' + bnYear(seats) + ' আসন</b></div>' +
+      '<div class="cr-bar" role="img" aria-label="' + bnYear(pct) + ' শতাংশ আসন পূর্ণ"><i style="width:' + pct + '%"></i></div>' +
+      (pend ? '<div class="lbl" style="margin-top:4px"><span>অপেক্ষমাণ</span><b>' + bnYear(pend) + '</b></div>' : '') + '</div>' +
+      '<button type="button" class="cr-btn2" onclick="crPrint(\'' + esc(c.id) + '\')" aria-label="' + esc(c.name_bn) + ' ছাপুন">' +
+      '<i class="ti ti-printer"></i> ছাপুন</button></header>' +
+      (rows.length ? rows.join('') : '<div class="cr-none">এই কমিটিতে এখনো কোনো পদ নেই।</div>') + '</section>';
+  }).join('');
+  const box = document.getElementById('crBody');
+  box.innerHTML = html || '<div class="cr-none">' + (filtering ? 'কাউকে পাওয়া যায়নি — খোঁজ বা ফিল্টার বদলে দেখুন।' : 'কোনো কমিটি নেই।') + '</div>';
+  crHydrateImgs(box);
+}
+function crPrint(cid) {
+  const lh = document.getElementById('crLh');
+  const pk = document.getElementById('crPk');
+  capPrintLists(pk && pk.value === 'minutes' ? 'minutes' : 'committee', lh ? lh.checked : true, cid || _crCom || '');
+}
+
+/* ── প্রোফাইল (একনজরে) — সাদা কাগজের মতো, দুই থীমে এক; ছাপাতেও একই নকশা ── */
+const CRP_CSS = [
+  '.cr-tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}',
+  '.cr-tag.ok{background:#d1fae5;color:#065f46}.cr-tag.open{background:#dbeafe;color:#1e3a8a}.cr-tag.shut{background:#e2e8f0;color:#334155}',
+  '.cr-tag.pend{background:#fef3c7;color:#92400e}.cr-tag.ret{background:#ede9fe;color:#5b21b6}',
+  '.crp-ov{position:fixed;inset:0;z-index:9800;background:rgba(10,8,20,.72);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:28px 14px}',
+  '.crp{width:100%;max-width:920px;background:#fff;color:#1f1830;border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);font-family:"Hind Siliguri","Inter",sans-serif;text-align:left}',
+  '.crp-top{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:22px 24px;background:linear-gradient(120deg,#1d1030,#3b2568 55%,#5b3fc4);color:#fff}',
+  '.crp-ph{width:116px;height:116px;border-radius:16px;overflow:hidden;flex-shrink:0;position:relative;background:rgba(255,255,255,.14);border:3px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:700;color:#fff}',
+  '.crp-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;cursor:zoom-in}',
+  '.crp-id{flex:1;min-width:220px}',
+  '.crp-org{font-size:11.5px;letter-spacing:.03em;color:#e4dafa}',
+  '.crp-id h3{margin:2px 0 0;font-size:23px;line-height:1.3;font-weight:700;color:#fff}',
+  '.crp-en{font-size:13px;color:#e4dafa}',
+  '.crp-pos{margin-top:7px;font-size:14.5px;font-weight:600;color:#fff}',
+  '.crp-posen{font-size:12px;color:#e4dafa}',
+  '.crp-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}',
+  '.crp-tag2{background:rgba(255,255,255,.16);color:#fff;border-radius:20px;padding:3px 10px;font-size:11.5px;font-weight:700}',
+  '.crp-acts{display:flex;gap:8px;align-self:flex-start}',
+  '.crp-acts button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:8px 13px;font:600 13px "Hind Siliguri",sans-serif;cursor:pointer;display:inline-flex;gap:6px;align-items:center;min-height:40px;min-width:40px;justify-content:center}',
+  '.crp-acts button:hover{background:rgba(255,255,255,.26)}',
+  '.crp-acts button:focus-visible{outline:2px solid #f08c28;outline-offset:2px}',
+  '.crp-body{padding:20px 24px 22px}',
+  '.crp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}',
+  '.crp-sec{border:1px solid #ece6f3;border-radius:14px;padding:14px 16px;break-inside:avoid}',
+  '.crp-sec.wide{grid-column:1/-1}',
+  '.crp-sec h4{margin:0 0 10px;font-size:13.5px;font-weight:700;color:#5b3fc4;display:flex;gap:6px;align-items:center}',
+  '.crp-dl{display:grid;grid-template-columns:minmax(110px,auto) 1fr;gap:7px 14px;font-size:13.5px;margin:0}',
+  '.crp-dl dt{color:#5f566f}',
+  '.crp-dl dd{margin:0;color:#1f1830;font-weight:600;word-break:break-word}',
+  '.crp-na{color:#8a8098;font-weight:400}',
+  '.crp-docs{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}',
+  '.crp-doc{margin:0;border:1px solid #ece6f3;border-radius:12px;overflow:hidden;background:#faf8fc;break-inside:avoid}',
+  '.crp-doc .im{aspect-ratio:1.58;display:flex;align-items:center;justify-content:center;background:#f3eff8;color:#5f566f;font-size:12.5px;padding:4px}',
+  '.crp-doc.sq .im{aspect-ratio:1.2}',
+  '.crp-doc.sig .im{background:#fff;padding:10px 14px}',
+  '.crp-doc .im img{width:100%;height:100%;object-fit:contain;cursor:zoom-in;display:block}',
+  '.crp-doc .im a{color:#5b3fc4;font-weight:700;text-decoration:none;display:inline-flex;gap:6px;align-items:center}',
+  '.crp-doc figcaption{padding:8px 11px;font-size:12.5px;font-weight:600;color:#3b2568;border-top:1px solid #ece6f3}',
+  '.crp-miss{margin-top:12px;font-size:12.5px;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:8px 12px}',
+  '.crp-note{margin-top:12px;font-size:12px;color:#5f566f;display:flex;gap:6px;align-items:center}',
+  /* স্বাক্ষরের লিংক পাঠানোর তালিকা */
+  '.crs{max-width:760px}',
+  '.crs-lead{font-size:13px;color:#e4dafa;margin-top:6px;line-height:1.7}',
+  '.crs-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 0;border-top:1px solid #ece6f3}',
+  '.crs-row:first-child{border-top:0}',
+  '.crs-who{flex:1;min-width:200px}.crs-who b{display:block;font-size:14.5px;color:#1f1830}.crs-who span{display:block;font-size:12.5px;color:#5f566f}',
+  '.crs-st{font-size:12.5px;color:#5f566f;min-width:110px}.crs-st.err{color:#b42318}',
+  '.crs-acts{display:flex;gap:8px;flex-wrap:wrap}',
+  '.crs-acts a,.crs-acts button{display:inline-flex;gap:6px;align-items:center;min-height:38px;padding:7px 13px;border-radius:9px;font:600 13px "Hind Siliguri",sans-serif;cursor:pointer;text-decoration:none;border:0}',
+  '.crs-wa{background:#0f7a43;color:#fff}.crs-wa:hover{background:#0b6236}',
+  '.crs-cp{background:#efe9f8;color:#3b2568}.crs-cp:hover{background:#e3d8f5}',
+  '.crs-acts a:focus-visible,.crs-acts button:focus-visible{outline:2px solid #f08c28;outline-offset:2px}',
+  '.crs-none{padding:24px 0;text-align:center;color:#5f566f;font-size:14px}',
+  '@media(max-width:720px){.crp-ov{padding:12px 8px}.crp-grid{grid-template-columns:1fr}.crp-top{padding:18px}.crp-body{padding:14px}' +
+    '.crp-acts{width:100%;justify-content:flex-end;order:-1}.crp-ph{width:92px;height:92px;font-size:34px}.crp-id h3{font-size:20px}}'
+].join('\n');
+function ensureCrpCss() {
+  if (document.getElementById('crpCss')) return;
+  const st = document.createElement('style'); st.id = 'crpCss'; st.textContent = CRP_CSS;
+  document.head.appendChild(st);
+}
+function crFindApp(id) {
+  return (_crApps || []).concat(_cappList || []).filter(function (a) { return a.id === id; })[0] || null;
+}
+function crDocList(a) {
+  const hasNom = !!(a.nominee_name || a.nominee_photo_url || a.nominee_nid_front_url || a.nominee_nid_back_url);
+  const out = [['ডিজিটাল স্বাক্ষর', a.signature_url || a.profile_signature, 'signatures', 'sig'],
+    ['এনআইডি — সামনের পাতা', a.nid_front_url, 'nid-docs', ''], ['এনআইডি — পিছনের পাতা', a.nid_back_url, 'nid-docs', '']];
+  if (hasNom) out.push(['নমিনির ছবি', a.nominee_photo_url, 'nid-docs', 'sq'],
+    ['নমিনির এনআইডি — সামনে', a.nominee_nid_front_url, 'nid-docs', ''], ['নমিনির এনআইডি — পিছনে', a.nominee_nid_back_url, 'nid-docs', '']);
+  if (a.consent_scan_url) out.push(['স্বাক্ষরিত সম্মতিপত্র', a.consent_scan_url, 'committee-docs', '']);
+  return out;
+}
+/* urls দিলে (ছাপা) ছবি সরাসরি বসে; না দিলে পরে crHydrateDocs ভরে */
+function crSheetHTML(a, urls) {
+  const V = function (v) { return (v === null || v === undefined || String(v).trim() === '') ? '<span class="crp-na">—</span>' : esc(String(v)); };
+  const D = function (v) { return v ? esc(new Date(v).toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' })) : '<span class="crp-na">—</span>'; };
+  const dl = function (rows) { return '<dl class="crp-dl">' + rows.map(function (r) { return '<dt>' + esc(r[0]) + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>'; };
+  const sec = function (icon, t, inner, wide) { return '<section class="crp-sec' + (wide ? ' wide' : '') + '"><h4><i class="ti ' + icon + '"></i> ' + esc(t) + '</h4>' + inner + '</section>'; };
+  const st = CR_ST[a.status] || CR_ST.pending;
+  const com = (_cstruct || []).filter(function (c) { return c.id === a.committee_id; })[0] || {};
+  const posEn = posEnOf(a.position_id);
+  const nm = a.name_bn || a.name_en || '—';
+  const ph = a.photo_url || a.profile_photo || '';
+  const comp = a.completion && a.completion.percent != null ? a.completion.percent : null;
+  const photo = '<div class="crp-ph"><span>' + crInitial(a) + '</span>' + (ph
+    ? (urls ? (urls[ph] ? '<img alt="" src="' + esc(urls[ph]) + '">' : '') : '<img alt="' + esc(nm) + '" data-crp-photo="' + esc(ph) + '" style="display:none">')
+    : '') + '</div>';
+  const tile = function (d) {
+    let inner;
+    if (!d[1]) inner = '<span>জমা দেওয়া হয়নি</span>';
+    else if (urls) inner = urls[d[1]] ? (/\.pdf($|\?)/i.test(d[1]) ? '<span>PDF নথি — আলাদা করে খুলুন</span>' : '<img alt="' + esc(d[0]) + '" src="' + esc(urls[d[1]]) + '">') : '<span>দেখানো যায়নি</span>';
+    else inner = '<span>লোড হচ্ছে…</span>';
+    return '<figure class="crp-doc' + (d[3] ? ' ' + d[3] : '') + '"><div class="im"' +
+      (!urls && d[1] ? ' data-crp-doc="' + esc(d[1]) + '" data-crp-b="' + d[2] + '" data-crp-l="' + esc(d[0]) + '"' : '') + '>' + inner +
+      '</div><figcaption>' + esc(d[0]) + '</figcaption></figure>';
+  };
+  const hasNom = !!(a.nominee_name || a.nominee_relation || a.nominee_nid);
+  const miss = ((a.completion && a.completion.missing) || []).map(function (k) { return capMiss[k] || k; });
+  return '<div class="crp">' +
+    '<div class="crp-top">' + photo +
+      '<div class="crp-id"><div class="crp-org">কর্জে হাসানা ফাউন্ডেশন · কমিটি সদস্যের প্রোফাইল</div>' +
+      '<h3 id="crpName">' + esc(nm) + '</h3>' +
+      (a.name_en && a.name_bn ? '<div class="crp-en" data-no-i18n>' + esc(a.name_en) + '</div>' : '') +
+      '<div class="crp-pos">' + esc(a.position_title || (a.committee_code === 'general' ? 'সাধারণ সদস্য' : 'পদ নির্ধারিত নয়')) +
+        ' · ' + esc(a.committee_name || com.name_bn || '') + '</div>' +
+      (posEn || com.name_en ? '<div class="crp-posen" data-no-i18n>' + esc([posEn, com.name_en].filter(Boolean).join(' · ')) + '</div>' : '') +
+      '<div class="crp-tags"><span class="cr-tag ' + st[1] + '">' + st[0] + '</span>' +
+        (a.user_code ? '<span class="crp-tag2">সদস্য কোড ' + esc(a.user_code) + '</span>' : '') +
+        (comp != null ? '<span class="crp-tag2">তথ্য পূর্ণ ' + bnYear(comp) + '%</span>' : '') + '</div></div>' +
+      (urls ? '' : '<div class="crp-acts"><button type="button" onclick="crPrintProfile(\'' + esc(a.id) + '\')"><i class="ti ti-printer"></i> ছাপুন</button>' +
+        '<button type="button" class="crp-x" onclick="crCloseProfile()" aria-label="বন্ধ করুন"><span aria-hidden="true" style="font-size:17px;line-height:1">✕</span></button></div>') +
+    '</div>' +
+    '<div class="crp-body"><div class="crp-grid">' +
+      sec('ti-user', 'ব্যক্তিগত তথ্য', dl([['নাম (বাংলা)', V(a.name_bn)], ['নাম (ইংরেজি)', V(a.name_en)], ['পিতা / স্বামী', V(a.father_name)],
+        ['মাতা', V(a.mother_name)], ['জন্ম তারিখ', D(a.dob)], ['পেশা', V(a.occupation)], ['জেলা', V(a.district)], ['এনআইডি নম্বর', V(a.nid_no)]])) +
+      sec('ti-address-book', 'যোগাযোগ', dl([['মোবাইল', V(a.mobile)], ['ই-মেইল', V(a.email)],
+        ['বর্তমান ঠিকানা', V(a.present_address)], ['স্থায়ী ঠিকানা', V(a.permanent_address)]])) +
+      sec('ti-clipboard-check', 'আবেদন', dl([['কমিটি', V(a.committee_name)], ['পদ', V(a.position_title)], ['অবস্থা', esc(st[0])],
+        ['দাখিল', D(a.submitted_at)], [a.status === 'approved' ? 'অনুমোদন' : 'সর্বশেষ পর্যালোচনা', D(a.reviewed_at)],
+        ['প্রস্তাবকারী', V(a.proposed_by)], ['সমর্থনকারী', V(a.seconded_by)],
+        ['ঘোষণা', a.declaration_accepted ? 'সম্মতি দিয়েছেন' : '<span class="crp-na">সম্মতি নেই</span>']].concat(a.admin_note ? [['অ্যাডমিনের মন্তব্য', V(a.admin_note)]] : []))) +
+      (hasNom ? sec('ti-user-heart', 'নমিনি', dl([['নাম', V(a.nominee_name)], ['সম্পর্ক', V(a.nominee_relation)],
+        ['বয়স', a.nominee_age ? bnYear(a.nominee_age) + ' বছর' : V('')], ['এনআইডি নম্বর', V(a.nominee_nid)]]))
+        : sec('ti-user-heart', 'নমিনি', '<div class="crp-na" style="font-size:13px">এই পদে নমিনি দেওয়া হয়নি।</div>')) +
+      sec('ti-id', 'নথি', '<div class="crp-docs">' + crDocList(a).map(tile).join('') + '</div>', true) +
+    '</div>' +
+    (miss.length ? '<div class="crp-miss"><b>বাকি আছে:</b> ' + esc(miss.join(', ')) + '</div>' : '') +
+    '<div class="crp-note"><i class="ti ti-lock"></i> এনআইডি ও ব্যক্তিগত তথ্য গোপনীয় — কেবল অ্যাডমিনের ব্যবহারের জন্য।</div>' +
+    '</div></div>';
+}
+function crHydrateDocs(root) {
+  root.querySelectorAll('img[data-crp-photo]').forEach(function (img) {
+    crDocUrl(img.getAttribute('data-crp-photo'), 'avatars').then(function (u) {
+      if (!u) return;
+      img.onload = function () { img.style.display = ''; };
+      img.onclick = function () { if (window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(u, img.alt); else window.open(u, '_blank'); };
+      img.src = u;
+    });
+  });
+  root.querySelectorAll('[data-crp-doc]').forEach(function (box) {
+    const path = box.getAttribute('data-crp-doc'), lbl = box.getAttribute('data-crp-l') || '';
+    crDocUrl(path, box.getAttribute('data-crp-b') || 'nid-docs').then(function (u) {
+      if (!u) { box.innerHTML = '<span>দেখানো যায়নি</span>'; return; }
+      const link = '<a href="' + esc(u) + '" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> ফাইলটি খুলুন</a>';
+      if (/\.pdf($|\?)/i.test(path)) { box.innerHTML = link.replace('ti-external-link', 'ti-file-type-pdf').replace('ফাইলটি খুলুন', 'PDF খুলুন'); return; }
+      const img = new Image(); img.alt = lbl;
+      img.onload = function () { box.innerHTML = ''; box.appendChild(img); };
+      img.onerror = function () { box.innerHTML = link; };
+      img.onclick = function () { if (window.KHUI && KHUI.zoomPhoto) KHUI.zoomPhoto(u, lbl); else window.open(u, '_blank'); };
+      img.src = u;
+    });
+  });
+}
+let _crpLast = null;
+function crProfile(id) {
+  const a = crFindApp(id);
+  if (!a) return;
+  ensureCrpCss();
+  crCloseProfile();
+  _crpLast = document.activeElement;
+  const ov = document.createElement('div');
+  ov.className = 'crp-ov'; ov.id = 'crpOv';
+  ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'crpName');
+  ov.innerHTML = crSheetHTML(a, null);
+  ov.addEventListener('click', function (e) { if (e.target === ov) crCloseProfile(); });
+  document.body.appendChild(ov);
+  document.body.style.overflow = 'hidden';
+  crHydrateDocs(ov);
+  const x = ov.querySelector('.crp-x'); if (x) x.focus();
+}
+function crCloseProfile() {
+  const ov = document.getElementById('crpOv');
+  if (!ov) return;
+  ov.remove();
+  document.body.style.overflow = '';
+  if (_crpLast && document.body.contains(_crpLast)) { try { _crpLast.focus(); } catch (e) {} }
+  _crpLast = null;
+}
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && document.getElementById('crpOv') && !document.querySelector('.kh-zoom')) crCloseProfile();
+});
+/* ── "শুধু স্বাক্ষর দিন" লিংক (৩১ অক্টোবর ২০২৬) ──
+   প্রত্যেকের আলাদা লিংক (committee-sign.html?t=…): একজনের লিংক দিয়ে অন্যজন স্বাক্ষর দিতে পারেন না;
+   একবার জমা হলে লিংক আর চলে না। admin_sig_request একই আবেদনের চালু লিংক থাকলে সেটিই আবার দেয়। */
+function crSigMsg(r, link) {
+  return [
+    'আসসালামু আলাইকুম' + (r.name ? ' ' + r.name : '') + ',', '',
+    'কর্জে হাসানা ফাউন্ডেশনের ' + (r.committee || 'কমিটি') + (r.position ? '-এর ' + r.position + ' পদে' : '-তে') +
+      ' আপনার সম্মতিপত্র ' + (r.status === 'approved' ? 'অনুমোদিত হয়েছে' : 'জমা হয়েছে') +
+      '। কমিটির সভার কার্যবিবরণীর সদস্য তালিকায় বসানোর জন্য এখন শুধু আপনার স্বাক্ষরটি প্রয়োজন।', '',
+    'নিচের লিংকে গিয়ে আঙুলে এঁকে অথবা কাগজে করা স্বাক্ষরের ছবি তুলে দিন — আর কোনো তথ্য দিতে হবে না। লিংকটি কেবল আপনার জন্য।', '',
+    link, '', 'ধন্যবাদ।', 'কর্জে হাসানা ফাউন্ডেশন'
+  ].join('\n');
+}
+function crSigErr(e) {
+  const m = (e && e.message) || '';
+  if (/admin_sig_request|schema cache|does not exist/i.test(m)) return 'ডাটাবেজ আপডেট এখনও প্রয়োগ হয়নি — committee_sign_links_v1.sql চালান।';
+  if (/forbidden/.test(m)) return 'অনুমতি নেই।';
+  if (/rejected/.test(m)) return 'বাতিল আবেদন — লিংক হয় না।';
+  return m || 'লিংক তৈরি হয়নি';
+}
+async function crCopy(text, btn) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+    const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select(); try { ok = document.execCommand('copy'); } catch (e2) {} t.remove();
+  }
+  if (btn) { const old = btn.innerHTML; btn.innerHTML = ok ? '<i class="ti ti-check"></i> কপি হয়েছে' : 'কপি হয়নি'; setTimeout(function () { btn.innerHTML = old; }, 1600); }
+}
+let _crsLast = null;
+async function crSigLinks(ids) {
+  ensureCrpCss();
+  let list;
+  if (ids && ids.length) list = ids.map(function (id) { return crFindApp(id); }).filter(Boolean);
+  else list = (_crApps || []).filter(function (a) {
+    return a.status !== 'rejected' && !(a.signature_url || a.profile_signature) && (!_crCom || a.committee_id === _crCom);
+  });
+  const coms = crCommittees();
+  const ord = function (a) { const i = coms.findIndex(function (c) { return c.id === a.committee_id; }); return i < 0 ? 99 : i; };
+  list = list.slice().sort(function (a, b) { return ord(a) - ord(b) || crByWhen(a, b); });
+
+  crCloseSigLinks();
+  _crsLast = document.activeElement;
+  const ov = document.createElement('div');
+  ov.className = 'crp-ov'; ov.id = 'crsOv';
+  ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-labelledby', 'crsTitle');
+  ov.innerHTML = '<div class="crp crs"><div class="crp-top"><div class="crp-id">' +
+      '<div class="crp-org">কর্জে হাসানা ফাউন্ডেশন · কমিটি</div><h3 id="crsTitle">শুধু স্বাক্ষরের লিংক</h3>' +
+      '<div class="crs-lead">প্রত্যেকের আলাদা লিংক — একজনের লিংক দিয়ে অন্যজন স্বাক্ষর দিতে পারবেন না। লিংক খুলে শুধু স্বাক্ষর দিতে হবে, ' +
+      'ফর্ম আবার পূরণ করতে হবে না। একবার জমা হলে লিংকটি আর চলে না; মেয়াদ ৩০ দিন।</div></div>' +
+      '<div class="crp-acts"><button type="button" class="crp-x" onclick="crCloseSigLinks()" aria-label="বন্ধ করুন"><span aria-hidden="true" style="font-size:17px;line-height:1">✕</span></button></div></div>' +
+    '<div class="crp-body" id="crsBody">' + (list.length ? list.map(function (a) {
+      return '<div class="crs-row" data-id="' + esc(a.id) + '"><div class="crs-who"><b>' + esc(a.name_bn || a.name_en || '—') + '</b>' +
+        '<span>' + esc([a.position_title, a.committee_name].filter(Boolean).join(' · ')) + (a.mobile ? ' · ' + esc(a.mobile) : '') + '</span></div>' +
+        '<div class="crs-st">লিংক তৈরি হচ্ছে…</div><div class="crs-acts"></div></div>';
+    }).join('') : '<div class="crs-none">সবার স্বাক্ষর আছে — লিংক পাঠানোর কেউ নেই।</div>') + '</div></div>';
+  ov.addEventListener('click', function (e) { if (e.target === ov) crCloseSigLinks(); });
+  document.body.appendChild(ov);
+  document.body.style.overflow = 'hidden';
+  const x = ov.querySelector('.crp-x'); if (x) x.focus();
+
+  const base = location.origin + location.pathname.replace(/[^/]*$/, '');
+  for (const a of list) {
+    const row = ov.querySelector('.crs-row[data-id="' + a.id + '"]');
+    if (!row || !document.getElementById('crsOv')) break;
+    const st = row.querySelector('.crs-st'), acts = row.querySelector('.crs-acts');
+    try {
+      const r = await _db.rpc('admin_sig_request', { p_app: a.id });
+      if (r.error) throw r.error;
+      const d = r.data || {};
+      const link = base + 'committee-sign.html?t=' + encodeURIComponent(d.token);
+      const text = crSigMsg(d, link);
+      st.textContent = 'লিংক প্রস্তুত';
+      acts.innerHTML =
+        (d.mobile ? '<a class="crs-wa" target="_blank" rel="noopener" href="' + esc(waLink(d.mobile, text)) + '"><i class="ti ti-brand-whatsapp"></i> হোয়াটসঅ্যাপে পাঠান</a>' : '') +
+        '<button type="button" class="crs-cp"><i class="ti ti-copy"></i> লিংক কপি</button>';
+      acts.querySelector('.crs-cp').onclick = function () { crCopy(link, this); };
+    } catch (e) {
+      st.textContent = crSigErr(e); st.classList.add('err');
+    }
+  }
+}
+function crCloseSigLinks() {
+  const ov = document.getElementById('crsOv');
+  if (!ov) return;
+  ov.remove();
+  document.body.style.overflow = '';
+  if (_crsLast && document.body.contains(_crsLast)) { try { _crsLast.focus(); } catch (e) {} }
+  _crsLast = null;
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('crsOv')) crCloseSigLinks(); });
+async function crPrintProfile(id) {
+  const a = crFindApp(id);
+  if (!a) return;
   const w = window.open('', '_blank');
   if (!w) { alert('পপ-আপ বন্ধ আছে — ছাপানোর পৃষ্ঠা খোলার অনুমতি দিন।'); return; }
-  w.document.open(); w.document.write(html); w.document.close();
+  w.document.write('<p style="font-family:sans-serif;padding:24px">প্রোফাইল তৈরি হচ্ছে…</p>');
+  const want = [[a.photo_url || a.profile_photo, 'avatars']].concat(crDocList(a).map(function (d) { return [d[1], d[2]]; }));
+  const urls = {};
+  await Promise.all(want.filter(function (x) { return x[0]; }).map(function (x) {
+    return crDocUrl(x[0], x[1]).then(function (u) { urls[x[0]] = u; });
+  }));
+  const css = CRP_CSS + '\n@page{size:A4;margin:10mm}body{margin:0;background:#fff}' +
+    '.crp{box-shadow:none;border-radius:0;max-width:none}.crp-top,.cr-tag,.crp-tag2,.crp-doc .im,.crp-miss{-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
+    '.crp-docs{grid-template-columns:1fr 1fr}.crp-doc .im{aspect-ratio:auto;height:54mm}.crp-doc .im img{cursor:default}' +
+    '.noprint{text-align:center;margin:14px 0}@media print{.noprint{display:none}}';
+  w.document.open();
+  w.document.write('<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>প্রোফাইল — ' + esc(a.name_bn || a.name_en || '') + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">' +
+    '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">' +
+    '<style>' + css + '</style></head><body>' + crSheetHTML(a, urls) +
+    '<div class="noprint"><button onclick="window.print()" style="background:linear-gradient(112deg,#0d6e56,#1d9e75);color:#fff;border:none;border-radius:9px;' +
+    'padding:11px 24px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer">প্রিন্ট / PDF সংরক্ষণ</button></div></body></html>');
+  w.document.close();
 }
 
 // ════════════════════════════════════════

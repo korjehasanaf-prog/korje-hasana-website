@@ -480,7 +480,7 @@
       <!-- ⚠️ ক্লাসগুলো এই পেজের বাকি বাক্সগুলোর মতোই — docside / docside-t / upst।
            আলাদা নাম দিলে কোনো স্টাইলই পেত না। -->
       <div class="docside" style="margin-top:14px">
-        <div class="docside-t"><i class="ti ti-signature"></i> ই-সিগনেচার
+        <div class="docside-t"><i class="ti ti-signature"></i> ই-সিগনেচার <span class="req">*</span>
           <span class="upst" id="stSig">এখনও দেওয়া হয়নি</span></div>
         <div class="uprow">
           <button class="upbtn" type="button" id="btnSig"><i class="ti ti-writing-sign"></i> স্বাক্ষর দিন</button>
@@ -492,8 +492,8 @@
           <img id="sigImg" alt="আপনার স্বাক্ষর" style="display:block;width:100%;max-width:300px;height:auto;margin:0 auto">
         </div>
         <div class="upnote">
+          স্বাক্ষর বাধ্যতামূলক — কমিটির সভার কার্যবিবরণীর সদস্য তালিকায় এটিই বসবে।
           আঙুলে এঁকে বা কাগজের স্বাক্ষরের ছবি তুলে দিন — সিস্টেম পটভূমি মুছে আদর্শ মাপে বসিয়ে নেবে।
-          একবার দিলে আপনার প্রোফাইলে থেকে যাবে, পরের কোনো নথিতে আর নতুন করে দিতে হবে না।
         </div>
       </div>
 
@@ -615,7 +615,7 @@
     function up(id, sel){ var x = el(id); return x ? x.closest(sel) : null; }
     ['fNameBn','fFather','fNid','fDob','fMob','fProp'].forEach(function(id){ out.push(up(id, '.grid2')); });
     ['fAddr','fPAddr'].forEach(function(id){ out.push(up(id, '.fg')); });
-    ['flPhoto','flNidF','flNidB','flScan','btnSig'].forEach(function(id){ out.push(up(id, '.docside')); });
+    ['flPhoto','flNidF','flNidB','flScan'].forEach(function(id){ out.push(up(id, '.docside')); });
     var d = up('flPhoto', '.docside'), h = d && d.previousElementSibling;   /* "সংযুক্তি" শিরোনাম (ইংরেজি পাতাতেও) */
     if(h && h.tagName === 'H2') out.push(h);
     return out.filter(Boolean);
@@ -822,6 +822,7 @@
     });
     if(a.dob) el('fDob').value = String(a.dob).slice(0,10);
     el('fDecl').checked = !!a.declaration_accepted;
+    setSigFromApp(a);
     setDocSlot('photo',         'stPhoto',    'photoPrev',    a.photo_url);
     setDocSlot('nid_front',     'stNidF',     'nidFPrev',     a.nid_front_url);
     setDocSlot('nid_back',      'stNidB',     'nidBPrev',     a.nid_back_url);
@@ -942,6 +943,7 @@
       if(app.dob) el('fDob').value = String(app.dob).slice(0,10);
       el('fPos').value = app.position_id || GENERAL; paintHeading();
       el('fDecl').checked = !!app.declaration_accepted;
+      setSigFromApp(app);
       setDoc('photo',     'stPhoto','photoPrev', app.photo_url);
       setDoc('nid_front', 'stNidF', 'nidFPrev',  app.nid_front_url);
       setDoc('nid_back',  'stNidB', 'nidBPrev',  app.nid_back_url);
@@ -1250,43 +1252,59 @@
     w.document.open(); w.document.write(html); w.document.close();
   };
 
-  /* ───────── ই-সিগনেচার ─────────
-     ⚠️ আমন্ত্রণের লিংকে (INV_TOKEN) লগইন ছাড়াই ফর্ম ভরা যায়, কিন্তু স্বাক্ষর
-     প্রোফাইলে জমা হয় — তাই লগইন ছাড়া এই অংশটি দেখানো হয় না, বদলে বলা হয়
-     কীভাবে পরে দেওয়া যাবে। (CLAUDE.md: আমন্ত্রণে OTP/লগইন বাধ্যতামূলক নয়) */
-  var SIG_PATH = null;
+  /* ───────── ই-সিগনেচার — বাধ্যতামূলক (৩১ অক্টোবর ২০২৬) ─────────
+     লগইন থাকলে প্রোফাইলের স্বাক্ষর (KHUI.saveSignature — পরের নথিতেও কাজে লাগে);
+     আমন্ত্রণ লিংকে লগইন ছাড়া: committee-docs/invite/<token>/signature-….png (অন্য নথির মতোই)।
+     দাখিলের সাথে signature_url যায়। ⚠️ সার্ভার (_require_member_docs) ঘরটি থাকলে তবেই স্বাক্ষর চায়
+     (পুরনো ফর্মের দাখিল যেন পুশের আগে আটকে না যায়) — তাই payload-এ ঘরটি সবসময় পাঠানো হয়, খালি হলেও। */
+  var SIG_PATH = null, SIG_LOCAL = null;
   async function paintSig(){
     var has = !!SIG_PATH;
-    el('stSig').textContent = has ? '✓ দেওয়া হয়েছে' : 'এখনও দেওয়া হয়নি';
-    el('stSig').style.color = has ? '#22c55e' : '';
+    el('stSig').innerHTML = has ? '<b>✓ দেওয়া হয়েছে</b>' : 'এখনও দেওয়া হয়নি';
     el('btnSig').innerHTML = has
       ? '<i class="ti ti-refresh"></i> বদলান'
       : '<i class="ti ti-writing-sign"></i> স্বাক্ষর দিন';
+    paintProgress();
     if(!has){ el('sigPrev').style.display = 'none'; return; }
-    var u = await KHUI.signatureUrl(SIG_PATH, 600);
+    var u = SIG_LOCAL;
+    if(!u && ME && !/^invite\//.test(SIG_PATH)){ try{ u = await KHUI.signatureUrl(SIG_PATH, 600); }catch(e){ u = null; } }
     if(u){ el('sigImg').src = u; el('sigPrev').style.display = ''; }
+    else el('sigPrev').style.display = 'none';      /* আগে দেওয়া স্বাক্ষর — লগইন ছাড়া দেখানো যায় না, তবে সংরক্ষিত আছে */
   }
-  (async function(){
-    if(!ME){
-      el('btnSig').disabled = true;
-      el('stSig').textContent = 'লগইন করলে দেওয়া যাবে';
-      el('btnSig').closest('.docside').querySelector('.upnote').textContent =
-        'ই-সিগনেচার আপনার প্রোফাইলে জমা থাকে, তাই এটি দিতে হলে অ্যাকাউন্টে লগইন করতে হবে। ' +
-        'এখন ফর্মটি দাখিল করে পরে লগইন করেও স্বাক্ষর যোগ করতে পারবেন — আবেদন আটকাবে না।';
-      return;
+  /* আগের আবেদনে স্বাক্ষর থাকলে আবার দিতে হয় না */
+  function setSigFromApp(a){
+    if(a && a.signature_url && !SIG_PATH){ SIG_PATH = a.signature_url; SIG_LOCAL = null; paintSig(); }
+  }
+  /* ⚠️ সেশন পড়ার (refreshSession) পরে ডাকতে হয় — আগে পেজ লোডেই চলত, তখন ME সবসময় null থাকায়
+     লগইন করা সদস্যও "লগইন করলে দেওয়া যাবে" দেখতেন। init() থেকে ডাকা হয়। */
+  async function initSig(){
+    if(ME){
+      try{
+        var st = await KHUI.signatureStatus();
+        if(st && st.url) SIG_PATH = st.url;
+      }catch(e){}
     }
-    try{
-      var st = await KHUI.signatureStatus();
-      SIG_PATH = (st && st.url) || null;
-    }catch(e){}
     paintSig();
-  })();
+  }
   el('btnSig').onclick = function(){
+    if(!ME && !INV_TOKEN){ msg('fmMsg','err','আগে লগইন করুন।'); return; }
     KHUI.signaturePad({
       onSave: async function(blob){
-        SIG_PATH = await KHUI.saveSignature(blob);
-        await paintSig();
-        msg('fmMsg','ok','ই-সিগনেচার সংরক্ষণ হয়েছে।');
+        try{
+          if(ME){
+            SIG_PATH = await KHUI.saveSignature(blob);
+            SIG_LOCAL = null;
+          } else {
+            var f = new File([blob], 'signature.png', { type: 'image/png' });
+            SIG_PATH = await upload('committee-docs', '', 'signature', f);
+            if(SIG_LOCAL){ try{ URL.revokeObjectURL(SIG_LOCAL); }catch(e){} }
+            SIG_LOCAL = URL.createObjectURL(blob);
+          }
+          await paintSig();
+          msg('fmMsg','ok','ই-সিগনেচার সংরক্ষণ হয়েছে।');
+        }catch(e){
+          msg('fmMsg','err','স্বাক্ষর সংরক্ষণ হয়নি: ' + esc((e && e.message) || 'আবার চেষ্টা করুন'));
+        }
       }
     });
   };
@@ -1417,6 +1435,7 @@
     var miss = need.filter(function(n){ return !v(n[0]); }).map(function(n){ return n[1]; });
     [[DOCS.nom_photo,'নমিনির ছবি'],[DOCS.nom_nid_front,'নমিনির এনআইডির সামনের পাতা'],
      [DOCS.nom_nid_back,'নমিনির এনআইডির পিছনের পাতা']].forEach(function(d){ if(!d[0]) miss.push(d[1]); });
+    if(!SIG_PATH) miss.push('ই-সিগনেচার');
     if(miss.length){ msg('fmMsg','err','পূরণ ও সংযুক্ত করুন: ' + miss.join(', ')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     if(!(parseInt(v('fNomAge'), 10) > 0)){ msg('fmMsg','err','নমিনির বয়স সঠিকভাবে লিখুন।'); return; }
     if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
@@ -1427,7 +1446,7 @@
         nominee_name: v('fNomName'), nominee_relation: v('fNomRel'),
         nominee_age: parseInt(v('fNomAge'), 10) || null, nominee_nid: v('fNomNid'),
         nominee_photo_url: DOCS.nom_photo, nominee_nid_front_url: DOCS.nom_nid_front,
-        nominee_nid_back_url: DOCS.nom_nid_back, declaration_accepted: true } });
+        nominee_nid_back_url: DOCS.nom_nid_back, signature_url: SIG_PATH || '', declaration_accepted: true } });
       if(r.error) throw r.error;
       await refreshAfterSubmit();
       msg('fmMsg','ok', '<b>সাধারণ সদস্যপদের আবেদন দাখিল হয়েছে।</b> আপনার অনুমোদিত তথ্য ও নমিনির তথ্য অ্যাডমিন যাচাই করে সিদ্ধান্ত জানাবেন। ' +
@@ -1450,6 +1469,7 @@
         : /missing fields/.test(t) ? 'এই তথ্য/নথিগুলো বাকি আছে: ' + esc(t.replace(/^.*missing fields:\s*/, '').split(/[\s,]+/).filter(Boolean)
               .map(function(k){ return MISS_LBL[k.replace(/_url$/, '')] || k; }).join(', '))
         : /declaration required/.test(t) ? 'ঘোষণায় সম্মতি দিন।'
+        : /document reference is not yours/.test(t) ? 'স্বাক্ষরটি এই আমন্ত্রণের নয় — আবার স্বাক্ষর দিন।'
         : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
       }
     }
@@ -1471,6 +1491,7 @@
     if(nomNeed) docNeed = docNeed.concat([[DOCS.nom_photo,'নমিনির ছবি'],[DOCS.nom_nid_front,'নমিনির এনআইডির সামনের পাতা'],
                                           [DOCS.nom_nid_back,'নমিনির এনআইডির পিছনের পাতা']]);
     docNeed.forEach(function(d){ if(!d[0]) miss.push(d[1]); });
+    if(!SIG_PATH) miss.push('ই-সিগনেচার');
     if(miss.length){ msg('fmMsg','err','পূরণ ও সংযুক্ত করুন: ' + miss.join(', ')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     if(nomNeed && !(parseInt(v('fNomAge'), 10) > 0)){ msg('fmMsg','err','নমিনির বয়স সঠিকভাবে লিখুন।'); return; }
     if(!el('fDecl').checked){ msg('fmMsg','err','ঘোষণায় সম্মতি দিন।'); return; }
@@ -1499,6 +1520,7 @@
         declaration_accepted: true,
         photo_url: DOCS.photo, nid_front_url: DOCS.nid_front,
         nid_back_url: DOCS.nid_back, consent_scan_url: DOCS.scan,
+        signature_url: SIG_PATH || '',
         nominee_name: nomNeed ? v('fNomName') : null,
         nominee_relation: nomNeed ? v('fNomRel') : null,
         nominee_age: nomNeed ? (parseInt(v('fNomAge'), 10) || null) : null,
@@ -1528,6 +1550,7 @@
       : /missing fields/.test(t) ? 'এই তথ্য/নথিগুলো বাকি আছে: ' + esc(t.replace(/^.*missing fields:\s*/, '').split(/[\s,]+/).filter(Boolean)
             .map(function(k){ return MISS_LBL[k.replace(/_url$/, '')] || k; }).join(', '))
       : /declaration required/.test(t) ? 'ঘোষণায় সম্মতি দিন।'
+      : /document reference is not yours/.test(t) ? 'একটি নথি বা স্বাক্ষর এই আবেদনের নয় — সেটি আবার দিন।'
       : 'দাখিল ব্যর্থ: ' + esc(t || 'আবার চেষ্টা করুন'));
     }
     b.disabled = false; b.innerHTML = '<i class="ti ti-send"></i> সম্মতিপত্র দাখিল করুন';
@@ -1550,6 +1573,7 @@
     ['photo',             'নিজের ছবি',                    function(){ return DOCS.photo; }],
     ['nid_front',         'এনআইডি — সামনের পাতা',         function(){ return DOCS.nid_front; }],
     ['nid_back',          'এনআইডি — পিছনের পাতা',         function(){ return DOCS.nid_back; }],
+    ['signature',         'ই-সিগনেচার',                    function(){ return SIG_PATH || ''; }],
     ['nominee_name',      'নমিনির নাম',                   function(){ return v('fNomName'); }, needsNominee],
     ['nominee_relation',  'নমিনির সম্পর্ক',               function(){ return v('fNomRel'); }, needsNominee],
     ['nominee_age',       'নমিনির বয়স',                  function(){ return v('fNomAge'); }, needsNominee],
@@ -1563,12 +1587,12 @@
     occupation:'পেশা', mobile:'মোবাইল', district:'জেলা', present_address:'বর্তমান ঠিকানা', permanent_address:'স্থায়ী ঠিকানা',
     photo:'নিজের ছবি', nid_front:'এনআইডি — সামনের পাতা', nid_back:'এনআইডি — পিছনের পাতা', nominee_name:'নমিনির নাম',
     nominee_relation:'নমিনির সম্পর্ক', nominee_age:'নমিনির বয়স', nominee_nid:'নমিনির এনআইডি', nominee_photo:'নমিনির ছবি',
-    nominee_nid_front:'নমিনির এনআইডি — সামনের পাতা', nominee_nid_back:'নমিনির এনআইডি — পিছনের পাতা', declaration:'ঘোষণায় সম্মতি', email:'ই-মেইল ঠিকানা', email_verified:'ইমেইল ভেরিফিকেশন' };
+    nominee_nid_front:'নমিনির এনআইডি — সামনের পাতা', nominee_nid_back:'নমিনির এনআইডি — পিছনের পাতা', declaration:'ঘোষণায় সম্মতি', email:'ই-মেইল ঠিকানা', email_verified:'ইমেইল ভেরিফিকেশন', signature:'ই-সিগনেচার' };
   function calcProgress(){
     var miss = [], done = 0, total = 0;
     ITEMS.forEach(function(it){
       if(it[3] && !it[3]()) return;          /* এই কমিটিতে প্রয়োজন নেই */
-      if(NOMONLY && !/^(nominee_|declaration$)/.test(it[0])) return;   /* বাকিটা আগের অনুমোদিত আবেদন থেকে */
+      if(NOMONLY && !/^(nominee_|declaration$|signature$)/.test(it[0])) return;   /* বাকিটা আগের অনুমোদিত আবেদন থেকে */
       total++;
       if(it[2]()) done++; else miss.push(it[1]);
     });
@@ -1662,7 +1686,7 @@
     if(!ME && INVITE) await loadInviteApp();
     await loadStructure();
     lockPick();
-    if(ME || INVITE) showForm();
+    if(ME || INVITE){ showForm(); initSig(); }
     else { el('authStep').classList.remove('hidden'); el('formStep').classList.add('hidden'); }
     renderMyApps();
     Array.prototype.forEach.call(document.querySelectorAll('#formStep input, #formStep select, #formStep textarea'), function(x){

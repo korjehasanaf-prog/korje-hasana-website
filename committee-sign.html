@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- লিংক-প্রিভিউ: শুধু পাতার নাম (og:url ইচ্ছে করেই নেই — টোকেন URL-এ থাকে)।
+       এই মন্তব্যে কোনো ট্যাগের নাম লেখা যাবে না — সরল স্ক্র্যাপার ভুল করে সেটিকেই শিরোনাম ধরে। -->
+  <meta property="og:title" content="স্বাক্ষর দিন | কর্জে হাসানা ফাউন্ডেশন">
+  <meta property="og:site_name" content="কর্জে হাসানা ফাউন্ডেশন">
+  <meta property="og:type" content="website">
+  <meta name="robots" content="noindex">
+  <title>স্বাক্ষর দিন | কর্জে হাসানা ফাউন্ডেশন</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    /* "শুধু স্বাক্ষর দিন" — কমিটির সদস্যের ব্যক্তিগত লিংক (৩১ অক্টোবর ২০২৬)
+       ⚠️ কার্ড দুই থীমেই নিজের পটভূমি বহন করে (লাইটে সাদা, ডার্কে গাঢ়), স্বাক্ষরের ঘর সবসময় সাদা। */
+    :root{ --ink:#241539; --muted:#5f566f; --violet:#5b3fc4; --green:#0d6e56; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hind Siliguri','Inter',sans-serif;min-height:100vh;padding-bottom:100px;
+      background:linear-gradient(160deg,#1d1030,#150c24 55%,#2a1040);color:#f3edfb}
+    html[data-theme="light"] body{background:linear-gradient(150deg,#fdf3f8,#faf5fd 45%,#fff5ee);color:var(--ink)}
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:url('images/auth-bg.jpg') center/cover no-repeat}
+    .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(155deg,rgba(18,7,31,.78),rgba(26,12,46,.66) 45%,rgba(18,7,31,.82))}
+    html[data-theme="light"] .bg::after{background:linear-gradient(155deg,rgba(255,252,248,.72),rgba(255,250,244,.6) 45%,rgba(253,243,247,.76))}
+    @media(max-width:640px){.bg{background:url('images/auth-bg-mobile.jpg') center/cover no-repeat}}
+    .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:28px 16px 40px}
+    .card{background:#1f1233;border:1px solid rgba(255,255,255,.16);border-radius:20px;overflow:hidden;
+      box-shadow:0 20px 50px rgba(0,0,0,.35)}
+    html[data-theme="light"] .card{background:#fff;border-color:#ece2f4;box-shadow:0 14px 40px rgba(112,72,232,.16)}
+    .top{background:linear-gradient(120deg,#1d1030,#3b2568 55%,#5b3fc4);color:#fff;padding:20px 22px}
+    .org{font-size:12px;color:#e4dafa;letter-spacing:.02em}
+    .top h1{font-size:22px;line-height:1.35;margin-top:2px;color:#fff;display:flex;gap:8px;align-items:center}
+    .body{padding:20px 22px 22px}
+    .who{display:flex;gap:12px;align-items:center;border-radius:14px;padding:13px 14px;margin-bottom:16px;
+      background:rgba(112,72,232,.18);border:1px solid rgba(201,181,245,.35)}
+    html[data-theme="light"] .who{background:#f3eefb;border-color:#ddd0f5}
+    .who i{font-size:26px;color:#c9b5f5}
+    html[data-theme="light"] .who i{color:var(--violet)}
+    .who b{display:block;font-size:17px;color:#fff}
+    html[data-theme="light"] .who b{color:var(--ink)}
+    .who span{display:block;font-size:13px;color:#ddd0ff}
+    html[data-theme="light"] .who span{color:#4a3a80}
+    .who em{display:block;font-style:normal;font-size:12px;color:#c9bde0}
+    html[data-theme="light"] .who em{color:var(--muted)}
+    .lead{font-size:14px;line-height:1.8;color:#e4dafa;margin-bottom:16px}
+    html[data-theme="light"] .lead{color:#3b2f52}
+    .pad{background:#fff;border:2px dashed #c9bcdc;border-radius:14px;min-height:150px;display:flex;align-items:center;
+      justify-content:center;padding:12px;margin-bottom:14px}
+    .pad img{max-width:100%;max-height:160px;display:block}
+    .pad .ph{color:#5f566f;font-size:13.5px;text-align:center;line-height:1.7}
+    .btn{width:100%;border:0;border-radius:12px;padding:14px 16px;font:700 16px 'Hind Siliguri',sans-serif;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;color:#fff;
+      background:linear-gradient(112deg,#b0237a,#7d1fb0 55%,#5b3fc4)}
+    .btn.ok{background:linear-gradient(112deg,#0b5e49,#0d6e56 55%,#11805f)}
+    .btn.alt{background:transparent;color:#e4dafa;border:1.5px solid rgba(228,218,250,.5);margin-top:10px;font-size:14.5px;min-height:46px}
+    html[data-theme="light"] .btn.alt{color:#4a3a80;border-color:#c9bcdc}
+    .btn:disabled{opacity:.65;cursor:wait}
+    .btn:focus-visible{outline:3px solid #f08c28;outline-offset:2px}
+    .msg{display:none;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.7;margin-bottom:14px}
+    .msg.ok{display:block;background:#dcfce7;border:1px solid #86efac;color:#14532d}
+    .msg.err{display:block;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b}
+    .msg.info{display:block;background:#eee7fd;border:1px solid #c9b5f5;color:#3b2568}
+    .done{text-align:center;padding:10px 0 4px}
+    .done .ic{width:72px;height:72px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#0b5e49,#11805f);color:#fff;font-size:38px}
+    .done h2{font-size:20px;margin-bottom:6px;color:#fff}
+    html[data-theme="light"] .done h2{color:var(--ink)}
+    .done p{font-size:14px;line-height:1.8;color:#e4dafa}
+    html[data-theme="light"] .done p{color:#3b2f52}
+    .note{font-size:12px;line-height:1.7;margin-top:14px;color:#c9bde0;display:flex;gap:6px}
+    html[data-theme="light"] .note{color:var(--muted)}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body data-kh-chat="off" data-kh-bot="off" data-kh-sig="off">
+<div class="bg"></div>
+<div class="wrap">
+  <div class="card">
+    <div class="top">
+      <div class="org">কর্জে হাসানা ফাউন্ডেশন · কমিটির সদস্য</div>
+      <h1><i class="ti ti-writing-sign" aria-hidden="true"></i> স্বাক্ষর দিন</h1>
+    </div>
+    <div class="body">
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+      <div id="stLoad" class="lead">লিংকটি যাচাই করা হচ্ছে…</div>
+
+      <div id="stSign" class="hidden">
+        <div class="who"><i class="ti ti-user-check" aria-hidden="true"></i>
+          <div><b id="wName"></b><span id="wPos"></span><em id="wPosEn" data-no-i18n></em></div></div>
+        <p class="lead">কমিটির সভার কার্যবিবরণীর সদস্য তালিকায় বসানোর জন্য শুধু আপনার স্বাক্ষরটি প্রয়োজন —
+          আর কোনো তথ্য দিতে হবে না। আঙুলে এঁকে অথবা কাগজে করা স্বাক্ষরের ছবি তুলে দিন।</p>
+        <div class="pad" id="pad"><div class="ph"><i class="ti ti-signature" style="font-size:30px" aria-hidden="true"></i><br>এখনও স্বাক্ষর দেওয়া হয়নি</div></div>
+        <button class="btn" type="button" id="btnDraw"><i class="ti ti-writing-sign" aria-hidden="true"></i> স্বাক্ষর দিন</button>
+        <button class="btn ok hidden" type="button" id="btnSave"><i class="ti ti-check" aria-hidden="true"></i> স্বাক্ষর জমা দিন</button>
+        <button class="btn alt hidden" type="button" id="btnRedo"><i class="ti ti-refresh" aria-hidden="true"></i> আবার দিন</button>
+        <div class="note"><i class="ti ti-lock" aria-hidden="true"></i> এই লিংকটি কেবল আপনার জন্য — একবার জমা দিলে আর ব্যবহার করা যাবে না।</div>
+      </div>
+
+      <div id="stDone" class="done hidden">
+        <div class="ic" aria-hidden="true"><i class="ti ti-check"></i></div>
+        <h2>ধন্যবাদ, স্বাক্ষর জমা হয়েছে</h2>
+        <p id="doneTxt">আপনার স্বাক্ষর কমিটির সদস্য তালিকায় যুক্ত হয়েছে। এখন এই পাতাটি বন্ধ করতে পারেন।</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="kh-ui.css?v=73">
+<script src="kh-ui.js?v=74"></script>
+<script>
+(function(){
+  'use strict';
+  function sb(){ return (window.KHUI && KHUI.db && KHUI.db()) || window._db || null; }
+  function el(id){ return document.getElementById(id); }
+  function show(id, on){ el(id).classList.toggle('hidden', !on); }
+  function msg(kind, text){ var m = el('msg'); m.className = 'msg' + (kind ? ' ' + kind : ''); m.textContent = text || ''; }
+
+  var TOKEN = new URLSearchParams(location.search).get('t') || '';
+  var BLOB = null, LOCAL = null;
+
+  var REASON = {
+    invalid:   'লিংকটি সঠিক নয়। ফাউন্ডেশনের কাছে নতুন লিংক চেয়ে নিন।',
+    expired:   'এই লিংকের মেয়াদ শেষ হয়ে গেছে। ফাউন্ডেশনের কাছে নতুন লিংক চেয়ে নিন।',
+    cancelled: 'এই লিংকটি বাতিল করা হয়েছে।'
+  };
+
+  async function load(){
+    if(!TOKEN){ show('stLoad', false); msg('err', REASON.invalid); return; }
+    var d = null;
+    try{
+      var r = await sb().rpc('sig_request_info', { p_token: TOKEN });
+      if(r.error) throw r.error;
+      d = r.data;
+    }catch(e){ show('stLoad', false); msg('err', 'সংযোগে সমস্যা — একটু পরে আবার চেষ্টা করুন।'); return; }
+    show('stLoad', false);
+    if(!d || !d.ok){
+      if(d && d.reason === 'done'){
+        el('doneTxt').textContent = 'এই লিংক দিয়ে স্বাক্ষর আগেই জমা হয়েছে। স্বাক্ষর বদলাতে চাইলে ফাউন্ডেশনের কাছে নতুন লিংক চেয়ে নিন।';
+        show('stDone', true); return;
+      }
+      msg('err', REASON[(d && d.reason) || 'invalid'] || REASON.invalid);
+      return;
+    }
+    el('wName').textContent = d.name || '';
+    el('wPos').textContent = [d.position, d.committee].filter(Boolean).join(' · ');
+    el('wPosEn').textContent = [d.position_en, d.committee_en].filter(Boolean).join(' · ');
+    show('stSign', true);
+  }
+
+  function paint(){
+    var pad = el('pad');
+    if(LOCAL){
+      pad.innerHTML = '';
+      var img = new Image(); img.alt = 'আপনার স্বাক্ষর'; img.src = LOCAL; pad.appendChild(img);
+    }
+    show('btnDraw', !LOCAL); show('btnSave', !!LOCAL); show('btnRedo', !!LOCAL);
+  }
+
+  function draw(){
+    if(!(window.KHUI && KHUI.signaturePad)){ msg('err', 'পাতাটি পুরোপুরি লোড হয়নি — আবার খুলুন।'); return; }
+    KHUI.signaturePad({
+      onSave: function(blob){
+        BLOB = blob;
+        if(LOCAL){ try{ URL.revokeObjectURL(LOCAL); }catch(e){} }
+        LOCAL = URL.createObjectURL(blob);
+        msg('info', 'স্বাক্ষরটি দেখে নিন — ঠিক থাকলে "স্বাক্ষর জমা দিন" চাপুন।');
+        paint();
+        el('btnSave').focus();
+      }
+    });
+  }
+
+  function errText(e){
+    var m = String((e && (e.message || e.error)) || e || '');
+    if(/row-level security|unauthori[sz]ed|403|link expired|invalid link/i.test(m)) return 'এই লিংকটি আর বৈধ নেই — ফাউন্ডেশনের কাছে নতুন লিংক চেয়ে নিন।';
+    if(/already signed/.test(m)) return 'এই লিংক দিয়ে স্বাক্ষর আগেই জমা হয়েছে।';
+    if(/fetch|network/i.test(m)) return 'ইন্টারনেট সংযোগে সমস্যা — আবার চেষ্টা করুন।';
+    return 'জমা হয়নি: ' + (m || 'আবার চেষ্টা করুন');
+  }
+
+  async function save(){
+    if(!BLOB) return;
+    var b = el('btnSave'), old = b.innerHTML;
+    b.disabled = true; el('btnRedo').disabled = true;
+    b.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true"></i> জমা হচ্ছে…';
+    try{
+      /* ⚠️ upsert অবশ্যই false — anon-এর কেবল INSERT অধিকার (আমন্ত্রণ লিংকের আপলোডের মতোই) */
+      var path = 'sig/' + TOKEN + '/signature-' + Date.now() + '.png';
+      var up = await sb().storage.from('committee-docs').upload(path, BLOB, { upsert: false, contentType: 'image/png', cacheControl: '3600' });
+      if(up.error) throw up.error;
+      var r = await sb().rpc('submit_signature_by_token', { p_token: TOKEN, p_path: path });
+      if(r.error) throw r.error;
+      msg('', '');
+      show('stSign', false); show('stDone', true);
+    }catch(e){
+      msg('err', errText(e));
+      b.disabled = false; el('btnRedo').disabled = false; b.innerHTML = old;
+    }
+  }
+
+  el('btnDraw').onclick = draw;
+  el('btnRedo').onclick = draw;
+  el('btnSave').onclick = save;
+  load();
+})();
+</script>
+<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n.js?v=1" defer></script>
+</body>
+</html>
