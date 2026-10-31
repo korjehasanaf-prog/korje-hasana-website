@@ -4664,8 +4664,11 @@ html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
    সাদা কাগজ নিজের পটভূমি বহন করে → দুই থীমে ও গাঢ় অ্যাডমিন পর্দায় এক।
    রঙ (সাদার উপর): লেখা #2a2438 · উপলেখা #5f566f ≥৬.৮:১ · সেকশন #4a2d7a on #f3ecff ≈৯:১ · সবুজ #0b6b3f on #e6f6ee ≈৬:১
    ⚠️ সেকশন ৯-এর ঢালাও লাইট-থীম নিয়ম এড়াতে ক্লাস দুবার (.kh-stm.kh-stm) + !important।
+   ⚠️⚠️ "Speak to Me" এভাটারের পর্দার মূল উপাদানেরও ক্লাস .kh-stm (role="dialog") — তাই মূল নিয়ম দুটি :not([role="dialog"])
+   দিয়ে আলাদা (৩১ অক্টো ২০২৬)। আগে এভাটারের পর্দায় সাদা পটভূমি, গাঢ় লেখা, 760px সীমা ও ছোট প্যাডিং চেপে বসত — মোবাইলে উপরের
+   বন্ধ-বাটনটি ভিডিও কার্ডের নিচে ঢাকা পড়ত। নতুন কম্পোনেন্টে .kh-stm নাম আর নেওয়া যাবে না।
    ══════════════════════════════════════════════════════════════ */
-.kh-stm.kh-stm{background:#fff !important;color:#2a2438 !important;border:1px solid #e3dcef;border-radius:18px;padding:18px 20px;box-shadow:0 12px 34px rgba(36,21,57,.12);max-width:760px;margin:0 auto;font-family:'Hind Siliguri','Inter',sans-serif}
+.kh-stm.kh-stm:not([role="dialog"]){background:#fff !important;color:#2a2438 !important;border:1px solid #e3dcef;border-radius:18px;padding:18px 20px;box-shadow:0 12px 34px rgba(36,21,57,.12);max-width:760px;margin:0 auto;font-family:'Hind Siliguri','Inter',sans-serif}
 .kh-stm.kh-stm *{box-sizing:border-box}
 .kh-stm.kh-stm .kh-stm-h{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .kh-stm.kh-stm .kh-stm-h i{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;background:linear-gradient(135deg,#5b36c9,#b0245a) !important;color:#fff !important;flex:0 0 auto}
@@ -4695,7 +4698,7 @@ html[data-theme="light"] .kh-cp .kh-cp-acts .is-main { color: #fff !important; }
 .kh-stm.kh-stm .kh-stm-led .kh-stm-cr,.kh-stm.kh-stm .kh-stm-led .kh-stm-dr{display:block;font-weight:700;background:transparent !important}
 .kh-stm.kh-stm .kh-stm-led .kh-stm-cr{color:#0b6b3f !important}
 .kh-stm.kh-stm .kh-stm-led .kh-stm-dr{color:#a3261c !important}
-@media (max-width:520px){.kh-stm.kh-stm{padding:14px 12px;border-radius:14px}.kh-stm.kh-stm .kh-stm-row{font-size:14px}}
+@media (max-width:520px){.kh-stm.kh-stm:not([role="dialog"]){padding:14px 12px;border-radius:14px}.kh-stm.kh-stm .kh-stm-row{font-size:14px}}
 
 /* ── 📅 তারিখ বাছাই — চাকা-পিকার (ভিডিও "Date Picker"-এর আদলে) ───────
    দুই থীমেই এক কাঠামো। লেখার রঙ মেপে বসানো:

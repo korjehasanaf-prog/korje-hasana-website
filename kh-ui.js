@@ -3996,16 +3996,25 @@
     var TTS_DROP = /[*_`~#>|\[\](){}<>^=+\\/•·◦▪●■→←↔⇒–—…]/g;
     var TTS_EMOJI = /[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}]/gu;
 
-    function ttsClean(s) {
+    /* 🌐 পড়ার আগে বসানো শব্দ — লেখার ভাষাতেই (আগে সবসময় বাংলা বসত, তাই ৳-ওয়ালা ইংরেজি/আরবি
+       লেখায় "টাকা" ঢুকে ভাষা-চেনা ভুল হত ও বাংলা কণ্ঠে পড়া হত) */
+    var TTS_W = {
+      bn: { link: ' লিংক ', mail: ' ই-মেইল ঠিকানা ', taka: ' টাকা ', usd: ' ডলার ', pct: ' শতাংশ ', and: ' এবং ' },
+      en: { link: ' link ', mail: ' e-mail address ', taka: ' taka ', usd: ' dollars ', pct: ' percent ', and: ' and ' },
+      ar: { link: ' رابط ', mail: ' عنوان البريد الإلكتروني ', taka: ' تاكا ', usd: ' دولار ', pct: ' بالمئة ', and: ' و ' }
+    };
+    function ttsClean(s, lang) {
       var t = String(s || '');
+      var w = TTS_W[lang] || TTS_W[textLang(t)] || TTS_W.bn;
       t = t.replace(/```[\s\S]*?```/g, ' ');            /* কোড ব্লক পড়া হয় না */
       t = t.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');    /* [লেখা](লিংক) → লেখা */
-      t = t.replace(/https?:\/\/\S+|www\.\S+/gi, ' লিংক ');
-      t = t.replace(/[\w.+-]+@[\w.-]+\.\w+/g, ' ই-মেইল ঠিকানা ');
+      t = t.replace(/https?:\/\/\S+|www\.\S+/gi, w.link);
+      t = t.replace(/[\w.+-]+@[\w.-]+\.\w+/g, w.mail);
       t = t.replace(TTS_EMOJI, ' ');
       t = t.replace(/^\s*[-*•·—]+\s+/gm, ' ');          /* বুলেটের দাগ */
-      t = t.replace(/৳\s*/g, ' টাকা ').replace(/[$]\s*/g, ' ডলার ');
-      t = t.replace(/%/g, ' শতাংশ ').replace(/&/g, ' এবং ');
+      t = t.replace(/৳\s*/g, w.taka).replace(/[$]\s*/g, w.usd);
+      t = t.replace(/%/g, w.pct).replace(/&/g, w.and);
+      if (w !== TTS_W.bn) t = t.replace(/[০-৯]/g, function (d) { return String(d.charCodeAt(0) - 0x09E6); });
       t = t.replace(TTS_DROP, ' ');
       t = t.replace(/([।!?,;:])\1+/g, '$1');
       return t.replace(/\s+/g, ' ').trim();
@@ -4030,11 +4039,17 @@
     /* ⚠️ ব্যবহারকারীর সিদ্ধান্ত: **সবসময় নরম নারীকণ্ঠ** (পুরুষকণ্ঠ কখনো নয় —
        ২৬ সেপ্টে ২০২৬-এর সংশোধন; আগে বাংলা পুরুষকণ্ঠ ফলব্যাক ছিল)।
        ⚠️ `getVoices()` প্রথমবার ফাঁকা আসতে পারে, তাই ক্যাশ করা হয় না। */
-    var TTS_F = /(female|woman|girl|নারী|মহিলা|nabanita|tanish|aditi|raveena|kalpana|swara|veena|lekha|heera|sarika|pooja|neerja|kajal|priya|ananya|salma|shruti|isha|zira|hazel|susan|linda|catherine|\beva\b|samantha|karen|fiona|tessa|moira|serena|allison|\bava\b|joanna|kendra|kimberly|salli|nicole|\bamy\b|emma|sonia|libby|maisie|natasha|clara|yasmin)/i;
-    var TTS_M = /(\bmale\b|\bman\b|পুরুষ|bashkar|pradeep|prabhat|madhur|hemant|ravi|\bmark\b|david|george|james|\balex\b|daniel|\bfred\b|oliver|thomas|aaron|arthur|ryan|guy|liam|matthew|justin|joey|brian)/i;
+    var TTS_F = /(female|woman|girl|নারী|মহিলা|nabanita|tanish|aditi|raveena|kalpana|swara|veena|lekha|heera|sarika|pooja|neerja|kajal|priya|ananya|salma|shruti|isha|zira|hazel|susan|linda|catherine|\beva\b|samantha|karen|fiona|tessa|moira|serena|allison|\bava\b|joanna|kendra|kimberly|salli|nicole|\bamy\b|emma|sonia|libby|maisie|natasha|clara|yasmin|hoda|zariyah|laila|amal|fatima|noura|\bsana\b|aysha|mouna|amany|\breem\b|salwa|rana)/i;
+    var TTS_M = /(\bmale\b|\bman\b|পুরুষ|bashkar|pradeep|prabhat|madhur|hemant|ravi|\bmark\b|david|george|james|\balex\b|daniel|\bfred\b|oliver|thomas|aaron|arthur|ryan|guy|liam|matthew|justin|joey|brian|naayf|hamed|shakir|bassel|moaz|hamdan|taim|\bomar\b|fahed|jamal|\bali\b|\brami\b|hedi|\bsaif\b)/i;
 
-    /* 🌐 সেশন ৬: দ্বিভাষিক — লেখায় বাংলা হরফ থাকলে 'bn', নাহলে 'en' */
-    function textLang(s) { s = String(s || ''); return /[ঀ-৿]/.test(s) ? 'bn' : (/[\u0600-\u06FF]/.test(s) ? 'ar' : 'en'); }
+    /* 🌐 লেখার ভাষা — বাংলা ও আরবি **অক্ষর গুনে** (৳ ও বাংলা অঙ্কও বাংলা ব্লকে পড়ে, তাই গোনা হয় না;
+       আগে একটি ৳ থাকলেই ইংরেজি/আরবি উত্তর বাংলা ধরা হত) */
+    function textLang(s) {
+      s = String(s || '');
+      var ar = (s.match(/[\u0621-\u064A\u0671-\u06D3]/g) || []).length;
+      var bn = (s.match(/[\u0985-\u09B9\u09BE-\u09CC\u09CE\u09DC-\u09E1]/g) || []).length;
+      return ar > bn ? 'ar' : (bn ? 'bn' : 'en');
+    }
     /* আরবি উত্তরে অঙ্ক ইংরেজিতে (সিদ্ধান্ত: ৩১ অক্টোবর ২০২৬) — মডেল ٠-٩ লিখলেও 0-9 দেখায় */
     function westDigits(s) { return String(s || '').replace(/[\u0660-\u0669\u06F0-\u06F9]/g, function (c) { var k = c.charCodeAt(0); return String(k >= 0x6F0 ? k - 0x6F0 : k - 0x660); }); }
     /* শোনার ভাষা — Speak to Me-র ভাষা, নাহলে সাইটের ভাষা (সব মাইকে এক) */
@@ -4042,9 +4057,7 @@
       if (window.KH_VOICE_LANG) return window.KH_VOICE_LANG;
       /* Speak to Me খোলা থাকলে তার ভাষা (টগল), নাহলে সাইটের ভাষা */
       var l = stm ? stm.lang : siteLang();
-      /* আরবি — সাইট আরবিতে থাকলে মাইক আরবি শোনে (মুখোমুখি আলাপ এখনো বাংলা/ইংরেজি) */
-      if (!stm && window.KHI18N && KHI18N.getLang && KHI18N.getLang() === 'ar') return 'ar-SA';
-      return l === 'en' ? 'en-US' : 'bn-BD';
+      return l === 'en' ? 'en-US' : (l === 'ar' ? 'ar-SA' : 'bn-BD');
     }
     function pickVoice(lang) {
       lang = lang === 'en' || lang === 'ar' ? lang : 'bn';
@@ -4118,10 +4131,10 @@
       var chunkHook = opts.onChunk || function () {};
       var ok = opts.force ? ('speechSynthesis' in window) : canSpeak();
       if (!ok) { done(false); return; }
-      var clean = ttsClean(text);
+      var tl = textLang(text);                          /* ভাষা মূল লেখা থেকে, পরিষ্কারের আগে */
+      var clean = ttsClean(text, tl);
       if (!clean) { done(false); return; }
       var chunks = ttsChunks(clean, 180);
-      var tl = textLang(clean);
       var v = pickVoice(tl);
       var myTurn = ++speakSeq, started = false, idx = 0;
       try { speechSynthesis.cancel(); } catch (e) {}
@@ -4749,7 +4762,7 @@
          টুকরো করে **সব টুকরো একসাথে** চাওয়া হয়; প্রথম টুকরোটি ছোট (একটি বাক্য),
          তাই সেটি আগে আসে ও বাজতে শুরু করে, বাকিগুলো ততক্ষণে তৈরি হয়ে যায়।
          সালামটি প্রতিবার একই, তাই আগে থেকে বানানো ফাইল (site-assets) থেকে আসে। */
-      var isGreet = (text === STM_GREET || text === STM_GREET_EN);
+      var isGreet = (text === STM_GREET || text === STM_GREET_EN || text === STM_GREET_AR);
       var parts = isGreet ? [text] : stmSplit(text);
       var reqs = parts.map(function (p) { return isGreet ? stmGreetAudio(p) : stmTtsFetch(p); });
       var started = false;
@@ -4810,6 +4823,13 @@
     /* 🌐 ইংরেজি সালাম — একই কণ্ঠে আগে থেকে বানানো */
     var STM_GREET_EN = 'Assalamu Alaikum! I am Hasana. What would you like to know about Korje Hasana or your account?';
     var STM_GREET_EN_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-azure-en-v1.pcm';
+    /* 🌐 আরবি সালাম (৩১ অক্টো ২০২৬)। ⚠️ ফাইলটি Azure কণ্ঠ চালু থাকলে kh-tts-এর সিস্টেম-পথে
+       (store: 'bot/greet-azure-ar-v1.pcm') বানাতে হয়; না থাকলে সালাম সাধারণ পথে (সার্ভার, নয়তো ব্রাউজারের কণ্ঠ) আসে। */
+    var STM_GREET_AR = 'السلام عليكم! أنا حسنة. كيف يمكنني مساعدتك بخصوص مؤسسة القرض الحسن أو حسابك؟';
+    var STM_GREET_AR_URL = 'https://fgczixybyrzkrsoqrgdl.supabase.co/storage/v1/object/public/site-assets/bot/greet-azure-ar-v1.pcm';
+    function stmGreetText(l) { return l === 'en' ? STM_GREET_EN : (l === 'ar' ? STM_GREET_AR : STM_GREET); }
+    /* মুখোমুখি আলাপের ছোট লেখা — দর্শকের বাছা ভাষায় (সাইটের ভাষা থেকে শুরু, টগলে বদলায়) */
+    function stmL(bn, en, ar) { var l = stm ? stm.lang : siteLang(); return l === 'en' ? en : (l === 'ar' ? ar : bn); }
 
     /* উত্তর ভাগ — প্রথমটি ছোট (≤৯০ অক্ষর), বাকিগুলো ≤২২০, সর্বোচ্চ ৪ টুকরো */
     function stmSplit(text) {
@@ -4846,7 +4866,7 @@
       if (!stmAudio()) return null;
       text = text || STM_GREET;
       try {
-        var r = await fetch(text === STM_GREET_EN ? STM_GREET_EN_URL : STM_GREET_URL);
+        var r = await fetch(text === STM_GREET_EN ? STM_GREET_EN_URL : (text === STM_GREET_AR ? STM_GREET_AR_URL : STM_GREET_URL));
         if (r.ok) {
           var ab = new Uint8Array(await r.arrayBuffer()), bin = '', CH = 0x8000;
           for (var i = 0; i < ab.length; i += CH) bin += String.fromCharCode.apply(null, ab.subarray(i, i + CH));
@@ -4879,7 +4899,7 @@
         var res = await fetch(base + '/kh-tts', {
           method: 'POST', signal: ctl.signal,
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-          body: JSON.stringify({ text: text })
+          body: JSON.stringify({ text: text, lang: stm && stm.lang })
         });
         clearTimeout(tm);
         var out = await res.json();
@@ -4979,7 +4999,7 @@
           stm.el.classList.remove('is-talking');
           if (stm.face) stm.face.talk(false);
           /* কণ্ঠ চলেনি (ব্রাউজারে কণ্ঠ নেই) — উত্তর যেন হারিয়ে না যায় */
-          if (!started) { stm.cap.hidden = false; stm.capWho.textContent = 'হাসানা'; stm.capText.textContent = text; }
+          if (!started) { stm.cap.hidden = false; stm.capWho.textContent = stmL('হাসানা', 'Hasana', 'حسنة'); stm.capText.textContent = text; }
           if (done) done(started);
         }
       });
@@ -5132,28 +5152,29 @@
         /* ভাষা Speak to Me-র শুরুতে দর্শক নিজে বেছে নেন — বট সেটিতেই কথা বলে;
            শোনার সময় ধরা ভাষা (lang) সেটি বদলায় না */
         void lang;
-        stmCaption(stm.lang === 'en' ? 'You' : 'আপনি', t);
+        stmCaption(stmL('আপনি', 'You', 'أنت'), t);
         paintStmMic();
         stmAsk(t);
         return;
       }
-      var en = stm.lang === 'en';
       if (stm.denied) {
         stmMicOff();
         stmShow('idle');
-        stmStatus(en ? 'Microphone permission was not given — allow it from the 🔒 icon beside the address bar'
-                     : 'মাইকের অনুমতি পাওয়া যায়নি — ঠিকানা বারের 🔒 আইকনে গিয়ে মাইক্রোফোন Allow করুন');
+        stmStatus(stmL('মাইকের অনুমতি পাওয়া যায়নি — ঠিকানা বারের 🔒 আইকনে গিয়ে মাইক্রোফোন Allow করুন',
+                       'Microphone permission was not given — allow it from the 🔒 icon beside the address bar',
+                       'لم يُمنح إذن الميكروفون — اسمح به من رمز 🔒 بجوار شريط العنوان'));
       } else if (stm.paused) {
         stmShow('idle');
-        stmStatus(en ? 'Paused — tap the mic to talk' : 'থামানো আছে — কথা বলতে মাইকে চাপুন');
+        stmStatus(stmL('থামানো আছে — কথা বলতে মাইকে চাপুন', 'Paused — tap the mic to talk', 'متوقف مؤقتًا — اضغط على الميكروفون للتحدث'));
       } else {
         stm.empty = (stm.empty || 0) + 1;
         if (stm.empty >= 3) {
           stm.paused = true;
           stmMicOff();
           stmShow('idle');
-          stmStatus(en ? 'I could not hear anything — tap the mic to speak again'
-                       : 'কিছু শুনতে পাইনি — আবার বলতে মাইকে চাপুন');
+          stmStatus(stmL('কিছু শুনতে পাইনি — আবার বলতে মাইকে চাপুন',
+                         'I could not hear anything — tap the mic to speak again',
+                         'لم أسمع شيئًا — اضغط على الميكروفون لتتحدث مرة أخرى'));
         } else {
           setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
         }
@@ -5166,7 +5187,7 @@
       if (stm.listening && stm.rec) return;
       var id = stm.id, got = '';
       var r = new SR();
-      r.lang = stm.lang === 'en' ? 'en-US' : (window.KH_VOICE_LANG || 'bn-BD');
+      r.lang = stm.lang === 'en' ? 'en-US' : (stm.lang === 'ar' ? 'ar-SA' : (window.KH_VOICE_LANG || 'bn-BD'));
       r.interimResults = true;
       r.continuous = false;
       r.maxAlternatives = 1;
@@ -5185,7 +5206,7 @@
           var t = ev.results[i][0].transcript;
           if (ev.results[i].isFinal) got += t; else intr += t;
         }
-        stmCaption(stm.lang === 'en' ? 'You' : 'আপনি', (got + intr).trim());
+        stmCaption(stmL('আপনি', 'You', 'أنت'), (got + intr).trim());
       };
       r.onerror = function (ev) {
         if (!stmAlive(id)) return;
@@ -5245,9 +5266,9 @@
       stm.busy = false;
       if (needLogin) { stmGate(); return; }
       if (!reply) {
-        reply = stm.lang === 'en'
-          ? 'Sorry, I cannot get an answer right now. Please try again in a moment.'
-          : 'দুঃখিত, এই মুহূর্তে উত্তর আনতে পারছি না। একটু পরে আবার বলুন।';
+        reply = stmL('দুঃখিত, এই মুহূর্তে উত্তর আনতে পারছি না। একটু পরে আবার বলুন।',
+                     'Sorry, I cannot get an answer right now. Please try again in a moment.',
+                     'عذرًا، لا أستطيع الحصول على إجابة الآن. يُرجى المحاولة بعد قليل.');
         mood = 'empathy'; gesture = 'none';
       } else {
         history.push({ role: 'user', content: q });
@@ -5257,7 +5278,7 @@
       stmSay(reply, mood, gesture, function () {
         if (!stmAlive(id)) return;
         if (!stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 400);
-        else { stmShow('idle'); stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন'); }
+        else { stmShow('idle'); stmStatus(stmL('থামানো আছে — কথা বলতে মাইকে চাপুন', 'Paused — tap the mic to talk', 'متوقف مؤقتًا — اضغط على الميكروفون للتحدث')); }
       });
     }
 
@@ -5292,25 +5313,27 @@
           '<span class="kh-stm-badge">হাসানা</span>' +
           '<button type="button" class="kh-stm-cc" aria-pressed="false" title="যা বলা হচ্ছে তা লেখায় দেখান">' +
             '<i class="ti ti-badge-cc" aria-hidden="true"></i><span>লেখা</span></button>' +
-          /* 🌐 ভাষা: ভিডিও কার্ডের কোণের "EN | বাংলা" টগল — সাইটের ভাষা থেকে শুরু, মাঝপথে বদলানো যায় */
+          /* 🌐 ভাষা: ভিডিও কার্ডের কোণের "EN | বাংলা | العربية" টগল — সাইটের ভাষা থেকে শুরু, মাঝপথে বদলানো যায় */
           '<button type="button" class="kh-stm-x" aria-label="বন্ধ করুন"><i class="ti ti-x" aria-hidden="true"></i></button>' +
         '</div>' +
         '<div class="kh-stm-stage" data-state="idle" data-mood="neutral">' +
           /* ভিডিওগুলো (প্রতি ক্লিপে একটি) openStm()-এ ক্লিপের তালিকা পেলে বসে */
           '<div class="kh-stm-photo" aria-hidden="true"><span class="kh-av"></span></div>' +
           '<div class="kh-stm-wave" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>' +
-          '<div class="kh-stm-lang" role="group" aria-label="কথার ভাষা · Language">' +
-            '<button type="button" data-l="en" aria-pressed="false">EN</button>' +
-            '<button type="button" data-l="bn" aria-pressed="false">বাংলা</button>' +
+          /* ⚠️ data-no-i18n — ভাষার নামগুলো নিজ নিজ ভাষাতেই থাকে; ক্যাপশন বট/দর্শকের কথা, অনুবাদ নয় */
+          '<div class="kh-stm-lang" role="group" aria-label="কথার ভাষা · Language · اللغة" data-no-i18n>' +
+            '<button type="button" data-l="en" lang="en" aria-pressed="false">EN</button>' +
+            '<button type="button" data-l="bn" lang="bn" aria-pressed="false">বাংলা</button>' +
+            '<button type="button" data-l="ar" lang="ar" aria-pressed="false">العربية</button>' +
           '</div>' +
-          '<div class="kh-stm-cap" hidden><b></b><span></span></div>' +
+          '<div class="kh-stm-cap" dir="auto" data-no-i18n hidden><b></b><span></span></div>' +
           '<div class="kh-stm-gate" hidden>' +
             '<i class="ti ti-lock" aria-hidden="true"></i>' +
             '<p>মুখোমুখি কথা বলার সুবিধাটি কেবল সদস্যদের জন্য।<br>অনুগ্রহ করে লগইন করুন।</p>' +
             '<a class="kh-stm-login" href="user-login.html?next=' + here + '">লগইন করুন</a>' +
           '</div>' +
         '</div>' +
-        '<p class="kh-stm-status" aria-live="polite"></p>' +
+        '<p class="kh-stm-status" aria-live="polite" dir="auto" data-no-i18n></p>' +
         '<div class="kh-stm-ctrl">' +
           '<button type="button" class="kh-stm-mic" aria-pressed="true"></button>' +
           '<button type="button" class="kh-stm-end"><i class="ti ti-phone-off" aria-hidden="true"></i><span>কথা শেষ</span></button>' +
@@ -5335,7 +5358,7 @@
         micB: el.querySelector('.kh-stm-mic'),
         ccB: el.querySelector('.kh-stm-cc'),
         cc: cc, paused: false, listening: false, speaking: false, busy: false, empty: 0,
-        lang: (forced === 'en' || forced === 'bn') ? forced : siteLang(),
+        lang: (forced === 'en' || forced === 'bn' || forced === 'ar') ? forced : siteLang(),
         langB: el.querySelectorAll('.kh-stm-lang button')
       };
       var id = stm.id;
@@ -5371,7 +5394,7 @@
           if (!stm.busy) stmListen();
         } else {
           stm.paused = true; stmStopListen(); stmMicOff(); paintStmMic();   /* মাইকের বাতিও নেভে */
-          if (!stm.speaking && !stm.busy) { stmShow('idle'); stmStatus('থামানো আছে — কথা বলতে মাইকে চাপুন'); }
+          if (!stm.speaking && !stm.busy) { stmShow('idle'); stmStatus(stmL('থামানো আছে — কথা বলতে মাইকে চাপুন', 'Paused — tap the mic to talk', 'متوقف مؤقتًا — اضغط على الميكروفون للتحدث')); }
         }
       };
       setTimeout(function () { try { el.querySelector('.kh-stm-x').focus(); } catch (e) {} }, 60);
@@ -5409,18 +5432,19 @@
       }
 
       stm.ready = true;
-      stmSay(stm.lang === 'en' ? STM_GREET_EN : STM_GREET,
+      stmSay(stmGreetText(stm.lang),
         'smile', 'greet', function () {
           if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
         });
     }
 
-    /* 🌐 ভাষা — সাইটের ভাষা থেকে শুরু (kh-i18n: 'kh_lang'); মাঝপথে ভিডিও কার্ডের কোণের
-       "EN | বাংলা" টগলে বদলানো যায়। বট যে ভাষায় কথা বলে, প্রশ্ন শোনাও সেই ভাষায়। */
+    /* 🌐 ভাষা — সাইটের ভাষা থেকে শুরু (kh-i18n: 'kh_lang' = en | bn | ar); মাঝপথে ভিডিও কার্ডের কোণের
+       "EN | বাংলা | العربية" টগলে বদলানো যায়। বট যে ভাষায় কথা বলে, প্রশ্ন শোনাও সেই ভাষায়।
+       ⚠️ আগে এখানে কেবল bn/en ছিল — আরবি সাইটে 'en' ফিরত, তাই এভাটার ইংরেজিতে কথা বলত (৩১ অক্টো ২০২৬)। */
     function siteLang() {
       try {
         var l = (window.KHI18N && typeof KHI18N.getLang === 'function') ? KHI18N.getLang() : localStorage.getItem('kh_lang');
-        return l === 'bn' ? 'bn' : 'en';
+        return l === 'bn' ? 'bn' : (l === 'ar' ? 'ar' : 'en');
       } catch (e) { return 'en'; }
     }
     function paintLang() {
@@ -5436,7 +5460,7 @@
        এর জন্য আলাদা সার্ভার-কণ্ঠ লাগে না। সালাম শেষ হওয়ার আগে বদলালে শুধু ভাষা বদলায়। */
     function stmSetLang(l) {
       if (!stm) return;
-      l = l === 'en' ? 'en' : 'bn';
+      l = l === 'en' ? 'en' : (l === 'ar' ? 'ar' : 'bn');
       if (stm.lang === l) return;
       if (!stm.ready || (stm.gate && !stm.gate.hidden)) {
         stm.lang = l; stm.el.setAttribute('lang', l); paintLang();
@@ -5453,7 +5477,7 @@
       paintLang();
       stmCapClear();
       var id = stm.id;
-      stmSay(l === 'en' ? STM_GREET_EN : STM_GREET, 'smile', 'greet', function () {
+      stmSay(stmGreetText(l), 'smile', 'greet', function () {
         if (stmAlive(id) && !stm.paused) setTimeout(function () { if (stmAlive(id)) stmListen(); }, 300);
       });
     }
@@ -5541,7 +5565,7 @@
         var timer = setTimeout(function () { ctl.abort(); }, 50000);
         var res = await fetch(base + '/kh-chat', {
           method: 'POST', headers: headers, signal: ctl.signal,
-          body: JSON.stringify({ q: q, visitor: vid, history: history.slice(-8) })
+          body: JSON.stringify({ q: q, visitor: vid, history: history.slice(-8), lang: siteLang() })
         });
         clearTimeout(timer);
         var out = await res.json();
