@@ -1708,7 +1708,7 @@ function openVoucher() {
   document.getElementById('v_email').textContent   = email;
   document.getElementById('v_method').textContent  = methodName(selectedPay);
   document.getElementById('v_freq').textContent    = freqMap[donationFreq] || donationFreq;
-  document.getElementById('v_datetime').textContent= now.toLocaleString('en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('v_datetime').textContent= now.toLocaleString((window.KHI18N && KHI18N.getLang() === 'ar') ? 'ar-u-nu-latn' : 'en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
   /* লগইন থাকলে ভাউচারে সদস্যের ছবি ও পরিচয় */
   paintVoucherMember(name);
@@ -1906,9 +1906,9 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
 <script>
 /* লগইন থাকলে দাতার তথ্য স্বয়ংক্রিয় পূরণ */
@@ -1961,8 +1961,8 @@ function downloadCertPDF() {
   } else go();
 })();
 </script>
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
 </body>
 </html>

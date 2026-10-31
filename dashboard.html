@@ -443,7 +443,7 @@ html[data-theme="light"] #panel-committee-roster{--cr-card:#ffffff;--cr-card2:#f
   <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
-<body data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">
+<body data-kh-langs="bn,en" data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">
 
 <!-- ACCESS DENIED -->
 <div id="accessDenied">
@@ -3675,7 +3675,7 @@ async function submitInstallment() {
   if (rep && rep.id) {
     const bName = (document.getElementById('inst-borrowerName') || {}).textContent
                || (document.getElementById('inst-search') || {}).value || 'সদস্য';
-    const METHOD = { cash:'নগদ', bkash:'বিকাশ', nagad:'নগদ (Nagad)', bank:'ব্যাংক', other:'অন্যান্য' };
+    const METHOD = { cash:'নগদ টাকা', bkash:'বিকাশ', nagad:'নগদ (Nagad)', bank:'ব্যাংক', other:'অন্যান্য' };
     showEntryVoucher({
       title: 'কিস্তি আদায় রশিদ', no: 'KH-EMI-' + rep.id.replace(/-/g,'').slice(0,6).toUpperCase(),
       amount: amount, status: 'আদায় হয়েছে', name: bName,
@@ -7179,12 +7179,12 @@ function catBn(s){return{operations:'পরিচালনা',general:'সা�
 // ════════════════════════════════════════
 initAdmin();
 </script>
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
 </body>
 </html>

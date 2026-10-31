@@ -1282,7 +1282,9 @@
 
     var amountTxt = '৳' + KHUI.bn(Number(cfg.amount || 0).toLocaleString('en-IN'));
     var when = cfg.date ? new Date(cfg.date) : new Date();
-    var whenTxt = when.toLocaleString('en-GB', {
+    /* আরবিতে মাসের নাম আরবিতে, অঙ্ক ইংরেজিতে (০-৯ নয়, ٠-٩ নয়) */
+    var vLang = (window.KHI18N && KHI18N.getLang && KHI18N.getLang()) || 'bn';
+    var whenTxt = when.toLocaleString(vLang === 'ar' ? 'ar-u-nu-latn' : 'en-GB', {
       day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
@@ -1305,7 +1307,7 @@
           '<div class="kh-vch-top">' +
             '<div class="kh-vch-brand">' +
               '<div class="kh-vch-logo">KH</div>' +
-              '<div><b>কর্জে হাসানা ফাউন্ডেশন</b><span>Korje Hasana Foundation</span></div>' +
+              '<div><b>কর্জে হাসানা ফাউন্ডেশন</b><span data-no-i18n>Korje Hasana Foundation</span></div>' +
             '</div>' +
             '<div class="kh-vch-no"><span>' + vEsc(cfg.title || 'জমা ভাউচার') + '</span><b>' + vEsc(cfg.no || '—') + '</b></div>' +
           '</div>' +
@@ -1673,6 +1675,20 @@
           doc.querySelectorAll('.kh-vch-acts, .kh-vch-mailnote, .v-actions').forEach(function (x) {
             x.style.display = 'none';
           });
+          /* আরবি: html2canvas বন্ধনী আয়নার মতো উল্টায় না — ডান-থেকে-বামের লেখায় "(" আর ")" আগেই অদলবদল,
+             আর letter-spacing থাকলে অক্ষরে অক্ষরে আঁকে ও জোড়া ছিঁড়ে যায় (পরীক্ষায় দুটোই ধরা পড়েছে) */
+          if ((doc.documentElement.getAttribute('lang') || '') === 'ar') {
+            var st = doc.createElement('style');
+            st.textContent = '*{letter-spacing:0!important}';
+            (doc.head || doc.documentElement).appendChild(st);
+            var tw = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT), tn, m;
+            while ((tn = tw.nextNode())) {
+              m = /[A-Za-z؀-ۿ]/.exec(tn.nodeValue);
+              if (m && /[؀-ۿ]/.test(m[0]) && /[()]/.test(tn.nodeValue)) {
+                tn.nodeValue = tn.nodeValue.replace(/[()]/g, function (c) { return c === '(' ? ')' : '('; });
+              }
+            }
+          }
         }
       });
     }).then(function (cv) {
@@ -1719,11 +1735,18 @@
       });
     }).then(function (made) {
       /* ছবি/PDF জমা দেওয়া — না বানাতে পারলেও সার্ভার সাধারণ রশিদ পাঠাবে */
+      /* সাইটের ভাষাও যায় (voucher_lang_v1) — মেইলের লেখা সেই ভাষায় হয়। ডাটাবেজ আপডেট তখনো না বসলে
+         ৫-আর্গুমেন্টের কল "function not found" দেয় — তখন ভাষা ছাড়াই আবার, যেন কপি হারিয়ে না যায় */
+      var vLang = null;
+      try { vLang = (window.KHI18N && KHI18N.getPref) ? KHI18N.getPref() : localStorage.getItem('kh_lang'); } catch (e) {}
+      var args = { p_kind: kind, p_ref_id: id, p_png: made.png || null, p_pdf: made.pdf || null };
       var put = (made.png || made.pdf)
-        ? db.rpc('attach_voucher_asset', {
-            p_kind: kind, p_ref_id: id,
-            p_png: made.png || null, p_pdf: made.pdf || null
-          }).then(function (r) { return r && r.data; })
+        ? db.rpc('attach_voucher_asset', Object.assign({ p_lang: vLang || null }, args)).then(function (r) {
+            if (r && r.error && /function|PGRST202|schema cache/i.test((r.error.message || '') + (r.error.code || ''))) {
+              return db.rpc('attach_voucher_asset', args).then(function (r2) { return r2 && r2.data; });
+            }
+            return r && r.data;
+          })
         : Promise.resolve(null);
 
       return put.then(function (res) {
@@ -4011,16 +4034,20 @@
     var TTS_M = /(\bmale\b|\bman\b|পুরুষ|bashkar|pradeep|prabhat|madhur|hemant|ravi|\bmark\b|david|george|james|\balex\b|daniel|\bfred\b|oliver|thomas|aaron|arthur|ryan|guy|liam|matthew|justin|joey|brian)/i;
 
     /* 🌐 সেশন ৬: দ্বিভাষিক — লেখায় বাংলা হরফ থাকলে 'bn', নাহলে 'en' */
-    function textLang(s) { return /[ঀ-৿]/.test(String(s || '')) ? 'bn' : 'en'; }
+    function textLang(s) { s = String(s || ''); return /[ঀ-৿]/.test(s) ? 'bn' : (/[\u0600-\u06FF]/.test(s) ? 'ar' : 'en'); }
+    /* আরবি উত্তরে অঙ্ক ইংরেজিতে (সিদ্ধান্ত: ৩১ অক্টোবর ২০২৬) — মডেল ٠-٩ লিখলেও 0-9 দেখায় */
+    function westDigits(s) { return String(s || '').replace(/[\u0660-\u0669\u06F0-\u06F9]/g, function (c) { var k = c.charCodeAt(0); return String(k >= 0x6F0 ? k - 0x6F0 : k - 0x660); }); }
     /* শোনার ভাষা — Speak to Me-র ভাষা, নাহলে সাইটের ভাষা (সব মাইকে এক) */
     function listenLang() {
       if (window.KH_VOICE_LANG) return window.KH_VOICE_LANG;
       /* Speak to Me খোলা থাকলে তার ভাষা (টগল), নাহলে সাইটের ভাষা */
       var l = stm ? stm.lang : siteLang();
+      /* আরবি — সাইট আরবিতে থাকলে মাইক আরবি শোনে (মুখোমুখি আলাপ এখনো বাংলা/ইংরেজি) */
+      if (!stm && window.KHI18N && KHI18N.getLang && KHI18N.getLang() === 'ar') return 'ar-SA';
       return l === 'en' ? 'en-US' : 'bn-BD';
     }
     function pickVoice(lang) {
-      lang = lang === 'en' ? 'en' : 'bn';
+      lang = lang === 'en' || lang === 'ar' ? lang : 'bn';
       var vs = [];
       try { vs = speechSynthesis.getVoices() || []; } catch (e) {}
       if (!vs.length) return null;
@@ -4040,7 +4067,7 @@
       var best = null, bestScore = -1e9;
       for (var i = 0; i < vs.length; i++) {
         var v = vs[i], lg = (v.lang || '').replace('_', '-'), n = v.name || '';
-        if (lang === 'bn' ? !/^bn/i.test(lg) : !/^en/i.test(lg)) continue;
+        if (!new RegExp('^' + lang, 'i').test(lg)) continue;
         if (TTS_M.test(n) && !TTS_F.test(n)) continue;
         var sc = 100;
         if (TTS_F.test(n)) sc += 50;
@@ -4102,7 +4129,7 @@
         if (myTurn !== speakSeq) return;                /* নতুন কথা শুরু হয়েছে */
         if (idx >= chunks.length) { talking(false); done(started); return; }
         var u = new SpeechSynthesisUtterance(chunks[idx++]);
-        if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = tl === 'en' ? 'en-US' : 'bn-BD'; }
+        if (v) { u.voice = v; u.lang = v.lang; } else { u.lang = tl === 'en' ? 'en-US' : (tl === 'ar' ? 'ar-SA' : 'bn-BD'); }
         u.rate = 0.95; u.pitch = 1.12; u.volume = 1;    /* নরম ও ধীর */
         u.onstart = function () {
           if (myTurn !== speakSeq) return;
@@ -5519,6 +5546,7 @@
         clearTimeout(timer);
         var out = await res.json();
         reply = (out && out.reply) || '';
+        if (/[\u0600-\u06FF]/.test(reply)) reply = westDigits(reply);
       } catch (e) {
         reply = '';
       }
@@ -5924,10 +5952,11 @@
     if (!defs.length) {
       host.innerHTML = head +
         '<div class="kh-pay-empty"><i class="ti ti-alert-triangle" aria-hidden="true"></i>' +
-        '<div>টাকা পাঠানোর কোনো মাধ্যম এখনো চালু করা হয়নি। ' +
-        'অনুগ্রহ করে ফাউন্ডেশনের সাথে যোগাযোগ করুন — ' +
-        'অথবা অ্যাডমিন হলে <b>জেনারেল সেটিংস → টাকা নেওয়ার মাধ্যম</b> ' +
-        'থেকে নম্বর ও হিসাবের তথ্য বসিয়ে দিন।</div></div>';
+        /* বাক্য দুটি আলাদা span-এ — একই টেক্সট-নোডে থাকলে অনুবাদ মেলে না (তিন ভাষা) */
+        '<div><span>টাকা পাঠানোর কোনো মাধ্যম এখনো চালু করা হয়নি। ' +
+        'অনুগ্রহ করে ফাউন্ডেশনের সাথে যোগাযোগ করুন —</span> ' +
+        '<span>অথবা অ্যাডমিন হলে <b>জেনারেল সেটিংস → টাকা নেওয়ার মাধ্যম</b> ' +
+        'থেকে নম্বর ও হিসাবের তথ্য বসিয়ে দিন।</span></div></div>';
       return { value: function () { return { method: '', reference: '' }; },
                validate: function () { return null; },
                pay: function () {}, online: function () { return false; },

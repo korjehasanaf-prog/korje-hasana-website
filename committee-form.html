@@ -276,7 +276,7 @@
 
   <!-- ══ সম্মতিপত্র ফর্ম ══ -->
   <div class="panel" id="formPanel">
-    <h2><i class="ti ti-writing-sign"></i> সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span><span class="posen" id="fmForEn" data-no-i18n style="display:block;font-size:12px"></span></h2>
+    <h2><i class="ti ti-writing-sign"></i> সম্মতিপত্র <span id="fmFor" style="font-size:12.5px;font-weight:600;color:#cbbfdd"></span><span class="posen" id="fmForEn" data-no-i18n data-en-sub style="display:block;font-size:12px"></span></h2>
     <div class="msg" id="fmMsg"></div>
 
     <div class="whobox hidden" id="invBox" style="background:rgba(112,72,232,.16);border-color:rgba(112,72,232,.45)">
@@ -330,7 +330,7 @@
         <div class="fg">
           <label for="fPos">পদবি <span class="req">*</span></label>
           <select id="fPos"></select>
-          <div class="posen" id="fPosEn" data-no-i18n></div>
+          <div class="posen" id="fPosEn" data-no-i18n data-en-sub></div>
         </div>
       </div>
       <div class="grid2">
@@ -512,9 +512,9 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=73">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
 <script>
 (function(){
@@ -579,7 +579,7 @@
         el('invTxt').innerHTML = (d.position_id
           ? 'আপনাকে <b>' + esc(d.committee_name || '') + '</b>-এর <b>' + esc(d.position_title || '') +
             '</b> পদে দায়িত্ব গ্রহণের জন্য আমন্ত্রণ জানানো হয়েছে।' +
-            '<div class="posen" id="invPosEn" data-no-i18n></div>'
+            '<div class="posen" id="invPosEn" data-no-i18n data-en-sub></div>'
           : 'আপনাকে কর্জে হাসানা ফাউন্ডেশনের <b>সাধারণ সদস্য</b> হিসেবে যুক্ত হওয়ার আমন্ত্রণ জানানো হয়েছে।') +
           (d.note ? '<br><span class="upnote">মন্তব্য: ' + esc(d.note) + '</span>' : '');
       }
@@ -1633,7 +1633,7 @@
       return '<div class="myapp">' +
         '<div class="myapp-t">' + esc(a.committee_name || 'কমিটি') + (a.position_title ? ' · ' + esc(a.position_title) : '') +
           ' <span class="badge">' + esc(STATUS_BN[a.status] || a.status || '') + '</span></div>' +
-        (posEnOf(a.position_id) ? '<div class="posen" data-no-i18n style="margin:-6px 0 9px">' + esc(posEnOf(a.position_id)) + '</div>' : '') +
+        (posEnOf(a.position_id) ? '<div class="posen" data-no-i18n data-en-sub style="margin:-6px 0 9px">' + esc(posEnOf(a.position_id)) + '</div>' : '') +
         '<div class="pbar"><i style="width:' + pct + '%"></i></div>' +
         '<div class="progmiss">প্রোফাইল <b>' + bn2(pct) + '%</b> পূর্ণ' +
           (miss.length ? ' · <b>বাকি:</b> ' + esc(miss.join(', '))
@@ -1697,8 +1697,8 @@
   })();
 })();
 </script>
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
 </body>
 </html>

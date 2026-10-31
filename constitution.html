@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>গঠনতন্ত্র | কর্জে হাসানা ফাউন্ডেশন</title>
+  <meta name="description" content="Korje Hasana Foundation constitution (v4.0) — বাংলা · English · العربية">
+  <meta property="og:title" content="গঠনতন্ত্র · Constitution · النظام الأساسي | কর্জে হাসানা ফাউন্ডেশন">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <style>
+    /* গঠনতন্ত্র — তিন ভাষা (৩১ অক্টোবর ২০২৬)। দলিলের পাতাটি কাগজের মতো সাদা — দুই থীমে এক
+       (ভাউচার/প্রোফাইল কার্ডের মতোই), তাই ভেতরের সব রঙ থীম-নিরপেক্ষ ও মাপা। */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hind Siliguri','Inter',sans-serif;background:linear-gradient(160deg,#1d1030,#150c24 55%,#2a1040);
+      color:#f3edfb;min-height:100vh;padding-bottom:96px}
+    html[data-theme="light"] body{background:linear-gradient(150deg,#fdf3f8,#faf5fd 45%,#fff5ee);color:#241539}
+    .bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:url('images/auth-bg.jpg') center/cover no-repeat}
+    .bg::after{content:'';position:absolute;inset:0;background:linear-gradient(155deg,rgba(18,7,31,.78),rgba(26,12,46,.66) 45%,rgba(18,7,31,.82))}
+    html[data-theme="light"] .bg::after{background:linear-gradient(155deg,rgba(255,252,248,.72),rgba(255,250,244,.6) 45%,rgba(253,243,247,.76))}
+    .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:96px 16px 30px}
+    .ctop{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+    .ctop h1{font-size:26px;font-weight:700;flex:1;min-width:200px;display:flex;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:9px 16px;border-radius:12px;border:0;cursor:pointer;
+      font:600 14px 'Hind Siliguri',sans-serif;text-decoration:none;color:#fff;background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#7048e8)}
+    .btn.alt{background:linear-gradient(112deg,#0d6e56,#0a5c48)}
+    /* kh-ui.css-এর লাইট-থীম ঢালাও নিয়ম (০,২,২) বোতামের লেখা গাঢ় করে দেয় — ওজন বাড়িয়ে সাদা ফেরানো */
+    html[data-theme="light"] .ctop .btn.btn{color:#fff!important}
+    .btn:focus-visible,.lt button:focus-visible,.toc a:focus-visible{outline:2px solid #f08c28;outline-offset:2px}
+    .lede{font-size:14.5px;line-height:1.75;opacity:.92;max-width:760px;margin-bottom:16px}
+    html[data-theme="light"] .lede{opacity:1;color:#4a4458}
+
+    /* কাগজ */
+    .paper{background:#fff;color:#1f1830;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.28);overflow:hidden}
+    .ptools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#241539;color:#efe7fb}
+    .ptools .meta{font-size:13px;flex:1;min-width:180px}
+    .lt{display:flex;gap:4px;padding:3px;border-radius:999px;background:rgba(255,255,255,.1)}
+    .lt button{border:0;background:transparent;color:#e4dafa;font:600 13px 'Hind Siliguri',sans-serif;padding:7px 13px;border-radius:999px;cursor:pointer;min-height:34px}
+    .lt button.active{background:#f08c28;color:#160d26}
+    #doc{padding:34px 42px 40px;font-size:15.5px;line-height:1.85}
+    #doc[dir="rtl"]{font-size:16.5px;line-height:1.95}
+    .cv{text-align:center;color:#3b2568}
+    .cv.bism{font-size:18px;color:#0d6e56;font-weight:600;margin-bottom:6px}
+    .cv.org{font-size:28px;font-weight:700;color:#241539;margin-top:6px}
+    .cv.big{font-size:22px;font-weight:700;letter-spacing:.06em;color:#7a1f4a;margin:10px 0 2px}
+    #doc[dir="rtl"] .cv.big{letter-spacing:0}
+    .cv.small{font-size:13.5px;color:#4a4458}
+    .cv.draft{display:inline-block;margin:10px auto 0;padding:5px 12px;border-radius:999px;background:#fff1e0;color:#7a3d00;font-size:13px;font-weight:600}
+    .cvwrap{text-align:center;padding-bottom:22px;margin-bottom:22px;border-bottom:2px solid #efe6f7}
+    .h1{font-size:21px;font-weight:700;color:#241539;margin:30px 0 10px;padding:10px 14px;border-radius:12px;background:linear-gradient(112deg,#f6efff,#fdeef5);scroll-margin-top:90px}
+    .h2{font-size:16.5px;font-weight:700;color:#5b1d7e;margin:20px 0 6px}
+    .h3{font-size:15.5px;font-weight:700;color:#7a1f4a;margin:14px 0 4px}
+    .p{margin:0 0 9px;color:#2b2438}
+    .new{display:inline-block;font-size:11.5px;font-weight:700;color:#7a3d00;background:#fff1e0;border-radius:999px;padding:1px 8px;margin-inline-start:6px;vertical-align:middle}
+    .tw{overflow-x:auto;margin:10px 0 16px;border:1px solid #e9e0f2;border-radius:12px}
+    table{border-collapse:collapse;width:100%;font-size:14px}
+    th,td{padding:8px 11px;border-bottom:1px solid #eee6f5;text-align:start;vertical-align:top;color:#2b2438}
+    th{background:#241539;color:#fff;font-weight:600;white-space:nowrap}
+    tr:nth-child(even) td{background:#faf7fd}
+    .toc{margin:8px 0 18px;padding:16px 18px;border-radius:14px;background:#faf7fd;border:1px solid #ece4f5}
+    .toc b{display:block;font-size:16px;color:#241539;margin-bottom:8px}
+    .toc ol{list-style:none;columns:2;column-gap:26px}
+    .toc li{break-inside:avoid;margin:3px 0}
+    .toc a{color:#4b2a8a;text-decoration:none;font-size:14px}
+    .toc a:hover{text-decoration:underline}
+    .end{text-align:center;color:#4a4458;margin-top:26px;font-size:14px}
+    @media (max-width:640px){
+      #doc{padding:22px 16px 28px;font-size:15px}
+      .toc ol{columns:1}
+      .ctop h1{font-size:22px}
+      .cv.org{font-size:23px}
+    }
+    @media print{
+      @page{size:A4 portrait;margin:14mm}
+      body{background:#fff!important;padding:0}
+      .bg,.ctop,.lede,.ptools,.noprint,.kh-glassnav,.kh-lang-pill,.kh-lang-foot,footer,[class*="kh-bot"],[class*="kh-wa"]{display:none!important}
+      .wrap{padding:0;max-width:none}
+      .paper{box-shadow:none;border-radius:0}
+      #doc{padding:0}
+      .h1{break-after:avoid}
+      .h2,.h3{break-after:avoid}
+    }
+  </style>
+</head>
+<body data-kh-chat="on">
+<div class="bg"></div>
+<div class="wrap">
+  <div class="ctop">
+    <h1><i class="ti ti-book-2" style="color:#e083b4"></i> গঠনতন্ত্র</h1>
+    <a class="btn" href="about.html"><i class="ti ti-info-circle"></i> আমাদের সম্পর্কে</a>
+    <button class="btn alt" type="button" onclick="window.print()"><i class="ti ti-printer"></i> প্রিন্ট / PDF</button>
+  </div>
+  <p class="lede">কর্জে হাসানা ফাউন্ডেশনের গঠনতন্ত্র — সংগঠনের নাম, উদ্দেশ্য, সদস্যপদ, কমিটি, আর্থিক ব্যবস্থাপনা, সুদমুক্ত ঋণ, সঞ্চয় ও দানের নীতিমালা। বাংলা, ইংরেজি ও আরবি — তিন ভাষাতেই পড়া যায়।</p>
+
+  <div class="paper">
+    <div class="ptools noprint">
+      <div class="meta"><i class="ti ti-file-certificate"></i> <span id="cMeta">সংস্করণ ৪.০ · হালনাগাদ: ১২ অক্টোবর ২০২৬</span></div>
+      <div class="lt" role="group" aria-label="Language · ভাষা · اللغة" data-no-i18n>
+        <button type="button" data-lang-set="bn" lang="bn">বাংলা</button>
+        <button type="button" data-lang-set="en" lang="en">English</button>
+        <button type="button" data-lang-set="ar" lang="ar">العربية</button>
+      </div>
+    </div>
+    <article id="doc" data-no-i18n aria-live="off"><p class="p">লোড হচ্ছে…</p></article>
+  </div>
+</div>
+
+<link rel="stylesheet" href="kh-ui.css?v=73">
+<link rel="stylesheet" href="kh-app-downloads.css?v=70">
+<script src="kh-ui.js?v=76"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
+<script src="constitution-data.js?v=1"></script>
+<script>
+(function () {
+  'use strict';
+  var C = window.KH_CONST;
+  var doc = document.getElementById('doc');
+  var TOC_T = { bn: 'সূচিপত্র', en: 'Table of Contents', ar: 'فهرس المحتويات' };
+  var NEW_RE = /\s*✦\s*(নতুন অধ্যায়|নতুন|সংশোধিত|সিদ্ধান্ত|NEW CHAPTER|NEW|AMENDED|DECISION|فصل جديد|جديد|معدَّلة|قرار)\s*$/;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  /* দলিলের ভাষা — বাছাই করা পছন্দ (আরবি অভিধান নামার অপেক্ষা লাগে না, দলিলটি নিজেই তিন ভাষায়) */
+  function pref() {
+    try {
+      if (window.KHI18N && KHI18N.getPref) return KHI18N.getPref();
+      var l = localStorage.getItem('kh_lang'); return l === 'bn' || l === 'ar' ? l : 'en';
+    } catch (e) { return 'en'; }
+  }
+  function head(t) {
+    var m = t.match(NEW_RE);
+    return m ? esc(t.slice(0, m.index)) + '<span class="new">✦ ' + esc(m[1]) + '</span>' : esc(t);
+  }
+  function table(rows) {
+    return '<div class="tw"><table><thead><tr>' + rows[0].map(function (c) { return '<th>' + esc(c) + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.slice(1).map(function (r) {
+        return '<tr>' + r.map(function (c) { return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+  function render() {
+    if (!C) { doc.innerHTML = '<p class="p">—</p>'; return; }
+    var L = pref(); if (!C[L]) L = 'en';
+    var blocks = C[L], html = '', cover = [], ch = 0, chapters = [];
+    blocks.forEach(function (b) { if (b[0] === 'h1') chapters.push(b[1]); });
+    blocks.forEach(function (b, i) {
+      var k = b[0], t = b[1];
+      if (k === 'c') { cover.push(t); return; }
+      if (cover.length) {
+        html += '<div class="cvwrap">' + cover.map(function (c, j) {
+          var cls = j === 0 ? 'bism' : (j === 1 ? 'org' : (/^[A-Z\s]{7,}$|ন্ত্র$|^النظام الأساسي$/.test(c) ? 'big' : (/খসড়া|DRAFT|مسودة/.test(c) ? 'draft' : 'small')));
+          return '<div class="cv ' + cls + '">' + esc(c) + '</div>';
+        }).join('') + '</div>';
+        cover = [];
+      }
+      if (k === 'h1s') { html += '<h2 class="h1">' + head(t) + '</h2>'; return; }
+      if (k === 'toc') {
+        html += '<nav class="toc" aria-label="' + esc(TOC_T[L]) + '"><b>' + esc(TOC_T[L]) + '</b><ol>' +
+          chapters.map(function (c, j) { return '<li><a href="#ch-' + (j + 1) + '">' + esc(c.replace(NEW_RE, '')) + '</a></li>'; }).join('') + '</ol></nav>';
+        return;
+      }
+      if (k === 'h1') { ch++; html += '<h2 class="h1" id="ch-' + ch + '">' + head(t) + '</h2>'; return; }
+      if (k === 'h2') { html += '<h3 class="h2">' + head(t) + '</h3>'; return; }
+      if (k === 'h3') { html += '<h4 class="h3">' + esc(t) + '</h4>'; return; }
+      if (k === 't') { html += table(t); return; }
+      html += '<p class="p">' + esc(t) + '</p>';
+    });
+    doc.setAttribute('lang', L);
+    if (L === 'ar') doc.setAttribute('dir', 'rtl'); else doc.removeAttribute('dir');
+    doc.innerHTML = html + '<div class="end">— ' + (L === 'bn' ? 'কর্জে হাসানা ফাউন্ডেশন' : (L === 'ar' ? 'مؤسسة القرض الحسن' : 'Korje Hasana Foundation')) + ' —</div>';
+    if (location.hash && /^#ch-\d+$/.test(location.hash)) { var a = document.getElementById(location.hash.slice(1)); if (a) a.scrollIntoView(); }
+  }
+  render();
+  document.addEventListener('khlangchange', render);
+})();
+</script>
+<script src="kh-i18n-data.js?v=6" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
+</body>
+</html>

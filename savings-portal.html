@@ -1342,6 +1342,8 @@ async function doRegister() {
      এখন কোড মিললে সার্ভারেই একাউন্ট তৈরি হয় (যাচাইকৃত ই-মেইল ও পাসওয়ার্ডসহ), তারপর সাধারণ লগইন। */
   function signupFn(body) {
     const fail = { ok: false, message: 'সংযোগ ব্যর্থ — আবার চেষ্টা করুন।' };
+    /* তিন ভাষা: কোডের ই-মেইল ও বার্তা সাইটের ভাষায় */
+    body = Object.assign({ lang: (window.KHI18N && KHI18N.getLang && KHI18N.getLang()) || 'bn' }, body);
     return _db.functions.invoke('signup-otp', { body: body })
       .then(function (r) { return (r && r.data) || fail; })
       .catch(function () { return fail; });
@@ -3087,12 +3089,12 @@ async function submitWithdrawPanel() {
 
 </script>
 
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
 </body>
 </html>

@@ -31,17 +31,24 @@
   }
   function lang() {
     try {
-      if (window.KHI18N) return KHI18N.getLang() === 'bn' ? 'bn' : 'en';
+      if (window.KHI18N) return KHI18N.getLang();          /* 'en' | 'bn' | 'ar' */
       /* kh-i18n.js পরে লোড হয় — ততক্ষণ সংরক্ষিত পছন্দই দেখা হয় (নাহলে বাংলা পাতায় "Notice Board" বসত) */
-      return localStorage.getItem('kh_lang') === 'bn' ? 'bn' : 'en';
+      var l = localStorage.getItem('kh_lang');
+      return l === 'bn' || l === 'ar' ? l : 'en';
     } catch (e) { return 'en'; }
   }
-  function T(bn, en) { return lang() === 'en' ? en : bn; }
+  /* আরবি: kh-i18n-ar.js-এর বাংলা→আরবি জোড়া; ফাইল তখনো না এলে বা জোড়া না থাকলে ইংরেজি */
+  function T(bn, en) {
+    var L = lang();
+    if (L === 'bn') return bn;
+    if (L === 'ar') { var A = window.KH_I18N_AR; if (A && A.bn2ar && A.bn2ar[bn]) return A.bn2ar[bn]; }
+    return en;
+  }
   function dateTxt(iso) {
     if (!iso) return '';
     var d = new Date(iso);
     if (isNaN(+d)) return '';
-    return d.toLocaleDateString(lang() === 'en' ? 'en-GB' : 'bn-BD',
+    return d.toLocaleDateString(lang() === 'bn' ? 'bn-BD' : (lang() === 'ar' ? 'ar-u-nu-latn' : 'en-GB'),
       { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short', year: 'numeric' });
   }
   function rpc(name, body) {
@@ -310,6 +317,8 @@
         setTimeout(function () { labels(); if (state.open) render(); }, 80);
       }
     });
+    /* আরবি ফাইল দেরিতে এলে kh-i18n আবার khlangchange পাঠায় — তখন লেবেল আরবিতে বসে */
+    document.addEventListener('khlangchange', function () { labels(); if (state.open) render(); });
   }
 
   /* ---------- সুপার-এডমিন ম্যানেজার ---------- */

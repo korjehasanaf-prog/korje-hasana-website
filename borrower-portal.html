@@ -665,8 +665,9 @@ function openPayInstallment(btn) {
       <div id="payMsg" style="display:none;padding:10px 13px;border-radius:10px;font-size:13px;margin-bottom:14px"></div>
       <label style="display:block;font-size:12.5px;font-weight:700;color:#4a3568;margin-bottom:5px">পরিমাণ (৳)</label>
       <input id="payAmt" type="number" value="${amt}" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e3d8ee;border-radius:11px;font-family:inherit;font-size:15px;margin-bottom:13px">
-      <!-- ⚠️ আগে এখানে একটি সাদামাটা `<select>` (বিকাশ/নগদ/ব্যাংক/ক্যাশ/অন্য)
-           ও একটি TrxID ঘর ছিল। এখন `KHUI.payPicker()` — ফাউন্ডেশনের নম্বর
+      <!-- ⚠️ আগে এখানে একটি সাদামাটা select (বিকাশ/নগদ/ব্যাংক/ক্যাশ/অন্য)
+           ও একটি TrxID ঘর ছিল। এখন KHUI.payPicker() — ফাউন্ডেশনের নম্বর
+           (⚠️ এই মন্তব্য টেমপ্লেট-লিটারালের ভেতরে — এখানে ব্যাকটিক দিলে পুরো স্ক্রিপ্ট ভেঙে যায়)
            ও হিসাবের তথ্য ৩D কার্ডে দেখায়, কপি বাটনও আছে (২১ সেপ্টে ২০২৬)। -->
       <div id="payPick" style="margin-bottom:18px"></div>
       <div style="display:flex;gap:9px">
@@ -959,7 +960,7 @@ function renderPortal(borrower, loan, schedule, allLoans) {
   const tenure    = loan.tenure_months || 0;
 
   document.getElementById('d_ref').textContent      = loan.loan_no || '—';
-  document.getElementById('d_type').textContent     = loan.disbursement_mode === 'goods' ? 'পণ্য/সেবা' : 'নগদ';
+  document.getElementById('d_type').textContent     = loan.disbursement_mode === 'goods' ? 'পণ্য/সেবা' : 'নগদ টাকা';
   document.getElementById('d_purpose').textContent  = loan.item_description || '—';
   document.getElementById('d_amount').textContent   = fmtTk(principal);
   document.getElementById('d_duration').textContent = tenure + ' মাস';
@@ -1084,12 +1085,12 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   });
 });
 </script>
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
 </body>
 </html>

@@ -573,13 +573,13 @@
         <div class="sec-title">Foundation Documents</div>
         <div style="font-size:15.5px;color:var(--muted);margin-bottom:4px;line-height:1.7">All foundational documents are publicly available for full transparency.</div>
         <div class="doc-grid" style="grid-template-columns:1fr;">
-          <div class="doc-card" onclick="alert('গঠনতন্ত্র PDF শীঘ্রই পাওয়া যাবে')">
+          <div class="doc-card" role="link" tabindex="0" onclick="location.href='constitution.html'" onkeydown="if(event.key==='Enter')location.href='constitution.html'">
             <div class="doc-icon"><i class="ti ti-file-text"></i></div>
             <div class="doc-info">
-              <h4>গঠনতন্ত্র (Constitution)</h4>
-              <p>16-chapter founding document in Bengali · v2.0 · 2026</p>
+              <h4>গঠনতন্ত্র</h4>
+              <p>১৯ অধ্যায়ের মূল দলিল · সংস্করণ ৪.০ · ২০২৬ · <span data-no-i18n>বাংলা · English · العربية</span></p>
             </div>
-            <i class="ti ti-download" style="color:var(--muted);margin-left:auto"></i>
+            <i class="ti ti-arrow-right" style="color:var(--muted);margin-left:auto"></i>
           </div>
           <div class="doc-card" onclick="alert('Annual Report আসছে')">
             <div class="doc-icon"><i class="ti ti-chart-bar"></i></div>
@@ -597,7 +597,7 @@
             </div>
             <i class="ti ti-download" style="color:var(--muted);margin-left:auto"></i>
           </div>
-          <div class="doc-card" onclick="window.open('dashboard.html','_blank')">
+          <div class="doc-card" role="link" tabindex="0" onclick="location.href='transparency.html'" onkeydown="if(event.key==='Enter')location.href='transparency.html'">
             <div class="doc-icon"><i class="ti ti-chart-line"></i></div>
             <div class="doc-info">
               <h4>Public Transparency Dashboard</h4>
@@ -709,11 +709,11 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 });
 </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="_supabase.js"></script>
-<script src="kh-ui.js?v=74"></script>
+<script src="kh-ui.js?v=76"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
-<script src="kh-notice.js?v=3" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
 
-<script src="kh-i18n-data.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=6" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=4" defer></script>
