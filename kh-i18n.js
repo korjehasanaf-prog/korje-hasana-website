@@ -7,6 +7,9 @@
  * বাটন: <button data-lang-set="en">EN</button> <button data-lang-set="bn">বাং</button> <button data-lang-set="ar">عربي</button>
  *   — কোনো পাতায় শুধু EN/বাং বাটন থাকলে আরবি বাটনটি নিজে থেকেই পাশে বসে।
  * আরবি নেই এমন পাতা (অ্যাডমিন): <body data-kh-langs="bn,en"> — সেখানে আরবি বাছা থাকলে ইংরেজি দেখায়।
+ * ⚠️ ভাসমান ভাষা-পিল বাতিল (ব্যবহারকারীর সিদ্ধান্ত, ১ নভেম্বর ২০২৬) — কোনো পাতায় আর বসে না।
+ *   ফুটারের ভাষা-বাছাই কেবল যে পাতা চায়: <body data-kh-lang-foot="on"> (এখন শুধু index.html)।
+ *   বাছা ভাষা kh_lang-এ মনে থাকে, তাই হোম পেজে একবার বাছলেই সব পাতা সেই ভাষায় খোলে।
  * সিদ্ধান্ত (ব্যবহারকারী, ৩১ অক্টোবর ২০২৬): আরবিতে পাতার সাজ উল্টায় না — কেবল লেখা ডানে
  *   (unicode-bidi: plaintext; dir="rtl" কখনো নয়), আর অঙ্ক ইংরেজিতে (0-9)।
  */
@@ -15,7 +18,7 @@
   var D = window.KH_I18N;
   if (!D) return;
   var KEY = 'kh_lang';
-  var AR_VER = '3';                       /* kh-i18n-ar.js বদলালে এই সংখ্যা বাড়াতে হবে */
+  var AR_VER = '4';                       /* kh-i18n-ar.js বদলালে এই সংখ্যা বাড়াতে হবে */
   var LANGS = { en: 1, bn: 1, ar: 1 };
   var lang = 'en';
   try { var saved = localStorage.getItem(KEY); if (LANGS[saved]) lang = saved; } catch (e) {}
@@ -344,14 +347,8 @@
       '[data-lang-set][hidden]{display:none!important}' +
       /* বাংলা নামের নিচের ইংরেজি লাইন (data-en-sub) — ইংরেজি মোডে মূল নামটিই ইংরেজি, তাই দ্বিতীয়বার নয় */
       'html[lang="en"] [data-en-sub]{display:none!important}' +
-      /* ভাসমান পিল — নিজের গাঢ় পটভূমি বহন করে, তাই দুই থীমে এক */
-      '.kh-lang-pill{position:fixed;left:12px;bottom:12px;z-index:1040;display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(22,13,38,.94);border:1px solid rgba(255,255,255,.22);box-shadow:0 6px 18px rgba(0,0,0,.25);font-family:"Hind Siliguri",system-ui,sans-serif}' +
-      '.kh-lang-pill button{border:0;background:transparent;color:rgba(255,255,255,.78);font-size:12.5px;font-weight:600;line-height:1;padding:7px 10px;border-radius:999px;cursor:pointer;min-height:30px}' +
-      '.kh-lang-pill button.active{background:#f08c28;color:#160d26}' +
-      '.kh-lang-pill button:focus-visible,.kh-lang-foot button:focus-visible{outline:2px solid #f08c28;outline-offset:2px}' +
-      '@media (min-width:769px){body.kh-has-langbar .kh-lang-pill{display:none}}' +
-      '@media (max-width:768px){.kh-lang-pill{bottom:92px}}' +
-      '@media print{.kh-lang-pill,.kh-lang-foot{display:none!important}}' +
+      '.kh-lang-foot button:focus-visible{outline:2px solid #f08c28;outline-offset:2px}' +
+      '@media print{.kh-lang-foot{display:none!important}}' +
       /* ফুটারের বাছাই */
       '.kh-lang-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 14px;margin:18px auto 6px;padding:10px 14px;max-width:560px;border-radius:14px;background:#241539;border:1px solid rgba(255,255,255,.14);font-family:"Hind Siliguri",system-ui,sans-serif}' +
       '.kh-lang-foot .kh-lf-lbl{display:inline-flex;align-items:center;gap:6px;color:#e4dafa;font-size:13px;font-weight:600}' +
@@ -365,24 +362,10 @@
     document.head.appendChild(st);
   }
 
-  /* যে পেজে নিজস্ব EN/বাং বাটন নেই, সেখানে একটি ছোট ভাসমান বাটন; টপবারে বাটন থাকলে
-     কেবল মোবাইলে (টপবার মোবাইলে লুকানো থাকে, তখন ভাষা বদলানোর আর কোনো পথ থাকত না) */
-  function mountPill() {
-    if (document.body.getAttribute('data-kh-lang-pill') === 'off') return;
-    if (document.querySelector('.kh-lang-pill')) return;
-    if (document.querySelector('[data-lang-set]')) document.body.classList.add('kh-has-langbar');
-    var wrap = document.createElement('div');
-    wrap.className = 'kh-lang-pill';
-    wrap.setAttribute('role', 'group');
-    wrap.setAttribute('aria-label', 'Language · ভাষা · اللغة');
-    wrap.setAttribute('data-no-i18n', '');
-    wrap.innerHTML = '<button type="button" data-lang-set="en">EN</button><button type="button" data-lang-set="bn" lang="bn">বাং</button>' +
-      '<button type="button" data-lang-set="ar" lang="ar" title="العربية">عربي</button>';
-    document.body.appendChild(wrap);
-  }
-  /* ফুটারে তিন ভাষার বাছাই (ব্যবহারকারীর নির্দেশ: "বিশেষ করে ফুটারেও") */
+  /* ফুটারে তিন ভাষার বাছাই — কেবল <body data-kh-lang-foot="on"> পাতায় (এখন শুধু হোম পেজ;
+     ব্যবহারকারীর সিদ্ধান্ত, ১ নভেম্বর ২০২৬: বাকি পাতার ফুটারে আর আলাদা ভাষা-বাছাই নয়) */
   function mountFooter() {
-    if (document.body.getAttribute('data-kh-lang-foot') === 'off') return;
+    if (document.body.getAttribute('data-kh-lang-foot') !== 'on') return;
     var f = document.querySelector('footer, .footer, .site-footer');
     if (!f || f.querySelector('.kh-lang-foot')) return;
     var w = document.createElement('div');
@@ -415,7 +398,6 @@
 
   function init() {
     mountStyle();
-    mountPill();
     mountFooter();
     addArButtons();
     document.addEventListener('click', function (e) {

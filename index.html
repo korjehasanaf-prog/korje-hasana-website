@@ -1042,6 +1042,8 @@ html .khfc.khfc .khfc-live{
 .khfc-head{display:flex;align-items:center;gap:10px}
 /* AM/PM বাটন — নিজের গাঢ় পটভূমি বহন করে, দুই থীমে এক */
 @media (max-width:768px){ html .khfc.khfc{display:none !important} }
+/* ডিফল্ট বন্ধ — সেটিংসে চালু না হওয়া পর্যন্ত hidden থাকে (display:inline-flex যেন hidden-কে না ঢাকে) */
+html .khfc.khfc[hidden]{display:none !important}
 html .khfc.khfc .khfc-ap{
   font:500 9.5px/1 var(--mono); letter-spacing:.14em;
   padding:4px 8px; border-radius:6px; cursor:pointer; min-height:0;
@@ -1170,7 +1172,7 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
 @media (prefers-reduced-motion: reduce) { .logo-badge::before, .logo-badge::after { animation: none; } }
 </style>
 </head>
-<body data-kh-nav="on">
+<body data-kh-nav="on" data-kh-lang-foot="on">
 
 <!-- ═══════════════════════════════════════════════════════
      TOP BAR
@@ -1576,8 +1578,8 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
   <button type="button" class="kh-app-dd-btn" aria-expanded="false" aria-controls="khAppDdMenu"><i class="ti ti-download"></i> অ্যাপ</button>
   <div class="kh-app-dd-menu" id="khAppDdMenu" data-kh-app="menu" hidden></div>
 </div>
-    <a href="savings-portal.html" class="nav-savings-btn"><i class="ti ti-coins" style="font-size:16px"></i>সুদ বিহীন সঞ্চয়</a>
-    <button class="donate-btn" onclick="window.location.href='donation.html'" data-i18n="nav-donate">Donate now</button>
+    <!-- ⚠️ "সুদ বিহীন সঞ্চয়" ও "Donate now" এখানে আর নেই (ব্যবহারকারীর সিদ্ধান্ত, ১ নভেম্বর ২০২৬) —
+         হিরোতেই দান ও সঞ্চয়ের আলাদা বাটন আছে, দুবার দেখানোর দরকার নেই। অন্য পাতার নেভবারে অপরিবর্তিত। -->
   </div>
   <button class="nav-hamburger" onclick="toggleMenu()" aria-label="Menu">
   <span></span><span></span><span></span>
@@ -1608,8 +1610,10 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
       <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
     </div>
 
-    <!-- ⏱ ফ্লিপ ঘড়ি — "digital watch.mp4" ভিডিও থেকে হুবহু (ছোট আকারে)। ঢাকার সময়। -->
-    <div class="khfc" id="khFlipClock" role="timer" aria-label="বর্তমান সময় (ঢাকা)">
+    <!-- ⏱ ফ্লিপ ঘড়ি — "digital watch.mp4" ভিডিও থেকে হুবহু (ছোট আকারে)। ঢাকার সময়।
+         ⚠️ ডিফল্ট বন্ধ (hidden) — সুপার অ্যাডমিন → জেনারেল সেটিংস → "হোম পেজের ডিজিটাল ঘড়ি" চালু করলে
+         (app_settings.home_clock = {enabled:true}) তবেই দেখা যায়; বন্ধ থাকলে টাইমারও চলে না। -->
+    <div class="khfc" id="khFlipClock" role="timer" aria-label="বর্তমান সময় (ঢাকা)" hidden>
       <div class="khfc-head">
         <div class="khfc-live"><i></i>LIVE</div>
         <button type="button" class="khfc-ap" id="khfcAp" aria-pressed="false" title="১২ / ২৪ ঘণ্টা বদলান">24H</button>
@@ -2537,6 +2541,22 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
 (function () {
   var root = document.getElementById('khFlipClock');
   if (!root) return;
+  /* ⚠️ সুইচ: app_settings.home_clock.enabled === true হলে তবেই ঘড়ি দেখা যায় ও চলে।
+     সেটিং না থাকলে, পড়া না গেলে বা বন্ধ থাকলে — লুকানোই থাকে (ডিফল্ট বন্ধ)। */
+  (async function () {
+    var on = false;
+    try {
+      if (window._db && _db.from) {
+        var r = await _db.from('app_settings').select('value').eq('key', 'home_clock').maybeSingle();
+        var v = r && r.data ? r.data.value : null;
+        on = !!(v && typeof v === 'object' && v.enabled === true);
+      }
+    } catch (e) { on = false; }
+    if (!on) { root.hidden = true; return; }
+    root.hidden = false;
+    startClock();
+  })();
+  function startClock() {
   var TZ = 'Asia/Dhaka';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var flips = [].slice.call(root.querySelectorAll('.khfc-flip'));
@@ -2601,6 +2621,7 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
     setTimeout(tick, 1000 - (Date.now() % 1000) + 15);
   }
   tick();
+  }
 })();
 </script>
 <script src="kh-ui.js?v=77"></script>
@@ -2627,8 +2648,8 @@ document.querySelectorAll('.nav-link').forEach(function(l) {
   })();
 })();
 </script>
-<script src="kh-i18n-data.js?v=6" defer></script>
+<script src="kh-i18n-data.js?v=7" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=4" defer></script>
+<script src="kh-i18n.js?v=5" defer></script>
 </body>
 </html>

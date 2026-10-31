@@ -162,6 +162,24 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .btn{border:none;cursor:pointer;border-radius:8px;font-weight:600;font-family:'Hind Siliguri','Inter',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
 .btn-primary{background:linear-gradient(135deg,#7048e8,#241539);color:#fff;padding:10px 22px;font-size:14.5px;box-shadow:0 4px 14px rgba(112,72,232,.35)}
 .gs-checks{display:flex;gap:18px;flex-wrap:wrap}
+/* ⏱ অন/অফ সুইচ (জেনারেল সেটিংস) — নিজের রঙ বহন করে, তাই দুই থীমে এক।
+   বন্ধ: স্লেট ট্র্যাক + হালকা বেড় (গাঢ় কার্ডে বেড়টিই দেখা যায়, সাদা কার্ডে ট্র্যাকটিই); চালু: সবুজ। */
+.gs-switch{-webkit-appearance:none;appearance:none;box-sizing:border-box;position:relative;flex:none;width:46px;height:26px;margin:0;border-radius:999px;
+  background:#475569;border:1.5px solid #94a3b8;cursor:pointer;transition:background .2s,border-color .2s}
+.gs-switch::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .2s}
+.gs-switch:checked{background:#15803d;border-color:#15803d}
+.gs-switch:checked::after{transform:translateX(20px)}
+.gs-switch:focus-visible{outline:2px solid #f08c28;outline-offset:2px}
+.gs-switch:disabled{cursor:progress}
+.gs-sw-row{display:flex;align-items:center;gap:12px;font-size:14px;cursor:pointer;line-height:1.6;flex-wrap:wrap}
+.gs-sw-state{display:inline-block;min-width:74px;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;text-align:center;background:#334155;color:#e2e8f0}
+.gs-sw-state.on{background:#15803d;color:#fff}
+.gs-sw-msg{font-size:12.5px;margin-top:6px;min-height:1.2em}
+.gs-sw-msg.ok{color:#4ade80}.gs-sw-msg.err{color:#f87171}
+/* ⚠️ কার্ডটি নিজের গাঢ় পটভূমি ও লেখার রঙ বহন করে — ড্যাশবোর্ডের লাইট থীমে kh-ui.css `--text`/`--muted` গাঢ় করে দেয়,
+   অথচ `.card` (`--bg2`) গাঢ়ই থাকে; ফলে লেবেল গাঢ়-এর উপর গাঢ় হয়ে প্রায় অদৃশ্য হত (মেপে ধরা পড়ে)। */
+.card.gs-sw-card{background:#111827;--text:#f1f5f9;--muted:#94a3b8;color:#f1f5f9}
+@media (prefers-reduced-motion:reduce){.gs-switch,.gs-switch::after{transition:none}}
 .gs-checks label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
 
 /* ── 📊 স্টেটমেন্ট ও রিপোর্ট ── */
@@ -1237,6 +1255,18 @@ html[data-theme="light"] #panel-committee-roster{--cr-card:#ffffff;--cr-card2:#f
             ০ দিয়ে শুরু ১১ সংখ্যার নম্বর দিলেই চলবে — সিস্টেম নিজেই ৮৮০ যোগ করে নেবে।
             এই নম্বরেই সাইটের চ্যাট বাটন ও কমিটির আমন্ত্রণ বার্তা যাবে।
           </div>
+        </div>
+
+        <!-- ⏱ হোম পেজের ফ্লিপ ঘড়ি — app_settings.home_clock = {enabled}। ডিফল্ট বন্ধ; সুইচ চাপলেই সংরক্ষণ (১ নভেম্বর ২০২৬) -->
+        <div class="card gs-sw-card" style="margin-bottom:16px">
+          <div class="card-title"><i class="ti ti-clock"></i> হোম পেজের ডিজিটাল ঘড়ি</div>
+          <label class="gs-sw-row" for="gs-home-clock">
+            <input type="checkbox" role="switch" class="gs-switch" id="gs-home-clock" onchange="gsHomeClockToggle(this)" aria-describedby="gsClockNote">
+            <span class="gs-sw-state" id="gsClockState">ঘড়ি বন্ধ</span>
+            <span>হোম পেজের হিরো অংশে ঢাকার সময়ের ফ্লিপ ঘড়ি দেখাও</span>
+          </label>
+          <div class="gs-sw-msg" id="gsClockMsg" role="status" aria-live="polite"></div>
+          <div id="gsClockNote" style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.8">ডিফল্ট বন্ধ। সুইচ চাপলেই সাথে সাথে সংরক্ষণ হয় ও সাইটে কার্যকর হয় — দর্শক পাতাটি নতুন করে খুললেই দেখবেন। মোবাইলের ছোট পর্দায় ঘড়িটি এমনিতেই দেখানো হয় না।</div>
         </div>
 
         <div class="card" style="margin-bottom:16px">
@@ -2441,6 +2471,10 @@ async function loadGeneralSettings() {
   document.getElementById('gs-wa-label').value   = wa.label  || '';
   document.getElementById('gs-wa-enabled').checked = wa.enabled !== false;
 
+  /* ⏱ হোম পেজের ঘড়ি — সেট করা না থাকলে বন্ধ (index.html-ও তাই ধরে) */
+  const hcEl = document.getElementById('gs-home-clock');
+  if (hcEl) { const hc = s['home_clock']; hcEl.checked = !!(hc && hc.enabled === true); gsClockPaint(); }
+
   /* নিষ্ক্রিয়তার সময় — সেট করা না থাকলে ডিফল্ট (সার্ভারের public_idle_rules-ও তাই) */
   const idl = s['idle_rules'] || {};
   document.getElementById('gs-idle-web').value    = idl.web_minutes    != null ? idl.web_minutes    : 5;
@@ -2622,6 +2656,7 @@ async function saveGeneralSettings() {
       ['loan_rules', loanRules],
       ['whatsapp', whatsapp],
       ['visit_mode', visitMode],
+      ['home_clock', { enabled: !!(document.getElementById('gs-home-clock') || {}).checked }],
       ['idle_rules', idleRules],
       ['fund_rules', fundRules]
     ]) {
@@ -2634,6 +2669,32 @@ async function saveGeneralSettings() {
     gsMsg.style.color = '#f87171';
     gsMsg.textContent = 'ব্যর্থ: ' + (e.message === 'super admin only' ? 'শুধুমাত্র সুপার অ্যাডমিন সেটিংস বদলাতে পারেন' : (e.message || 'আবার চেষ্টা করুন'));
   }
+}
+
+/* ⏱ হোম পেজের ঘড়ির সুইচ — চাপলেই কেবল এই একটি সেটিং সংরক্ষণ হয় (বাকি ফর্মের অসংরক্ষিত বদল ছোঁয় না)।
+   ব্যর্থ হলে সুইচ আগের অবস্থায় ফিরে যায়, যাতে পর্দা আর ডাটাবেজ কখনো আলাদা কথা না বলে। */
+function gsClockPaint() {
+  const el = document.getElementById('gs-home-clock'), st = document.getElementById('gsClockState');
+  if (!el || !st) return;
+  st.textContent = el.checked ? 'ঘড়ি চালু' : 'ঘড়ি বন্ধ';
+  st.classList.toggle('on', el.checked);
+}
+async function gsHomeClockToggle(el) {
+  const on = !!el.checked, msg = document.getElementById('gsClockMsg');
+  gsClockPaint();
+  el.disabled = true;
+  msg.className = 'gs-sw-msg'; msg.textContent = 'সংরক্ষণ হচ্ছে…';
+  try {
+    const r = await _db.rpc('set_app_setting', { p_key: 'home_clock', p_value: { enabled: on } });
+    if (r && r.error) throw r.error;
+    msg.className = 'gs-sw-msg ok';
+    msg.textContent = on ? '✓ চালু হয়েছে — হোম পেজে ঘড়ি দেখা যাবে' : '✓ বন্ধ হয়েছে — হোম পেজে ঘড়ি দেখা যাবে না';
+  } catch (e) {
+    el.checked = !on; gsClockPaint();
+    msg.className = 'gs-sw-msg err';
+    msg.textContent = (e && e.message === 'super admin only') ? 'ব্যর্থ — শুধুমাত্র সুপার অ্যাডমিন এই সেটিং বদলাতে পারেন' : 'ব্যর্থ — আবার চেষ্টা করুন';
+    console.warn('home_clock', e);
+  } finally { el.disabled = false; }
 }
 
 /* ঋণ তহবিলের হার = ১০০ − জরুরি − অপারেশন (শুধু দেখানো; সার্ভার fund_rates()-ও একই কষে) */
@@ -7183,8 +7244,8 @@ initAdmin();
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=4" defer></script>
 <script>document.addEventListener('DOMContentLoaded',function(){KHAppRelease.mountAdmin(document.getElementById('khAppReleaseAdmin'),_db);KHNotice.mountAdmin(document.getElementById('khNoticeAdmin'),_db);});</script>
-<script src="kh-i18n-data.js?v=6" defer></script>
+<script src="kh-i18n-data.js?v=7" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=4" defer></script>
+<script src="kh-i18n.js?v=5" defer></script>
 </body>
 </html>
