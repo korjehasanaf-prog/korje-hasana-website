@@ -424,3 +424,56 @@ button:focus-visible, a:focus-visible, [role="button"]:focus-visible, input:focu
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   ☀️ লাইট থীম (১ নভেম্বর ২০২৬) — আগে এই পাতা (স্বচ্ছতা ড্যাশবোর্ড ও admin-dashboard) লাইট থীমেও পুরো
+   গাঢ় থাকত, কারণ kh-ui লোড হয় না বলে থীম বসতই না। এখন পাতার <head>-এর ছোট স্ক্রিপ্ট সাইটের
+   বাছা থীম (`kh_theme`) বসায়, আর এখানে হালকা রঙের পূর্ণ সেট। কাচের কার্ড সাদা, লেখা গাঢ়।
+   "মোট দান" কার্ডের গ্র্যাডিয়েন্ট গাঢ় করা — কমলা প্রান্তে সাদা লেখা ২.২:১ ছিল।
+   ══════════════════════════════════════════════════════════════════════ */
+html[data-theme="light"] {
+  --bg: #f6f2fb;
+  --ink: #241539;
+  --muted: #5a5170;
+  --faint: #5f566f;
+  --line: rgba(36, 21, 57, .12);
+  --violet-lt: #5b3fc4;
+  --pink-lt: #b0256e;
+  --gold: #b4400a;
+  --ok: #15803d;
+  --ok-lt: #166534;
+  --err: #b91c1c;
+  --grad-hi: linear-gradient(135deg, #5b3fc4 0%, #b8235f 60%, #b4400a 100%);
+  color-scheme: light;
+}
+html[data-theme="light"] body {
+  background-color: #f6f2fb;
+  background-image:
+    radial-gradient(1100px 650px at 12% -8%, #e9defb 0%, transparent 60%),
+    radial-gradient(900px 600px at 108% 108%, #fbe2ec 0%, transparent 55%);
+}
+html[data-theme="light"] .glass,
+html[data-theme="light"] .kd-card:not(.hi),
+html[data-theme="light"] .kd-gate {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(255, 255, 255, .86));
+  box-shadow: 0 10px 30px rgba(36, 21, 57, .08), inset 0 1px 0 #fff;
+}
+html[data-theme="light"] .kd-mark,
+html[data-theme="light"] .kd-detbtn,
+html[data-theme="light"] .kd-x,
+html[data-theme="light"] .kd-kh i,
+html[data-theme="light"] .kd-ibtn:hover { background: #f1ecf8; }
+html[data-theme="light"] .kd-nav:hover { background: #f1ecf8; }
+html[data-theme="light"] .kd-nav.on { color: #241539; background: rgba(112, 72, 232, .14); }
+html[data-theme="light"] .kd-detbtn:hover,
+html[data-theme="light"] .kd-x:hover { background: #e9e1f5; }
+html[data-theme="light"] .kd-card.hi .kd-kh i { background: rgba(255, 255, 255, .22); color: #fff; }
+html[data-theme="light"] .kd-card.hi h2 { color: #fff; }
+html[data-theme="light"] .kd-ov { background: rgba(36, 21, 57, .35); }
+html[data-theme="light"] .kd-dr { background: linear-gradient(180deg, #ffffff, #faf7fd); box-shadow: -20px 0 60px rgba(36, 21, 57, .18); }
+html[data-theme="light"] :is(.kd-mc, .kd-chart, .kd-rows) { background: #faf7fd; }
+html[data-theme="light"] .kd-chart line.grid { stroke: rgba(36, 21, 57, .1); }
+html[data-theme="light"] .kd-avatar { background: linear-gradient(135deg, #5b3fc4, #b8235f); color: #fff; }
+@media (max-width: 760px) {
+  html[data-theme="light"] .kd-nav.on { background: linear-gradient(135deg, rgba(112, 72, 232, .22), rgba(214, 51, 108, .18)); color: #241539; }
+}

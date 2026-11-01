@@ -104,7 +104,9 @@
     @keyframes sp{to{transform:rotate(360deg)}}
     .spin{animation:sp .9s linear infinite;display:inline-block}
     .hide{display:none !important}
-  </style>
+      /* ☀️ লাইট থীম (১ নভেম্বর ২০২৬): বোতামের গ্র্যাডিয়েন্টের #e83e8c প্রান্তে সাদা লেখা ৩.৮২:১ ছিল */
+    html[data-theme="light"] .btn:not(.ghost){background:linear-gradient(112deg,#c2255c,#a021c9 48%,#b0256e)}
+</style>
 </head>
 <body data-kh-nav="on">
 
@@ -157,7 +159,7 @@
   <div class="alt"><a href="user-login.html">লগইন পেজে যান</a></div>
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=74">
+<link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 <script src="kh-ui.js?v=77"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>

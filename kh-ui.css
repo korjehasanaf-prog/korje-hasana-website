@@ -2077,7 +2077,8 @@ html[data-theme="light"] .chip {
 html[data-theme="light"] .chip i { color: #b02a80; }
 html[data-theme="light"] .chip:hover { background: #fdf1f6; }
 html[data-theme="light"] .chip.on {
-  background: linear-gradient(135deg, #e83e8c, #7048e8);
+  /* ⚠️ আগে #e83e8c থেকে শুরু — সাদা লেখা ৩.৮২:১ (১ নভেম্বর ২০২৬-এ গাঢ়) */
+  background: linear-gradient(135deg, #c2255c, #5b3fc4);
   border-color: transparent;
   color: #fff;
 }
@@ -2095,20 +2096,20 @@ html[data-theme="light"] .fg input:focus {
   box-shadow: 0 0 0 3px rgba(160,33,201,.14);
 }
 html[data-theme="light"] .fg label  { color: #6b5f80; }
-html[data-theme="light"] .fg .li    { color: #8578a0; }
+html[data-theme="light"] .fg .li    { color: #6b6280; }
 html[data-theme="light"] .fg input:focus ~ .li { color: #a021c9; }
 html[data-theme="light"] .fg input:focus + label,
 html[data-theme="light"] .fg input:not(:placeholder-shown) + label {
   background: linear-gradient(100deg, #b02a80, #6d3fd4);
   color: #fff;
 }
-html[data-theme="light"] .eb { color: #a396b8; }
+html[data-theme="light"] .eb { color: #6b6280; }
 html[data-theme="light"] .eb:hover { color: #b02a80; }
 
 /* ── remember me / forgot password ── */
 html[data-theme="light"] .ut label { color: #4a3f5c; }
 html[data-theme="light"] .ut a     { color: #b02a80; }
-html[data-theme="light"] .or       { color: #8a7fa0; }
+html[data-theme="light"] .or       { color: #6b6280; }   /* আগে #8a7fa0 = ৩.৭৩:১ */
 html[data-theme="light"] .or::before,
 html[data-theme="light"] .or::after { background: #e8dcf0; }
 
@@ -2152,7 +2153,7 @@ html[data-theme="light"] .role-tabs   { background: #faf7fd; border-color: #e8dc
 html[data-theme="light"] .role-tab    { color: #6b6280; }
 html[data-theme="light"] .back-link a { color: #b02a80; font-weight: 600; }
 html[data-theme="light"] .fl-field input { color: #241539; }
-html[data-theme="light"] .fl-field label { color: #8a7fa0; }
+html[data-theme="light"] .fl-field label { color: #6b6280; }   /* আগে #8a7fa0 = ৩.৭৩:১ */
 
 /* ⚠️ `.kh-theme-float` ও `.kh-theme-inline` মুছে ফেলা হয়েছে
    (সিদ্ধান্ত: ১৩ সেপ্টেম্বর ২০২৬)। এখন সব পেজেই গ্লাস নেভবার আছে,
@@ -4791,3 +4792,251 @@ html[data-theme="light"] .kh-dp-ok {
 .kh-sg-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .kh-sg-pri{background:linear-gradient(112deg,#c2255c,#8b1fb0 55%,#7048e8)}
 .kh-sg-sec{background:transparent;border:1.5px solid rgba(255,255,255,.45)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   31 ── ☀️ লাইট থীম — সম্পূর্ণ সংশোধন (১ নভেম্বর ২০২৬)
+   ব্যবহারকারীর নির্দেশ: "সম্পূর্ণ সিস্টেম এর লাইট থীম এর লেখা ও ডিজাইন ও কালার সব ঠিক করো। কোনটি যেন বাদ না যায়।"
+   পদ্ধতি: স্বয়ংক্রিয় অডিটর (প্রতিটি পাতা, ডেস্কটপ ও মোবাইল, লুকানো প্যানেল খুলে, নকল লগইনে ড্যাশবোর্ডের
+   প্রতিটি প্যানেল) প্রতিটি দৃশ্যমান লেখার কনট্রাস্ট মেপেছে — গ্র্যাডিয়েন্টের সবচেয়ে খারাপ বিন্দু ধরে।
+   ⚠️ নির্বাচকের শুরুতে `body:not(#khLt)` — এতে ওজনে একটি id যোগ হয় (১,১,২), তাই সেকশন ১১-এর ঢালাও
+   নিয়ম (০,২,২) ও পাতার নিজস্ব `!important` নিয়মকেও হারায়। `#khLt` নামে কোনো উপাদান নেই — রাখা যাবে না।
+   ⚠️ এখানে কেবল লাইট থীম বদলায়; ডার্ক থীম যেমন ছিল তেমনই।
+   ⚠️ ব্র্যান্ডের লোগো-চিহ্ন (বিকাশ/নগদ/উপায়ের অক্ষর, Gmail-এর G) ইচ্ছে করেই অপরিবর্তিত — লোগোর
+   কনট্রাস্টে WCAG-এর শর্ত নেই, আর ব্র্যান্ডের রঙ বদলানো যায় না।
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── ১. ব্র্যান্ডের কমলা গ্র্যাডিয়েন্টের বাটন (সেকশন ১০) — #f08c28 প্রান্তে সাদা লেখা ২.৪৭:১ ছিল ── */
+html[data-theme="light"] body:not(#khLt) :is(.btn-donate, .donate-btn, .donate-btn-main, .btn-save, .pc-btn-gold,
+  .cta-btn1, .hero-btn, .pay-btn, .ocr-btn, .btn-submit) {
+  background: linear-gradient(112deg, #c2255c 0%, #c2410c 55%, #b4400a 100%) !important;
+  color: #fff !important;
+}
+html[data-theme="light"] body:not(#khLt) :is(.btn-donate, .donate-btn, .donate-btn-main, .btn-save, .pc-btn-gold,
+  .cta-btn1, .hero-btn, .pay-btn, .ocr-btn, .btn-submit) :is(span, i, b, strong, small, em) { color: #fff !important; }
+
+/* ── ২. গোলাপি-বেগুনি গ্র্যাডিয়েন্ট (#d6336c → #a021c9 → #e83e8c) — শেষ প্রান্তে সাদা ৩.৮২:১ ── */
+html[data-theme="light"] body:not(#khLt) :is(.kh-bell-count, .kh-uchip, .kh-zoom-btn:not(.kh-zoom-alt),
+  .kh-cam-btn:not(.kh-cam-alt), .kh-vch-btn:not(.kh-vch-alt), .kh-gate-btn:not(.kh-gate-alt), .kh-navlogin) {
+  background: linear-gradient(112deg, #c2255c, #a021c9 55%, #b0256e) !important;
+}
+
+/* ── ৩. সোনালি পটভূমি + গাঢ় লেখা — লাইটে --gold গাঢ় (#c2410c), তাই লেখা সাদা (৫.১৮:১) ── */
+html[data-theme="light"] body:not(#khLt) :is(.nav-logo-icon, .logo-icon, .login-logo-icon, .step-num, .fs-num, .donor-rank.r1) {
+  color: #fff !important;
+}
+html[data-theme="light"] body:not(#khLt) :is(.hero-btns, .how-section) .btn-primary,
+html[data-theme="light"] body:not(#khLt) :is(.hero-btns, .how-section) .btn-primary * { color: #fff !important; }
+
+/* ── ৪. হোম: মিশন/ভিশন কার্ড — গাঢ় স্বচ্ছ কার্ডে ঢালাও নিয়মের গাঢ় লেখা (১.১৪–১.৪৮:১) → হালকা কার্ড ── */
+html[data-theme="light"] body:not(#khLt) .mv-card.mission {
+  background: linear-gradient(135deg, #fff8f1, #fdebdc) !important; border-color: #f3d3b6 !important; }
+html[data-theme="light"] body:not(#khLt) .mv-card.vision {
+  background: linear-gradient(135deg, #f5f0ff, #e7f4ec) !important; border-color: #d6cbf2 !important; }
+html[data-theme="light"] body:not(#khLt) .mv-card :is(.mv-card-h, .mv-card-p) { color: #241539 !important; }
+html[data-theme="light"] body:not(#khLt) .mv-card .mv-card-en { color: #4a3d63 !important; }
+html[data-theme="light"] body:not(#khLt) .mission .mv-card-tag { color: #9a3412 !important; }
+html[data-theme="light"] body:not(#khLt) .vision .mv-card-tag { color: #5b21b6 !important; }
+
+/* ── ৫. হোম ফুটার: ভাষা-বাছাইয়ের লেবেল ও সাবস্ক্রাইবের placeholder (নিজস্ব গাঢ় পটভূমি) ── */
+html[data-theme="light"] body:not(#khLt) .kh-lang-foot .kh-lf-lbl,
+html[data-theme="light"] body:not(#khLt) .kh-lang-foot .kh-lf-lbl * { color: #e4dafa !important; }
+html[data-theme="light"] body:not(#khLt) .plume .plume__input::placeholder { color: rgba(255, 255, 255, .72) !important; }
+
+/* ── ৬. হেডারের "অ্যাপ" বাটন — #a855f7 প্রান্তে সাদা ৩.৯৬:১ ── */
+html[data-theme="light"] body:not(#khLt) .kh-app-dd-btn { background: linear-gradient(135deg, #7e22ce 0%, #5b21b6 100%) !important; }
+
+/* ── ৭. চ্যাট উইজেট ও সহায়িকার মাথা ── */
+html[data-theme="light"] body:not(#khLt) .kh-chat-head {
+  background: linear-gradient(112deg, #b8235f 0%, #b5400f 45%, #9a3412 70%, #5b3fc4 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .kh-chat-note { color: #5f566f !important; }
+html[data-theme="light"] body:not(#khLt) .kh-bot-head { background: linear-gradient(112deg, #241539, #4c2a8a 55%, #7a1f9a) !important; }
+html[data-theme="light"] body:not(#khLt) .kh-bot-head span { color: rgba(255, 255, 255, .9) !important; }
+
+/* ── ৮. লগইন স্লাইডার (সঞ্চয়/ঋণ পোর্টাল) — রঙিন অর্ধেকের কমলা প্রান্তে সাদা ২.৪৭:১; লেবেল #9a90a8 = ৩.০৩:১ ── */
+html[data-theme="light"] body:not(#khLt) .kh-brand {
+  background: linear-gradient(140deg, #b8235f 0%, #b5400f 45%, #9a3412 70%, #5b3fc4 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .kh-slider.kh-reg .kh-brand {
+  background: linear-gradient(140deg, #5b3fc4 0%, #b8235f 50%, #b5400f 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .kh-brand-note { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .kh-field label { color: #6b6280; }
+html[data-theme="light"] body:not(#khLt) .kh-pw-chip:not(.kh-hit) { color: #6b6280 !important; }
+
+/* ── ৯. ব্রাউজারের ডিফল্ট placeholder (#757575) হালকা ঘরে ৪.৩–৪.৫:১ — একটু গাঢ় ── */
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder { color: #6b6280; opacity: 1; }
+
+/* ── ১০. ভলেন্টিয়ার পাতা — টিল বোতাম (#14b8a6 প্রান্তে সাদা ২.৪৯:১) ও হিরোর চিপ ── */
+html[data-theme="light"] body:not(#khLt) .vol-btn:not(.ghost) { background: linear-gradient(120deg, #0f766e, #0b5e57) !important; }
+html[data-theme="light"] body:not(#khLt) .vol-hero { background: linear-gradient(118deg, #0b3b38 0%, #0b5e57 45%, #4c2f9e 100%) !important; }
+
+/* ── ১১. "গাঢ় দ্বীপ" — যে ব্যান্ড/সাইডবার লাইট থীমেও গাঢ় থাকে, তার ভেতরে ডার্ক থীমের ভ্যারিয়েবল ফেরানো।
+   kh-ui লাইটে --gold → #c2410c, --ltgreen → #6d4fa8 ইত্যাদি করে — গাঢ় পটভূমিতে সেগুলো পড়া যেত না
+   (১.০৭–১.৬৮:১)। এখন এগুলোর ভেতরটা হুবহু ডার্ক থীমের মতো। ── */
+html[data-theme="light"] body:not(#khLt) :is(.hero-band, .savings-hero, .page-header, .story-img-inner,
+  .portal-sidebar, .portal-topbar, body > footer:not(.footer), body > div > footer:not(.footer)) {
+  --green: #241539; --dkgreen: #160d26; --mdgreen: #7048e8; --ltgreen: #cbb6f5; --gold: #f08c28; --dkgold: #d6336c;
+}
+html[data-theme="light"] body:not(#khLt) :is(.hero-band, .savings-hero) .hero-badge {
+  color: #ffc46b !important; background: rgba(240, 140, 40, .16) !important; border-color: rgba(240, 140, 40, .4) !important; }
+html[data-theme="light"] body:not(#khLt) .hero-band :is(.hero-stat-lbl) { color: rgba(255, 255, 255, .82) !important; }
+html[data-theme="light"] body:not(#khLt) .savings-hero p { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .savings-hero .hero-stat .lbl { color: rgba(255, 255, 255, .88) !important; }
+html[data-theme="light"] body:not(#khLt) .savings-hero { background: linear-gradient(135deg, #160d26 0%, #241539 55%, #5b3fc4 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .portal-sidebar .sidebar-title { color: rgba(255, 255, 255, .72) !important; }
+html[data-theme="light"] body:not(#khLt) .portal-sidebar .sbb-label { color: rgba(255, 255, 255, .78) !important; }
+html[data-theme="light"] body:not(#khLt) .portal-sidebar .sidebar-logout { color: #ff9b9b !important; }
+html[data-theme="light"] body:not(#khLt) :is(body > footer:not(.footer), body > div > footer:not(.footer)) :is(p, div) { color: rgba(255, 255, 255, .8) !important; }
+html[data-theme="light"] body:not(#khLt) :is(body > footer:not(.footer), body > div > footer:not(.footer)) a { color: #ddd0ff !important; }
+html[data-theme="light"] body:not(#khLt) .story-img-inner { background: linear-gradient(135deg, #160d26, #5b3fc4) !important; }
+html[data-theme="light"] body:not(#khLt) .story-img-text :is(div) { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .story-img-text .ref { color: rgba(255, 255, 255, .9) !important; }
+html[data-theme="light"] body:not(#khLt) .story-img-text .arabic { color: #ffc46b !important; }
+
+/* ── ১২. যে পাতার নেভবার ডার্কের জন্য সাদা লেখায় বানানো, অথচ লাইটে নেভবার হালকা (১.০১:১) ── */
+html[data-theme="light"] body:not(#khLt) .navbar :is(.nav-logo-text h1, .nav-back, .nav-link-sm, .nav-home-btn) { color: #241539 !important; }
+html[data-theme="light"] body:not(#khLt) .navbar .nav-logo-text p { color: #5b3fc4 !important; }
+html[data-theme="light"] body:not(#khLt) .navbar .nav-home-btn { background: #f1ecf8 !important; border-color: #d9cfe8 !important; }
+html[data-theme="light"] body:not(#khLt) .navbar .nav-home-btn:hover { background: #c2410c !important; color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .navbar .nav-link-sm:hover { background: #f1ecf8 !important; }
+
+/* ── ১৩. সঞ্চয়/বিবরণীর অতিথি সাইডবার (লাইটে হালকা ব্যান্ড) — বোতামের লেখা সাদা ছিল (১.০৫:১) ── */
+html[data-theme="light"] body:not(#khLt) .guest-sidebar .sidebar-item { color: #3b2f52 !important; }
+html[data-theme="light"] body:not(#khLt) .guest-sidebar .sidebar-item:hover { color: #241539 !important; background: rgba(112, 72, 232, .08) !important; }
+html[data-theme="light"] body:not(#khLt) .guest-sidebar .sidebar-item.active { color: #9a3412 !important; }
+
+/* ── ১৪. সঞ্চয় পোর্টালের ড্যাশবোর্ড কার্ড ও বোতাম ── */
+html[data-theme="light"] body:not(#khLt) .balance-card :is(.bc-label, .bc-sub) { opacity: 1 !important; color: rgba(255, 255, 255, .92) !important; }
+html[data-theme="light"] body:not(#khLt) .balance-deposit { background: linear-gradient(135deg, #1e4d8c 0%, #1d4ed8 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .balance-withdraw { background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .btn-deposit-glow { color: #fff !important; background: linear-gradient(135deg, #c2410c 0%, #b4400a 100%) !important; }
+html[data-theme="light"] body:not(#khLt) .btn-deposit-glow * { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) :is(.stmt-pill, .upbtn.gn) { background: linear-gradient(112deg, #0b5e49, #0f7a5c) !important; color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) :is(.acc-bar-new, .saveb, .backl:not([style*="1d9e75"]), .pbtn, .cbtn, .mkBtn, .nt-new) {
+  background: linear-gradient(112deg, #c2255c, #a021c9 55%, #b0256e) !important; }
+
+/* ── ১৫. সাধারণ সতর্ক/ঐচ্ছিক রঙ — সাদায় পড়ার মতো গাঢ় ── */
+html[data-theme="light"] body:not(#khLt) :is(.form-label span, .required, .req, .hr-closed) { color: #b91c1c !important; }
+html[data-theme="light"] body:not(#khLt) label > span[style*="color:red"],
+html[data-theme="light"] body:not(#khLt) label > span[style*="color: red"],
+html[data-theme="light"] body:not(#khLt) label > span[style*="#ff0000"],
+html[data-theme="light"] body:not(#khLt) label > span[style*="#ef4444"] { color: #b91c1c !important; }
+
+/* ── ১৬. হোয়াটসঅ্যাপ বাটন — ব্র্যান্ডের সবুজ (#25D366) রেখে লেখা গাঢ় (সাদায় ১.৯৮:১ ছিল; এখন ~১০:১) ── */
+html[data-theme="light"] body:not(#khLt) :is(.wa-btn, .wa-btn-card, .wa-chat-btn) { color: #062b15 !important; }
+html[data-theme="light"] body:not(#khLt) :is(.wa-btn, .wa-btn-card, .wa-chat-btn) * { color: #062b15 !important; }
+html[data-theme="light"] body:not(#khLt) .wa-card { background: linear-gradient(135deg, #064e46, #0b6b60) !important; }
+html[data-theme="light"] body:not(#khLt) .wa-card :is(h3, p) { color: #fff !important; }
+
+/* ── ১৭. যোগাযোগ পাতা: সোশ্যাল বোতাম ── */
+html[data-theme="light"] body:not(#khLt) .soc-fb { color: #0a58ca !important; }
+html[data-theme="light"] body:not(#khLt) .soc-yt { color: #b00000 !important; }
+
+/* ── ১৮. "আমাদের সম্পর্কে" পাতা ── */
+html[data-theme="light"] body:not(#khLt) .mvv-card :is(p, h3) { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .mvv-1 { background: linear-gradient(135deg, #241539, #5b3fc4) !important; }
+html[data-theme="light"] body:not(#khLt) .mvv-2 { background: linear-gradient(135deg, #7c2d12, #9a3412) !important; }
+html[data-theme="light"] body:not(#khLt) .ta-g7 { background: linear-gradient(135deg, #78350f, #b45309) !important; }
+html[data-theme="light"] body:not(#khLt) .ta-g8 { background: linear-gradient(135deg, #1e3c5f, #0369a1) !important; }
+html[data-theme="light"] body:not(#khLt) .fb-3 { background: #1d4ed8 !important; }
+html[data-theme="light"] body:not(#khLt) .tl-dot { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .tl-dot[style*="#ece7f0"] { color: #5f566f !important; }
+
+/* ── ১৯. হোম: কুরআনের স্ট্রিপ, সেবার কার্ডের ট্যাগ, মোবাইলের লগইন বাটন ── */
+html[data-theme="light"] body:not(#khLt) .pc-tag-gold { color: #8a4b00 !important; }
+html[data-theme="light"] body:not(#khLt) .kh-mauth,
+html[data-theme="light"] body:not(#khLt) .kh-mauth * { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .kh-chat-av { background: rgba(36, 21, 57, .38) !important; }
+
+/* ── ২০. দানের পাতা ── */
+html[data-theme="light"] body:not(#khLt) .live-ticker,
+html[data-theme="light"] body:not(#khLt) .live-ticker * { color: #166534 !important; }
+html[data-theme="light"] body:not(#khLt) .donor-rank.r3 { background: #8a5a2b !important; }
+html[data-theme="light"] body:not(#khLt) .donor-avatar { background: linear-gradient(135deg, #241539, #5b3fc4) !important; }
+html[data-theme="light"] body:not(#khLt) [style*="color:#16a34a"] { color: #166534 !important; }
+html[data-theme="light"] body:not(#khLt) [style*="color:#e65100"] { color: #b33d00 !important; }
+html[data-theme="light"] body:not(#khLt) [style*="color:#d97706"] { color: #a14b00 !important; }
+
+/* ── ২১. ঋণগ্রহীতা পোর্টাল ── */
+html[data-theme="light"] body:not(#khLt) :is(.kc-orange .kpi-c-num, .dr-val.orange) { color: #b33d00 !important; }
+html[data-theme="light"] body:not(#khLt) .dr-val.blue { color: #1d4ed8 !important; }
+
+/* ── ২২. সবুজ-নীল (teal) গ্র্যাডিয়েন্ট #0d6e56 → #1d9e75 — হালকা প্রান্তে সাদা ৩.৩৯:১ (ইনলাইন স্টাইলসহ) ── */
+html[data-theme="light"] body:not(#khLt) [style*="#1d9e75"] { background: linear-gradient(112deg, #0b5e49, #0f7a5c) !important; }
+
+/* ── ২৩. কমিটির কার্ডের রঙিন মাথা (cc0–cc3) — হালকা প্রান্তে সাদা লেখা ২.৪৭–৩.৬৫:১ ── */
+html[data-theme="light"] body:not(#khLt) .ctop.cc0 { background: linear-gradient(112deg, #c2255c, #c2410c) !important; }
+html[data-theme="light"] body:not(#khLt) .ctop.cc1 { background: linear-gradient(112deg, #5b3fc4, #8a1db0) !important; }
+html[data-theme="light"] body:not(#khLt) .ctop.cc2 { background: linear-gradient(112deg, #0b5e49, #0f7a5c) !important; }
+html[data-theme="light"] body:not(#khLt) .ctop.cc3 { background: linear-gradient(112deg, #9a3412, #b4400a) !important; }
+
+html[data-theme="light"] body:not(#khLt) .pfull { background: linear-gradient(112deg, #0b5e49, #0f7a5c) !important; }
+html[data-theme="light"] body:not(#khLt) .ctop .cstat { background: rgba(0, 0, 0, .22) !important; color: #fff !important; }
+
+/* ── ২৪. kh-ui-এর "নিঃশব্দ" লেখা (--kh-mute #7b7288) — হালকা রঙিন পটভূমিতে ৪.২:১ ── */
+html[data-theme="light"] { --kh-mute: #5f566f; }
+
+/* ── ২৫. কমিটির ফর্ম — গাঢ় "বিকল্প" বোতামে লাইটের গাঢ় লেখা (১.৮৬:১), হালকা টীকা ── */
+html[data-theme="light"] body:not(#khLt) .upbtn.alt { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .upnote { color: #5f566f !important; }
+html[data-theme="light"] body:not(#khLt) #fmFor { color: #5f566f !important; }
+
+/* ── ২৬. ইনলাইন স্টাইলের সাধারণ ফাঁদ (JS/HTML-এ সরাসরি লেখা রঙ) ──
+   ⚠️ `[style*=…]` মেলায় হুবহু লেখা ধরে — তাই বড়/ছোট হাতের অক্ষরে `i`। */
+/* সোনালি পটভূমি + গাঢ় লেখা → লাইটে --gold গাঢ়, তাই লেখা সাদা */
+html[data-theme="light"] body:not(#khLt) [style*="background:var(--gold);color:var(--green)"],
+html[data-theme="light"] body:not(#khLt) [style*="background: var(--gold); color: var(--green)"] { color: #fff !important; }
+/* স্বচ্ছ সাদা লেখা (সবসময় গাঢ়/রঙিন ঘরে) — .৪–.৭৫ স্বচ্ছতায় ৩:১-এর নিচে নামত */
+/* ⚠️ সেকশন ১১-এর হালকা ব্যান্ডের (হিরো, ফুটার …) ভেতরে নয় — সেখানে ঢালাও নিয়ম লেখাকে গাঢ় করে, আর এখানে
+   সাদা করলে হালকা ব্যান্ডে সাদা লেখা হয়ে যেত (হোম ফুটারের "Stay updated", "Mission & Vision")। */
+html[data-theme="light"] body:not(#khLt) :is([style*="color:rgba(255,255,255,.4)"], [style*="color:rgba(255,255,255,.45)"],
+  [style*="color:rgba(255,255,255,.5)"], [style*="color:rgba(255,255,255,.55)"], [style*="color:rgba(255,255,255,.6)"],
+  [style*="color:rgba(255,255,255,.65)"], [style*="color:rgba(255,255,255,.7)"], [style*="color:rgba(255,255,255,.75)"]):not(:is(.page-hero, .hero, .cta-band,
+  .how-section, .islamic-sec, .impact-calc, .impact-section, .mv-section, .guest-sidebar, .footer) *) {
+  color: rgba(255, 255, 255, .92) !important; }
+/* গাঢ় ফুটারের ভেতরের ইনলাইন অস্বচ্ছতা (.৫–.৬৫) */
+html[data-theme="light"] body:not(#khLt) footer[style*="var(--dkgreen)"] [style*="opacity:"] { opacity: 1 !important; color: rgba(255, 255, 255, .86) !important; }
+/* হোয়াটসঅ্যাপের ইনলাইন বাক্স ও বোতাম */
+html[data-theme="light"] body:not(#khLt) [style*="#128C7E" i] { background: linear-gradient(135deg, #064e46, #0b6b60) !important; }
+html[data-theme="light"] body:not(#khLt) a[style*="background:#25D366" i],
+html[data-theme="light"] body:not(#khLt) a[style*="background:#25D366" i] * { color: #062b15 !important; }
+/* সবুজ/কমলা ইনলাইন লেখা — সাদায় ৩.৩–৩.৮:১ */
+html[data-theme="light"] body:not(#khLt) :is([style*="color:#16a34a" i], [style*="color:#22c55e" i]) { color: #166534 !important; }
+html[data-theme="light"] body:not(#khLt) [style*="color:#e65100" i] { color: #b33d00 !important; }
+html[data-theme="light"] { --success: #166534; }
+
+/* ── ২৭. বাকি ছোটখাটো ── */
+html[data-theme="light"] body:not(#khLt) .kh-brand p { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .kh-pw-lvl { color: #6b6280; }
+html[data-theme="light"] body:not(#khLt) .hero-band :is(p, .hero-badge) { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .hero-band .hero-badge { background: rgba(0, 0, 0, .2) !important; border-color: rgba(255, 196, 107, .5) !important; }
+html[data-theme="light"] body:not(#khLt) .savings-hero .hero-badge { color: #ffd89c !important; }
+html[data-theme="light"] body:not(#khLt) .savings-hero .hero-stat .val { color: #ffc46b !important; }
+html[data-theme="light"] body:not(#khLt) .kh-ar-submit { background: #0b5e57 !important; color: #fff !important; }
+
+/* ── ২৮. লগইন অবস্থার উপাদান (নকল লগইনে অডিট করে পাওয়া) ── */
+/* মোবাইল মেনুর সদস্য-অংশ — মেনুর প্যানেল লাইটেও গাঢ়, অথচ সেকশন ১১.৯-এর লাইট নিয়ম নাম ও উপশিরোনাম গাঢ় করত */
+html[data-theme="light"] body:not(#khLt) .nav-links .kh-navme-head b { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .nav-links .kh-navme-head span { color: rgba(255, 255, 255, .85) !important; }
+html[data-theme="light"] body:not(#khLt) .nav-links .kh-navme-av { color: #fff !important; }
+/* সবুজ-নীল (#1d9e75) ও কমলা (#e95420) প্রান্তের ক্লাস-গ্র্যাডিয়েন্ট — সাদা লেখা ৩.০–৩.৬৫:১ */
+html[data-theme="light"] body:not(#khLt) :is(.ppct, .ch-loan, .ob-loan, .upbtn:not(.alt):not(.ocralt):not(.gn)) {
+  background: linear-gradient(112deg, #0b5e49, #0f7a5c) !important; }
+html[data-theme="light"] body:not(#khLt) :is(.ch-sav, .ob-sav) { background: linear-gradient(112deg, #c2255c, #c2410c) !important; }
+html[data-theme="light"] body:not(#khLt) :is(.ob-sav, .ob-loan) small { color: rgba(255, 255, 255, .92) !important; opacity: 1 !important; }
+html[data-theme="light"] body:not(#khLt) .pinfo .pcode { opacity: 1 !important; }
+/* প্রোফাইল কার্ডের ছোট হিসাব-লেবেল */
+html[data-theme="light"] body:not(#khLt) .kh-pc-stat span { color: #5f566f; }
+/* সঞ্চয় পোর্টালের লেনদেনের সারি ও হিসাবের অবস্থা */
+html[data-theme="light"] body:not(#khLt) :is(.trx-type.deposit, .trx-amount.deposit) { color: #15803d !important; }
+html[data-theme="light"] body:not(#khLt) #accStatus span { color: #9a3412 !important; }
+/* কমিটির ফর্ম — আমার আবেদনের তালিকা */
+html[data-theme="light"] body:not(#khLt) .progmiss span { color: #166534 !important; }
+html[data-theme="light"] body:not(#khLt) .myapp-grid .nodoc { color: #5f566f !important; border-color: #c9bcdc !important; }
+/* ভলেন্টিয়ার — পরিচয়পত্র ও প্রোফাইলের রিং */
+html[data-theme="light"] body:not(#khLt) .vol-idcard { background: linear-gradient(125deg, #0b3b38, #0b5e57 55%, #4c2f9e) !important; }
+html[data-theme="light"] body:not(#khLt) .vol-idcard :is(.k, .meta) { opacity: 1 !important; }
+html[data-theme="light"] body:not(#khLt) .vol-idcard .vol-stars { color: #fde68a !important; }
+html[data-theme="light"] body:not(#khLt) .vol-ring .rpct { background: #15803d !important; }
+html[data-theme="light"] body:not(#khLt) .vol-avinfo .ok { color: #166534 !important; }
+/* অ্যাডমিন-ভলেন্টিয়ার: ছবির অবস্থা */
+html[data-theme="light"] body:not(#khLt) .pcard .pmeta { color: #a14b00 !important; }

@@ -253,8 +253,18 @@
         padding: 30px 26px;
       }
     }
+    /* ══ ☀️ লাইট থীম (১ নভেম্বর ২০২৬) — রঙিন অর্ধেক ও বোতামের গ্র্যাডিয়েন্ট গাঢ়: কমলা/অ্যাম্বার প্রান্তে
+       সাদা লেখা ১.৯৯–২.৪৭:১ ছিল। এখন সবচেয়ে হালকা বিন্দুতেও ≥৪.৫:১। ══ */
+    html[data-theme="light"] body{--g-pink:#c2255c;--g-orange:#c2410c;--g-amber:#9a3412;--g-purple:#5b3fc4}
+    html[data-theme="light"] .ls-brand .role-badge{background:rgba(0,0,0,.2)}
+    html[data-theme="light"] .ls-brand :is(.perm-list-title,.ls-secure,.perm-item.no){color:rgba(255,255,255,.92) !important}
+    html[data-theme="light"] .ls-brand .perm-item.no i{color:rgba(255,255,255,.8)}
+    html[data-theme="light"] .role-tab.active,html[data-theme="light"] .role-tab.active *{color:#fff !important}
+    html[data-theme="light"] .role-tab .role-sub{opacity:1}
+    html[data-theme="light"] .ls-brand > p{color:#fff}
+    html[data-theme="light"] .fl-field label,html[data-theme="light"] .fl-field > i.fl-ico{color:#6b6280}
   </style>
-  <link rel="stylesheet" href="kh-ui.css?v=74">
+  <link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-kh-langs="bn,en" data-kh-nav="on">

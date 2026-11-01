@@ -18,11 +18,11 @@
     body{font-family:'Hind Siliguri','Inter',sans-serif;background:#f6f2fb;color:var(--ink);min-height:100vh}
 
     /* top bar */
-    .wbar{background:linear-gradient(112deg,#241539,#4c2f78 60%,#7048e8);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;color:#fff;position:sticky;top:0;z-index:50}
+    .wbar{background:linear-gradient(112deg,#241539,#4c2f78 60%,#5b3fc4);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;color:#fff;position:sticky;top:0;z-index:50}
     .wbar-l{display:flex;align-items:center;gap:12px}
-    .wbar-logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--orange));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+    .wbar-logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#c2255c,#c2410c);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
     .wbar-t b{font-size:15.5px;font-weight:700;display:block;line-height:1.2}
-    .wbar-t span{font-size:11.5px;opacity:.8}
+    .wbar-t span{font-size:11.5px;opacity:1}
     .wbar-back{color:#fff;text-decoration:none;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:8px 15px;border-radius:20px}
     .wbar-back:hover{background:rgba(255,255,255,.24)}
 
@@ -39,13 +39,14 @@
     @media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
     .kpi{border-radius:15px;padding:16px 17px;color:#fff;position:relative;overflow:hidden}
     .kpi i{position:absolute;right:11px;top:11px;font-size:32px;opacity:.22}
-    .kpi .lbl{font-size:12.5px;opacity:.92;margin-bottom:6px}
+    .kpi .lbl{font-size:12.5px;opacity:1;margin-bottom:6px}
     .kpi .amt{font-size:22px;font-weight:700;font-family:monospace}
-    .kpi .sub{font-size:11px;opacity:.85;margin-top:3px}
+    .kpi .sub{font-size:11px;opacity:1;color:#fff;margin-top:3px}
+    html[data-theme="light"] .kpi .sub{color:#fff}   /* kh-ui-এর ঢালাও `.sub` রঙ ঠেকাতে */
     .k-total{background:linear-gradient(135deg,#241539,#7048e8)}
-    .k-wallet{background:linear-gradient(135deg,#d6336c,#e95420)}
-    .k-bank{background:linear-gradient(135deg,#0d6e56,#1d9e75)}
-    .k-cash{background:linear-gradient(135deg,#b8860b,#f08c28)}
+    .k-wallet{background:linear-gradient(135deg,#c2255c,#c2410c)}   /* আগে #e95420 প্রান্তে সাদা ৩.৩১:১ */
+    .k-bank{background:linear-gradient(135deg,#0b5e49,#0f7a5c)}     /* আগে ৩.১:১ */
+    .k-cash{background:linear-gradient(135deg,#7a5600,#b4400a)}     /* আগে #f08c28-এ ২.৩১:১ */
 
     .tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
     .tab{display:flex;align-items:center;gap:6px;padding:9px 17px;border-radius:999px;border:1.5px solid var(--border);background:#fff;color:var(--muted);font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:all .2s}
@@ -69,8 +70,8 @@
     .pc-bal{font-size:17px;font-weight:700;font-family:monospace}
     .pocket{position:absolute;left:0;right:0;bottom:0;height:100px;border-radius:16px;background:linear-gradient(160deg,#5a3d28,#3a2416);box-shadow:inset 0 4px 12px rgba(0,0,0,.45),0 8px 20px rgba(0,0,0,.25);z-index:60;pointer-events:none;border-top:2px dashed rgba(255,255,255,.12)}
     .pocket::after{content:'';position:absolute;inset:6px;border-radius:12px;border:1.5px dashed rgba(255,255,255,.14)}
-    .stage-hint{text-align:center;font-size:11.5px;color:#8a7355;margin-top:14px;font-style:italic}
-    .stage-empty{text-align:center;color:#8a7355;padding:50px 20px;font-size:14px}
+    .stage-hint{text-align:center;font-size:11.5px;color:#5c4524;margin-top:14px;font-style:italic}
+    .stage-empty{text-align:center;color:#5c4524;padding:50px 20px;font-size:14px}
 
     .detail{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 8px 26px rgba(112,72,232,.1)}
     .detail-head{padding:20px;color:#fff;transition:background .4s}
@@ -378,7 +379,7 @@ async function saveModal(){
 }
 document.getElementById('modalBack').addEventListener('mousedown',function(e){ if(e.target===this) closeModal(); });
 </script>
-<link rel="stylesheet" href="kh-ui.css?v=74">
+<link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 <script src="kh-ui.js?v=77"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>

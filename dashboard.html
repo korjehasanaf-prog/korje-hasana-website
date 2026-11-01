@@ -176,9 +176,9 @@ body{font-family:'Inter','Hind Siliguri',sans-serif;background:var(--bg);color:v
 .gs-sw-state.on{background:#15803d;color:#fff}
 .gs-sw-msg{font-size:12.5px;margin-top:6px;min-height:1.2em}
 .gs-sw-msg.ok{color:#4ade80}.gs-sw-msg.err{color:#f87171}
-/* ⚠️ কার্ডটি নিজের গাঢ় পটভূমি ও লেখার রঙ বহন করে — ড্যাশবোর্ডের লাইট থীমে kh-ui.css `--text`/`--muted` গাঢ় করে দেয়,
-   অথচ `.card` (`--bg2`) গাঢ়ই থাকে; ফলে লেবেল গাঢ়-এর উপর গাঢ় হয়ে প্রায় অদৃশ্য হত (মেপে ধরা পড়ে)। */
-.card.gs-sw-card{background:#111827;--text:#f1f5f9;--muted:#94a3b8;color:#f1f5f9}
+/* লাইট থীমে (পুরো ড্যাশবোর্ড এখন হালকা — নিচের ☀️ অংশ) বার্তার রঙ গাঢ় */
+html[data-theme="light"] .gs-sw-msg.ok{color:#166534}
+html[data-theme="light"] .gs-sw-msg.err{color:#b91c1c}
 @media (prefers-reduced-motion:reduce){.gs-switch,.gs-switch::after{transition:none}}
 .gs-checks label{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
 
@@ -457,8 +457,171 @@ html[data-theme="light"] #panel-committee-roster{--cr-card:#ffffff;--cr-card2:#f
   #panelWrap{padding:16px}
   .apv-top{flex-direction:column}
 }
+/* ══════════════════════════════════════════════════════════════════════
+   ☀️ লাইট থীম — পুরো অ্যাডমিন ড্যাশবোর্ড (১ নভেম্বর ২০২৬ · ব্যবহারকারীর সিদ্ধান্ত: "পুরোপুরি হালকা")
+   আগে লাইট থীমে kh-ui.css কেবল `--text`/`--muted` গাঢ় করত, অথচ কার্ড (`--bg2`) গাঢ়ই থাকত —
+   ফলে প্রায় সব লেবেল গাঢ়-এর উপর গাঢ় (১.০৫–২.৬:১)। এখন মূল অংশ হালকা: সাদা কার্ড, গাঢ় লেখা।
+   ⚠️ বাঁয়ের সাইডবার ইচ্ছে করেই গাঢ় সবুজ — তাই তার ভেতরে ডার্ক থীমের ভ্যারিয়েবল ফেরানো হয়েছে
+   (kh-ui.css-এর লাইট `--gold:#c2410c` সাইডবারের সবুজে ২.৭৮:১ দিত)।
+   ⚠️ নিজের রঙিন পটভূমি বহন করে এমন অংশ (স্ট্যাট কার্ড, রিপোর্ট কার্ড, ওয়ালেট সামারি, স্টেটমেন্টের
+   ভরাট চিপ, আমন্ত্রণের সতর্কবার্তা, gs-sw-card) দুই থীমে একই থাকে।
+   ⚠️ JS-এ বানানো HTML-এর ইনলাইন রঙ (`style="color:#fff…"`) `[style*=…]` দিয়ে ধরা — নতুন টেমপ্লেটে
+   রঙ লিখতে হলে `var(--text)`/`var(--muted)` বা এখানকার ক্লাস ব্যবহার করতে হবে।
+   ══════════════════════════════════════════════════════════════════════ */
+html[data-theme="light"] body{
+  --bg:#f6f2fb;--bg2:#ffffff;--bg3:#f8f5fc;--border:#e3dcee;
+  --text:#241539;--muted:#5a5170;--ltgreen:#5b3fc4;--gold:#b4400a;
+  --success:#166534;--red:#b91c1c;--warn:#a16207;--purple:#7e22ce;--blue:#1d4ed8;--orange:#c2410c;
+  color:#241539;
+}
+html[data-theme="light"] #sidebar{
+  --text:#f1f5f9;--muted:#94a3b8;--gold:#f08c28;--ltgreen:#cbb6f5;--border:rgba(255,255,255,.08);--red:#ef4444;
+}
+/* সাইডবারের লাল ব্যাজ — সাদা লেখায় ৩.৭৬:১ ছিল (দুই থীমেই); গাঢ় লালে ৫.৯:১ */
+html[data-theme="light"] #sidebar .sb-badge{background:#c0262d}
+html[data-theme="light"] #sidebar .sb-logo-text .t2{color:#b8c9bf}
+
+/* ── অ্যাক্সেস নেই ── */
+html[data-theme="light"] #accessDenied{background:#f6f2fb}
+html[data-theme="light"] .ad-title{color:#241539}
+html[data-theme="light"] .ad-sub{color:#5a5170}
+html[data-theme="light"] .ad-btn{background:#b4400a;color:#fff}
+
+/* ── টপবার ── */
+html[data-theme="light"] #adminTopbar{background:rgba(255,255,255,.96);border-bottom:1px solid #e3dcee}
+html[data-theme="light"] .tb-pagetitle{color:#241539}
+html[data-theme="light"] .tb-date{background:#f1ecf8;color:#4a3d63}
+html[data-theme="light"] .tb-live{background:#dcfce7;border-color:#86efac;color:#166534}
+html[data-theme="light"] .tb-live-dot{background:#16a34a}
+html[data-theme="light"] .tb-home{color:#4a3d63}
+html[data-theme="light"] .tb-home:hover{color:#241539;background:#f1ecf8}
+html[data-theme="light"] .kh-sb-toggle{background:#f1ecf8;border-color:#d9cfe8;color:#241539}
+html[data-theme="light"] .kh-sb-toggle i{color:#241539}
+
+/* ── কার্ড, শিরোনাম ── */
+html[data-theme="light"] #mainWrap .card{box-shadow:0 2px 10px rgba(36,21,57,.05)}
+html[data-theme="light"] #mainWrap .card-title{color:#241539}
+html[data-theme="light"] #mainWrap .card-title i{color:#b4400a}
+html[data-theme="light"] #mainWrap h3,html[data-theme="light"] #mainWrap h4{color:#241539}
+
+/* ── ফর্ম ── */
+html[data-theme="light"] .fld label{color:#4a3d63}
+html[data-theme="light"] :is(.fld input,.fld select,.fld textarea,.search-bar input,.ar-desig-input,.apv-note textarea){
+  background:#fff;border-color:#d4c9e3;color:#241539}
+html[data-theme="light"] :is(.fld input,.fld textarea,.search-bar input,.ar-desig-input,.apv-note textarea)::placeholder{color:#6b6280}
+html[data-theme="light"] .fld select option{background:#fff;color:#241539}
+html[data-theme="light"] .apv-note textarea:focus{color:#241539}
+html[data-theme="light"] #mainWrap :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not(.gs-switch)::placeholder{color:#6b6280}
+
+/* ── বোতাম ── */
+html[data-theme="light"] .btn-danger{background:#fef2f2;color:#b91c1c;border-color:#fca5a5}
+html[data-theme="light"] .btn-danger:hover{background:#fee2e2}
+html[data-theme="light"] .btn-success{background:#f0fdf4;color:#166534;border-color:#86efac}
+html[data-theme="light"] .btn-success:hover{background:#dcfce7}
+html[data-theme="light"] .btn-gold{background:linear-gradient(135deg,#f08c28,#e0a020);color:#1c1206}
+html[data-theme="light"] .search-bar button{background:#f1ecf8;border-color:#d9cfe8;color:#4a3d63}
+html[data-theme="light"] .search-bar button:hover{color:#241539;background:#e9e1f5}
+html[data-theme="light"] .spin{border-color:rgba(36,21,57,.18);border-top-color:#7048e8}
+html[data-theme="light"] :is(.btn-primary,.btn-gold,.cr-pbtn) .spin{border-color:rgba(255,255,255,.35);border-top-color:#fff}
+
+/* ── টেবিল ── */
+html[data-theme="light"] .tbl-wrap{background:#fff}
+html[data-theme="light"] thead th{background:#f4effa;color:#4a3d63}
+html[data-theme="light"] tbody tr{border-top-color:#eee7f6}
+html[data-theme="light"] tbody tr:hover{background:#faf7fd}
+html[data-theme="light"] tbody td{color:#241539}
+html[data-theme="light"] .td-name{color:#241539}
+html[data-theme="light"] .td-amount{color:#b4400a}
+html[data-theme="light"] #mainWrap td a:not(.btn):not([class*="btn"]){color:#5b3fc4}
+
+/* ── স্ট্যাটাস ব্যাজ ── */
+html[data-theme="light"] .b-pending{background:#fef3c7;color:#854d0e;border-color:#fcd34d}
+html[data-theme="light"] .b-approved{background:#dcfce7;color:#166534;border-color:#86efac}
+html[data-theme="light"] .b-rejected{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
+html[data-theme="light"] .b-confirmed{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+html[data-theme="light"] .b-review{background:#f3e8ff;color:#6b21a8;border-color:#d8b4fe}
+html[data-theme="light"] .b-disbursed{background:#dcfce7;color:#166534;border-color:#86efac}
+
+/* ── বার্তা ── */
+html[data-theme="light"] .msg.ok{background:#f0fdf4;border-color:#86efac;color:#166534}
+html[data-theme="light"] .msg.err{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
+html[data-theme="light"] .stm-note,html[data-theme="light"] .rp-note,html[data-theme="light"] .rp-empty{color:#5a5170}
+html[data-theme="light"] .rp-sec h3,html[data-theme="light"] .rp-tot{color:#241539}
+html[data-theme="light"] .stm-ok{color:#166534}
+html[data-theme="light"] .stm-bad{color:#b91c1c}
+html[data-theme="light"] .stm-issue{background:#fff7ed;border-color:#fed7aa;border-left-color:#e95420;color:#431407}
+html[data-theme="light"] .stm-issue select{background:#fff;color:#241539;border-color:#d4c9e3}
+
+/* ── লগ, খালি অবস্থা, অনুমোদন, অ্যাডমিন ── */
+html[data-theme="light"] .log-type{background:#efe8f8;color:#3b2f52}
+html[data-theme="light"] .log-amount,html[data-theme="light"] .apv-amount-big{color:#b4400a}
+html[data-theme="light"] .log-meta{color:#5a5170}
+html[data-theme="light"] .log-desig{color:#5b3fc4}
+html[data-theme="light"] .log-subject,html[data-theme="light"] .apv-name,html[data-theme="light"] .ar-name{color:#241539}
+html[data-theme="light"] .empty-state{color:#5a5170}
+html[data-theme="light"] .apv-card{border-color:#f3d9c2}
+html[data-theme="light"] .apv-info,html[data-theme="light"] .ar-email{color:#5a5170}
+
+/* ── অনুমতির চেকবক্স ── */
+html[data-theme="light"] .perm-item{background:#faf7fd;border-color:#e3dcee;color:#3b2f52}
+html[data-theme="light"] .perm-item:hover{background:#f4effa;color:#241539;border-color:#d4c9e3}
+html[data-theme="light"] .perm-item:has(input:checked){background:#efe9fc;border-color:#b9a6f0;color:#241539}
+html[data-theme="light"] .perm-item i{color:#5b3fc4;opacity:1}
+
+/* ── ফিল্টার পিল ── */
+html[data-theme="light"] :is(.fpill,.filter-pill){background:#f4effa;border-color:#ddd3ea;color:#3b2f52}
+html[data-theme="light"] :is(.fpill,.filter-pill):hover{border-color:#b9a6f0;color:#241539}
+html[data-theme="light"] :is(.fpill,.filter-pill).active{background:#fff1e6;border-color:#f3b27a;color:#9a3412}
+
+/* ── টাকা নেওয়ার মাধ্যম (সেটিংস) ── */
+html[data-theme="light"] .pm-row{background:#faf7fd;border-color:#e3dcee}
+html[data-theme="light"] .pm-row[open]{border-color:#c9bcdc}
+html[data-theme="light"] .pm-head::after{color:#5a5170}
+html[data-theme="light"] .pm-ico{background:#efe8f8}
+html[data-theme="light"] .pm-name{color:#241539}
+html[data-theme="light"] .pm-body{border-top-color:#e3dcee}
+
+/* ── স্ট্যাট কার্ড: নিজের গাঢ় গ্র্যাডিয়েন্ট, তাই লেখা সাদা (লেবেল আগে .৬ স্বচ্ছ — ৩.০–৪.২:১) ── */
+html[data-theme="light"] .stat-lbl{color:#fff}
+html[data-theme="light"] .stat-ico{color:#fff}
+html[data-theme="light"] .sc-teal{background:linear-gradient(135deg,#134e4a,#0b5e57)}
+html[data-theme="light"] .sc-purple{background:linear-gradient(135deg,#4a1d96,#5b21b6)}
+html[data-theme="light"] .sc-green{background:linear-gradient(135deg,#14532d,#14532d)}
+html[data-theme="light"] .sc-orange{background:linear-gradient(135deg,#7c2d12,#7c2d12)}
+
+/* ── JS-এ বানানো HTML-এর ইনলাইন রঙ ── */
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="font-weight:600;color:#fff;font-family"],
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="font-weight:700;color:#fff;font-family"]{color:#241539 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#c9b5f5"]{background:#efe9fc !important;color:#4527a0 !important;border-color:#b9a6f0 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)"]{background:#f1ecf8 !important;border-color:#d9cfe8 !important;color:#3b2f52 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#fca5a5"],
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#f87171"],
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#ffb4a2"]{color:#b91c1c !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#ffd9a3"]{color:#9a3412 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:rgba(255,255,255,.4)"]{color:#5a5170 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="border-bottom:1px solid rgba(255,255,255,.05)"]{border-bottom-color:#eee7f6 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="background:rgba(255,255,255,.12)"]{background:#ece6f5 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap span[style*="background:rgba(255,255,255,.2)"]{background:#d9cfe8 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#6ee7b7"]{color:#0b5e49 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="background:rgba(13,110,86"]{background:#e3f5ee !important;border-color:#86cdb5 !important;color:#0b5e49 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#93c5fd"]{color:#1e40af !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color:#22c55e"],
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color: rgb(34, 197, 94)"]{color:#166534 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color: rgb(248, 113, 113)"]{color:#b91c1c !important}
+/* JS-এর বার্তার ঘর (ivMsg, taxMsg …): ok / err / info — হালকা পটভূমি, গাঢ় লেখা */
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color: rgb(187, 247, 208)"]{background:#f0fdf4 !important;color:#166534 !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color: rgb(254, 202, 202)"]{background:#fef2f2 !important;color:#b91c1c !important}
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="color: rgb(221, 208, 255)"]{background:#f5f0ff !important;color:#4527a0 !important}
+/* সবুজ-নীল (teal) ইনলাইন বোতাম — সাদা লেখায় ৩.৩৯:১ ছিল */
+html[data-theme="light"] body:not(#khLt) #mainWrap [style*="#1d9e75"]{background:linear-gradient(112deg,#0b5e49,#0f7a5c) !important}
+/* ওয়ালেট সামারি — গ্র্যাডিয়েন্টের হালকা প্রান্তে সাদা ছোট লেখা ৪.২৮:১ ছিল */
+html[data-theme="light"] #walletSummary{background:linear-gradient(120deg,#241539,#4c2f78 60%,#5b3fc4) !important}
+/* ভূমিকার ব্যাজ — মূল অংশে (অ্যাডমিন তালিকা) হালকা পটভূমি; সাইডবারে গাঢ়ই */
+html[data-theme="light"] #mainWrap .rb-admin{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+html[data-theme="light"] #mainWrap .rb-super{background:#fff1e6;color:#9a3412;border-color:#f3b27a}
+html[data-theme="light"] #sidebar .rb-super{color:#ffb766}
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=74">
+  <link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-kh-langs="bn,en" data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-notice="off">

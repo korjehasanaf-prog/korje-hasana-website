@@ -341,8 +341,43 @@
   .admin-main { padding:16px !important; }
   .admin-kpi-grid { grid-template-columns:1fr 1fr !important; gap:10px !important; }
 }
+
+    /* ══ ☀️ লাইট থীম — পুরো পাতা হালকা (১ নভেম্বর ২০২৬; ড্যাশবোর্ডের মতোই) ══
+       আগে লাইটে kh-ui কেবল --text/--muted গাঢ় করত, অথচ কার্ড/লগইন-কার্ড গাঢ়ই থাকত (১.০৫–২.৬:১)।
+       সাইডবার ইচ্ছে করেই গাঢ় — তার ভেতরে ডার্কের ভ্যারিয়েবল ফেরানো। */
+    html[data-theme="light"] body{--bg:#f6f2fb;--bg2:#ffffff;--bg3:#f6f2fb;--bg4:#ece6f5;--border:#e3dcee;--border2:#d9cfe8;
+      --text:#241539;--muted:#5a5170;--gold:#b4400a;--success:#166534;--blue:#1d4ed8;--orange:#b33d00;--purple:#6b21a8;--red:#b91c1c;--yellow:#854d0e;color:#241539}
+    html[data-theme="light"] .sidebar{--bg2:#111827;--bg3:#1f2937;--text:#f1f5f9;--muted:#94a3b8;--gold:#f08c28;--border:rgba(255,255,255,.08);--red:#c0262d;--orange:#c2410c;background:#111827}
+    html[data-theme="light"] :is(.login-logo-text h2,.login-title,.topbar-title,.sec-title,.modal-title){color:#241539}
+    html[data-theme="light"] :is(.role-tab.active,.login-btn,.btn-add,.ftab.active,.pag-btn.active,.btn-save,.login-logo-icon){
+      background:linear-gradient(135deg,#c2410c,#b4400a) !important;color:#fff !important}
+    html[data-theme="light"] .btn-add[style*="1565c0" i]{background:#1d4ed8 !important}
+    html[data-theme="light"] .btn-add[style*="14532d" i]{background:#166534 !important}
+    html[data-theme="light"] .sidebar .sb-logo-icon{color:#160d26}
+    html[data-theme="light"] .kpi-lbl{color:#fff}
+    html[data-theme="light"] thead th{background:#f4effa}
+    html[data-theme="light"] tbody tr:hover{background:#faf7fd}
+    html[data-theme="light"] :is(.login-input,.tbl-search,.mf-input,.mf-select,.mf-textarea){background:#fff;color:#241539;border-color:#d4c9e3}
+    html[data-theme="light"] :is(.login-input,.tbl-search,.mf-input,.mf-textarea)::placeholder{color:#6b6280}
+    html[data-theme="light"] .mf-select option{background:#fff;color:#241539}
+    html[data-theme="light"] .modal-close{background:#f1ecf8;color:#4a3d63}
+    html[data-theme="light"] .login-error{background:#fef2f2;color:#b91c1c}
+    html[data-theme="light"] .live-badge{background:#dcfce7;color:#166534;border-color:#86efac}
+    /* JS/HTML-এর ইনলাইন রঙ (গাঢ় পাতার জন্য লেখা) — মূল অংশে (.content) হালকা পটভূমির উপযোগী করে */
+    html[data-theme="light"] body:not(#khLt) :is(.shell .content, .modal) [style*="color:#fff"]:not(.btn-add):not([style*="background"]){color:#241539 !important}
+    html[data-theme="light"] body:not(#khLt) :is(.shell .content, .modal) :is([style*="color:rgba(255,255,255,.4)"],[style*="color:rgba(255,255,255,.45)"],[style*="color:rgba(255,255,255,.5)"],[style*="color:rgba(255,255,255,.55)"],[style*="color:rgba(255,255,255,.6)"],[style*="color:rgba(255,255,255,.65)"],[style*="color:rgba(255,255,255,.7)"],[style*="color:rgba(255,255,255,.75)"],[style*="color:rgba(255,255,255,.8)"],[style*="color:rgba(255,255,255,.85)"]){color:#4a3d63 !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="color:#86efac"]{color:#166534 !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="color:#25D366" i]{color:#0f6b3a !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="background:rgba(255,255,255,.07)"]{background:#f4effa !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="background:rgba(0,0,0,.2)"]{background:#f1ecf8 !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="rgba(7,94,84,.3)"]{background:linear-gradient(135deg,#e6f6f1,#eef9f6) !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content [style*="rgba(30,58,138,.3)"]{background:linear-gradient(135deg,#e8efff,#f0f4ff) !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content .btn-add[style*="#128C7E" i]{background:linear-gradient(135deg,#064e46,#0b6b60) !important}
+    html[data-theme="light"] body:not(#khLt) .shell .content .ftab.active[style*="color"]{color:#fff !important}
+    html[data-theme="light"] .sidebar .sb-role-badge{color:#fff}
+    html[data-theme="light"] .sidebar [style*="background:#f97316"]{background:#c2410c !important}
 </style>
-  <link rel="stylesheet" href="kh-ui.css?v=74">
+  <link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
 </head>
 <body data-kh-langs="bn,en" data-no-theme-fab data-kh-nav="on" data-kh-chat="off" data-kh-bot="off">
