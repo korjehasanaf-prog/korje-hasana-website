@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>শরিয়াহ বোর্ড | কর্জে হাসানা ফাউন্ডেশন</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b5c55">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>try{var t=localStorage.getItem('kh_theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <link rel="stylesheet" href="kh-ui.css?v=75">
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       শরিয়াহ বোর্ডের পর্যালোচনা প্যানেল (২ নভেম্বর ২০২৬)
+       • বোর্ডের সদস্যরা অ্যাডমিন নন — তাই আলাদা পাতা, অ্যাডমিন ড্যাশবোর্ড নয়
+       • অনুমতি সার্ভারে: my_shariah_status · zakat_requests_list ·
+         zakat_request_detail · shariah_vote · shariah_docs_list ·
+         shariah_doc_add · shariah_doc_publish (সবই is_shariah()/is_admin())
+       • কার্ডগুলো সাদা কাগজ — দুই থীমে এক; শ্রেণির নাম `sb-`
+       ════════════════════════════════════════════════════════════════ */
+    :root { --sb-ink: #f4eefc; --sb-mute: #cfc4e0; --sb-text: #241539; --sb-sub: #5a4f6b; --sb-line: #e4dcef; --sb-teal: #0f766e; }
+    html[data-theme="light"] { --sb-ink: #241539; --sb-mute: #4f4562; }
+    body.sb-page { background: radial-gradient(120% 80% at 50% 0%, #1c2a3f 0%, #160d26 55%, #0f0a1a 100%); color: var(--sb-ink);
+                   font-family: 'Hind Siliguri', system-ui, sans-serif; margin: 0; }
+    .sb-page [hidden] { display: none !important; }
+    .sb-wrap { max-width: 1100px; margin: 0 auto; padding: 22px 16px 120px; }
+    .sb-head { border-radius: 24px; padding: 24px 24px 20px; color: #fff; background: linear-gradient(125deg, #0b5c55, #0f766e 45%, #4c2f9e); }
+    .sb-head h1 { margin: 0 0 6px; font-size: clamp(22px, 3.6vw, 32px); color: #fff; display: flex; gap: 10px; align-items: center; }
+    .sb-head p { margin: 0; color: #fff; font-size: 15px; line-height: 1.7; }
+    .sb-who { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(0,0,0,.26); color: #fff; font-size: 13.5px; font-weight: 600; }
+    .sb-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0 12px; }
+    .sb-tab { min-height: 42px; padding: 0 16px; border-radius: 999px; border: 1.5px solid #d6cce4; background: #fff; color: #3b2a63; font: inherit; font-weight: 700; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+    .sb-tab.on { background: linear-gradient(112deg, #0b5c55, #0f766e 45%, #4c2f9e); color: #fff; border-color: transparent; }
+    .sb-tab b { font-size: 12.5px; background: #fde7ef; color: #8d1c48; border-radius: 999px; padding: 0 7px; }
+    .sb-tab.on b { background: rgba(0,0,0,.28); color: #fff; }
+    .sb-card { background: #fff; color: var(--sb-text); border-radius: 20px; padding: 20px; border: 1px solid var(--sb-line); box-shadow: 0 14px 34px rgba(20,10,40,.12); margin-bottom: 14px; }
+    .sb-card h2 { margin: 0 0 6px; font-size: 19px; color: var(--sb-text); display: flex; gap: 8px; align-items: center; }
+    .sb-card h2 i { color: var(--sb-teal); }
+    .sb-sub { margin: 0 0 12px; color: var(--sb-sub); font-size: 14px; line-height: 1.7; }
+    .sb-list { display: grid; gap: 10px; }
+    .sb-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; border: 1px solid var(--sb-line); border-radius: 16px; padding: 12px 14px; background: #fcfbfe; cursor: pointer; text-align: start; font: inherit; color: var(--sb-text); width: 100%; }
+    .sb-item:hover, .sb-item:focus-visible { border-color: #0f766e; outline: none; box-shadow: 0 0 0 3px rgba(15,118,110,.14); }
+    .sb-item b { display: block; font-size: 15.5px; color: var(--sb-text); }
+    .sb-item small { display: block; font-size: 13px; color: var(--sb-sub); margin-top: 2px; }
+    .sb-amt { font-weight: 700; font-size: 16px; white-space: nowrap; color: var(--sb-text); }
+    .sb-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
+    .st-submitted { background: #fff3d6; color: #7a4a00; }
+    .st-approved, .st-posted { background: #e3f5ee; color: #0e5a3c; }
+    .st-rejected, .st-cancelled { background: #fdecec; color: #8f1d1d; }
+    .st-info_needed { background: #ece6fb; color: #432b8f; }
+    .st-draft { background: #eef0f3; color: #3f4652; }
+    .sb-votes { display: inline-flex; gap: 8px; font-size: 13px; color: var(--sb-sub); }
+    .sb-dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 0; }
+    .sb-dl div { background: #f7f3fb; border-radius: 12px; padding: 9px 12px; min-width: 0; }
+    .sb-dl span { display: block; font-size: 12.5px; color: var(--sb-sub); }
+    .sb-dl b { display: block; font-size: 15px; color: var(--sb-text); overflow-wrap: anywhere; }
+    .sb-text { white-space: pre-wrap; font-size: 14.5px; line-height: 1.75; color: #2e2340; background: #fcfbfe; border: 1px solid var(--sb-line); border-radius: 12px; padding: 12px; margin: 8px 0; }
+    .sb-h3 { font-size: 15.5px; margin: 16px 0 6px; color: var(--sb-text); display: flex; gap: 6px; align-items: center; }
+    .sb-h3 i { color: var(--sb-teal); }
+    .sb-vlist { display: grid; gap: 8px; }
+    .sb-v { border-inline-start: 4px solid #cfc4e0; background: #fbf9fd; border-radius: 10px; padding: 8px 12px; font-size: 14px; color: var(--sb-text); }
+    .sb-v.approve { border-color: #16a34a; } .sb-v.reject { border-color: #dc2626; } .sb-v.info { border-color: #7048e8; }
+    .sb-v small { color: var(--sb-sub); }
+    .sb-form { border: 1.5px solid #bfe6dc; background: #f4fbf9; border-radius: 16px; padding: 14px; margin-top: 14px; }
+    .sb-radios { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+    .sb-radios label { display: inline-flex; gap: 6px; align-items: center; padding: 8px 12px; border-radius: 12px; border: 1.5px solid #d6cce4; background: #fff; cursor: pointer; font-size: 14px; color: var(--sb-text); }
+    .sb-radios input { accent-color: #0f766e; }
+    .sb-f { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; min-width: 0; }
+    .sb-f label { font-size: 13.5px; font-weight: 600; color: #3d3350; }
+    .sb-f small { font-size: 12.5px; color: var(--sb-sub); }
+    .sb-in, .sb-ta, .sb-sel { width: 100%; box-sizing: border-box; border-radius: 12px; border: 1.5px solid #d6cce4; background: #fff; color: var(--sb-text); font: inherit; font-size: 16px; padding: 10px 12px; }
+    .sb-in, .sb-sel { min-height: 46px; padding: 0 12px; }
+    .sb-ta { min-height: 92px; resize: vertical; }
+    .sb-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .sb-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 0; font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .sb-btn-main { background: linear-gradient(112deg, #0b5c55, #0f766e 45%, #4c2f9e); color: #fff; }
+    .sb-btn-soft { background: #efe8f8; color: #3b2a63; }
+    .sb-btn:disabled { opacity: .6; cursor: wait; }
+    .sb-msg { margin-top: 10px; padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+    .sb-msg.ok { background: #e6f6ef; color: #0e4f36; } .sb-msg.bad { background: #fdecec; color: #8f1d1d; } .sb-msg.info { background: #f3effa; color: #3b2a63; }
+    .sb-empty { padding: 18px; text-align: center; color: var(--sb-sub); font-size: 14.5px; }
+    .sb-gate { text-align: center; padding: 34px 20px; }
+    .sb-gate i { font-size: 44px; color: var(--sb-teal); }
+    .sb-ev { display: flex; flex-wrap: wrap; gap: 8px; }
+    .sb-link { color: #0b5c55; font-weight: 700; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+    .sb-back { margin-bottom: 10px; }
+    .sb-doc { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid var(--sb-line); border-radius: 14px; padding: 12px; background: #fcfbfe; }
+    .sb-doc > i { font-size: 26px; color: #b42318; }
+    .sb-doc b { display: block; color: var(--sb-text); }
+    .sb-doc small { display: block; color: var(--sb-sub); font-size: 12.5px; }
+    .sb-switch { display: inline-flex; gap: 6px; align-items: center; font-size: 13.5px; color: var(--sb-text); cursor: pointer; }
+    .sb-switch input { accent-color: #0f766e; width: 18px; height: 18px; }
+    @media (max-width: 720px) {
+      .sb-dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sb-grid { grid-template-columns: minmax(0, 1fr); }
+      .sb-doc { grid-template-columns: auto minmax(0, 1fr); }
+      .sb-doc > :last-child { grid-column: 1 / -1; }
+      .sb-card { padding: 16px 14px; }
+    }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+</head>
+<body class="sb-page" data-kh-nav="on" data-kh-chat="off" data-kh-bot="off" data-kh-langs="bn,en">
+<main class="sb-wrap">
+  <header class="sb-head">
+    <h1><i class="ti ti-shield-check" aria-hidden="true"></i><span>শরিয়াহ বোর্ড — পর্যালোচনা প্যানেল</span></h1>
+    <p>জাকাত বিতরণের প্রতিটি প্রস্তাব এখানে আসে। সংখ্যাগরিষ্ঠ সদস্যের অনুমোদন পেলে তবেই বিতরণ করা যায়; আপনার মতামত ও নোট স্থায়ীভাবে সংরক্ষিত থাকে, পরে বদলানো যায় না।</p>
+    <span class="sb-who" id="sbWho" hidden></span>
+  </header>
+
+  <div id="sbGate" class="sb-card sb-gate" style="margin-top:18px">
+    <i class="ti ti-loader-2" aria-hidden="true"></i>
+    <p class="sb-sub">যাচাই হচ্ছে…</p>
+  </div>
+
+  <div id="sbApp" hidden>
+    <nav class="sb-tabs" aria-label="শরিয়াহ বোর্ডের অংশ">
+      <button type="button" class="sb-tab on" data-tab="pending"><i class="ti ti-inbox" aria-hidden="true"></i><span>মতামতের অপেক্ষায়</span> <b id="sbPendN">০</b></button>
+      <button type="button" class="sb-tab" data-tab="all"><i class="ti ti-list-details" aria-hidden="true"></i><span>সব প্রস্তাব</span></button>
+      <button type="button" class="sb-tab" data-tab="docs"><i class="ti ti-file-certificate" aria-hidden="true"></i><span>ফতোয়া ও নথি</span></button>
+    </nav>
+
+    <section class="sb-card" id="sbListCard">
+      <h2 id="sbListH"><i class="ti ti-inbox" aria-hidden="true"></i><span>মতামতের অপেক্ষায়</span></h2>
+      <p class="sb-sub" id="sbListSub">যে প্রস্তাবে এখনো আপনার মতামত দেওয়া হয়নি।</p>
+      <div class="sb-list" id="sbList"><p class="sb-empty">লোড হচ্ছে…</p></div>
+    </section>
+
+    <section class="sb-card" id="sbDetail" hidden aria-live="polite"></section>
+
+    <section id="sbDocs" hidden>
+      <div class="sb-card">
+        <h2><i class="ti ti-upload" aria-hidden="true"></i><span>নতুন নথি আপলোড</span></h2>
+        <p class="sb-sub">স্বাক্ষরিত ফতোয়া, রেজুলেশন, অডিটের সিদ্ধান্ত বা সনদ — কেবল PDF, সর্বোচ্চ ১০ MB। "প্রকাশ করুন" দিলে জাকাত পাতায় সবাই দেখতে পাবেন।</p>
+        <form id="sbDocForm">
+          <div class="sb-grid">
+            <div class="sb-f"><label for="sbDocKind">নথির ধরন</label>
+              <select class="sb-sel" id="sbDocKind"><option value="fatwa">ফতোয়া</option><option value="resolution">রেজুলেশন</option><option value="audit">অডিট</option><option value="certificate">সনদ</option></select></div>
+            <div class="sb-f"><label for="sbDocDate">নথির তারিখ</label><input class="sb-in" id="sbDocDate" type="date"></div>
+            <div class="sb-f"><label for="sbDocTbn">শিরোনাম (বাংলা) *</label><input class="sb-in" id="sbDocTbn" maxlength="200"></div>
+            <div class="sb-f"><label for="sbDocTen">শিরোনাম (ইংরেজি)</label><input class="sb-in" id="sbDocTen" maxlength="200"></div>
+            <div class="sb-f"><label for="sbDocTar">শিরোনাম (আরবি)</label><input class="sb-in" id="sbDocTar" maxlength="200" dir="auto"></div>
+            <div class="sb-f"><label for="sbDocSign">স্বাক্ষরকারী</label><input class="sb-in" id="sbDocSign" maxlength="200" placeholder="যেমন শরিয়াহ বোর্ডের সভাপতি"></div>
+            <div class="sb-f"><label for="sbDocAppr">সংশ্লিষ্ট অনুমোদন আইডি</label><input class="sb-in" id="sbDocAppr" placeholder="SA-2026-0001, SA-2026-0002"><small>একাধিক হলে কমা দিয়ে লিখুন</small></div>
+            <div class="sb-f"><label for="sbDocFile">PDF ফাইল *</label><input class="sb-in" id="sbDocFile" type="file" accept="application/pdf" style="padding-top:10px"></div>
+          </div>
+          <label class="sb-switch"><input type="checkbox" id="sbDocPub"><span>আপলোডের পরই প্রকাশ করুন</span></label>
+          <div style="margin-top:12px"><button class="sb-btn sb-btn-main" type="submit" id="sbDocBtn"><i class="ti ti-upload" aria-hidden="true"></i><span>নথি আপলোড করুন</span></button></div>
+          <div id="sbDocMsg" aria-live="polite"></div>
+        </form>
+      </div>
+      <div class="sb-card">
+        <h2><i class="ti ti-files" aria-hidden="true"></i><span>সব নথি</span></h2>
+        <div class="sb-list" id="sbDocList"><p class="sb-empty">লোড হচ্ছে…</p></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="kh-shariah.js?v=1"></script>
+<script src="kh-ui.js?v=78"></script>
+<script src="kh-notice.js?v=4" defer></script>
+<script src="kh-i18n-data.js?v=8" defer></script>
+<script src="kh-i18n.js?v=6" defer></script>
+</body>
+</html>

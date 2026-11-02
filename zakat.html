@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>জাকাত | কর্জে হাসানা ফাউন্ডেশন</title>
+  <meta name="description" content="শরিয়াহ সম্মত জাকাত ক্যালকুলেটর, আলাদা জাকাত তহবিলে জাকাত প্রদান, শরিয়াহ বোর্ডের অনুমোদনসহ প্রতিটি বিতরণের প্রকাশ্য হিসাব ও ফতোয়া।">
+  <meta name="theme-color" content="#0b5c55">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>try{var t=localStorage.getItem('kh_theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="_supabase.js"></script>
+  <link rel="stylesheet" href="kh-ui.css?v=75">
+  <link rel="stylesheet" href="kh-app-downloads.css?v=70">
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       জাকাত পাতা (২ নভেম্বর ২০২৬) — সব শ্রেণির নাম `zk-` দিয়ে শুরু।
+       ⚠️ পাতার পটভূমি থীমভেদে বদলায় (ডার্কে গাঢ়, লাইটে kh-ui-এর
+          ক্যালিগ্রাফি) — তাই পটভূমির উপর সরাসরি বসা লেখা `--zk-ink`/
+          `--zk-mute` ব্যবহার করে। কার্ডগুলো সাদা কাগজ — দুই থীমে এক।
+       ════════════════════════════════════════════════════════════════ */
+    :root { --zk-ink: #f4eefc; --zk-mute: #cfc4e0; --zk-teal: #0f766e; --zk-paper: #ffffff;
+            --zk-text: #241539; --zk-sub: #5a4f6b; --zk-line: #e4dcef; --zk-soft: #f7f3fb; }
+    html[data-theme="light"] { --zk-ink: #241539; --zk-mute: #4f4562; }
+    body.zk-page { background: radial-gradient(120% 80% at 50% 0%, #1c2a3f 0%, #160d26 55%, #0f0a1a 100%); color: var(--zk-ink);
+                   font-family: 'Hind Siliguri', system-ui, sans-serif; margin: 0; }
+    .zk-page [hidden] { display: none !important; }
+    .zk-wrap { max-width: 1080px; margin: 0 auto; padding: 22px 16px 120px; }
+
+    /* ── হিরো: নিজের গ্র্যাডিয়েন্ট বহন করে, সাদা লেখা দুই থীমে এক ── */
+    .zk-hero { position: relative; overflow: hidden; border-radius: 26px; padding: 34px 30px 30px; color: #fff;
+               background: linear-gradient(125deg, #0b5c55 0%, #0f766e 42%, #4c2f9e 100%);
+               box-shadow: 0 22px 50px rgba(15, 60, 70, .35); }
+    .zk-hero::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .12;
+                      background: url('images/auth-bg.jpg') center / cover no-repeat; }
+    .zk-hero > * { position: relative; z-index: 1; }
+    .zk-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border-radius: 999px;
+                  background: rgba(0, 0, 0, .24); font-size: 13px; font-weight: 600; color: #fff; }
+    .zk-hero h1 { font-size: clamp(26px, 4.4vw, 40px); line-height: 1.25; margin: 14px 0 8px; font-weight: 700; color: #fff; }
+    .zk-hero p.zk-lead { font-size: 16px; line-height: 1.75; max-width: 720px; margin: 0; color: #fff; }
+    .zk-ayah { margin: 16px 0 0; padding: 12px 16px; border-radius: 14px; background: rgba(0, 0, 0, .26); max-width: 720px; }
+    .zk-ayah b { display: block; font-size: 15px; line-height: 1.7; font-weight: 600; color: #fff; }
+    .zk-ayah small { display: block; margin-top: 4px; font-size: 13px; color: #fff; }
+    .zk-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .zk-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px;
+               background: rgba(0, 0, 0, .28); font-size: 13.5px; font-weight: 600; color: #fff; }
+    .zk-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .zk-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px;
+              border-radius: 14px; border: 0; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .zk-btn-light { background: #ffffff; color: #0b5c55; }
+    .zk-btn-ghost { background: rgba(0, 0, 0, .3); color: #fff; }
+    .zk-btn-main { background: linear-gradient(112deg, #0b5c55, #0f766e 45%, #4c2f9e); color: #fff; }
+    .zk-btn-main:disabled { opacity: .6; cursor: wait; }
+    .zk-btn-soft { background: #efe8f8; color: #3b2a63; }
+
+    /* ── লাইভ সংখ্যা ── */
+    .zk-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0 6px; }
+    .zk-stat { background: var(--zk-paper); color: var(--zk-text); border-radius: 18px; padding: 15px 16px; border: 1px solid var(--zk-line);
+               display: flex; gap: 12px; align-items: center; min-width: 0; }
+    .zk-stat i { flex: none; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px; color: #fff;
+                 background: linear-gradient(135deg, #0f766e, #4c2f9e); }
+    .zk-stat span { display: block; font-size: 13px; color: var(--zk-sub); }
+    .zk-stat b { display: block; font-size: 20px; font-weight: 700; color: var(--zk-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .zk-asof { font-size: 12.5px; color: var(--zk-mute); margin: 4px 2px 0; }
+
+    /* ── সাদা কাগজের কার্ড ── */
+    .zk-card { background: var(--zk-paper); color: var(--zk-text); border-radius: 22px; padding: 24px 22px; margin-top: 20px;
+               border: 1px solid var(--zk-line); box-shadow: 0 14px 34px rgba(20, 10, 40, .12); scroll-margin-top: 80px; }
+    .zk-card h2 { display: flex; align-items: center; gap: 10px; font-size: 22px; margin: 0 0 6px; color: var(--zk-text); }
+    .zk-card h2 i { color: var(--zk-teal); }
+    .zk-card p.zk-sub { margin: 0 0 16px; color: var(--zk-sub); font-size: 14.5px; line-height: 1.7; }
+    .zk-card h3 { font-size: 16.5px; margin: 18px 0 8px; color: var(--zk-text); }
+
+    /* ক্যালকুলেটর */
+    .zk-calc { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+    .zk-group { border: 1px solid var(--zk-line); border-radius: 16px; padding: 14px; margin-bottom: 12px; background: #fcfbfe; }
+    .zk-group > b { display: flex; align-items: center; gap: 8px; font-size: 15px; margin-bottom: 10px; color: var(--zk-text); }
+    .zk-group > b i { color: var(--zk-teal); }
+    .zk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .zk-f { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .zk-f label { font-size: 13.5px; font-weight: 600; color: #3d3350; }
+    .zk-f small { font-size: 12.5px; color: var(--zk-sub); line-height: 1.5; }
+    .zk-in, .zk-sel { width: 100%; box-sizing: border-box; min-height: 46px; border-radius: 12px; border: 1.5px solid #d6cce4;
+                      background: #ffffff; color: var(--zk-text); font: inherit; font-size: 16px; padding: 0 12px; }
+    .zk-in:focus, .zk-sel:focus { outline: none; border-color: #0f766e; box-shadow: 0 0 0 3px rgba(15, 118, 110, .18); }
+    .zk-metal { display: grid; grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr); gap: 8px; align-items: end; }
+    .zk-hawl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .zk-hawl label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 12px; border: 1.5px solid #d6cce4;
+                     cursor: pointer; font-size: 14px; color: var(--zk-text); background: #fff; }
+    .zk-hawl input { accent-color: #0f766e; }
+    .zk-res { position: sticky; top: 84px; border-radius: 20px; padding: 18px; color: #fff;
+              background: linear-gradient(150deg, #0b5c55, #0f766e 40%, #3d2a85); }
+    .zk-res h3 { margin: 0 0 10px; color: #fff; font-size: 16px; }
+    .zk-row { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px dashed rgba(255, 255, 255, .35);
+              font-size: 14px; color: #fff; }
+    .zk-row b { white-space: nowrap; color: #fff; }
+    .zk-due { margin-top: 12px; padding: 14px; border-radius: 14px; background: rgba(0, 0, 0, .26); }
+    .zk-due span { display: block; font-size: 13.5px; color: #fff; }
+    .zk-due b { display: block; font-size: 30px; font-weight: 700; color: #fff; line-height: 1.25; }
+    .zk-verdict { margin-top: 10px; font-size: 14px; line-height: 1.65; color: #fff; }
+    .zk-res .zk-btn-light { width: 100%; margin-top: 12px; }
+    .zk-pricebar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px;
+                   background: #f1fbf8; border: 1px solid #bfe6dc; font-size: 13.5px; color: #134e48; margin-bottom: 12px; }
+    .zk-pricebar.is-stale { background: #fff6e6; border-color: #f3d39b; color: #7a4a00; }
+    .zk-note { font-size: 13px; color: var(--zk-sub); line-height: 1.65; margin-top: 10px; }
+
+    /* প্রদান */
+    .zk-pay { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 20px; align-items: start; }
+    .zk-amt { display: flex; gap: 8px; align-items: stretch; }
+    .zk-amt .zk-in { font-size: 22px; font-weight: 700; }
+    .zk-check { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--zk-text); margin: 4px 0; cursor: pointer; }
+    .zk-check input { margin-top: 4px; accent-color: #0f766e; }
+    .zk-msg { margin-top: 12px; padding: 12px 14px; border-radius: 12px; font-size: 14.5px; line-height: 1.65; }
+    .zk-msg.ok { background: #e6f6ef; border: 1px solid #9fd8bf; color: #0e4f36; }
+    .zk-msg.bad { background: #fdecec; border: 1px solid #f2b2b2; color: #8f1d1d; }
+    .zk-msg.info { background: #f3effa; border: 1px solid #d9cdee; color: #3b2a63; }
+    .zk-cap { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #f3effa; color: #3b2a63;
+              font-size: 14px; line-height: 1.65; margin-top: 12px; }
+
+    /* ব্যবহারের খাত */
+    .zk-uses { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .zk-use { border-radius: 18px; padding: 16px; border: 1px solid var(--zk-line); background: #fcfbfe; }
+    .zk-use i { font-size: 26px; color: var(--zk-teal); }
+    .zk-use b { display: block; font-size: 16px; margin: 6px 0 2px; color: var(--zk-text); }
+    .zk-use em { display: inline-block; font-style: normal; font-size: 12.5px; font-weight: 600; color: #6b2f8f; background: #f4ebfb;
+                 border-radius: 999px; padding: 2px 9px; margin-bottom: 6px; }
+    .zk-use p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--zk-sub); }
+    .zk-rules { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 8px; }
+    .zk-rules li { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; line-height: 1.7; color: var(--zk-text); }
+    .zk-rules li i { color: var(--zk-teal); font-size: 19px; margin-top: 3px; flex: none; }
+
+    /* খাতা */
+    .zk-tablewrap { overflow-x: auto; border: 1px solid var(--zk-line); border-radius: 14px; }
+    .zk-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px; }
+    .zk-table th { text-align: start; font-size: 13px; color: var(--zk-sub); font-weight: 600; background: var(--zk-soft); padding: 10px 12px; }
+    .zk-table td { padding: 10px 12px; border-top: 1px solid var(--zk-line); color: var(--zk-text); vertical-align: top; }
+    .zk-in-tag, .zk-out-tag { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600; }
+    .zk-in-tag { background: #e3f5ee; color: #0e5a3c; }
+    .zk-out-tag { background: #fbe8f0; color: #8d1c48; }
+    .zk-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: #3b2a63; }
+    .zk-link { color: #0b5c55; font-weight: 700; text-decoration: underline; cursor: pointer; background: none; border: 0; font: inherit; padding: 0; }
+    .zk-muted { color: var(--zk-sub); font-size: 13px; }
+    .zk-empty { padding: 18px; text-align: center; color: var(--zk-sub); font-size: 14.5px; }
+    .zk-lookup { display: flex; gap: 8px; margin: 6px 0 12px; flex-wrap: wrap; }
+    .zk-lookup .zk-in { flex: 1 1 220px; text-transform: uppercase; }
+    .zk-appr { border: 1.5px solid #bfe6dc; background: #f4fbf9; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; }
+    .zk-appr h4 { margin: 0 0 8px; font-size: 16px; display: flex; gap: 8px; align-items: center; color: #0e4f45; }
+    .zk-dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; font-size: 14px; }
+    .zk-dl div span { display: block; font-size: 12.5px; color: var(--zk-sub); }
+    .zk-dl div b { color: var(--zk-text); }
+
+    /* নথি */
+    .zk-docs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .zk-docs .zk-empty { grid-column: 1 / -1; }
+    .zk-doc { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--zk-line); border-radius: 16px; padding: 14px; background: #fcfbfe; min-width: 0; }
+    .zk-doc > i { font-size: 28px; color: #b42318; flex: none; }
+    .zk-doc b { display: block; font-size: 15px; color: var(--zk-text); }
+    .zk-doc small { display: block; font-size: 12.5px; color: var(--zk-sub); margin: 2px 0 8px; }
+
+    @media (max-width: 860px) {
+      .zk-calc, .zk-pay { grid-template-columns: minmax(0, 1fr); }
+      .zk-res { position: static; }
+      .zk-uses, .zk-docs { grid-template-columns: minmax(0, 1fr); }
+      .zk-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .zk-dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .zk-hero { padding: 26px 18px 22px; border-radius: 20px; }
+      .zk-card { padding: 20px 14px; border-radius: 18px; }
+      .zk-grid { grid-template-columns: minmax(0, 1fr); }
+      .zk-metal { grid-template-columns: minmax(0, 1fr) 84px; }
+      .zk-metal .zk-f:last-child { grid-column: 1 / -1; }
+      .zk-stat { padding: 12px; gap: 10px; }
+      .zk-stat i { width: 36px; height: 36px; font-size: 18px; }
+      .zk-stat b { font-size: 17px; }
+      .zk-cta .zk-btn { flex: 1 1 100%; }
+    }
+  </style>
+  <!-- brand-round -->
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/brand/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand/apple-touch-icon-180.png">
+</head>
+<body class="zk-page" data-kh-nav="on">
+<main class="zk-wrap">
+
+  <header class="zk-hero">
+    <span class="zk-eyebrow"><i class="ti ti-moon-stars" aria-hidden="true"></i><span>জাকাত ব্যবস্থাপনা</span></span>
+    <h1>আপনার জাকাত — শরিয়াহ বোর্ডের তত্ত্বাবধানে, সম্পূর্ণ স্বচ্ছ হিসাবে</h1>
+    <p class="zk-lead">জাকাত আলাদা তহবিলে রাখা হয় এবং শরিয়াহ বোর্ডের সংখ্যাগরিষ্ঠ সদস্যের অনুমোদন ছাড়া এক টাকাও বিতরণ হয় না। প্রতিটি বিতরণের অনুমোদন আইডি এই পাতাতেই যাচাই করা যায়।</p>
+    <div class="zk-ayah">
+      <b>“সদকা (জাকাত) তো কেবল ফকির, মিসকিন, জাকাত আদায়কারী, যাদের মন জয় করা প্রয়োজন, দাসমুক্তি, ঋণগ্রস্ত, আল্লাহর পথে ও মুসাফিরের জন্য।”</b>
+      <small>সূরা আত-তাওবা, আয়াত ৬০</small>
+    </div>
+    <div class="zk-pills">
+      <span class="zk-pill"><i class="ti ti-wallet" aria-hidden="true"></i><span>আলাদা জাকাত তহবিল</span></span>
+      <span class="zk-pill"><i class="ti ti-percentage" aria-hidden="true"></i><span>প্রতিষ্ঠানের অংশ ০%</span></span>
+      <span class="zk-pill"><i class="ti ti-shield-check" aria-hidden="true"></i><span>প্রতিটি বিতরণ শরিয়াহ অনুমোদিত</span></span>
+    </div>
+    <div class="zk-cta">
+      <a class="zk-btn zk-btn-light" href="#calc"><i class="ti ti-calculator" aria-hidden="true"></i><span>জাকাত হিসাব করুন</span></a>
+      <a class="zk-btn zk-btn-ghost" href="#pay"><i class="ti ti-heart-handshake" aria-hidden="true"></i><span>জাকাত দিন</span></a>
+      <a class="zk-btn zk-btn-ghost" href="#ledger"><i class="ti ti-list-search" aria-hidden="true"></i><span>বিতরণের হিসাব দেখুন</span></a>
+    </div>
+  </header>
+
+  <section class="zk-stats" id="zkStats" aria-label="জাকাত তহবিলের লাইভ হিসাব">
+    <div class="zk-stat"><i class="ti ti-coins" aria-hidden="true"></i><div><span>সংগৃহীত জাকাত</span><b data-zk="collected">—</b></div></div>
+    <div class="zk-stat"><i class="ti ti-hand-move" aria-hidden="true"></i><div><span>বিতরণ</span><b data-zk="disbursed">—</b></div></div>
+    <div class="zk-stat"><i class="ti ti-building-bank" aria-hidden="true"></i><div><span>তহবিলে আছে</span><b data-zk="available">—</b></div></div>
+    <div class="zk-stat"><i class="ti ti-users" aria-hidden="true"></i><div><span>উপকারভোগী</span><b data-zk="beneficiaries">—</b></div></div>
+    <div class="zk-stat"><i class="ti ti-receipt-off" aria-hidden="true"></i><div><span>ঋণ মওকুফ</span><b data-zk="debts_relieved">—</b></div></div>
+    <div class="zk-stat"><i class="ti ti-certificate" aria-hidden="true"></i><div><span>শরিয়াহ অনুমোদন</span><b data-zk="approvals">—</b></div></div>
+  </section>
+  <p class="zk-asof" id="zkAsOf"></p>
+
+  <!-- ═════════ ক্যালকুলেটর ═════════ -->
+  <section class="zk-card" id="calc" aria-labelledby="calcH">
+    <h2 id="calcH"><i class="ti ti-calculator" aria-hidden="true"></i><span>শরিয়াহ সম্মত জাকাত ক্যালকুলেটর</span></h2>
+    <p class="zk-sub">যে সম্পদের উপর এক চান্দ্র বছর (হাওল) পূর্ণ হয়েছে, তার হিসাব দিন। নগদ, সোনা, রুপা ও ব্যবসার পণ্য মিলিয়ে নিট সম্পদ রুপার নিসাব ছাড়ালে ২.৫% জাকাত ফরজ হয়।</p>
+
+    <div class="zk-pricebar" id="zkPrice"><i class="ti ti-scale" aria-hidden="true"></i><span>নিসাবের দর লোড হচ্ছে…</span></div>
+
+    <div class="zk-calc">
+      <div>
+        <div class="zk-group">
+          <b><i class="ti ti-cash" aria-hidden="true"></i><span>নগদ ও জমা</span></b>
+          <div class="zk-grid">
+            <div class="zk-f"><label for="zkCash">হাতে নগদ টাকা (৳)</label><input class="zk-in" id="zkCash" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+            <div class="zk-f"><label for="zkBank">ব্যাংক ও মোবাইল ব্যাংকিংয়ে জমা (৳)</label><input class="zk-in" id="zkBank" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          </div>
+        </div>
+
+        <div class="zk-group">
+          <b><i class="ti ti-diamond" aria-hidden="true"></i><span>সোনা ও রুপা</span></b>
+          <div class="zk-metal">
+            <div class="zk-f"><label for="zkGoldW">সোনার ওজন</label><input class="zk-in" id="zkGoldW" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+            <div class="zk-f"><label for="zkGoldU">একক</label><select class="zk-sel" id="zkGoldU"><option value="vori">ভরি</option><option value="gram">গ্রাম</option></select></div>
+            <div class="zk-f"><label for="zkGoldP">সোনার দর (৳/গ্রাম)</label><input class="zk-in" id="zkGoldP" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          </div>
+          <div class="zk-metal" style="margin-top:10px">
+            <div class="zk-f"><label for="zkSilverW">রুপার ওজন</label><input class="zk-in" id="zkSilverW" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+            <div class="zk-f"><label for="zkSilverU">একক</label><select class="zk-sel" id="zkSilverU"><option value="vori">ভরি</option><option value="gram">গ্রাম</option></select></div>
+            <div class="zk-f"><label for="zkSilverP">রুপার দর (৳/গ্রাম)</label><input class="zk-in" id="zkSilverP" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          </div>
+          <p class="zk-note">১ ভরি = ১১.৬৬৪ গ্রাম। দর আগে থেকেই বসানো থাকে (বাজুস); আপনার এলাকার দর আলাদা হলে বদলে নিন।</p>
+        </div>
+
+        <div class="zk-group">
+          <b><i class="ti ti-building-store" aria-hidden="true"></i><span>ব্যবসা, পাওনা ও অন্যান্য</span></b>
+          <div class="zk-grid">
+            <div class="zk-f"><label for="zkBiz">ব্যবসার মজুদ পণ্য (৳)</label><input class="zk-in" id="zkBiz" inputmode="decimal" autocomplete="off" placeholder="0"><small>বর্তমান বিক্রয়মূল্যে</small></div>
+            <div class="zk-f"><label for="zkRecv">ফেরত পাওয়ার যোগ্য পাওনা (৳)</label><input class="zk-in" id="zkRecv" inputmode="decimal" autocomplete="off" placeholder="0"><small>যে ধার ফেরত পাওয়ার আশা আছে</small></div>
+            <div class="zk-f"><label for="zkOther">অন্যান্য জাকাতযোগ্য সম্পদ (৳)</label><input class="zk-in" id="zkOther" inputmode="decimal" autocomplete="off" placeholder="0"><small>শেয়ার, সঞ্চয়পত্র, বিদেশি মুদ্রা ইত্যাদি</small></div>
+          </div>
+        </div>
+
+        <div class="zk-group">
+          <b><i class="ti ti-receipt" aria-hidden="true"></i><span>বাদ যাবে — তাৎক্ষণিক দেনা</span></b>
+          <div class="zk-grid">
+            <div class="zk-f"><label for="zkDebt">এখনই পরিশোধযোগ্য ঋণ (৳)</label><input class="zk-in" id="zkDebt" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+            <div class="zk-f"><label for="zkBills">বকেয়া বিল ও জরুরি খরচ (৳)</label><input class="zk-in" id="zkBills" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          </div>
+        </div>
+
+        <div class="zk-group">
+          <b><i class="ti ti-calendar-time" aria-hidden="true"></i><span>হাওল — এক চান্দ্র বছর পূর্ণ হয়েছে?</span></b>
+          <div class="zk-hawl" role="radiogroup" aria-label="হাওল">
+            <label><input type="radio" name="zkHawl" value="yes" checked><span>হ্যাঁ, পূর্ণ হয়েছে</span></label>
+            <label><input type="radio" name="zkHawl" value="no"><span>না, এখনো হয়নি</span></label>
+          </div>
+        </div>
+      </div>
+
+      <aside class="zk-res" aria-live="polite">
+        <h3>আপনার হিসাব</h3>
+        <div class="zk-row"><span>মোট জাকাতযোগ্য সম্পদ</span><b id="zkRAssets">৳০</b></div>
+        <div class="zk-row"><span>বাদ: তাৎক্ষণিক দেনা</span><b id="zkRDebts">৳০</b></div>
+        <div class="zk-row"><span>প্রযোজ্য নিট সম্পদ</span><b id="zkRNet">৳০</b></div>
+        <div class="zk-row"><span id="zkRNisabL">নিসাব (রুপা ৬১২.৩৬ গ্রাম)</span><b id="zkRNisab">—</b></div>
+        <div class="zk-due"><span>দেয় জাকাত (২.৫%)</span><b id="zkRDue">৳০</b></div>
+        <p class="zk-verdict" id="zkVerdict">উপরের ঘরগুলোতে আপনার সম্পদের হিসাব লিখুন।</p>
+        <button type="button" class="zk-btn zk-btn-light" id="zkUseAmt" hidden><i class="ti ti-arrow-down" aria-hidden="true"></i><span>এই অঙ্ক জাকাত হিসেবে দিন</span></button>
+      </aside>
+    </div>
+    <p class="zk-note">এটি একটি সহায়ক হিসাব। শুধু সোনা থাকলে (নগদ, রুপা বা ব্যবসার পণ্য না থাকলে) সোনার নিসাব (৮৭.৪৮ গ্রাম) ধরা হয়; অন্য সব ক্ষেত্রে গরিবের সুবিধার্থে রুপার নিসাব। বিশেষ পরিস্থিতিতে একজন আলেমের পরামর্শ নিন।</p>
+  </section>
+
+  <!-- ═════════ প্রদান ═════════ -->
+  <section class="zk-card" id="pay" aria-labelledby="payH">
+    <h2 id="payH"><i class="ti ti-heart-handshake" aria-hidden="true"></i><span>জাকাত দিন</span></h2>
+    <p class="zk-sub">আপনার দেওয়া টাকা কেবল জাকাত তহবিলেই জমা হয় — ঋণ তহবিল বা পরিচালনা ব্যয়ের সাথে মেশে না। বিদেশ থেকেও দেওয়া যায়।</p>
+    <div class="zk-pay">
+      <div>
+        <div class="zk-f">
+          <label for="zkAmt">জাকাতের পরিমাণ (৳) <em style="color:#b42318;font-style:normal">*</em></label>
+          <div class="zk-amt"><input class="zk-in" id="zkAmt" inputmode="decimal" autocomplete="off" placeholder="0"></div>
+          <small id="zkAmtHint">সর্বনিম্ন ৳১০ · অনলাইনে এক লেনদেনে সর্বোচ্চ ৳৫,০০,০০০</small>
+        </div>
+        <div class="zk-grid" style="margin-top:12px">
+          <div class="zk-f"><label for="zkName">নাম</label><input class="zk-in" id="zkName" autocomplete="name" placeholder="আপনার নাম"></div>
+          <div class="zk-f"><label for="zkMobile">মোবাইল</label><input class="zk-in" id="zkMobile" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX"></div>
+          <div class="zk-f"><label for="zkEmail">ই-মেইল</label><input class="zk-in" id="zkEmail" type="email" autocomplete="email" placeholder="you@example.com" data-kh-skip="1"></div>
+          <div class="zk-f"><label for="zkCountry">কোন দেশ থেকে দিচ্ছেন</label><select class="zk-sel" id="zkCountry"></select></div>
+        </div>
+        <label class="zk-check"><input type="checkbox" id="zkAnon"><span>প্রকাশ্য তালিকায় আমার নাম দেখাবেন না (বেনামী)</span></label>
+        <p class="zk-note">রশিদ পেতে মোবাইল বা ই-মেইলের যেকোনো একটি দিন। বেনামী হলেও রশিদ আপনার কাছেই যাবে — শুধু প্রকাশ্যে নাম দেখানো হয় না।</p>
+        <div class="zk-cap" id="zkCap"><i class="ti ti-info-circle" aria-hidden="true"></i><span>জাকাত তহবিলের নিয়ম লোড হচ্ছে…</span></div>
+      </div>
+      <div>
+        <div id="zkPayPicker"></div>
+        <button type="button" class="zk-btn zk-btn-main" id="zkManualBtn" style="width:100%;margin-top:12px"><i class="ti ti-send" aria-hidden="true"></i><span>TrxID দিয়ে জাকাত জমা নিশ্চিত করুন</span></button>
+        <div id="zkPayMsg" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ কোথায় ব্যয় হয় ═════════ -->
+  <section class="zk-card" id="use" aria-labelledby="useH">
+    <h2 id="useH"><i class="ti ti-route" aria-hidden="true"></i><span>জাকাত কোথায় ও কীভাবে ব্যয় হয়</span></h2>
+    <p class="zk-sub">দাতাগণ কোনো নির্দিষ্ট ব্যক্তির নামে নয়, বরং ফাউন্ডেশনের কেন্দ্রীয় জাকাত পুলে দান করেন। বিতরণের সিদ্ধান্ত নেয় পরিচালনা পর্ষদ ও শরিয়াহ বোর্ড যৌথভাবে।</p>
+    <div class="zk-uses">
+      <div class="zk-use"><i class="ti ti-old" aria-hidden="true"></i><b>অবহেলিত পিতা-মাতা সেবা</b><em>ফুকারা ও মাসাকীন</em><p>অসহায় প্রবীণদের খাদ্য, চিকিৎসা, ওষুধ, বস্ত্র ও ব্যক্তিগত ভাতা।</p></div>
+      <div class="zk-use"><i class="ti ti-receipt-off" aria-hidden="true"></i><b>অক্ষম ঋণগ্রস্তের ঋণ মওকুফ</b><em>গারিমীন</em><p>প্রাকৃতিক দুর্যোগ, দুরারোগ্য ব্যাধি বা দুর্ঘটনায় ঋণ পরিশোধে অক্ষম কর্জে হাসানা গ্রহীতার ঋণ পরিশোধ।</p></div>
+      <div class="zk-use"><i class="ti ti-home-heart" aria-hidden="true"></i><b>জরুরি ত্রাণ ও স্বাবলম্বীকরণ</b><em>ফুকারা · ফি সাবিলিল্লাহ</em><p>দুর্যোগে জরুরি খাদ্য ও প্রাপকের নিজের ঘর মেরামত, আর সক্ষমদের ছোট ব্যবসা বা গবাদিপশু কিনে দেওয়া।</p></div>
+    </div>
+    <h3>যে নিয়মগুলো কখনো ভাঙা হয় না</h3>
+    <ul class="zk-rules">
+      <li><i class="ti ti-building-bank" aria-hidden="true"></i><span>একই ব্যাংক হিসাবে থাকলেও জাকাতের জন্য আলাদা উপ-খাতা — জাকাত কখনো ঋণ তহবিল, পরিচালনা ব্যয় বা অন্য কোনো খাতে যায় না।</span></li>
+      <li><i class="ti ti-percentage" aria-hidden="true"></i><span>প্রতিষ্ঠান জাকাত থেকে কোনো অংশ (আমেল অংশ) নেয় না — দেওয়া প্রতিটি টাকা প্রাপকের কাছে যায়।</span></li>
+      <li><i class="ti ti-hand-move" aria-hidden="true"></i><span>মালিকানা হস্তান্তর (তামলিক) — জাকাত সরাসরি প্রাপকের ব্যক্তিগত মালিকানায় দেওয়া হয়।</span></li>
+      <li><i class="ti ti-ban" aria-hidden="true"></i><span>ভবন বা প্রতিষ্ঠানের অবকাঠামো নির্মাণে জাকাত ব্যবহার হয় না; তবে প্রাপকের নিজের ঘর মেরামত বা পুনর্নির্মাণে দেওয়া যায়।</span></li>
+      <li><i class="ti ti-signature" aria-hidden="true"></i><span>ঋণ মওকুফে জাকাত প্রথমে ঋণগ্রহীতাকেই দেওয়া হয়, তারপর তাঁর সম্মতিতে ঋণে সমন্বয় হয়।</span></li>
+      <li><i class="ti ti-users-group" aria-hidden="true"></i><span>প্রতিটি বিতরণে শরিয়াহ বোর্ডের সংখ্যাগরিষ্ঠ সদস্যের ডিজিটাল অনুমোদন লাগে; অনুমোদন আইডি নিচের খাতায় যাচাই করা যায়।</span></li>
+      <li><i class="ti ti-eye-off" aria-hidden="true"></i><span>প্রাপকের নাম বা পরিচয় প্রকাশ করা হয় না — কেবল একটি গোপন কোড দেখানো হয়।</span></li>
+    </ul>
+  </section>
+
+  <!-- ═════════ প্রকাশ্য খাতা ═════════ -->
+  <section class="zk-card" id="ledger" aria-labelledby="ledH">
+    <h2 id="ledH"><i class="ti ti-list-search" aria-hidden="true"></i><span>জাকাত তহবিলের প্রকাশ্য খাতা</span></h2>
+    <p class="zk-sub">প্রাপ্তি দিন ও মাধ্যম অনুযায়ী যোগফল আকারে, আর প্রতিটি বিতরণ আলাদা সারিতে — শরিয়াহ অনুমোদন আইডিসহ। কোনো দাতা বা প্রাপকের নাম এখানে নেই; কোনো খাতে মাসে একটিমাত্র বিতরণ হলে গোপনীয়তার জন্য তারিখের বদলে কেবল মাস দেখানো হয়।</p>
+    <form class="zk-lookup" id="zkLookup">
+      <input class="zk-in" id="zkApprIn" placeholder="SA-2026-0001" autocomplete="off" aria-label="শরিয়াহ অনুমোদন আইডি">
+      <button class="zk-btn zk-btn-main" type="submit"><i class="ti ti-shield-search" aria-hidden="true"></i><span>অনুমোদন যাচাই করুন</span></button>
+    </form>
+    <div id="zkAppr" aria-live="polite"></div>
+    <div class="zk-tablewrap">
+      <table class="zk-table">
+        <thead><tr><th>তারিখ</th><th>ধরন</th><th>খাত / মাধ্যম</th><th>পরিমাণ</th><th>প্রাপকের কোড</th><th>শরিয়াহ অনুমোদন</th></tr></thead>
+        <tbody id="zkLedger"><tr><td colspan="6" class="zk-empty">খাতা লোড হচ্ছে…</td></tr></tbody>
+      </table>
+    </div>
+    <button type="button" class="zk-btn zk-btn-soft" id="zkMore" hidden style="margin-top:12px"><i class="ti ti-chevrons-down" aria-hidden="true"></i><span>আরও দেখুন</span></button>
+  </section>
+
+  <!-- ═════════ ফতোয়া ও নথি ═════════ -->
+  <section class="zk-card" id="docs" aria-labelledby="docsH">
+    <h2 id="docsH"><i class="ti ti-file-certificate" aria-hidden="true"></i><span>শরিয়াহ বোর্ডের ফতোয়া ও নথি</span></h2>
+    <p class="zk-sub">শরিয়াহ বোর্ডের স্বাক্ষরিত ফতোয়া, নীতিগত রেজুলেশন, অডিটের সিদ্ধান্ত ও সনদ — প্রকাশিত হলে এখান থেকে PDF খোলা যায়।</p>
+    <div class="zk-docs" id="zkDocs"><p class="zk-empty">নথি লোড হচ্ছে…</p></div>
+  </section>
+
+</main>
+
+<script src="kh-zakat.js?v=1"></script>
+<script src="kh-ui.js?v=78"></script>
+<script src="kh-app-downloads.js?v=69" defer></script>
+<script src="kh-notice.js?v=4" defer></script>
+<script src="kh-volunteer.js?v=5" defer></script>
+<script src="kh-i18n-data.js?v=8" defer></script>
+<script src="kh-volunteer-i18n.js?v=1" defer></script>
+<script src="kh-i18n.js?v=6" defer></script>
+</body>
+</html>

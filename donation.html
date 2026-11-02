@@ -115,9 +115,19 @@
     .freq-tabs { display:flex; background:#f3f4f6; border-radius:10px; padding:3px; margin-bottom:18px; }
     .freq-tab {
       flex:1; text-align:center; padding:8px; border-radius:8px;
-      font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; transition:all .2s;
+      font-size:13.5px; font-weight:600; color:#5a5068; cursor:pointer; transition:all .2s; /* আগে var(--muted) — ডার্কে ৪.৩৯:১ */
     }
     .freq-tab.active { background:#fff; color:var(--green); box-shadow:0 1px 6px rgba(0,0,0,.08); }
+    /* জাকাতের নোট — নিজের পটভূমি বহন করে, দুই থীমে এক (২ নভেম্বর ২০২৬) */
+    .don-zk { background:#eef8f5; border:1px solid #bfe6dc; border-radius:12px; padding:12px 14px; margin:-6px 0 18px; color:#134e48; font-size:13.5px; line-height:1.6; }
+    .don-zk[hidden] { display:none !important; }
+    .don-zk p { display:flex; gap:8px; align-items:flex-start; margin:0 0 8px; color:#134e48; }
+    .don-zk p i { color:#0f766e; font-size:18px; margin-top:2px; }
+    .don-zk b { color:#0b3f39; }
+    .don-zk .don-zk-links { gap:14px; flex-wrap:wrap; }
+    .don-zk a { display:inline-flex; gap:5px; align-items:center; color:#0b5c55; font-weight:700; text-decoration:underline; }
+    .don-zk label { display:block; font-weight:600; margin:4px 0 5px; color:#134e48; }
+    .don-zk select { width:100%; min-height:44px; border-radius:10px; border:1.5px solid #bfe6dc; background:#fff; color:#123; font:inherit; font-size:16px; padding:0 10px; }
 
     /* ── PAYMENT METHODS ── */
     .pay-methods { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:18px; }
@@ -523,6 +533,22 @@
           <div class="freq-tab active" onclick="setFreq(this,'one-time')">One-time</div>
           <div class="freq-tab" onclick="setFreq(this,'monthly')">Monthly</div>
           <div class="freq-tab" onclick="setFreq(this,'yearly')">Yearly</div>
+        </div>
+
+        <!-- DONATION TYPE — সাধারণ দান · সদকা · জাকাত (২ নভেম্বর ২০২৬)
+             ⚠️ জাকাত বাছলে টাকা যায় আলাদা জাকাত তহবিলে (`purpose='zakat'`) —
+                ৯০/৫/৫ ভাগে পড়ে না, ঋণযোগ্য তহবিলেও আসে না। দেশও সাথে যায়। -->
+        <div style="font-size:13.5px;font-weight:600;color:var(--green);margin-bottom:8px">Donation type</div>
+        <div class="freq-tabs" id="purTabs" role="radiogroup" aria-label="Donation type">
+          <div class="freq-tab active" data-pur="general" role="radio" aria-checked="true" tabindex="0" onclick="setPurpose('general')">General</div>
+          <div class="freq-tab" data-pur="sadaqah" role="radio" aria-checked="false" tabindex="0" onclick="setPurpose('sadaqah')">Sadaqah</div>
+          <div class="freq-tab" data-pur="zakat" role="radio" aria-checked="false" tabindex="0" onclick="setPurpose('zakat')">Zakat</div>
+        </div>
+        <div class="don-zk" id="zakatNote" hidden>
+          <p><i class="ti ti-shield-check" aria-hidden="true"></i><span><b>Zakat goes to a separate Zakat Fund.</b> It is never mixed with the loan fund or running costs, and every payout needs Shariah Board approval.</span></p>
+          <p class="don-zk-links"><a href="zakat.html#calc"><i class="ti ti-calculator" aria-hidden="true"></i><span>Calculate your Zakat</span></a><a href="zakat.html#ledger"><i class="ti ti-list-search" aria-hidden="true"></i><span>Public Zakat ledger</span></a></p>
+          <label for="donCountry">Country you are giving from</label>
+          <select id="donCountry"></select>
         </div>
 
         <!-- AMOUNT PRESETS -->
@@ -980,12 +1006,16 @@
         </div>
         <div style="background:linear-gradient(135deg,#fff6ef,#fef9c3);border-radius:10px;padding:11px 14px;border-left:3px solid #f08c28">
           <div style="font-size:11px;color:#565c68;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">Purpose / উদ্দেশ্য</div>
-          <div style="font-size:12.5px;font-weight:700;color:#1a1a1a;line-height:1.4">কর্জে হাসানা <span style="font-size:12px;color:#565c68;font-weight:400">(Interest-free loans)</span></div>
+          <div style="font-size:12.5px;font-weight:700;color:#1a1a1a;line-height:1.4" id="v_purpose">কর্জে হাসানা <span style="font-size:12px;color:#565c68;font-weight:400">(Interest-free loans)</span></div>
         </div>
       </div>
 
-      <!-- ═══ FUND USAGE ═══ -->
-      <div style="background:linear-gradient(135deg,#160d26,#241539);border-radius:12px;padding:14px 18px;margin-bottom:14px">
+      <!-- ═══ FUND USAGE ═══ — জাকাতে এর বদলে `#v_fundZakat` -->
+      <div id="v_fundZakat" hidden style="background:linear-gradient(135deg,#0b5c55,#0f766e 55%,#3d2a85);border-radius:12px;padding:14px 18px;margin-bottom:14px;color:#fff;font-size:13px;line-height:1.6">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;color:#fff">আপনার জাকাতের ব্যবহার / How Your Zakat Is Used</div>
+        <div><strong style="color:#fff">১০০%</strong> আলাদা জাকাত তহবিলে — শরিয়াহ বোর্ডের অনুমোদনে প্রাপকের কাছে। প্রতিষ্ঠানের অংশ ০%।</div>
+      </div>
+      <div id="v_fundUse" style="background:linear-gradient(135deg,#160d26,#241539);border-radius:12px;padding:14px 18px;margin-bottom:14px">
         <div style="color:rgba(255,255,255,.6);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">আপনার দানের ব্যবহার / How Your Donation Is Used</div>
         <div style="display:flex;height:14px;border-radius:7px;overflow:hidden;margin-bottom:8px;gap:2px">
           <div style="flex:90;background:linear-gradient(90deg,#cbb6f5,#86efac);border-radius:7px 0 0 7px"></div>
@@ -1240,7 +1270,8 @@ function calcImpact(amt) {
 
 /* ── FREQUENCY ── */
 function setFreq(el, freq) {
-  document.querySelectorAll('.freq-tab').forEach(t => t.classList.remove('active'));
+  /* ⚠️ কেবল নিজের সারির ট্যাব — দানের ধরনের ট্যাবও `.freq-tab` */
+  el.parentNode.querySelectorAll('.freq-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   donationFreq = freq;
 }
@@ -1276,6 +1307,47 @@ function donorFormOk() {
   return true;
 }
 
+/* ── দানের ধরন: general · sadaqah · zakat (২ নভেম্বর ২০২৬) ── */
+var donPurpose = 'general';
+var DON_COUNTRIES = [['BD','Bangladesh'],['SA','Saudi Arabia'],['AE','United Arab Emirates'],['QA','Qatar'],['KW','Kuwait'],
+  ['OM','Oman'],['BH','Bahrain'],['MY','Malaysia'],['SG','Singapore'],['GB','United Kingdom'],['US','United States'],
+  ['CA','Canada'],['AU','Australia'],['IT','Italy'],['DE','Germany'],['FR','France'],['ES','Spain'],['PT','Portugal'],
+  ['SE','Sweden'],['JP','Japan'],['KR','South Korea'],['MV','Maldives'],['JO','Jordan'],['LB','Lebanon'],['TR','Turkey'],
+  ['IN','India'],['NZ','New Zealand'],['IE','Ireland'],['NL','Netherlands'],['ZA','South Africa'],['','Other country']];
+function setPurpose(p) {
+  if (['general', 'sadaqah', 'zakat'].indexOf(p) < 0) p = 'general';
+  donPurpose = p;
+  document.querySelectorAll('#purTabs .freq-tab').forEach(function (t) {
+    var on = t.getAttribute('data-pur') === p;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-checked', on ? 'true' : 'false');
+  });
+  var n = document.getElementById('zakatNote');
+  if (n) n.hidden = p !== 'zakat';
+}
+(function () {
+  var sel = document.getElementById('donCountry');
+  if (sel && !sel.options.length) {
+    DON_COUNTRIES.forEach(function (c) {
+      var o = document.createElement('option'); o.value = c[0]; o.textContent = c[1]; sel.appendChild(o);
+    });
+  }
+  document.querySelectorAll('#purTabs .freq-tab').forEach(function (t) {
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPurpose(t.getAttribute('data-pur')); }
+    });
+  });
+  try {
+    var q = new URLSearchParams(location.search).get('purpose');
+    if (q) setPurpose(String(q).toLowerCase());
+  } catch (e) {}
+})();
+function donCountry() {
+  if (donPurpose !== 'zakat') return null;
+  var v = (document.getElementById('donCountry') || {}).value || '';
+  return /^[A-Z]{2}$/.test(v) ? v : null;
+}
+
 async function mountDonationPay() {
   if (DON_PAY || !window.KHUI || !KHUI.payPicker) return;
   var host = document.getElementById('donPay');
@@ -1304,7 +1376,10 @@ async function mountDonationPay() {
           name:         document.getElementById('donorName').value.trim(),
           mobile:       document.getElementById('donorMobile').value.trim(),
           email:        (document.getElementById('donorEmail')?.value || '').trim(),
-          is_anonymous: document.getElementById('anonCheck')?.checked || false
+          is_anonymous: document.getElementById('anonCheck')?.checked || false,
+          /* জাকাত/সদকা → settle_payment-এ record_donation-এর purpose হয়ে যায় */
+          donation_for: donPurpose === 'general' ? '' : donPurpose,
+          country:      donCountry()
         };
       },
       beforePay: donorFormOk
@@ -1529,16 +1604,19 @@ function processDonation() {
       const txRef = payInfo.reference;
       const isAnon = document.getElementById('anonCheck')?.checked || false;
       try {
-        const r = await _db.rpc('record_donation', {
+        const base = {
           p_amount:          amt,
           p_name:            isAnon ? null : name,
           p_mobile:          mobile || null,
           p_email:           document.getElementById('donorEmail')?.value?.trim() || null,
           p_payment_method:  payMethod,
           p_transaction_ref: txRef || null,
-          p_purpose:         'general',
           p_is_anonymous:    isAnon
-        });
+        };
+        /* জাকাত আলাদা RPC-তে — দেশসহ, আলাদা জাকাত তহবিলে (২ নভেম্বর ২০২৬) */
+        const r = donPurpose === 'zakat'
+          ? await _db.rpc('record_zakat', Object.assign({ p_country: donCountry() }, base))
+          : await _db.rpc('record_donation', Object.assign({ p_purpose: donPurpose }, base));
         if (r && r.error) throw r.error;
         const d = r && r.data ? r.data : null;
         if (d) {
@@ -1708,6 +1786,17 @@ function openVoucher() {
   document.getElementById('v_email').textContent   = email;
   document.getElementById('v_method').textContent  = methodName(selectedPay);
   document.getElementById('v_freq').textContent    = freqMap[donationFreq] || donationFreq;
+  /* দানের ধরন — জাকাতে ব্যবহারের ঘরটিও বদলায় (২ নভেম্বর ২০২৬) */
+  (function () {
+    var pv = document.getElementById('v_purpose');
+    var zk = donPurpose === 'zakat';
+    if (pv && donPurpose !== 'general') {
+      pv.textContent = zk ? 'জাকাত (Zakat) — আলাদা জাকাত তহবিল' : 'সদকা (Sadaqah)';
+    }
+    var a = document.getElementById('v_fundZakat'), b = document.getElementById('v_fundUse');
+    if (a) a.hidden = !zk;
+    if (b) b.hidden = zk;
+  })();
   document.getElementById('v_datetime').textContent= now.toLocaleString((window.KHI18N && KHI18N.getLang() === 'ar') ? 'ar-u-nu-latn' : 'en-BD', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
   /* লগইন থাকলে ভাউচারে সদস্যের ছবি ও পরিচয় */
@@ -1906,7 +1995,7 @@ function downloadCertPDF() {
   });
 }
 </script>
-<script src="kh-ui.js?v=77"></script>
+<script src="kh-ui.js?v=78"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -1961,8 +2050,8 @@ function downloadCertPDF() {
   } else go();
 })();
 </script>
-<script src="kh-i18n-data.js?v=7" defer></script>
+<script src="kh-i18n-data.js?v=8" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=5" defer></script>
+<script src="kh-i18n.js?v=6" defer></script>
 </body>
 </html>

@@ -111,6 +111,10 @@
           labelFn: function (s) { return head(s, 'operation').label; },
           val: function (s) { return head(s, 'operation').balance; },
           sub: function (s) { var h = head(s, 'operation'); return 'প্রাপ্তি ' + taka(h.income) + ' · ব্যয় ' + taka(h.expense); } },
+        /* জাকাত — আলাদা তহবিল, ৯০/৫/৫-এর বাইরে; বিস্তারিত public_stats_detail('zakat') (২ নভেম্বর ২০২৬) */
+        { topic: 'zakat', icon: 'ti-moon-stars', label: 'জাকাত তহবিল', money: true,
+          val: function (s) { return (s.zakat || {}).available; },
+          sub: function (s) { var z = s.zakat || {}; return 'প্রাপ্তি ' + taka(z.collected) + ' · ব্যয় ' + taka(z.disbursed); } },
         { topic: 'otr', icon: 'ti-target-arrow', label: 'সময়মতো পরিশোধের হার', suffix: '%',
           val: function (s) { return s.collection.otr_pct; }, sub: function () { return 'মেয়াদ পেরোনো কিস্তির হিসাবে'; } },
         { topic: 'otr', icon: 'ti-chart-donut', label: 'মোট আদায়ের হার', suffix: '%',

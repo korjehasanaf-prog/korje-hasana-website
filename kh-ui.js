@@ -6260,7 +6260,8 @@
       try {
         cpStage = KHUI.payStage({
           state: 'busy',
-          purposeLabel: PURPOSE_LABEL[opts.purpose || 'donation'] || '',
+          /* opts.purposeLabel — যেমন জাকাত পাতায় 'জাকাত' (২ নভেম্বর ২০২৬) */
+          purposeLabel: opts.purposeLabel || PURPOSE_LABEL[opts.purpose || 'donation'] || '',
           amount: curAmount(),
           method: cur.id,
           /* কার্ডের গায়ে দাতার নিজের লেখা নামটিই বসে */

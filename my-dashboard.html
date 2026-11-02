@@ -88,6 +88,24 @@
 
     /* ── প্রোডাক্ট কার্ড ── */
     .sect-t{font-size:15px;font-weight:700;margin:4px 2px 12px;display:flex;align-items:center;gap:8px}
+    /* জাকাত সহায়তার কার্ড — সাদা কাগজ, দুই থীমে এক (২ নভেম্বর ২০২৬) */
+    #zakat[hidden]{display:none!important}
+    .zko{background:#fff;color:#241539;border:1.5px solid #bfe6dc;border-radius:18px;padding:16px 18px;margin-bottom:12px;box-shadow:0 10px 26px rgba(15,60,70,.12)}
+    .zko h3{margin:0 0 8px;font-size:16px;display:flex;gap:8px;align-items:center;color:#0b3f39}
+    .zko h3 i{color:#0f766e}
+    .zko-dl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:8px 0 10px}
+    .zko-dl div span{display:block;font-size:12.5px;color:#5a4f6b}
+    .zko-dl div b{font-size:15px;color:#241539}
+    .zko p{margin:0 0 10px;font-size:14px;line-height:1.7;color:#3d3350}
+    .zko a.zko-link{color:#0b5c55;font-weight:700}
+    .zko label{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:#241539;cursor:pointer;margin-bottom:10px}
+    .zko label input{margin-top:4px;accent-color:#0f766e}
+    .zko button{min-height:44px;padding:0 18px;border:0;border-radius:12px;font:inherit;font-weight:700;color:#fff;cursor:pointer;background:linear-gradient(112deg,#0b5c55,#0f766e 45%,#4c2f9e)}
+    .zko button:disabled{opacity:.55;cursor:not-allowed}
+    .zko-st{display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border-radius:999px;font-size:13.5px;font-weight:600;background:#e6f6ef;color:#0e4f36}
+    .zko-st.wait{background:#fff6e6;color:#7a4a00}
+    .zko-err{color:#b42318;font-size:13.5px;margin-top:8px}
+    @media(max-width:640px){.zko-dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
     .sect-t i{color:#e083b4}
     html[data-theme="light"] .sect-t i{color:#b02a80}
 
@@ -239,6 +257,13 @@
   <div class="sect-t"><i class="ti ti-id-badge-2"></i> আমার পরিচয়পত্র</div>
   <div id="myCard" style="margin-bottom:26px"></div>
 
+  <!-- জাকাত সহায়তার প্রস্তাব (ঋণ মওকুফ) — শরিয়াহ বোর্ড অনুমোদন দিলে তবেই দেখা যায়
+       ⚠️ তামলিক: জাকাত আগে ঋণগ্রহীতার মালিকানায়, তাঁর সম্মতিতে ঋণে সমন্বয় (২ নভেম্বর ২০২৬) -->
+  <div id="zakat" hidden>
+    <div class="sect-t"><i class="ti ti-moon-stars"></i> জাকাত সহায়তা</div>
+    <div id="zkOffers" style="margin-bottom:26px"></div>
+  </div>
+
   <!-- ৩টি প্রোডাক্ট -->
   <div class="sect-t"><i class="ti ti-layout-dashboard"></i> আমার হিসাবসমূহ</div>
   <div class="cards">
@@ -293,7 +318,7 @@
 
 <link rel="stylesheet" href="kh-ui.css?v=75">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=77"></script>
+<script src="kh-ui.js?v=78"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -507,6 +532,9 @@
       el('loanFoot').appendChild(cbtn('loan-application.html','ঋণের আবেদন','ti-circle-plus','gn'));
     }
 
+    /* জাকাত সহায়তার প্রস্তাব — কেবল ঋণগ্রহীতার (২ নভেম্বর ২০২৬) */
+    if (ov.has_borrower) loadZakatOffers();
+
     /* সেটিংস অনুযায়ী প্রোডাক্ট চালু/বন্ধ */
     if (window.KHUI && KHUI.getSetting) {
       KHUI.getSetting('products', {}).then(function (pd) {
@@ -518,6 +546,63 @@
       });
     }
 
+  }
+
+  /* ── জাকাত সহায়তা: zakat_my_relief_offers / zakat_relief_accept ──
+     ⚠️ সার্ভার নিজেই auth.uid() দিয়ে কেবল নিজের ঋণের প্রস্তাব দেয় */
+  function zkEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  async function loadZakatOffers(){
+    var wrap = el('zakat'), box = el('zkOffers');
+    if(!wrap || !box) return;
+    var list = [];
+    try {
+      var r = await sb().rpc('zakat_my_relief_offers');
+      if(r && !r.error && Array.isArray(r.data)) list = r.data;
+    } catch(e){}
+    if(!list.length){ wrap.hidden = true; return; }
+    wrap.hidden = false;
+    box.innerHTML = list.map(function(o){
+      var posted = o.status === 'posted';
+      var st = posted
+        ? '<span class="zko-st"><i class="ti ti-circle-check"></i><span>ঋণে সমন্বয় হয়েছে</span></span>'
+        : o.consent_at
+          ? '<span class="zko-st wait"><i class="ti ti-hourglass"></i><span>সম্মতি দেওয়া হয়েছে — ঋণে সমন্বয়ের অপেক্ষায়</span></span>'
+          : '<label><input type="checkbox" data-zk-ok="'+zkEsc(o.id)+'"><span>আমি বুঝেছি — এই জাকাত আমার মালিকানায় নিয়ে আমার ঋণ পরিশোধে ব্যবহারে সম্মতি দিচ্ছি।</span></label>'+
+            '<button type="button" data-zk-accept="'+zkEsc(o.id)+'" disabled><i class="ti ti-signature"></i> <span>সম্মতি দিচ্ছি</span></button>'+
+            '<div class="zko-err" data-zk-err="'+zkEsc(o.id)+'"></div>';
+      return '<div class="zko">'+
+        '<h3><i class="ti ti-moon-stars"></i><span>আপনার ঋণে জাকাত সহায়তা অনুমোদিত হয়েছে</span></h3>'+
+        '<div class="zko-dl">'+
+          '<div><span>ঋণ নম্বর</span><b>'+zkEsc(o.loan_no||'—')+'</b></div>'+
+          '<div><span>সহায়তার পরিমাণ</span><b>'+zkEsc(taka(o.amount))+'</b></div>'+
+          '<div><span>বর্তমান বকেয়া</span><b>'+zkEsc(taka(o.outstanding))+'</b></div>'+
+          '<div><span>শরিয়াহ অনুমোদন</span><b><a class="zko-link" href="zakat.html?approval='+encodeURIComponent(o.approval_no||'')+'#ledger">'+zkEsc(o.approval_no||'—')+'</a></b></div>'+
+        '</div>'+
+        (posted ? '' : '<p>শরিয়াহ অনুযায়ী জাকাত প্রথমে আপনার মালিকানায় দেওয়া হয়। আপনি সম্মতি দিলে এই টাকা আপনার পক্ষ থেকে ঋণের কিস্তিতে সমন্বয় করা হবে — আপনাকে আলাদা করে কিছু দিতে হবে না। আপনার নাম কোথাও প্রকাশ হবে না।</p>')+
+        st+'</div>';
+    }).join('');
+    box.querySelectorAll('[data-zk-ok]').forEach(function(cb){
+      cb.addEventListener('change', function(){
+        var b = box.querySelector('[data-zk-accept="'+cb.getAttribute('data-zk-ok')+'"]');
+        if(b) b.disabled = !cb.checked;
+      });
+    });
+    box.querySelectorAll('[data-zk-accept]').forEach(function(b){
+      b.addEventListener('click', async function(){
+        var id = b.getAttribute('data-zk-accept');
+        var err = box.querySelector('[data-zk-err="'+id+'"]');
+        b.disabled = true;
+        try {
+          var r = await sb().rpc('zakat_relief_accept', { p_id: id });
+          if(r.error) throw r.error;
+          loadZakatOffers();
+        } catch(e){
+          if(err) err.textContent = (e && e.message) || 'সম্মতি জমা হয়নি — আবার চেষ্টা করুন।';
+          b.disabled = false;
+        }
+      });
+    });
+    if(location.hash === '#zakat'){ try{ wrap.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){} }
   }
 
   function start(){
@@ -533,8 +618,8 @@
   } else start();
 })();
 </script>
-<script src="kh-i18n-data.js?v=7" defer></script>
+<script src="kh-i18n-data.js?v=8" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=5" defer></script>
+<script src="kh-i18n.js?v=6" defer></script>
 </body>
 </html>
