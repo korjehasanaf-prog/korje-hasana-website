@@ -211,6 +211,7 @@
     if (window.KHUI && KHUI.requireAccount) {
       var okAcc = await KHUI.requireAccount('donation');
       if (!okAcc) return false;
+      await prefill();   /* এইমাত্র লগইন করলে নাম/মোবাইল/ই-মেইল এখনই বসে যায় */
     }
     var a = amount();
     if (!a || a < 10) { say('bad', 'জাকাতের পরিমাণ অন্তত ৳১০ লিখুন।'); $('zkAmt').focus(); return false; }
@@ -222,6 +223,17 @@
     if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { say('bad', 'ই-মেইল ঠিকানাটি সঠিক নয়।'); $('zkEmail').focus(); return false; }
     say('', '');
     return true;
+  }
+
+  /* লগইন থাকলে দাতার নাম, মোবাইল ও ই-মেইল প্রোফাইল থেকে নিজে থেকেই বসে (donation.html-এর মতোই);
+     নিজে টাইপ করা ঘর কখনো মোছা হয় না। ⚠️ kh-ui.js এই ফাইলের পরে লোড হয়, তাই `load`-এ ডাকা হয়। */
+  var prefilled = false;
+  async function prefill() {
+    if (prefilled || !window.KHUI || !KHUI.prefillFromProfile) return;
+    try {
+      var p = await KHUI.prefillFromProfile({ full_name: 'zkName', mobile: 'zkMobile', email: 'zkEmail' });
+      if (p) prefilled = true;
+    } catch (e) {}
   }
 
   function payload() {
@@ -473,5 +485,5 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   /* kh-ui.js এই ফাইলের পরে লোড হয় — পিকার তাই `load`-এ */
-  window.addEventListener('load', mountPay);
+  window.addEventListener('load', function () { mountPay(); prefill(); });
 })();

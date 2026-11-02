@@ -5040,3 +5040,13 @@ html[data-theme="light"] body:not(#khLt) .vol-ring .rpct { background: #15803d !
 html[data-theme="light"] body:not(#khLt) .vol-avinfo .ok { color: #166534 !important; }
 /* অ্যাডমিন-ভলেন্টিয়ার: ছবির অবস্থা */
 html[data-theme="light"] body:not(#khLt) .pcard .pmeta { color: #a14b00 !important; }
+
+/* ══════════════════════════════════════════════════════════════
+   32. জাকাত — হেডারের শীর্ষ লিংক (২ নভেম্বর ২০২৬)
+   ব্যবহারকারী: "জাকাত দানের বিষয়টি খুব বেশি ভিতরে চলে গেছে" — তাই কার্যক্রমের পাশে সরাসরি লিংক।
+   ⚠️ ৯০১–১০২৩px-এ হেডারের লিংক আগে থেকেই দুই সারিতে ভাঙে (হ্যামবার্গার কেবল ≤৯০০px) — সেখানে আর
+   ভিড় না বাড়াতে লিংকটি লুকানো; ঐ মাপে নিচের গ্লাস নেভে "জাকাত" আছে। ≤৯০০px-এর মেনুতে দেখা যায়।
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 901px) and (max-width: 1023px) { .navbar .nav-link.nav-zakat { display: none; } }
+/* ভলেন্টিয়ার পাতার হেডারে ডানে বাড়তি বোতাম — ইংরেজিতে ১০২৪–১০৯৯px-এও আগে থেকেই আঁটসাঁট, তাই সেখানেও লুকানো */
+@media (min-width: 901px) and (max-width: 1099px) { body[data-vol-page] .navbar .nav-link.nav-zakat { display: none; } }

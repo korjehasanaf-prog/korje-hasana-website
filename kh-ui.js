@@ -34,6 +34,8 @@
   var NAV_ITEMS = [
     { href: 'index.html',            icon: 'ti-home',      label: 'হোম'    },
     { href: 'donation.html',         icon: 'ti-heart',     label: 'দান'    },
+    /* জাকাত — দান, ঋণ ও সঞ্চয়ের পাশেই, সব পেজে এক ক্লিকে (ব্যবহারকারীর নির্দেশ: ২ নভেম্বর ২০২৬) */
+    { href: 'zakat.html',            icon: 'ti-moon-stars', label: 'জাকাত' },
     { href: 'loan-application.html', icon: 'ti-wallet',    label: 'ঋণ'     },
     { href: 'savings-portal.html',   icon: 'ti-coins', label: 'সঞ্চয়'  },
     { href: 'user-login.html',       icon: 'ti-login',     label: 'লগইন'   }

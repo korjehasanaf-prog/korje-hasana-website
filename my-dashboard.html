@@ -109,8 +109,10 @@
     .sect-t i{color:#e083b4}
     html[data-theme="light"] .sect-t i{color:#b02a80}
 
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
-    @media(max-width:820px){.cards{grid-template-columns:1fr}}
+    /* চারটি হিসাব পাশাপাশি — সঞ্চয় · দান · জাকাত · ঋণ (২ নভেম্বর ২০২৬); মাঝারি পর্দায় ২×২ */
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:26px}
+    @media(max-width:1000px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:640px){.cards{grid-template-columns:1fr}}
     .card{
       border-radius:18px;overflow:hidden;position:relative;
       background:rgba(26,14,45,.82);
@@ -126,6 +128,7 @@
     .ch-sav{background:linear-gradient(112deg,#d6336c,#e95420)}
     .ch-don{background:linear-gradient(112deg,#7048e8,#a021c9)}
     .ch-loan{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
+    .ch-zak{background:linear-gradient(112deg,#0b5c55,#0f766e 45%,#4c2f9e)}
     .cbody{padding:18px}
     .amt{font-size:27px;font-weight:700;font-family:'Hind Siliguri',monospace}
     .amt small{font-size:13px;font-weight:600;opacity:.75}
@@ -144,6 +147,7 @@
     .cbtn:hover{filter:brightness(1.1)}
     .cbtn.gn{background:linear-gradient(112deg,#0d6e56,#1d9e75);box-shadow:0 5px 14px rgba(13,110,86,.35)}
     .cbtn.vl{background:linear-gradient(112deg,#7048e8,#a021c9);box-shadow:0 5px 14px rgba(112,72,232,.35)}
+    .cbtn.zk{background:linear-gradient(112deg,#0b5c55,#0f766e 45%,#4c2f9e);box-shadow:0 5px 14px rgba(15,118,110,.35)}
     .badge0{
       display:inline-block;font-size:11px;font-weight:700;color:#fff;
       background:linear-gradient(112deg,#41307a,#5b34c4);
@@ -151,8 +155,9 @@
     }
 
     /* ── নতুন একাউন্ট ── */
-    .open3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
-    @media(max-width:820px){.open3{grid-template-columns:1fr}}
+    .open3{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+    @media(max-width:1000px){.open3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:640px){.open3{grid-template-columns:1fr}}
     .obtn{
       display:flex;align-items:center;gap:12px;text-decoration:none;
       border-radius:15px;padding:15px 17px;color:#fff;font-weight:700;font-size:14px;
@@ -164,6 +169,7 @@
     .ob-sav{background:linear-gradient(112deg,#d6336c,#e95420)}
     .ob-loan{background:linear-gradient(112deg,#0d6e56,#1d9e75)}
     .ob-don{background:linear-gradient(112deg,#7048e8,#a021c9)}
+    .ob-zak{background:linear-gradient(112deg,#0b5c55,#0f766e 45%,#4c2f9e)}
 
     /* সদস্য প্রোফাইল তৈরির ছোট ফর্ম */
     .panel-lite{
@@ -264,7 +270,7 @@
     <div id="zkOffers" style="margin-bottom:26px"></div>
   </div>
 
-  <!-- ৩টি প্রোডাক্ট -->
+  <!-- ৪টি প্রোডাক্ট — জাকাত দানের পাশেই (২ নভেম্বর ২০২৬) -->
   <div class="sect-t"><i class="ti ti-layout-dashboard"></i> আমার হিসাবসমূহ</div>
   <div class="cards">
 
@@ -278,12 +284,21 @@
     </div>
 
     <div class="card">
-      <div class="chead ch-don"><i class="ti ti-heart"></i> দান</div>
+      <div class="chead ch-don"><i class="ti ti-heart"></i> দান ও সদকা</div>
       <div class="cbody">
         <div class="amt" id="donAmt">৳০</div>
         <div class="csub" id="donSub">এখনও কোনো দান রেকর্ড হয়নি।</div>
       </div>
       <div class="cfoot" id="donFoot"></div>
+    </div>
+
+    <div class="card" id="zakCard">
+      <div class="chead ch-zak"><i class="ti ti-moon-stars"></i> জাকাত</div>
+      <div class="cbody">
+        <div class="amt" id="zakAmt">৳০</div>
+        <div class="csub" id="zakSub">এখনও কোনো জাকাত দেননি।</div>
+      </div>
+      <div class="cfoot" id="zakFoot"></div>
     </div>
 
     <div class="card">
@@ -302,7 +317,8 @@
   <div class="open3">
     <a class="obtn ob-sav" id="openSav" href="savings-portal.html"><i class="ti ti-coins"></i><span>সঞ্চয় হিসাব খুলুন<small>সুদমুক্ত আমানত — যেকোনো সময়</small></span></a>
     <a class="obtn ob-loan" id="openLoan" href="loan-application.html"><i class="ti ti-wallet"></i><span>ঋণের আবেদন করুন<small>সুদবিহীন কর্জে হাসানা</small></span></a>
-    <a class="obtn ob-don" id="openDon" href="donation.html"><i class="ti ti-heart"></i><span>দান করুন<small>সদকা, যাকাত বা সাধারণ দান</small></span></a>
+    <a class="obtn ob-don" id="openDon" href="donation.html"><i class="ti ti-heart"></i><span>দান করুন<small>সদকা বা সাধারণ দান</small></span></a>
+    <a class="obtn ob-zak" id="openZak" href="zakat.html#calc"><i class="ti ti-moon-stars"></i><span>জাকাত দিন<small>হিসাব করুন · আলাদা জাকাত তহবিলে</small></span></a>
   </div>
 
   <div class="sect-t" style="margin-top:26px"><i class="ti ti-users-group"></i> কমিটিতে অংশগ্রহণ</div>
@@ -316,9 +332,9 @@
 
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=75">
+<link rel="stylesheet" href="kh-ui.css?v=76">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=78"></script>
+<script src="kh-ui.js?v=79"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script src="kh-notice.js?v=4" defer></script>
 <script src="kh-volunteer.js?v=5" defer></script>
@@ -508,14 +524,33 @@
       el('savFoot').appendChild(cbtn('savings-portal.html','হিসাব খুলুন','ti-circle-plus'));
     }
 
-    /* দান */
-    el('donAmt').textContent = taka(ov.donation_total);
-    if(ov.has_donor && Number(ov.donation_count)>0){
-      el('donSub').textContent = 'মোট '+bn(ov.donation_count)+' বার দান করেছেন — আল্লাহ কবুল করুন।';
+    /* দান ও সদকা — জাকাত বাদে (জাকাত পাশের কার্ডে, যাতে কোনো টাকা দুবার না গোনা হয়).
+       পুরনো সার্ভার হলে donation_ex_zakat_* নেই — তখন আগের মতো সব দান। */
+    var hasZ = ov.zakat_total !== undefined && ov.zakat_total !== null;
+    var donT = hasZ ? ov.donation_ex_zakat_total : ov.donation_total;
+    var donC = hasZ ? ov.donation_ex_zakat_count : ov.donation_count;
+    el('donAmt').textContent = taka(donT);
+    if(ov.has_donor && Number(donC)>0){
+      el('donSub').textContent = 'মোট '+bn(donC)+' বার দান করেছেন — আল্লাহ কবুল করুন।';
       el('donFoot').appendChild(cbtn('donation.html','আবার দান করুন','ti-heart','vl'));
+    } else if(hasZ && Number(ov.zakat_count)>0){
+      el('donSub').textContent = 'জাকাত ছাড়া এখনও কোনো দান বা সদকা নেই।';
+      el('donFoot').appendChild(cbtn('donation.html','দান করুন','ti-heart','vl'));
     } else {
       el('donSub').innerHTML = 'এখনও কোনো দান রেকর্ড হয়নি। <span class="badge0">মোট ৳০</span>';
       el('donFoot').appendChild(cbtn('donation.html','দান করুন','ti-heart','vl'));
+    }
+
+    /* জাকাত — নিজের দেওয়া জাকাত আলাদা (২ নভেম্বর ২০২৬) */
+    el('zakAmt').textContent = taka(hasZ ? ov.zakat_total : 0);
+    if(hasZ && Number(ov.zakat_count)>0){
+      el('zakSub').textContent = 'মোট '+bn(ov.zakat_count)+' বার · '+bn(ov.zakat_year)+' সালে '+taka(ov.zakat_year_total)+' — আল্লাহ কবুল করুন।';
+      el('zakFoot').appendChild(cbtn('zakat.html#pay','জাকাত দিন','ti-moon-stars','zk'));
+      el('zakFoot').appendChild(cbtn('my-statement.html','স্টেটমেন্ট','ti-file-text','zk'));
+    } else {
+      el('zakSub').innerHTML = 'এখনও কোনো জাকাত দেননি। <span class="badge0">মোট ৳০</span>';
+      el('zakFoot').appendChild(cbtn('zakat.html#pay','জাকাত দিন','ti-moon-stars','zk'));
+      el('zakFoot').appendChild(cbtn('zakat.html#calc','হিসাব করুন','ti-calculator','zk'));
     }
 
     /* ঋণ */
@@ -542,7 +577,7 @@
           var s=e.querySelector('small'); if(s) s.textContent='সাময়িকভাবে বন্ধ আছে'; } }
         if (pd && pd.savings  && pd.savings.enabled  === false) off('openSav');
         if (pd && pd.loan     && pd.loan.enabled     === false) off('openLoan');
-        if (pd && pd.donation && pd.donation.enabled === false) off('openDon');
+        if (pd && pd.donation && pd.donation.enabled === false) { off('openDon'); off('openZak'); }
       });
     }
 
@@ -618,8 +653,8 @@
   } else start();
 })();
 </script>
-<script src="kh-i18n-data.js?v=8" defer></script>
+<script src="kh-i18n-data.js?v=9" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=6" defer></script>
+<script src="kh-i18n.js?v=7" defer></script>
 </body>
 </html>

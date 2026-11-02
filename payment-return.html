@@ -108,9 +108,9 @@
   <div class="acts" id="acts"></div>
 </div>
 
-<link rel="stylesheet" href="kh-ui.css?v=75">
+<link rel="stylesheet" href="kh-ui.css?v=76">
 <link rel="stylesheet" href="kh-app-downloads.css?v=70">
-<script src="kh-ui.js?v=78"></script>
+<script src="kh-ui.js?v=79"></script>
 <script src="kh-app-downloads.js?v=69" defer></script>
 <script>
 /* ══════════════════════════════════════════════════════════════
@@ -155,8 +155,14 @@
   var PURPOSE = {
     donation:  { label:'দান',            back:'donation.html',        backTxt:'দানের পাতায় ফিরে যান' },
     savings:   { label:'সঞ্চয় জমা',      back:'savings-portal.html',  backTxt:'আমানত পোর্টালে যান' },
-    repayment: { label:'ঋণের কিস্তি',    back:'borrower-portal.html', backTxt:'ঋণ পোর্টালে যান' }
+    repayment: { label:'ঋণের কিস্তি',    back:'borrower-portal.html', backTxt:'ঋণ পোর্টালে যান' },
+    /* 🌙 জাকাত — গেটওয়েতে purpose 'donation', আলাদা হয় donation_for দিয়ে (payment_status ফেরত দেয়) */
+    zakat:     { label:'জাকাত',          back:'zakat.html#pay',       backTxt:'জাকাত পাতায় ফিরে যান' }
   };
+  function purposeOf(s) {
+    if (s && s.purpose === 'donation' && s.donation_for === 'zakat') return PURPOSE.zakat;
+    return PURPOSE[s && s.purpose] || PURPOSE.donation;
+  }
 
   /* ══ কাচের কার্ডের পর্দা — `KHUI.payStage()` ═══════════════════
      এটিই ঐ নকশার শেষ দুটি অবস্থা: প্রক্রিয়াধীন → সফল (সবুজ কার্ড +
@@ -225,7 +231,7 @@
   var tries = 0, MAX = 14;
 
   function paintPaid(s) {
-    var p = PURPOSE[s.purpose] || PURPOSE.donation;
+    var p = purposeOf(s);
     setIco('ok', 'ti-circle-check');
     ttl.textContent = 'পরিশোধ সম্পন্ন হয়েছে';
     sub.textContent = p.label + ' গ্রহণ করা হয়েছে। রশিদ আপনার ই-মেইলে চলে যাবে।';
@@ -290,7 +296,7 @@
       : 'গেটওয়ে লেনদেনটি সম্পন্ন করতে পারেনি। কোনো টাকা কাটা হয়নি; কেটে থাকলে তা নিজে থেকেই ফেরত যাবে।';
     if (s.reason) say('কারণ: ' + s.reason, 'warn');
     showRows([['লেনদেন নং', s.tran_id, 1]]);
-    var p = PURPOSE[s.purpose] || PURPOSE.donation;
+    var p = purposeOf(s);
     acts2({ text:'আবার চেষ্টা করুন', href:p.back,       icon:'ti-refresh' },
           { text:'হোম পেজে যান',    href:'index.html', icon:'ti-home' });
 
@@ -380,8 +386,8 @@
   look();
 })();
 </script>
-<script src="kh-i18n-data.js?v=8" defer></script>
+<script src="kh-i18n-data.js?v=9" defer></script>
 <script src="kh-volunteer-i18n.js?v=1" defer></script>
-<script src="kh-i18n.js?v=6" defer></script>
+<script src="kh-i18n.js?v=7" defer></script>
 </body>
 </html>
