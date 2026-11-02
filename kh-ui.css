@@ -5050,3 +5050,57 @@ html[data-theme="light"] body:not(#khLt) .pcard .pmeta { color: #a14b00 !importa
 @media (min-width: 901px) and (max-width: 1023px) { .navbar .nav-link.nav-zakat { display: none; } }
 /* ভলেন্টিয়ার পাতার হেডারে ডানে বাড়তি বোতাম — ইংরেজিতে ১০২৪–১০৯৯px-এও আগে থেকেই আঁটসাঁট, তাই সেখানেও লুকানো */
 @media (min-width: 901px) and (max-width: 1099px) { body[data-vol-page] .navbar .nav-link.nav-zakat { display: none; } }
+
+/* ══════════════════════════════════════════════════════════════
+   33. ✉️ ই-মেইলের লিংক থেকে ফেরা (.kh-alink) — ২ নভেম্বর ২০২৬
+   `KHUI.authLanding()`-এর পর্দা। কার্ডটি `.kh-otp-card`-এর মতোই দুই থীমে গাঢ় (#170e26) —
+   তাই ভেতরের সব রঙ থীম-নিরপেক্ষ; লাইটের ঢালাও নিয়ম যেন না ছোঁয়, তাই নিচে `body:not(#khLt)` দিয়ে ফেরানো।
+   ══════════════════════════════════════════════════════════════ */
+.kh-alink { z-index: 10030; }
+.kh-alink .kh-al-card { max-width: 420px; }
+.kh-al-form { text-align: left; margin: 0; }
+.kh-al-mail {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 14px; padding: 9px 12px;
+  border-radius: 10px; background: #24173a; border: 1px solid #3d2a5c;
+  font-size: 13.5px; color: #e4dafa; word-break: break-all; line-height: 1.5;
+}
+.kh-al-mail i { color: #c4b5fd; font-size: 17px; flex: none; }
+.kh-al-lbl { display: block; margin: 0 0 12px; }
+.kh-al-cap { display: block; font-size: 13.5px; color: #e4dafa; margin: 0 0 6px; }
+.kh-al-box { display: block; position: relative; }
+.kh-al-box input {
+  width: 100%; box-sizing: border-box; height: 46px;
+  border-radius: 12px; border: 1.5px solid #4a3570; background: #1e1233; color: #fff;
+  font: 500 16px 'Hind Siliguri', system-ui, sans-serif; padding: 0 42px 0 14px; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.kh-al-box input:focus { border-color: #4ade80; box-shadow: 0 0 0 3px rgba(74, 222, 128, .18); }
+.kh-al-msg { min-height: 20px; margin: 2px 0 10px; font-size: 13.5px; line-height: 1.6; color: #fca5a5; }
+.kh-al-msg.kh-al-good { color: #86efac; }
+.kh-al-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; box-sizing: border-box; min-height: 48px; padding: 10px 16px;
+  border: 0; border-radius: 12px; cursor: pointer; text-decoration: none;
+  background: linear-gradient(112deg, #c2255c, #8b1fb0 55%, #6d3fd8);
+  color: #fff; font: 600 15.5px 'Hind Siliguri', system-ui, sans-serif;
+}
+.kh-al-btn i { font-size: 19px; }
+.kh-al-btn:disabled { cursor: wait; filter: saturate(.6); }
+.kh-al-btn:focus-visible, .kh-al-alt:focus-visible { outline: 3px solid #fde68a; outline-offset: 2px; }
+.kh-al-alt {
+  display: block; margin-top: 14px; text-align: center;
+  font-size: 13.5px; color: #c4b5fd; text-decoration: underline; text-underline-offset: 3px;
+}
+.kh-al-alt:hover { color: #ddd6fe; }
+/* লাইট থীম — কার্ড গাঢ়ই থাকে, ঢালাও নিয়ম যেন রঙ না বদলায় */
+html[data-theme="light"] body:not(#khLt) .kh-alink :is(.kh-al-cap, .kh-al-mail, .kh-al-mail span) { color: #e4dafa !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-otp-title { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-card.kh-ok .kh-otp-title { color: #4ade80 !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-otp-sub { color: #b3a8c6 !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-box input { background: #1e1233 !important; color: #fff !important; border-color: #4a3570 !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-btn,
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-btn :is(span, i) { color: #fff !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-alt { color: #c4b5fd !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-msg { color: #fca5a5 !important; }
+html[data-theme="light"] body:not(#khLt) .kh-alink .kh-al-msg.kh-al-good { color: #86efac !important; }

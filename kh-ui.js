@@ -7151,7 +7151,244 @@
     }
   };
 
+  /* ════════════════════════════════════════════════════════
+     ✉️ ই-মেইলের লিংক থেকে ফেরা (২ নভেম্বর ২০২৬)
+
+     সমস্যা: Supabase-এর "Confirm sign up" ই-মেইলের লিংকে ক্লিক করলে
+     ই-মেইল যাচাই হয়ে যেত ও ব্রাউজার সাইটের মূল পাতায় ফিরত
+     `#access_token=…&type=signup` নিয়ে — কিন্তু `_supabase.js`-এ
+     `detectSessionInUrl:false`, তাই কেউ সেটি পড়ত না: সদস্য দেখতেন
+     "কিছুই হলো না"। দ্বিতীয়বার চাপলে `#error_code=otp_expired` —
+     সেটিও নীরবে পড়ে থাকত। আর লিংকে তৈরি একাউন্টের পাসওয়ার্ড অজানা
+     (Supabase নিজে এলোমেলো পাসওয়ার্ড বসায়), তাই পরে লগইনও হত না।
+
+     এখন যেকোনো পাতায় (reset-password.html বাদে — ওটি নিজেই সামলায়):
+       • টোকেন এলে → সেশন বসে → ঠিকানা থেকে টোকেন মুছে পাতা আবার খোলে
+         (যাতে সব মডিউল লগইন অবস্থায় স্বাভাবিকভাবে চালু হয়) →
+         "ই-মেইল যাচাই সম্পন্ন — একটি পাসওয়ার্ড ঠিক করুন" পর্দা।
+       • ত্রুটি এলে (মেয়াদ শেষ / আগেই ব্যবহৃত) → বাংলা ব্যাখ্যা ও
+         "আবার নিবন্ধন করুন (কোড দিয়ে)" — signup-otp আধা-তৈরি একাউন্টও
+         কোড দিয়ে সম্পূর্ণ করে।
+       • `type=recovery` ভুল পাতায় এলে → reset-password.html-এ পাঠানো।
+     বন্ধ করতে `<body data-kh-auth-landing="off">`।
+     ⚠️ টোকেন কখনো ঠিকানা-বারে বা ইতিহাসে রেখে দেওয়া হয় না।
+     ════════════════════════════════════════════════════════ */
+  var AL_KEYS = ['access_token', 'refresh_token', 'expires_at', 'expires_in', 'token_type', 'type',
+                 'provider_token', 'provider_refresh_token', 'error', 'error_code', 'error_description', 'sb'];
+
+  function alParse(s) {
+    var out = {};
+    String(s || '').replace(/^[#?]/, '').split('&').forEach(function (kv) {
+      var i = kv.indexOf('=');
+      if (i <= 0) return;
+      try { out[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); }
+      catch (e) { /* ভাঙা এনকোডিং — বাদ */ }
+    });
+    return out;
+  }
+  function alParams() {
+    var q = alParse(location.search), h = alParse(location.hash), p = {};
+    Object.keys(q).forEach(function (k) { p[k] = q[k]; });
+    Object.keys(h).forEach(function (k) { p[k] = h[k]; });
+    return p;
+  }
+  /* লিংকের চাবিগুলো সরিয়ে বাকি ঠিকানা অটুট রাখা (যেমন zakat.html#pay থাকলে সেটি থাকে) */
+  function alCleanUrl() {
+    function strip(s, lead) {
+      var raw = String(s || '').replace(/^[#?]/, '');
+      if (!raw) return '';
+      var keep = raw.split('&').filter(function (kv) {
+        var k = kv.split('=')[0];
+        try { k = decodeURIComponent(k); } catch (e) {}
+        return kv && AL_KEYS.indexOf(k) < 0;
+      });
+      return keep.length ? lead + keep.join('&') : '';
+    }
+    return location.pathname + strip(location.search, '?') + strip(location.hash, '#');
+  }
+  function alHasTokens(p) { return !!(p.access_token && p.refresh_token); }
+  function alHasError(p) { return !!(p.error_code || p.error_description); }
+
+  function alDialog(st) {
+    if (document.querySelector('.kh-alink')) return;
+    var esc = function (s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    };
+    var back = document.createElement('div');
+    back.className = 'kh-otp-back kh-alink';
+    back.setAttribute('role', 'dialog');
+    back.setAttribute('aria-modal', 'true');
+    back.setAttribute('aria-labelledby', 'khAlTitle');
+
+    var ok = st.kind === 'ok';
+    var setPw = ok && st.type !== 'email_change';
+    var icon, title, sub, body = '';
+
+    if (setPw) {
+      icon = 'ti-mail-check';
+      title = 'ই-মেইল যাচাই সম্পন্ন হয়েছে';
+      sub = 'একাউন্ট সম্পূর্ণ করতে এখন একটি পাসওয়ার্ড ঠিক করুন। এরপর এই ই-মেইল ও পাসওয়ার্ড দিয়ে অ্যাপ ও ওয়েবসাইট — দুই জায়গাতেই লগইন করতে পারবেন।';
+      body =
+        '<form class="kh-al-form" novalidate>' +
+          (st.email ? '<p class="kh-al-mail"><i class="ti ti-mail" aria-hidden="true"></i> <span>' + esc(st.email) + '</span></p>' : '') +
+          '<label class="kh-al-lbl"><span class="kh-al-cap">নতুন পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)</span>' +
+            '<span class="kh-al-box"><input type="password" name="p1" autocomplete="new-password" minlength="8" maxlength="72" required></span></label>' +
+          '<label class="kh-al-lbl"><span class="kh-al-cap">পাসওয়ার্ড আবার লিখুন</span>' +
+            '<span class="kh-al-box"><input type="password" name="p2" autocomplete="new-password" minlength="8" maxlength="72" required></span></label>' +
+          '<p class="kh-al-msg" role="status" aria-live="polite"></p>' +
+          '<button class="kh-al-btn" type="submit"><i class="ti ti-lock-check" aria-hidden="true"></i> <span>পাসওয়ার্ড সংরক্ষণ করুন</span></button>' +
+        '</form>' +
+        '<a class="kh-al-alt" href="my-dashboard.html">আমার পাসওয়ার্ড আগে থেকেই আছে — এগিয়ে যান</a>';
+    } else if (ok) {
+      icon = 'ti-mail-check';
+      title = 'ই-মেইল ঠিকানা নিশ্চিত হয়েছে';
+      sub = 'আপনার নতুন ই-মেইল ঠিকানা এখন থেকে একাউন্টে ব্যবহার হবে।';
+      body = '<button class="kh-al-btn kh-al-close" type="button"><span>ঠিক আছে</span></button>';
+    } else if (st.signedIn) {
+      icon = 'ti-user-check';
+      title = 'আপনি ইতিমধ্যে লগইন করা আছেন';
+      sub = 'এই লিংকটি আগেই ব্যবহার হয়ে গেছে, তবে আপনার একাউন্ট চালু আছে।';
+      body = '<a class="kh-al-btn" href="my-dashboard.html"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> <span>আমার ড্যাশবোর্ডে যান</span></a>';
+    } else {
+      icon = 'ti-link-off';
+      title = 'এই লিংকটি আর কাজ করে না';
+      sub = 'যাচাইয়ের লিংক একবারই ব্যবহার করা যায়, আর কিছু সময় পর এর মেয়াদ শেষ হয়ে যায়। চিন্তার কিছু নেই — একই ই-মেইল দিয়ে আবার নিবন্ধন করুন। এবার ই-মেইলে ৬ সংখ্যার কোড আসবে, সেটি লিখলেই একাউন্ট সম্পূর্ণ হবে।';
+      body =
+        '<a class="kh-al-btn" href="user-login.html?signup=1"><i class="ti ti-user-plus" aria-hidden="true"></i> <span>আবার নিবন্ধন করুন (কোড দিয়ে)</span></a>' +
+        '<a class="kh-al-alt" href="user-login.html">আগেই একাউন্ট সম্পূর্ণ করেছেন? লগইন করুন</a>';
+    }
+
+    back.innerHTML =
+      '<div class="kh-otp-card kh-al-card" style="position:relative">' +
+        '<button type="button" class="kh-otp-x" aria-label="বন্ধ করুন"><i class="ti ti-x"></i></button>' +
+        '<div class="kh-otp-icon"><i class="ti ' + icon + '" aria-hidden="true"></i></div>' +
+        '<h3 class="kh-otp-title" id="khAlTitle">' + title + '</h3>' +
+        '<p class="kh-otp-sub">' + sub + '</p>' +
+        body +
+      '</div>';
+    document.body.appendChild(back);
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function () { back.classList.add('kh-show'); });
+
+    var card = back.querySelector('.kh-al-card');
+    function close() {
+      back.classList.remove('kh-show');
+      document.body.style.overflow = '';
+      setTimeout(function () { back.remove(); }, 300);
+    }
+    back.querySelector('.kh-otp-x').addEventListener('click', close);
+    back.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    var cl = back.querySelector('.kh-al-close');
+    if (cl) cl.addEventListener('click', close);
+
+    var form = back.querySelector('.kh-al-form');
+    if (!form) { var f0 = back.querySelector('.kh-al-btn'); if (f0) setTimeout(function () { f0.focus(); }, 60); return; }
+
+    try { KHUI.enhancePasswords(form); } catch (e) {}
+    var p1 = form.querySelector('[name="p1"]'), p2 = form.querySelector('[name="p2"]');
+    var msg = form.querySelector('.kh-al-msg'), btn = form.querySelector('.kh-al-btn');
+    setTimeout(function () { p1.focus(); }, 80);
+    function say(t, good) {
+      msg.textContent = t || '';
+      msg.classList.toggle('kh-al-good', !!good);
+    }
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var a = p1.value, b = p2.value;
+      if (a.length < 8 || a.length > 72) { say('পাসওয়ার্ড ৮ থেকে ৭২ অক্ষরের হতে হবে।'); p1.focus(); return; }
+      if (a !== b) { say('দুটি পাসওয়ার্ড মেলেনি।'); p2.focus(); return; }
+      var db = sb();
+      if (!db) { say('সংযোগ ত্রুটি — পাতাটি আবার খুলে চেষ্টা করুন।'); return; }
+      btn.disabled = true;
+      say('সংরক্ষণ করা হচ্ছে…', true);
+      try {
+        var r = await db.auth.updateUser({ password: a });
+        if (r.error) throw r.error;
+      } catch (err) {
+        btn.disabled = false;
+        var m = String((err && err.message) || '');
+        say(/session|jwt|expired|not.?authenticated/i.test(m)
+          ? 'লগইনের মেয়াদ শেষ — "আবার নিবন্ধন করুন" অংশ থেকে কোড দিয়ে একাউন্ট সম্পূর্ণ করুন।'
+          : 'পাসওয়ার্ড সংরক্ষণ করা যায়নি — আবার চেষ্টা করুন।');
+        return;
+      }
+      card.classList.add('kh-ok');
+      back.querySelector('.kh-otp-icon i').className = 'ti ti-circle-check';
+      back.querySelector('.kh-otp-title').textContent = 'সব ঠিক আছে!';
+      back.querySelector('.kh-otp-sub').textContent =
+        'পাসওয়ার্ড সংরক্ষিত হয়েছে। এখন থেকে এই ই-মেইল ও পাসওয়ার্ড দিয়ে অ্যাপ ও ওয়েবসাইটে লগইন করতে পারবেন।';
+      var go = document.createElement('a');
+      go.className = 'kh-al-btn';
+      go.href = 'my-dashboard.html';
+      go.innerHTML = '<i class="ti ti-layout-dashboard" aria-hidden="true"></i> <span>আমার ড্যাশবোর্ডে যান</span>';
+      var alt = back.querySelector('.kh-al-alt');
+      if (alt) alt.remove();
+      form.replaceWith(go);
+      setTimeout(function () { go.focus(); }, 60);
+    });
+  }
+
+  /* boot()-এর একদম শুরুতে ডাকা হয়। true ফেরত দিলে পাতা এখনই নতুন করে খুলবে —
+     তখন বাকি মডিউল চালানোর দরকার নেই। */
+  KHUI.authLanding = function () {
+    if (document.body.dataset.khAuthLanding === 'off') return false;
+    if (/reset-password\.html$/i.test(location.pathname)) return false;
+    var p = alParams();
+
+    /* পাসওয়ার্ড-রিসেটের লিংক ভুল পাতায় এলে — যে পাতা ওটি সামলায় সেখানে, টোকেনসহ */
+    if (p.type === 'recovery' && (alHasTokens(p) || alHasError(p))) {
+      location.replace('reset-password.html' + (location.hash || location.search || ''));
+      return true;
+    }
+
+    if (alHasTokens(p)) {
+      var db = sb();
+      var done = function (st) {
+        try { sessionStorage.setItem('kh_auth_landing', JSON.stringify(st)); } catch (e) {}
+        location.replace(alCleanUrl());
+      };
+      if (!db || !db.auth) { done({ kind: 'error', code: 'no_client' }); return true; }
+      /* ⚠️ পুরনো সদস্যের সেশন থাকলে সেটি বদলে যাবে — লিংকটি যাঁর ই-মেইলে গেছে তিনিই খুলেছেন */
+      db.auth.setSession({ access_token: p.access_token, refresh_token: p.refresh_token })
+        .then(function (r) {
+          if (r && r.error) throw r.error;
+          var u = r && r.data && r.data.user;
+          done({ kind: 'ok', type: String(p.type || '').slice(0, 20), email: u && u.email ? String(u.email).slice(0, 254) : '' });
+        })
+        .catch(function () { done({ kind: 'error', code: 'session' }); });
+      return true;
+    }
+
+    var st = null;
+    if (alHasError(p)) {
+      st = { kind: 'error', code: String(p.error_code || p.error || '').slice(0, 40) };
+      try { history.replaceState(null, '', alCleanUrl()); } catch (e) {}
+    } else {
+      try {
+        st = JSON.parse(sessionStorage.getItem('kh_auth_landing') || 'null');
+        sessionStorage.removeItem('kh_auth_landing');
+      } catch (e) { st = null; }
+    }
+    if (!st) return false;
+
+    var show = function () {
+      if (st.kind === 'ok') { alDialog(st); return; }
+      var db = sb();
+      if (!db || !db.auth) { alDialog(st); return; }
+      db.auth.getSession().then(function (r) {
+        st.signedIn = !!(r && r.data && r.data.session);
+        alDialog(st);
+      }).catch(function () { alDialog(st); });
+    };
+    setTimeout(show, 350);
+    return false;
+  };
+
   function boot() {
+    /* ✉️ ই-মেইলের লিংক থেকে ফেরা — টোকেন থাকলে সেশন বসিয়ে পাতা নতুন করে খোলে */
+    try { if (KHUI.authLanding()) return; } catch (e) {}
     if (document.body.dataset.khNav !== 'off') {
       KHUI.mountNav({ scrollReveal: document.body.dataset.khNav === 'scroll' });
       KHUI.startNotifyPoll();

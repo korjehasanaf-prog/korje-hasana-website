@@ -18,7 +18,7 @@
   var D = window.KH_I18N;
   if (!D) return;
   var KEY = 'kh_lang';
-  var AR_VER = '6';                       /* kh-i18n-ar.js বদলালে এই সংখ্যা বাড়াতে হবে */
+  var AR_VER = '7';                       /* kh-i18n-ar.js বদলালে এই সংখ্যা বাড়াতে হবে */
   var LANGS = { en: 1, bn: 1, ar: 1 };
   var lang = 'en';
   try { var saved = localStorage.getItem(KEY); if (LANGS[saved]) lang = saved; } catch (e) {}
