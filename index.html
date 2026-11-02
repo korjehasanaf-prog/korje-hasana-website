@@ -293,6 +293,24 @@
       cursor: pointer; transition: all .2s; text-decoration: none; display: inline-block;
     }
     .btn-gold-outline:hover { background: rgba(240,140,40,.1); }
+    /* 🌙 হিরোর "জাকাত দিন" — জাকাতের নিজস্ব টিল→বেগুনি গ্র্যাডিয়েন্ট (ড্যাশবোর্ডের জাকাত কার্ডের মতো),
+       সাদা লেখা ৫.৪৮–৯.৫:১; বোতাম নিজের পটভূমি বহন করে, তাই দুই থীমে এক। */
+    .btn-zakat-hero {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      background: linear-gradient(112deg, #0b5c55 0%, #0f766e 45%, #4c2f9e 100%); color: #fff;
+      border: 1px solid rgba(255,255,255,.28);
+      font-size: 14.5px; font-weight: 700; padding: 12px 24px; border-radius: 24px;
+      cursor: pointer; transition: transform .2s, box-shadow .2s, filter .2s; text-decoration: none;
+      box-shadow: 0 4px 16px rgba(15,118,110,.38);
+    }
+    .btn-zakat-hero i { font-size: 17px; }
+    .btn-zakat-hero:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 22px rgba(76,47,158,.45); color: #fff; }
+    .btn-zakat-hero:focus-visible { outline: 3px solid #fde68a; outline-offset: 2px; }
+    /* লাইট থীমের ঢালাও নিয়ম (০,২,২ + !important) হিরোর span/i-কে গাঢ় বেগুনি করে দেয় — id-ওজনে ফেরানো */
+    html[data-theme="light"] body:not(#khLt) .hero-btns .btn-zakat-hero,
+    html[data-theme="light"] body:not(#khLt) .hero-btns .btn-zakat-hero :is(span, i) { color: #fff !important; }
+    html[data-theme="light"] body:not(#khLt) .hero-btns .btn-zakat-hero {
+      background: linear-gradient(112deg, #0b5c55 0%, #0f766e 45%, #4c2f9e 100%) !important; }
 
     /* KH PHOTO CAROUSEL */
     .khc-section { position: relative; width: 100%; padding: 8px 0; }
@@ -900,6 +918,7 @@
   .hero-sub { font-size:15.5px !important; }
   .hero-btns { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
   .hero-btn, .btn-apply, .btn-learn { text-align:center !important; padding:14px 20px !important; }
+  .hero-btns .btn-zakat-hero { justify-content:center !important; padding:14px 20px !important; }
   /* stats */
   .stats-row, .stats-grid { grid-template-columns:1fr 1fr !important; gap:12px !important; padding:0 16px !important; }
   /* features */
@@ -1646,7 +1665,9 @@ html:not([data-theme="light"]) .khfc .khfc-house{ border-color:rgba(0,0,0,.35); 
       <button class="btn-primary" onclick="window.location.href='loan-application.html'"><i class="ti ti-file-text" style="font-size:16px;vertical-align:-2px;margin-right:4px"></i><span data-i18n="hero-btn-apply">Apply for a loan</span></button>
       <button class="btn-outline" onclick="window.location.href='donation.html'" data-i18n="hero-btn-donate">Donate now</button>
       <a href="savings-portal.html" class="btn-savings-glow"><i class="ti ti-coins" style="font-size:18px"></i>সুদ বিহীন সঞ্চয় করুন</a>
-      <a href="#about" class="btn-gold-outline" data-i18n="hero-btn-learn">Learn more</a>
+      <!-- 🌙 "আরও জানুন"-এর বদলে "জাকাত দিন" (২ নভেম্বর ২০২৬, ব্যবহারকারীর নির্দেশ) — সরাসরি জাকাত পাতার প্রদান অংশে (#pay)।
+           লেখা সরাসরি বাংলায়: "জাকাত দিন" আগে থেকেই EN/AR অভিধানে আছে, তাই i18n ফাইল বা ক্যাশ বদলাতে হয়নি। -->
+      <a href="zakat.html#pay" class="btn-zakat-hero"><i class="ti ti-moon-stars" aria-hidden="true"></i><span>জাকাত দিন</span></a>
     </div>
 
     <!-- ⏱ ফ্লিপ ঘড়ি — "digital watch.mp4" ভিডিও থেকে হুবহু (ছোট আকারে)। ঢাকার সময়।
